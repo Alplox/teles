@@ -1,0 +1,508 @@
+/* 
+    style v0.10
+    by Alplox 
+    https://github.com/Alplox/teles
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-font-smoothing: subpixel-antialiased;
+    -ms-font-smoothing: subpixel-antialiased;
+    -o-font-smoothing: subpixel-antialiased;
+
+    text-rendering:  optimizeLegibility;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+}
+
+body {
+    background: #000000;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:focus {
+    outline: 2px var(--bs-indigo) ridge;
+}
+
+img, 
+svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.fondo {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.fondo img {
+    width: 5rem;
+    height: 5rem;
+    background: var(--bs-dark);
+}
+
+/* https://stackoverflow.com/a/53336754 */
+.share-svg {
+    filter: invert(75%) sepia(28%) saturate(3123%) hue-rotate(354deg) brightness(109%) contrast(102%);
+}
+
+.setting-svg {
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg) brightness(112%) contrast(98%);
+}
+
+/* globales */
+.barra-overlay a {
+    color: var(--bs-white);
+}
+
+.fondo img,
+.barra-overlay {
+    border-radius: .3rem
+}
+
+.modal-body-canales,
+.modal-caption,
+.share-btns,
+.notify {
+    text-align: center;
+}
+
+.navbar-text {
+    cursor: default;
+}
+
+/* Animacion boton canales*/
+/* .pulsate {
+    -webkit-animation: pulsate 3s ease-out;
+            animation: pulsate 3s ease-out;
+    -webkit-animation-iteration-count: infinite;
+            animation-iteration-count: infinite;
+    -webkit-box-shadow: 3px 3px var(--bs-indigo);
+            box-shadow: 3px 3px var(--bs-indigo);
+}
+
+@-webkit-keyframes pulsate {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1.0;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes pulsate {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1.0;
+    }
+    100% {
+        opacity: 0.5;
+    }
+} */
+
+/* .pulsate-2 {
+    animation: pulsate-2 1.5s infinite;
+}
+
+@keyframes pulsate-2 {
+    0% {
+        box-shadow: var(--bs-pink) 0 0 0 0;
+    }
+    75% {
+        box-shadow: #d7338500 0 0 0 10px;
+    }
+}  */
+
+.pulsate-3 {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+    animation: pulsate-3 1.75s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes pulsate-3 {
+    to {
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+    }
+}
+
+.pulsate-3:focus,
+.pulsate-3:focus-visible {
+    outline: 4px var(--bs-blue) solid;
+    box-shadow: none;
+}
+
+/* alerta "listo para offline" */
+pwa-update::part(offlineToast) {
+    background: var(--bs-success);
+    right: 20px;
+	bottom: 80px;
+}
+/* alerta "nueva version disponible" */
+pwa-update::part(updateToast) {
+    right: 20px;
+	bottom: 80px;
+}
+
+/* Reloj */
+.reloj {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+        -ms-flex-direction: column;
+            flex-direction: column;
+        -ms-flex-align: center;
+            align-items: center;
+}
+
+.reloj span {
+    pointer-events: none;
+    user-select: none;
+}
+
+.reloj a {
+    color: var(--bs-gray-500);
+}
+
+.reloj a,
+.barra-overlay,
+.overlay-btn-close {
+    font-size: clamp(0.5rem, 0.75rem, 1rem);
+}
+
+.reloj a:hover{
+    color: var(--bs-white);
+    border: none;
+}
+
+/* div canal */
+.stream {
+    position: relative;
+    min-height: 100%;
+}
+
+/* barra sobre canales */
+.barra-overlay {
+    position: absolute;
+    z-index: 3;
+    top: 5px;
+    right: 29px;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    padding: 2px 5px; 
+    opacity: 0.5;
+    background: #000000;
+}
+
+.barra-overlay img {
+    height: .8rem;
+}
+
+.barra-overlay:hover,
+.overlay-btn-close:hover{
+    opacity: 1;
+}
+
+.fondo a:hover,
+.barra-overlay a:hover,
+.modal-body a:hover {
+    border-bottom: 2px var(--bs-indigo) ridge;
+}
+
+.overlay-btn-close {
+    position: absolute;
+    z-index: 3;
+    background-color: var(--bs-red);
+    top: 5px;
+    right: 5px;
+    padding: 5px;
+    opacity: 0.5;
+}
+
+/* modales interior */
+.modal-body-canales {
+    display: grid;
+    gap: 0.375rem;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.form-floating {
+    width: 100%;
+}
+
+/* botones de canales */
+.btn-inside {
+    margin: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+    text-align: left;
+}
+
+.share-btns a:hover {
+    border: none;
+    opacity: 0.8;
+}
+
+.share-item {
+    margin: 0.5rem;
+    width: 4rem;
+    height: 4rem;
+}
+
+.modal-footer {
+    background-color: var(--bs-gray-dark);
+}
+
+/* Sidepanel inspirado en: https://codepen.io/FlorinPop17/pen/XWWZYYG */
+.offcanvas {
+	transition: transform 0.4s ease-in-out;
+	background-color: hsla(210, 11%, 15%, 0.8);
+    -webkit-box-shadow:
+    2.2px 2.3px 1.8px rgba(0, 0, 0, 0.046),
+    5.2px 5.4px 4.2px rgba(0, 0, 0, 0.071),
+    9.3px 9.7px 7.5px rgba(0, 0, 0, 0.089),
+    15.4px 16.1px 12.5px rgba(0, 0, 0, 0.106),
+    25.4px 26.5px 20.6px rgba(0, 0, 0, 0.123),
+    44.4px 46.2px 36.1px rgba(0, 0, 0, 0.147),
+    96px 100px 78px rgba(0, 0, 0, 0.2);
+    box-shadow:
+    2.2px 2.3px 1.8px rgba(0, 0, 0, 0.046),
+    5.2px 5.4px 4.2px rgba(0, 0, 0, 0.071),
+    9.3px 9.7px 7.5px rgba(0, 0, 0, 0.089),
+    15.4px 16.1px 12.5px rgba(0, 0, 0, 0.106),
+    25.4px 26.5px 20.6px rgba(0, 0, 0, 0.123),
+    44.4px 46.2px 36.1px rgba(0, 0, 0, 0.147),
+    96px 100px 78px rgba(0, 0, 0, 0.2);
+}
+
+.offcanvas-end {
+   /*  top: unset; */
+    right: 0px;
+    top: 10%;
+	bottom: 80px;
+}
+
+.offcanvas-header {
+    justify-content: center;
+    padding: 0;
+}
+
+.offcanvas-header button{
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 1rem;
+}
+
+.offcanvas p {
+	top: 0;
+	width: 185px;
+	padding: 2px 17px 5px; 
+	text-align: center;
+	border-radius: 0 0 10px 10px;
+	background: var(--bs-dark);
+}
+
+.offcanvas ul {
+	display: flex;
+    flex-direction: column;
+    list-style: none;
+}
+
+.offcanvas ul li {
+    padding: 10px 0;
+}
+
+input[type="checkbox"],
+input[type="range"],
+select {
+    cursor: pointer;
+}
+
+.offcanvas li:last-child,
+.offcanvas li:nth-last-child(2) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.offcanvas-body {
+    padding: 0rem 1rem;
+}
+
+.close-sidepanel {
+    box-sizing: content-box;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg) brightness(112%) contrast(98%);
+}
+
+.floating-btn {
+    z-index: 3;
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	padding: 10px;
+	background-color: hsla(210, 11%, 15%, 0.5);
+    line-height: 0;
+}
+
+.floating-btn:focus,
+.floating-btn:focus-visible {
+    outline: 4px var(--bs-blue) solid;
+}
+
+.floating-btn:active,
+.floating-btn:hover {
+    background-color: var(--bs-blue);
+}
+
+.btn-share:hover .share-svg,
+.btn-sidepanel-compartir:active svg,
+.btn-sidepanel-compartir:hover .share-svg {
+    filter: none;
+}
+
+/* alerta copiado exitoso */
+.notify {  
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 0;
+    background: var(--bs-success);
+    -webkit-transition: height .2s;
+    -o-transition: height .2s;
+    transition: height .2s;
+}
+    
+.notify-span:before {
+    display: block;
+    margin-top: 15px; 
+}
+
+.active {  
+    height: 50px;
+}
+
+.success:before {
+    Content: "Copiado Exitoso!";
+}
+
+@media (max-width: 768px) {
+    .modal-body-canales {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* alerta de no javascript */
+.no-js {
+    z-index: 4;
+    position: fixed;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+        flex-direction: column;
+    -ms-flex-align: center;
+        align-items: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 10%;
+    overflow: hidden;
+    background-image: -o-linear-gradient(330deg, #a1c4fd 0%, #c2e9fb 100%);
+    background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+/* animacion de fondo cuando noscript esta activo */
+.wave,
+.wave::before,
+.wave::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250vw;
+  height: 250vw;
+  margin-left: -125vw;
+  -webkit-transform-origin: 50% 50%;
+      -ms-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(102, 32, 41, 0.2)), to(transparent));
+  background: -o-linear-gradient(top, rgba(102, 32, 41, 0.2), transparent);
+  background: linear-gradient(to bottom, rgba(102, 32, 41, 0.2), transparent);
+  border-radius: 38% 42%;
+  -webkit-animation: spin 36s infinite linear;
+          animation: spin 36s infinite linear;
+}
+
+.wave::before {
+  width: 105%;
+  height: 95%;
+  margin-top: -125vw;
+  -webkit-transform-origin: 49% 51%;
+      -ms-transform-origin: 49% 51%;
+          transform-origin: 49% 51%;
+  border-radius: 40% 38%;
+  -webkit-animation: spin 20s infinite linear;
+          animation: spin 20s infinite linear;
+}
+
+.wave::after {
+  width: 102%;
+  height: 98%;
+  margin-top: -125vw;
+  -webkit-transform-origin: 51% 49%;
+      -ms-transform-origin: 51% 49%;
+          transform-origin: 51% 49%;
+  border-radius: 48% 42%;
+  -webkit-animation: spin 40s infinite linear;
+          animation: spin 40s infinite linear;
+}
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,65 @@
+# Características
+
+- [X] Diseño
+  - [X] Responsivo
+  - [X] Accesibilidad
+- [X] PWA
+  - [X] Favicon
+    - [X] Favicon maskable
+  - [X] Manifest
+  - [X] Service worker
+- [X] Funcionalidades
+  - [X] Reloj hora Chile independiente de reloj dispositivo
+  - [X] Botones compartir
+    - [X] Usar navigator.share en telefonos
+    - [X] botón copiado automático url
+  - [X] Canales
+    - [X] Añadir canales
+    - [X] Filtro canales
+      - [X] Autofocus en PC 
+    - [X] Overlay con nombre canal y enlace a sitio fuente
+    - [ ] `QUIZAS` Categorías (nav)
+      - [ ] Pais
+      - [ ] Tipo (Canal, Radio, Cámara, Música)
+      - [ ] Activos/desactivados
+    - [ ] `QUIZAS` Botón ordenar canales a-z
+      - [ ] Recordar con localStorage
+    - [X] Botón limpiar toda señal activa
+    - [X] Bandera acorde a país
+  - [X] Habilidad de borrar localStorage
+  - [ ] `IMPROBABLE` Verificar si señal esta online
+  - [ ] `QUIZAS` Overlay en señales Youtube para alternar a instancia invidious
+- [X] Personalizaciones
+  - [X] Interruptor navbar
+    - [X] Recordar con localStorage
+  - [X] Interruptor overlay
+    - [X] Recordar con localStorage 
+  - [X] Interruptor branding fondo
+    - [X] Recordar con localStorage
+  - [X] Slider tamaño
+    - [X] Recordar con localStorage
+  - [X] Selector número transmisiones por fila
+    - [ ] Recordar con localStorage
+  - [X] Ocultar modal descargo de responsabilidad tras cargar
+    - [X] Recordar con localStorage
+  - [ ] `IMPROBABLE` Interruptor cambiar tema
+    - [ ] Tema claro
+    - [ ] `QUIZAS` Tema sepia
+    - [ ] Tema oscuro
+    - [ ] `QUIZAS` Tema oled
+    - [ ] Recordar con localStorage
+  - [X] Interruptor pantalla completa
+  - [ ] Interruptor listado canales en modal/sidebar
+    - [ ] Recordar con localStorage
+  - [ ] `QUIZAS` Cambiar posición navbar
+    - [ ] Recordar con localStorage
+  - [ ] `QUIZAS` Slider opacidad modal canales
+    - [ ] Recordar con localStorage
+- [X] Formato
+  - [X] Reducir código canales.js
+  - [X] Quitar SVG's in-line de HTML
+  - [ ] `IMPROBABLE` Canales en formato JSON
+  - [ ] `IMPROBABLE` Unificar múltiples señales en 1 objeto
+  - [ ] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
+- [X] Licencia
+- [X] Vanilla JS
