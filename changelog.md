@@ -2,6 +2,42 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.11]
+### Changed
+- Cambios semanticos en temas de nombrado funciones y caracteristicas listado canales (camelCase basicamente)
+
+### Added
+- Filtro canales por bandera pais dentro de modal.
+
+#### 📺 Canales
+Chile
+- [TVN 2](https://www.tvn.cl/) - [x](https://github.com/AINMcl/MonitorTV/)
+- [CHV Noticias 2](https://www.chvnoticias.cl/) - [x](https://pluto.tv/es/live-tv/chilevision-noticias)
+- [Mega 2](https://www.mega.cl/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [La Red](https://www.lared.cl/senal-online) - [x](https://www.m3u.cl/iptv-chile.php)
+- [Canal 13 3](https://www.13.cl/en-vivo) - [x](https://github.com/AINMcl/MonitorTV/)
+
+### Removed
+#### 📺 Canales
+Chile
+- [TVN 2](https://www.tvn.cl/) - [x](https://github.com/AINMcl/MonitorTV/blob/master/IPTV/AINM.m3u)
+- [TVN 3](https://ok.ru/videoembed/3440915652202?nochat=1&autoplay=1) - [x](https://www.chilenotas.com/tvn-en-vivo/)
+- [Mega 2](https://ok.ru/videoembed/3440906608234?nochat=1&autoplay=1) - [x](https://www.chilemetros.com/mega-en-vivo/)
+- [CHV 4](https://ok.ru/videoembed/3440896777834?nochat=1&autoplay=1) - [x](https://www.chilemetros.com/chilevision-en-vivo/)
+- [La Red](https://www.lared.cl/senal-online) - [x](https://www.cxtvlive.com/live-tv/la-red)
+- [La Red 2](https://www.lared.cl/senal-online) - [x](https://github.com/AINMcl/MonitorTV/blob/master/IPTV/AINM.m3u)
+- [Canal 13 3](https://ok.ru/videoembed/3440918732394?nochat=1&autoplay=1) - [x](https://www.chilemetros.com/canal-13-en-vivo/)
+
+Ucrania
+- [Типичный Киев](https://www.youtube.com/channel/UC26WRsO361Xd0nSPni4wQhg)
+- [Ukraine News](https://www.youtube.com/channel/UC0qYC_KgtfIEgpmJTSOimGw)
+- [Obolonsky District Kiev Kyiv](https://www.youtube.com/channel/UCNrGOnduIS9BXIRmDcHasZA)
+- [kаховка.het](https://www.youtube.com/channel/UCpY5H5S7P8t7EWHtsTXQhjQ)
+- [Politischios.gr](https://www.youtube.com/channel/UClEiTusa-SX5NmpsWIRgCDQ)
+- [Multi-cam Ucrania, Livestream Events](https://www.youtube.com/channel/UCrjyygMS1KNuL10AT5AIcBQ)
+- [Multi-cam Ucrania, VBM](https://www.youtube.com/channel/UCPCnfZNOj8925ID963Bn9Tg)
+- [Multi-cam Ucrania, BLVKRVFT](https://www.youtube.com/channel/UC9Gy7ZpwAFgB1BIVniUmrYA)
+
 ## [v0.10]
 ### Changed
 - Migrado repositorio "tele" a "teles" debido a DMCA (https://github.com/github/dmca/blob/master/2022/06/2022-06-06-corus.md gracias GitHub por no tomar en cuenta mi respuesta a pesar de haber hecho los pasos que solicitaban, fue una buena y grata experiencia 10/10)
