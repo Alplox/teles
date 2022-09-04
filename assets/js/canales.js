@@ -21,30 +21,30 @@ https://github.com/Alplox/teles
 */
 
 const listaCanales = {
-//ELECCIONES
-    /* 'decidechile': {
-        'nombre': 'decidechile.cl',
-        'iframe_url': 'https://live.decidechile.cl/#/ev/2021.12/ct/2021.12.P/',
-        'fuente': 'https://live.decidechile.cl/',
-        'pais': 'cl'
-    },
-    'servelelecciones': {
-        'nombre': 'servelelecciones.cl',
-        'iframe_url': 'https://servelelecciones.cl/',
-        'fuente': 'https://servelelecciones.cl/',
-        'pais': 'cl'
-    },
+//Votaciones
     'tips': {
-        'nombre': 'Vaya a votar (si quiere)',
+        'nombre': '🗳️ Tips Votaciones',
         'iframe_url': 'https://alplox.github.io/teles/assets/js/archivo.html',
         'fuente': 'https://alplox.github.io/teles/',
         'pais': 'cl'
     },
+    'decidechile': {
+        'nombre': '🗳️ decidechile.cl',
+        'iframe_url': 'https://live.decidechile.cl/',
+        'fuente': 'https://live.decidechile.cl/',
+        'pais': 'cl'
+    },
+    'servelelecciones': {
+        'nombre': '🗳️ servelelecciones.cl',
+        'iframe_url': 'https://servelelecciones.cl/#/votacion/elecciones_constitucion/global/',
+        'fuente': 'https://servelelecciones.cl/#/votacion/elecciones_constitucion/global/',
+        'pais': 'cl'
+    },
     'servel': {
-        'nombre': 'Servicio Electoral de Chile',
+        'nombre': '🗳️ Servicio Electoral de Chile',
         'yt_id': 'UCB8s6rETjmWgXrp_BxyXqdg',
         'pais': 'cl'
-    }, */
+    },
 // CHILE
     '24-horas': {
         'nombre': '24 horas',
