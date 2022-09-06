@@ -18,8 +18,8 @@
     - [X] Filtro canales
       - [X] Autofocus en PC 
     - [X] Overlay con nombre canal y enlace a sitio fuente
-    - [ ] `QUIZAS` Categorías (nav)
-      - [ ] Pais
+    - [X] `QUIZAS` Categorías (nav)
+      - [X] Pais
       - [ ] Tipo (Canal, Radio, Cámara, Música)
       - [ ] Activos/desactivados
     - [ ] `QUIZAS` Botón ordenar canales a-z

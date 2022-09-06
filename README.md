@@ -731,4 +731,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-[![Visits Badge](https://badges.pufler.dev/visits/Alplox/teles)](https://badges.pufler.dev)
+
+[![Visits Badge](https://badges.strrl.dev/visits/Alplox/teles)](https://badges.strrl.dev)

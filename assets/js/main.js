@@ -958,13 +958,12 @@ let tele = {
         }
       } else {
         if (localStorage.getItem('canales_storage') === null) {
-          tele.add('tips');
           tele.add('galeria-cima');
           tele.add('24-horas-2');
           tele.add('t13-3');
           tele.add('meganoticias');
           tele.add('chv-noticias-2');
-          /* tele.add('bbtv'); */
+          tele.add('bbtv');
         } else {
           for (const canal of Object.keys(lsCanalesJson)) {
             tele.add(canal);

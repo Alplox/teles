@@ -22,7 +22,7 @@ https://github.com/Alplox/teles
 
 const listaCanales = {
 //Votaciones
-    'tips': {
+    /* 'tips': {
         'nombre': '🗳️ Tips Votaciones',
         'iframe_url': 'https://alplox.github.io/teles/assets/js/archivo.html',
         'fuente': 'https://alplox.github.io/teles/',
@@ -36,7 +36,7 @@ const listaCanales = {
     },
     'servelelecciones': {
         'nombre': '🗳️ servelelecciones.cl',
-        'iframe_url': 'https://servelelecciones.cl/#/votacion/elecciones_constitucion/global/',
+        'iframe_url': 'https://servelelecciones.cl/#/votacion/elecciones_constitucion/global/19001',
         'fuente': 'https://servelelecciones.cl/#/votacion/elecciones_constitucion/global/',
         'pais': 'cl'
     },
@@ -44,7 +44,7 @@ const listaCanales = {
         'nombre': '🗳️ Servicio Electoral de Chile',
         'yt_id': 'UCB8s6rETjmWgXrp_BxyXqdg',
         'pais': 'cl'
-    },
+    }, */
 // CHILE
     '24-horas': {
         'nombre': '24 horas',
