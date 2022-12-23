@@ -104,12 +104,12 @@ const listaCanales = {
         'yt_id': 'UCaVaCaiG6qRzDiJDuEGKOhQ',
         'pais': 'cl'
     },
-    'tvn-2': {
+    /* 'tvn-2': {
         'nombre': 'TVN 2',
         'iframe_url': 'https://ainmcl.github.io/MonitorTV/Monitores/Senal/WEB/Se%C3%B1alTVN_IFRAME.html',
         'fuente': 'https://www.tvn.cl/',
         'pais': 'cl'
-    },
+    }, */
     'meganoticias': {
         'nombre': 'Meganoticias',
         'yt_id': 'UCkccyEbqhhM3uKOI6Shm-4Q',
