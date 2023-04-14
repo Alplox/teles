@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.11
+    teles v0.12
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -16,7 +16,7 @@
     <link href="https://unpkg.com/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <script src="https://unpkg.com/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- bootstrap icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
     <!-- video-js -->
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
@@ -65,7 +65,7 @@
     <!-- alerta noscript -->
     <noscript>
         <div class="container-fluid no-js">
-            <h1>⚠️ El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
+            <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
             <h2>Si lo has deshabilitado, por favor <strong>vuelve a activarlo</strong>.</h2>
             <div class="wave"></div>
         </div>
@@ -77,8 +77,8 @@
     <!-- Navbar -->
     <nav class='navbar navbar-expand-lg navbar-dark bg-dark text-white'>
         <div class="container-fluid">
-            <button type="button" class="btn btn-sm btn-outline-light pulsate-3" data-bs-toggle="modal"
-                data-bs-target="#modal-canales">+Canales 📺</button>
+            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
+                data-bs-target="#modal-canales">Señales <i class="ps-1 bi bi-display"></i></button>
             <span class="reloj px-4" title="Hora Santiago, Chile">
                 <span id="Santiago_z179" tabindex="-1">
                     <span onclick="location='http://time.is/'" class="wea" title="http://time.is/" tabindex="-1"></span>
@@ -93,21 +93,21 @@
             <div class="collapse navbar-collapse" id="navbar-toggler">
                 <ul class="navbar-nav me-auto mb-lg-0">
                     <li class='nav-item'>
-                        <button type="button" class='nav-link btn' data-bs-toggle="modal" data-bs-target="#modal-prensa">📰 📻
+                        <button type="button" class='nav-link btn' data-bs-toggle="modal" data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i class="bi bi-boombox"></i>
                             Medios de prensa alternativos</button>
                     </li>
                     <li class='nav-item'>
                         <button type="button" class='nav-link btn' data-bs-toggle="modal"
-                            data-bs-target="#modal-compilados">🎞️
+                            data-bs-target="#modal-compilados"><i class="bi bi-film"></i>
                             Registros manifestaciones</button>
                     </li>
                     <li class='nav-item'>
                         <button type="button" class='nav-link btn' data-bs-toggle="modal"
-                            data-bs-target="#modal-complementario">🔗
+                            data-bs-target="#modal-complementario"><i class="bi bi-link-45deg"></i>
                             Enlaces complementarios</button>
                     </li>
                     <li class='nav-item'>
-                        <button type="button" class='nav-link btn btn-compartir'><img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"> Compartir
+                        <button type="button" class='nav-link btn btn-compartir'><i class="pe-1 text-warning bi bi-share-fill"></i> Compartir
                         </button>
                     </li>
                 </ul>
@@ -129,7 +129,7 @@
                                 <a class='dropdown-item' href="#" data-bs-toggle="modal" data-bs-target="#modal-creditos">Créditos</a>
                             </li>
                             <li>
-                                <a class='dropdown-item' href="https://github.com/Alplox/teles" rel="nofollow noreferrer">Ir a repositorio <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>
+                                <a class='dropdown-item' href="https://github.com/Alplox/teles" rel="nofollow noreferrer">Ir a repositorio <i class="bi bi-github"></i></a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -168,9 +168,9 @@
     <main class="row g-0" id="canales-grid">
         <section class="fondo container">
             <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
-            <h1 class="display-1 text-white">teles</h1>
+            <h1 class="display-1 text-white user-select-none">teles</h1>
             <h2><a href="https://github.com/Alplox/teles">https://github.com/Alplox/teles</a></h2>
-            <i class="badge bg-dark">v0.11</i>
+            <i class="badge bg-dark user-select-none">v0.12</i>
         </section>
     </main>
 
@@ -188,7 +188,7 @@
                     <p class="modal-caption">
                         Si quieres contribuir con algun canal
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>.
+                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i></a>.
                     </p>
                     <p>
                         <button class="btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
@@ -198,7 +198,7 @@
                     <div class="collapse pb-2" id="collapse-btn-group">
                         <div class="card card-body" >
                         <div class="btn-group btn-group-sm container-btn-group" role="group" aria-label="Toggle radio para grupo botones" id='listado-filtro-paises'>
-                            <button id="mostrar-todo-pais" class='btn btn-primary justify-content-between text-start' type='button' data-country='all'>Todos 🌍 
+                            <button id="mostrar-todo-pais" class='btn btn-primary justify-content-between text-start' type='button' data-country='all'>Todos <i class="bi bi-globe"></i> 
                                 <span class="badge bg-secondary rounded-pill" id='span-con-numero-total-canales'></span>
                             </button>
                         </div>
@@ -215,7 +215,7 @@
                         Desactivar todo
                     </button>
                     <button type="button" class="btn btn-outline-warning btn-share" title="Compartir">
-                        <img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
+                        <i class="text-warning bi bi-share-fill"></i></button>
                     <a href="https://github.com/Alplox/teles#canales-disponibles-junto-a-su-origen-"
                         rel="nofollow noreferrer" class="btn btn-info">
                         Fuentes</a>
@@ -226,9 +226,8 @@
     </div>
 
     <!-- Modal bienvenida/Descargo de responsabilidad -->
-    <div class="modal fade" id="modal-bienvenida" tabindex="-1" aria-labelledby="Modal de Bienvenida"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Modal de Bienvenida" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Descargo de responsabilidad</h5>
@@ -260,21 +259,12 @@
                     <hr>
                     <p>— Si quieres conocer el origen de cada livestream visita el <a
                             href="https://github.com/Alplox/teles" rel="nofollow noreferrer">repositorio
-                            GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a> de la página.
+                            GitHub <i class="bi bi-github"></i></a> de la página.
                     </p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
-                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir">
-                        <img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
-                    <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-creditos" title="Créditos">©</button>
-                    <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light"
-                        title="Repositorio">
-                        <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>
-                    <button type="button" class="btn btn-success pulsate-3" id="btn-entendido" data-bs-dismiss="modal"
-                        data-bs-target="#modal-bienvenida">Entendido</button>
+                <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <button type="button" class="btn btn-lg btn-success pulsate-3" id="btn-entendido" data-bs-dismiss="modal"
+                        data-bs-target="#modal-bienvenida">Entendido <p class="texto-chikito m-0 p-0">(No volver a mostrar)</p></button>
                 </div>
             </div>
         </div>
@@ -285,7 +275,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document" ar>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Denunciar violación DDHH ⚠️</h5>
+                    <h5 class="modal-title">Denunciar violación DDHH</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"> <span
                             aria-hidden="true">&times;</span></button>
                 </div>
@@ -351,7 +341,7 @@
 
                     <p class="modal-caption">Si quieres contribuir con algún sitio
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>.
+                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i></a>.
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -382,10 +372,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
-                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
+                        data-bs-target="#modal-canales" title="Canales"><i class="bi bi-display"></i></button>
+                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><i class="text-warning bi bi-share-fill"></i></button>
                     <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
-                        <img src="assets/svg/socials/github-logo.svg" alt="github logo"> Repositorio</a>
+                        <i class="bi bi-github"></i> Repositorio</a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -398,7 +388,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Registros Manifestaciones
-                        desarrolladas en Chile 🎞️:</h5>
+                        desarrolladas en Chile <i class="bi bi-film"></i>:</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
 
                     </button>
@@ -437,10 +427,10 @@
                             <strong><a href="https://t.me/s/archivandochile" title="por @archivandochile">Compilación
                                     mediante
                                     Telegram, 2019-2022</a></strong> por <a href="https://twitter.com/archivandochile"
-                                rel="nofollow noreferrer">@archivandochile</a> ⭐
+                                rel="nofollow noreferrer">@archivandochile</a> <i class="text-warning bi bi-star-fill"></i>
                         </li>
                     </ul>
-                    <p>Internacionales 🌍:</p>
+                    <p>Internacionales <i class="bi bi-globe"></i>:</p>
                     <ul>
                         <li>
                             <strong><a
@@ -482,13 +472,13 @@
                     </ul>
                     <p class="modal-caption"> Si quieres contribuir con algún sitio
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>.
+                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i></a>.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
-                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
+                        data-bs-target="#modal-canales" title="Canales"><i class="bi bi-display"></i></button>
+                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><i class="text-warning bi bi-share-fill"></i></button>
                     <button data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modal-ddhh"
                         class="btn btn-warning">Denunciar violación DDHH</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -502,7 +492,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Medios de Prensa Alternativos 📰 📻:</h5>
+                    <h5 class="modal-title">Medios de Prensa Alternativos <i class="pe-2 bi bi-newspaper"></i> <i class="bi bi-boombox"></i>:</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
                     </button>
                 </div>
@@ -540,7 +530,7 @@
                                 <td scope="row"><a href="https://canal3lavictoria.cl/" rel="nofollow noreferrer">Canal 3
                                         La Victoria</a></td>
                                 <td><a href="https://twitter.com/tv_piola" rel="nofollow noreferrer">Twitter</a></td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                                 <td><a href="https://www.instagram.com/canal3lavictoria/"
                                         rel="nofollow noreferrer">Instagram</a></td>
                             </tr>
@@ -647,7 +637,7 @@
                                 </td>
                                 <td><a href="https://www.facebook.com/ElUniversalCL"
                                         rel="nofollow noreferrer">Facebook</a></td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://www.fastcheck.cl/" rel="nofollow noreferrer">Fast Check
@@ -699,7 +689,7 @@
                                         Popular</a></td>
                                 <td><a href="https://twitter.com/MegafonoPopular" rel="nofollow noreferrer">Twitter</a>
                                 </td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                                 <td><a href="https://www.instagram.com/megafonopopular/"
                                         rel="nofollow noreferrer">Instagram</a></td>
                             </tr>
@@ -774,7 +764,7 @@
                                 </td>
                                 <td><a href="https://www.facebook.com/VerdadAhoraOficial/"
                                         rel="nofollow noreferrer">Facebook</a></td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="http://viaconectados.cl/"
@@ -793,7 +783,7 @@
                                 </td>
                                 <td><a href="https://www.facebook.com/LaRadio19deAbril/"
                                         rel="nofollow noreferrer">Facebook</a></td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://www.radiohumedales.org/"
@@ -827,7 +817,7 @@
                                 <td scope="row"><a href="http://www.radiomanque.org/" rel="nofollow noreferrer">Radio
                                         Manque</a> / <a href="https://emisora.cl/manque/"
                                         rel="nofollow noreferrer">Opción</a></td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                                 <td><a href="https://www.facebook.com/RadioManque/"
                                         rel="nofollow noreferrer">Facebook</a></td>
                                 <td><a href="https://www.instagram.com/radio.manque/"
@@ -873,16 +863,16 @@
                                         href="https://sitios.cl/directorio/diarios.htm"
                                         rel="nofollow noreferrer">Opción</a> / <a href="http://kiosko.net/cl/"
                                         rel="nofollow noreferrer">Opción2</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://www.soychile.cl/"
                                         rel="nofollow noreferrer">soychile.cl</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://www.gob.cl/noticias/" rel="nofollow noreferrer">GOB
@@ -897,43 +887,43 @@
                             <tr>
                                 <td scope="row"><a href="https://news.google.com/" rel="nofollow noreferrer">Google
                                         News</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://microsoftnews.msn.com/"
                                         rel="nofollow noreferrer">Microsoft News</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://news.yahoo.com/" rel="nofollow noreferrer">Yahoo
                                         News</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
                                 <td scope="row"><a href="https://www.bing.com/news" rel="nofollow noreferrer">Bing
                                         News</a></td>
-                                <td>❌</td>
-                                <td>❌</td>
-                                <td>❌</td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
+                                <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                         </tbody>
                     </table>
                     <p class="modal-caption">
                         Si quieres contribuir con algun sitio
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>.
+                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i></a>.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
-                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
+                        data-bs-target="#modal-canales" title="Canales"><i class="bi bi-display"></i></button>
+                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><i class="text-warning bi bi-share-fill"></i></button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -946,7 +936,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Enlaces Complementarios 🔗</h5>
+                    <h5 class="modal-title">Enlaces Complementarios <i class="bi bi-link-45deg"></i></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
 
                     </button>
@@ -967,7 +957,7 @@
                                 <td class="table-primary"></td>
                             </tr>
                             <tr>
-                                <td><a href="https://www.psiconecta.org/" rel="nofollow noreferrer">⚕️Salud Mental
+                                <td><a href="https://www.psiconecta.org/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Salud Mental
                                         (psiconecta.org)</a></td>
                                 <td></td>
                                 <td><a href="https://www.facebook.com/psiconectacl?_fb_noscript=1"
@@ -977,7 +967,7 @@
                                         rel="nofollow noreferrer">Instagram</a></td>
                             </tr>
                             <tr>
-                                <td><a href="https://linealibre.cl/" rel="nofollow noreferrer">⚕️Salud Mental
+                                <td><a href="https://linealibre.cl/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Salud Mental
                                         (linealibre.cl)</a></td>
                                 <td></td>
                                 <td><a href="https://www.instagram.com/lalinealibre"
@@ -985,28 +975,28 @@
                             </tr>
                             <tr>
                                 <td><a href="https://www.gob.cl/saludablemente/"
-                                        rel="nofollow noreferrer">⚕️Saludablemente
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Saludablemente
                                         (gob.cl)</a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/"
-                                        rel="nofollow noreferrer">⚕️Líneas gratuitas de apoyo psicológico en Chile</a>
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Líneas gratuitas de apoyo psicológico en Chile</a>
                                 </td>
                                 <td><a href="https://kvak.io/?n=trf2pc71y2f3" rel="nofollow noreferrer">mirror</a>
                                 </td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td><a href="https://hablemosdetodo.injuv.gob.cl/" rel="nofollow noreferrer">⚕️Hablemos
+                                <td><a href="https://hablemosdetodo.injuv.gob.cl/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Hablemos
                                         de Todo (INJUV)</a>
                                 </td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td><a href="https://www.gob.cl/coronavirus/" rel="nofollow noreferrer">🦠COVID-19
+                                <td><a href="https://www.gob.cl/coronavirus/" rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>COVID-19
                                         Información Oficial Gobierno de Chile</a>
                                 </td>
                                 <td></td>
@@ -1014,26 +1004,26 @@
                             </tr>
                             <tr>
                                 <td><a href="https://www.who.int/es/emergencies/diseases/novel-coronavirus-2019/advice-for-public"
-                                        rel="nofollow noreferrer">🦠Coronavirus Información WHO</a></td>
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>Coronavirus Información WHO</a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://www.minsal.cl/nuevo-coronavirus-2019-ncov/casos-confirmados-en-chile-covid-19/"
-                                        rel="nofollow noreferrer">🦠Casos confirmados en Chile COVID-19</a></td>
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>Casos confirmados en Chile COVID-19</a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6"
-                                        rel="nofollow noreferrer">🦠COVID-19 rastrear la propagación mundial</a></td>
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>COVID-19 rastrear la propagación mundial</a></td>
                                 <td><a href="https://www.apuntesplox.xyz/2020/03/dashboards-coronavirus-covid-19.html"
                                         rel="nofollow noreferrer">mirrors</a></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://www.youtube.com/watch?v=-PuSllvcdRc"
-                                        rel="nofollow noreferrer">🦠📺El
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>El
                                         coronavirus explicado: qué debemos hacer cada
                                         uno</a></td>
                                 <td><a href="https://www.youtube.com/watch?v=BtN-goy9VOY"
@@ -1045,7 +1035,7 @@
             " rel="nofollow noreferrer">Instagram</a></td>
                             </tr>
                             <tr>
-                                <td><a href="https://www.covidchile.com/" rel="nofollow noreferrer">🦠Visualización
+                                <td><a href="https://www.covidchile.com/" rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>Visualización
                                         COVID-19 en Chile</a></td>
                                 <td></td>
                                 <td></td>
@@ -1084,21 +1074,21 @@
                             </tr>
                             <tr>
                                 <td><a href="https://datastudio.google.com/reporting/b1689869-0c59-442c-951d-2991c0fc611d/"
-                                        rel="nofollow noreferrer">🦠COVID19_Chile</a> por <a
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>COVID19_Chile</a> por <a
                                         href="https://github.com/ivanMSC" rel="nofollow noreferrer">ivanMSC</a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://covid-vacuna-chile.vercel.app/"
-                                        rel="nofollow noreferrer">🦠covid-vacuna-chile</a> por <a
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>covid-vacuna-chile</a> por <a
                                         href="https://github.com/felipetodev" rel="nofollow noreferrer">felipetodev</a>
                                 </td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td><a href="http://www.mapacovid.cl/" rel="nofollow noreferrer">🦠mapacovid.cl</a>
+                                <td><a href="http://www.mapacovid.cl/" rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>mapacovid.cl</a>
                                     por <a href="https://github.com/YachayData" rel="nofollow noreferrer">YachayData</a>
                                 </td>
                                 <td></td>
@@ -1106,7 +1096,7 @@
                             </tr>
                             <tr>
                                 <td><a href="https://www.covid19entucomuna.cl/"
-                                        rel="nofollow noreferrer">🦠covid19entucomuna.cl</a> por <a
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>covid19entucomuna.cl</a> por <a
                                         href="https://github.com/javierlopeza"
                                         rel="nofollow noreferrer">javierlopeza</a>
                                 </td>
@@ -1114,14 +1104,14 @@
                                 <td></td>
                             </tr>
                             <tr>
-                                <td><a href="https://covid.tiopaul.io" rel="nofollow noreferrer">🦠covid-counter</a> por
+                                <td><a href="https://covid.tiopaul.io" rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>covid-counter</a> por
                                     <a href="https://github.com/pviojo" rel="nofollow noreferrer">pviojo</a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td><a href="https://www.minciencia.gob.cl/COVID19"
-                                        rel="nofollow noreferrer">🦠Datos-COVID19</a> por <a
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-virus"></i>Datos-COVID19</a> por <a
                                         href="https://github.com/MinCiencia" rel="nofollow noreferrer">MinCiencia</a>
                                 </td>
                                 <td></td>
@@ -1170,13 +1160,13 @@
 
                     <p class="modal-caption"> Si quieres contribuir con algún sitio
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <img src="assets/svg/socials/github-logo.svg" alt="github logo"></a>.
+                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i></a>.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
-                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></button>
+                        data-bs-target="#modal-canales" title="Canales"><i class="bi bi-display"></i></button>
+                    <button type="button" class="btn btn-outline-warning btn-share" title="Compartir"><i class="text-warning bi bi-share-fill"></i></button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -1188,7 +1178,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Compartir <img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share"></h5>
+                    <h5 class="modal-title">Compartir <i class="text-warning bi bi-share-fill"></i></h5>
                 </div>
                 <div class="modal-body share-btns">
                     <!-- Boton Facebook -->
@@ -1234,7 +1224,7 @@
                     <!-- Boton MAIL -->
                     <a href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
                         target="_self" rel="nofollow noreferrer noopener" title="Mail">
-                        <img class="share-item" src="assets/svg/icons/mail.svg" alt="Mail logo">
+                        <img class="share-item" src="assets/svg/socials/mail.svg" alt="Mail logo">
                     </a>
                     <hr>
                     <div class="input-group">
@@ -1245,11 +1235,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales" title="Canales">📺</button>
+                        data-bs-target="#modal-canales" title="Canales"><i class="bi bi-display"></i></button>
                     <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal" data-bs-toggle="modal"
                         data-bs-target="#modal-creditos">Créditos</button>
                     <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
-                        <img src="assets/svg/socials/github-logo.svg" alt="github logo"> Repositorio</a>
+                        <i class="bi bi-github"></i> Repositorio</a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -1260,13 +1250,13 @@
 
     <!-- btn flotante sidepanel -->
     <button class="floating-btn border border-2 border-dark rounded-circle" aria-label="acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
-        <img class="setting-svg" src="assets/svg/icons/settings.svg" alt="icono tuerca">
+        <i class="text-light bi bi-gear"></i>
     </button>
 
     <!-- sidepanel/personalizaciones -->
     <div class="offcanvas offcanvas-end border border-5 border-dark rounded-3 text-white" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
         <div class="offcanvas-header">
-            <p>Personalización tele</p>
+            <p>Personalización</p>
             <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -1307,14 +1297,14 @@
                     </select>
                 </li>
                 <li>
-                    <button type="button" class="btn btn-primary w-100" id="fullscreen"><img src="assets/svg/icons/fullscreen.svg" alt="icono fullscreen"> <span>Entrar pantalla completa</span></button>
+                    <button type="button" class="btn btn-primary w-100" id="fullscreen"><i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa</button>
                 </li>
                 <li>
                     <button type="button" class="btn btn-outline-light col" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales">+Canales 📺</button>
+                        data-bs-target="#modal-canales">Señales <i class="bi bi-display"></i></button>
                     <button type="button" class="btn btn-sidepanel-compartir btn-outline-warning col"
                         title="Compartir">Compartir
-                        <img class="share-svg" src="assets/svg/icons/share.svg" alt="icono share">
+                        <i class="text-warning bi bi-share-fill"></i>
                     </button>
                 </li>
                 <li>

@@ -1,5 +1,5 @@
 /* 
-    style v0.11
+    style v0.12
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -38,6 +38,10 @@ a:focus {
     outline: 2px var(--bs-indigo) ridge;
 }
 
+.texto-chikito{
+    font-size: x-small;
+}
+
 img, 
 svg {
     width: 1rem;
@@ -61,12 +65,8 @@ svg {
 }
 
 /* https://stackoverflow.com/a/53336754 */
-.share-svg {
-    filter: invert(75%) sepia(28%) saturate(3123%) hue-rotate(354deg) brightness(109%) contrast(102%);
-}
-
-.setting-svg {
-    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg) brightness(112%) contrast(98%);
+button:hover > :not(.pe-1).bi-share-fill{
+    filter: brightness(0%);
 }
 
 /* globales */
@@ -314,7 +314,7 @@ pwa-update::part(updateToast) {
    /*  top: unset; */
     right: 0px;
     top: 10%;
-	bottom: 80px;
+	bottom: 20%;
 }
 
 .offcanvas-header {

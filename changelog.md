@@ -2,6 +2,19 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [v0.12]
+### Changed
+- Cambio versión Bootstrap Icons de 1.9.0 a 1.10.4
+- Rediseño leve, enfoque en usar iconos externos librería Boostrap Icons y no emojis para mejor compatibilidad
+
+#### 📺 Canales
+Chile
+- 24 Horas s3 paso a ser tvn 2
+
+### Removed
+- Carpeta svg icons
+
 ## [v0.11]
 ### Changed
 - Cambios semanticos en temas de nombrado funciones y caracteristicas listado canales (camelCase basicamente)

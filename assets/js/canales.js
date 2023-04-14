@@ -93,23 +93,17 @@ const listaCanales = {
         'fuente': 'https://www.24horas.cl/envivo/',
         'pais': 'cl'
     },
-    '24-horas-s3': {
-        'nombre': '24 Horas s3',
-        'm3u8_url': 'https://mdstrm.com/live-stream-playlist-v/555c9a91eb4886825b07ee7b.m3u8',
-        'fuente': 'https://www.24horas.cl/envivo/',
-        'pais': 'cl'
-    },
     'tvn': {
         'nombre': 'TVN',
         'yt_id': 'UCaVaCaiG6qRzDiJDuEGKOhQ',
         'pais': 'cl'
     },
-    /* 'tvn-2': {
+    'tvn-2': {
         'nombre': 'TVN 2',
-        'iframe_url': 'https://ainmcl.github.io/MonitorTV/Monitores/Senal/WEB/Se%C3%B1alTVN_IFRAME.html',
-        'fuente': 'https://www.tvn.cl/',
+        'm3u8_url': 'https://mdstrm.com/live-stream-playlist-v/555c9a91eb4886825b07ee7b.m3u8',
+        'fuente': 'https://www.24horas.cl/envivo/',
         'pais': 'cl'
-    }, */
+    },
     'meganoticias': {
         'nombre': 'Meganoticias',
         'yt_id': 'UCkccyEbqhhM3uKOI6Shm-4Q',

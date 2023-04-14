@@ -1,5 +1,5 @@
 /* 
-  main v0.11
+  main v0.12
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -689,6 +689,7 @@ function crearIframe(source) {
   const divIFRAME = document.createElement('iframe');
     divIFRAME.setAttribute('src', source);
     divIFRAME.setAttribute('allowFullScreen', '');
+    divIFRAME.setAttribute('referrerpolicy', 'no-referrer')   // para stream 24-horas-6
     div.append(divIFRAME);
   fragmentIFRAME.append(div);
   return fragmentIFRAME;
@@ -1042,9 +1043,7 @@ if (tele.movil()){
 
 // ----- btn fullscreen
 // https://javascript.plainenglish.io/enter-full-screen-mode-with-javascript-a8a782d96dc
-const btnFullscreen = document.querySelector('#fullscreen'),
-      btnFullscreenImg = btnFullscreen.querySelector('img'),
-      btnFullscreenSpan = btnFullscreen.querySelector('span'); 
+const btnFullscreen = document.querySelector('#fullscreen');
 
 function getFullscreenElement() {
   return document.fullscreenElement   //standard property
@@ -1056,14 +1055,10 @@ function getFullscreenElement() {
 function toggleFullscreen() {
   if(getFullscreenElement()) {
     document.exitFullscreen();
-    btnFullscreenImg.setAttribute('src', 'assets/svg/icons/fullscreen.svg');
-    btnFullscreenImg.setAttribute('alt', 'icono fullscreen');
-    btnFullscreenSpan.innerHTML = 'Entrar pantalla completa';
+    btnFullscreen.innerHTML = '<i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa';
   }else {
     document.documentElement.requestFullscreen();
-    btnFullscreenImg.setAttribute('src', 'assets/svg/icons/fullscreen-exit.svg');
-    btnFullscreenImg.setAttribute('alt', 'icono fullscreen-exit');
-    btnFullscreenSpan.innerHTML = 'Salir pantalla completa';
+    btnFullscreen.innerHTML = '<i class="bi bi-fullscreen-exit"></i> Salir pantalla completa';
   }
 }
 
