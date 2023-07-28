@@ -7,7 +7,7 @@ For the license of "teles" refer to LICENSE file.
 Mentions:
 -Favicon created using the site https://favicon.io/ with https://pixelcraft.web.app/
 -First Favicon by mave007 (https://github.com/mave007/tele/commit/5aa529cae36e77ccba8541154dbe48c488fa8417)
--Site inspired on http://pslabs.cl/tele.html by @pottersys
+-Site inspired on http://pslabs.cl/tele.html (https://www.viendotele.cl/) by @pottersys
 -Based on variation https://tele.0x00.cl/ by u/0x00cl
 -Flags from https://flagpedia.net/
 ```

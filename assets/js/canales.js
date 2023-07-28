@@ -115,6 +115,12 @@ const listaCanales = {
         'fuente': 'https://www.twitch.tv/meganoticiascl',
         'pais': 'cl'
     },
+    'meganoticias-3': {
+        'nombre': 'Meganoticias 3',
+        'iframe_url': 'https://mdstrm.com/live-stream/561430ae330428c223687e1e?autoplay=true&volume=0',
+        'fuente': 'https://www.meganoticias.cl/senal-en-vivo/meganoticias/',
+        'pais': 'cl'
+    },
     'mega': {
         'nombre': 'Mega',
         'm3u8_url': 'https://marine2.miplay.cl/mega/index.m3u8',
@@ -141,6 +147,18 @@ const listaCanales = {
     't13-3': {
         'nombre': 'T13 3',
         'm3u8_url': 'https://unlimited1-cl-isp.dps.live/t13/t13.smil/playlist.m3u8',
+        'fuente': 'https://www.t13.cl/',
+        'pais': 'cl'
+    },
+    't13-4': {
+        'nombre': 'T13 4',
+        'm3u8_url': 'https://redirector.rudo.video/hls-video/10b92cafdf3646cbc1e727f3dc76863621a327fd/t13/t13.smil/playlist.m3u8',
+        'fuente': 'https://www.t13.cl/',
+        'pais': 'cl'
+    },
+    't13-5': {
+        'nombre': 'T13 5',
+        'iframe_url': 'https://rudo.video/live/t13',
         'fuente': 'https://www.t13.cl/',
         'pais': 'cl'
     },
@@ -175,6 +193,18 @@ const listaCanales = {
         'nombre': 'CHV Noticias 2',
         'm3u8_url': 'https://siloh-latam-aka.plutotv.net/lilo/production/Chilevision/master.m3u8',
         'fuente': 'https://pluto.tv/es/live-tv/chilevision-noticias',
+        'pais': 'cl'
+    },
+    'chv-noticias-3': {
+        'nombre': 'CHV Noticias 3',
+        'm3u8_url': 'https://redirector.rudo.video/hls-video/10b92cafdf3646cbc1e727f3dc76863621a327fd/chvn/chvn.smil/playlist.m3u8?DVR',
+        'fuente': 'https://www.chvnoticias.cl/senal-online/',
+        'pais': 'cl'
+    },
+    'chv-noticias-4': {
+        'nombre': 'CHV Noticias 4',
+        'iframe_url': 'https://rudo.video/live/chvn',
+        'fuente': 'https://www.chvnoticias.cl/senal-online/',
         'pais': 'cl'
     },
     'chv': {
@@ -1347,15 +1377,18 @@ const listaCanales = {
 // MUSICA 24/7
     'lofi-girl': {
         'nombre': '🎵 Lofi Girl',
-        'yt_id': 'UCSJ4gkVC6NrvII8umztf0Ow'
+        'yt_embed': 'jfKfPfyJRdk',
+        'fuente': 'https://www.youtube.com/channel/UCSJ4gkVC6NrvII8umztf0Ow'
     },
     'chillhop': {
         'nombre': '🎵 Chillhop',
-        'yt_id': 'UCOxqgCwgOqC2lMqC5PYz_Dg'
+        'yt_embed': '5yx6BWlEVcY',
+        'fuente': 'https://www.youtube.com/channel/UCOxqgCwgOqC2lMqC5PYz_Dg'
     },
     'steezyasfuck': {
         'nombre': '🎵 Steezyasfuck',
-        'yt_id': 'UCsIg9WMfxjZZvwROleiVsQg'
+        'yt_embed': 'KC_oey5dbmI',
+        'fuente': 'https://www.youtube.com/channel/UCsIg9WMfxjZZvwROleiVsQg'
     },
     'imuc-radio-chile': {
         'nombre': '🎵 IMUC Chile',
@@ -1368,7 +1401,8 @@ const listaCanales = {
     },
     'naxos-japan': {
         'nombre': '🎵 naxos japan',
-        'yt_id': 'UCwP6-81HmoDyC3nfBAyGPXQ'
+        'yt_embed': 'qtnxR6y0sT8',
+        'fuente': 'https://www.youtube.com/channel/UCwP6-81HmoDyC3nfBAyGPXQ'
     },
     'acidjazz': {
         'nombre': '🎵 AcidJazz',
@@ -1380,23 +1414,28 @@ const listaCanales = {
     },
     'the-bootleg-boy-1': {
         'nombre': '🎵 the bootleg boy',
-        'yt_id': 'UC0fiLCwTmAukotCXYnqfj0A'
+        'yt_embed': 'bLlloaA4b4g',
+        'fuente': 'https://www.youtube.com/channel/UC0fiLCwTmAukotCXYnqfj0A'
     },
     'the-bootleg-boy-2': {
         'nombre': '🎵 the bootleg boy 2',
-        'yt_id': 'UCwkTfp14Sj7o6q9_8ADJpnA'
+        'yt_embed': 'Vo-2noOnBcY',
+        'fuente': 'https://www.youtube.com/channel/UCwkTfp14Sj7o6q9_8ADJpnA'
     },
     'chill-with-taiki': {
         'nombre': '🎵 Chill with Taiki',
-        'yt_id': 'UCKdURsjh1xT1vInYBy82n6g'
+        'yt_embed': 'qH3fETPsqXU',
+        'fuente': 'https://www.youtube.com/channel/UCKdURsjh1xT1vInYBy82n6g'
     },
     'abao-en-tokio': {
         'nombre': '🎵 Abao en Tokio',
-        'yt_id': 'UC84whx2xxsiA1gXHXXqKGOA'
+        'yt_embed': 'e_Ede7tGgfA',
+        'fuente': 'https://www.youtube.com/channel/UC84whx2xxsiA1gXHXXqKGOA'
     },
     'college-music': {
         'nombre': '🎵 College Music',
-        'yt_id': 'UCWzZ5TIGoZ6o-KtbGCyhnhg'
+        'yt_embed': 'QwXHcgZUnFI',
+        'fuente': 'https://www.youtube.com/channel/UCWzZ5TIGoZ6o-KtbGCyhnhg'
     },
 // CAMARAS MUNDO
 // Chile

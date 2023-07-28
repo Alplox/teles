@@ -30,7 +30,7 @@ Toda contribución es bienvenida 😊
 - [24 Horas 3](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
 - [24 Horas 4](https://www.twitch.tv/24horas_tvn)
 - [24 Horas 5](https://www.twitch.tv/24horas_tvn)
-- [24 Horas 6](https://www.twitch.tv/24horas_tvn) - [x](http://pslabs.cl/tele.html)
+- [24 Horas 6](https://www.twitch.tv/24horas_tvn) - [x](https://www.viendotele.cl/)
 - [24 Horas s2](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
 - [24 Horas s2 2](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
 - [TVN](https://www.youtube.com/channel/UCaVaCaiG6qRzDiJDuEGKOhQ)
@@ -563,7 +563,7 @@ ___
 
 | Enlaces Variaciones                                    | Por:                                                     | Fuente                                                                                                                 |
 |--------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| http://pslabs.cl/tele.html                             | [@pottersys](https://twitter.com/pottersys)              | [Fuente](https://github.com/PotterSys/canales-tele) - [x](https://twitter.com/pottersys/status/1187710925182255104)    |
+| https://www.viendotele.cl/                             | [@pottersys](https://twitter.com/pottersys)              | [Fuente](https://github.com/PotterSys/canales-tele) - [x](https://twitter.com/pottersys/status/1187710925182255104)    |
 | https://tele.0x00.cl/ (RIP)                            | [u/0x00cl](https://old.reddit.com/user/0x00cl)           | [Fuente](https://old.reddit.com/r/chile/comments/dx76yi/megathread_jornada_de_protestas_d%C3%ADa_30_70k_subs/f7p0vjn/) |
 | https://whywelove.news/love/country/chile/envivo       | [u/sebastianrw](https://old.reddit.com/user/sebastianrw) | [Fuente](https://old.reddit.com/r/chile/comments/dwba7u/monitorea_las_noticias_de_chile_en_tiempo_real/)               |
 | https://ainmcl.github.io/MonitorTV/Monitores/Home.html | [AINMcl](https://github.com/AINMcl)                      | [Fuente](https://github.com/AINMcl/MonitorTV)                                                                          |

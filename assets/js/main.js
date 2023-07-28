@@ -778,7 +778,9 @@ let tele = {
             playerM3u8.autoplay('muted');
         } else if (typeof yt_id !== 'undefined') {
             divTransmision.append(
-              crearIframe(`https://www.youtube-nocookie.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`), 
+
+              
+              crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`), 
               crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais)
               );
         } else if (typeof yt_embed !== 'undefined') {
@@ -948,9 +950,9 @@ let tele = {
       if (tele.movil()) {
         // si localstorage no existe (primera vez que carga el sitio o se limpio cache) carga estos canales
         if (localStorage.getItem("canales_storage") === null) {
-          tele.add('24-horas-2');
-          tele.add('t13-3');
-          tele.add('meganoticias');
+          tele.add('24-horas');
+          tele.add('meganoticias-3');
+          tele.add('t13-4');
         } else {
           // si localstorage existe carga canales guardados (o no, ya que puede estar vacio por lo que no insertaria nada)
           for (const canal of Object.keys(lsCanalesJson)) {
@@ -959,12 +961,12 @@ let tele = {
         }
       } else {
         if (localStorage.getItem('canales_storage') === null) {
-          tele.add('galeria-cima');
-          tele.add('24-horas-2');
-          tele.add('t13-3');
-          tele.add('meganoticias');
-          tele.add('chv-noticias-2');
+          tele.add('24-horas');
+          tele.add('meganoticias-3');
+          tele.add('t13-4');
+          tele.add('chv-noticias-3');
           tele.add('bbtv');
+          tele.add('lofi-girl');
         } else {
           for (const canal of Object.keys(lsCanalesJson)) {
             tele.add(canal);

@@ -2,6 +2,20 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.13]
+### Changed
+- Enlace a sitio de Pottersys; http://pslabs.cl/tele.html -> https://www.viendotele.cl/
+- Señales por defecto
+
+### Added
+
+#### 📺 Canales
+Chile
+- [Meganoticias 3](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/AINMcl/MonitorTV/)
+- [CHV Noticias 3](https://www.chvnoticias.cl/senal-online/)
+- [CHV Noticias 4](https://www.chvnoticias.cl/senal-online/)
+- [T13 4](https://www.t13.cl/)
+
 
 ## [v0.12]
 ### Changed
