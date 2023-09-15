@@ -214,13 +214,19 @@ const listaCanales = {
     },
     'chv-2': {
         'nombre': 'CHV 2',
-        'iframe_url': 'https://chvvvvvvvv.temporalservel.repl.co/',
+        'iframe_url': 'https://chvv--hofece7009.repl.co/',    /* RIP https://chvvvvvvvv.temporalservel.repl.co/ */
         'fuente': 'https://www.chilevision.cl/senal-online',
         'pais': 'cl'
     },
     'chv-3': {
         'nombre': 'CHV 3',
         'm3u8_url': 'https://marine2.miplay.cl/chilevision/index.m3u8',
+        'fuente': 'https://www.chilevision.cl/senal-online',
+        'pais': 'cl'
+    },
+    'chv-4': {
+        'nombre': 'CHV 4',
+        'iframe_url': 'https://www.viendotele.cl/assets-tele/chv.html',
         'fuente': 'https://www.chilevision.cl/senal-online',
         'pais': 'cl'
     },

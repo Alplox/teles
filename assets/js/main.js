@@ -1,5 +1,5 @@
 /* 
-  main v0.12
+  main v0.14
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -63,56 +63,42 @@ function checkboxOff(checkbox, status, item) {
 const overlayCheckbox = document.querySelector('#switch-overlay');
 const overlayStatus = document.querySelector('#status-overlay > span');
 
-overlayCheckbox.onclick = () => {
-const overlayBarras = document.querySelectorAll('.barra-overlay, .overlay-btn-close');
-  if (overlayBarras.length === 0){
+overlayCheckbox.addEventListener('click', () => {
+  const overlayBarras = document.querySelectorAll('.barra-overlay, .overlay-btn-close');
+  if (overlayBarras.length === 0) {
     setTimeout(() => {
-      overlayStatus.textContent -= ' (Agrega canales primero)'
-      checkboxOn(overlayCheckbox,overlayStatus,'overlay');
+      overlayStatus.textContent = ' (Agrega canales primero)';
+      checkboxOn(overlayCheckbox, overlayStatus, 'overlay');
     }, 1500);
     overlayStatus.textContent = ' (Agrega canales primero)'
   } else {
     overlayBarras.forEach(barra => {
-      if (overlayCheckbox.checked === true) {
-        barra.classList.remove('d-none');
-        checkboxOn(overlayCheckbox,overlayStatus,'overlay');
-      } else {
-        barra.classList.add('d-none');
-        checkboxOff(overlayCheckbox,overlayStatus,'overlay');
-      }
+      barra.classList.toggle('d-none', !overlayCheckbox.checked);
+      (overlayCheckbox.checked ? checkboxOn : checkboxOff)(overlayCheckbox, overlayStatus, 'overlay');
     });
   }
-};
+});
+
 
 // ocultar navbar
 const navbarCheckbox = document.querySelector('#switch-navbar');
 const navbarStatus = document.querySelector('#status-navbar > span');
 const navbar = document.querySelector('nav');
 
-navbarCheckbox.onclick = () => {
-  if (navbarCheckbox.checked === true) {
-    navbar.classList.remove('d-none');
-    checkboxOn(navbarCheckbox,navbarStatus,'navbar');
-  } else {
-    navbar.classList.add('d-none');
-    checkboxOff(navbarCheckbox,navbarStatus,'navbar');
-  }
-};
+navbarCheckbox.addEventListener('click', () => {
+  navbar.classList.toggle('d-none', !navbarCheckbox.checked);
+  (navbarCheckbox.checked ? checkboxOn : checkboxOff)(navbarCheckbox, navbarStatus, 'navbar');
+});
 
 // ocultar fondo
 const fondoCheckbox = document.querySelector('#switch-fondo');
 const fondoStatus = document.querySelector('#status-fondo > span');
 const fondo = document.querySelector('.fondo');
 
-fondoCheckbox.onclick = () => {
-  if (fondoCheckbox.checked === true) {
-    fondo.classList.remove('d-none');
-    checkboxOn(fondoCheckbox,fondoStatus,'fondo');
-  } else {
-    fondo.classList.add('d-none');
-    checkboxOff(fondoCheckbox,fondoStatus,'fondo');
-  }
-};
+fondoCheckbox.addEventListener('click', () => {
+  fondo.classList.toggle('d-none', !fondoCheckbox.checked);
+  (fondoCheckbox.checked ? checkboxOn : checkboxOff)(fondoCheckbox, fondoStatus, 'fondo');
+});
 
 // ----- slider tamaño
 const slider = document.querySelector('#tamaño-streams');
@@ -141,51 +127,45 @@ transmisionesFila.onchange = (event) => {
 };
 
 // ----- cargar desde localstorage
-let lsSlider = localStorage.getItem('slider_value');
+/* let lsSlider = localStorage.getItem('slider_value');
 let lsFondo = localStorage.getItem('fondo');
 let lsOverlay = localStorage.getItem('overlay');
-let lsNavbar = localStorage.getItem('navbar');
+let lsNavbar = localStorage.getItem('navbar'); */
+
+let { 
+  slider_value: lsSlider, 
+  fondo: lsFondo, 
+  overlay: lsOverlay, 
+  navbar: lsNavbar 
+} = localStorage;
 
 window.addEventListener('DOMContentLoaded', () => {
-  let overlayBarras = document.querySelectorAll('.barra-overlay, .overlay-btn-close');
-// overlay
-  if (lsOverlay !== 'hide') {
-    overlayBarras.forEach(barra => {
-      barra.classList.remove('d-none');
-    });
-    checkboxOn(overlayCheckbox,overlayStatus,'overlay');
-  } else {
-    overlayBarras.forEach(barra => {
-      barra.classList.add('d-none');
-    });
-    checkboxOff(overlayCheckbox,overlayStatus,'overlay');
-  }
+  const overlayBarras = document.querySelectorAll('.barra-overlay, .overlay-btn-close');
+  const hideOverlay = lsOverlay === 'hide';
+
+  overlayBarras.forEach(barra => {
+    barra.classList.toggle('d-none', hideOverlay);
+  });
+
+  (hideOverlay ? checkboxOff : checkboxOn)(overlayCheckbox, overlayStatus, 'overlay');
 });
 
 // slider
-if (lsSlider !== null) {
-  slider.setAttribute('value', parseInt(lsSlider));
-  sliderValue.innerHTML = parseInt(lsSlider);
-  canalesGrid.style.maxWidth = `${parseInt(lsSlider)}%`;
-};
+const sliderValueValue = parseInt(lsSlider) ?? 0;
+  slider.setAttribute('value', sliderValueValue);
+  sliderValue.innerHTML = sliderValueValue;
+  canalesGrid.style.maxWidth = `${sliderValueValue}%`;
 
 // fondo
-if (lsFondo !== 'hide') { 
-  fondo.classList.remove('d-none');
-  checkboxOn(fondoCheckbox,fondoStatus,'fondo');
-} else {
-  fondo.classList.add('d-none');
-  checkboxOff(fondoCheckbox,fondoStatus,'fondo');
-};
+lsFondo !== 'hide' 
+  ? (fondo.classList.remove('d-none'), checkboxOn(fondoCheckbox,fondoStatus,'fondo'))
+  : (fondo.classList.add('d-none'), checkboxOff(fondoCheckbox,fondoStatus,'fondo'));
 
 // navbar
-if (lsNavbar !== 'hide') { 
-  navbar.classList.remove('d-none');
-  checkboxOn(navbarCheckbox,navbarStatus,'navbar');
-} else {
-  navbar.classList.add('d-none');
-  checkboxOff(navbarCheckbox,navbarStatus,'navbar');
-};
+lsNavbar !== 'hide' 
+  ? (navbar.classList.remove('d-none'), checkboxOn(navbarCheckbox,navbarStatus,'navbar'))
+  : (navbar.classList.add('d-none'), checkboxOff(navbarCheckbox,navbarStatus,'navbar'));
+
 
 // ----- alerta borrado localstorage
 const btnReset = document.querySelector('#btn-reset');
@@ -210,66 +190,34 @@ const modalCanales = document.querySelector('#modal-canales');
 const filtroCanales = document.querySelector('#filtro');
 
 modalCanales.addEventListener('shown.bs.modal', () => {
-  if(!tele.movil()) {
-    filtroCanales.focus();
-  }
+  !tele.movil() && filtroCanales.focus();
 });
 
 // ----- filtro de canales https://css-tricks.com/in-page-filtered-search-with-vanilla-javascript/
+function normalizarInput(normalizarEsto) {
+  return normalizarEsto.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 function filtrarCanalesPorInput(e) {
-  let btnsCanales = document.querySelectorAll('div.modal-body-canales > button');
+  const btnsCanales = document.querySelectorAll('div.modal-body-canales > button');
+  const inputNormalized = normalizarInput(e);
 
-  function normalizarInput(normalizarEsto){
-    return normalizarEsto.normalize('NFD').replace(/[\u0300-\u036f]/g,"").toLowerCase()
-  }
-
-  if (normalizarInput(e) === 'unknow') {
-    for (let i = 0; i < btnsCanales.length; i++) {
-      if(btnsCanales[i]
-        .getAttribute('country')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g,"")
-        .toLowerCase()
-        .includes(normalizarInput(e))
-        ) 
-      {
-        btnsCanales[i].classList.remove('d-none');
-      } else {
-        btnsCanales[i].classList.add('d-none');
-      }
-    }
-  } else if (normalizarInput(e) === '' || normalizarInput(e) === 0) {
-    let containerBtnBanderas = document.querySelector('#listado-filtro-paises');
-    let todoBtn = containerBtnBanderas.querySelectorAll('button');
-      todoBtn.forEach(btn => {
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-outline-secondary');
-      });
-    let btnsCanales = document.querySelectorAll('div.modal-body-canales > button');
-      for (let i = 0; i < btnsCanales.length; i++) {
-        btnsCanales[i].classList.remove('d-none');
-      }
-    const btnMostrarTodoPais = document.querySelector('#mostrar-todo-pais');
-      btnMostrarTodoPais.classList.remove('btn-outline-secondary');
-      btnMostrarTodoPais.classList.add('btn-primary');
+  if (inputNormalized === 'unknow') {
+    btnsCanales.forEach(btn => {
+      const country = btn.getAttribute('country');
+      const countryNormalized = normalizarInput(country);
+      btn.classList.toggle('d-none', countryNormalized !== inputNormalized);
+    });
   } else {
-    for (let i = 0; i < btnsCanales.length; i++) {
-      if(btnsCanales[i]
-        .innerHTML
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g,"")
-        .toLowerCase()
-        .includes(normalizarInput(e))) 
-      {
-        btnsCanales[i].classList.remove('d-none');
-      } else {
-        btnsCanales[i].classList.add('d-none');
-      }
-    }
+    btnsCanales.forEach(btn => {
+      const contenidoBtn = btn.innerHTML;
+      const contenidoBtnNormalized = normalizarInput(contenidoBtn);
+      btn.classList.toggle('d-none', !contenidoBtnNormalized.includes(inputNormalized));
+    });
   }
-};
+}
 
-filtroCanales.addEventListener('input', (e) =>  { 
+filtroCanales.addEventListener('input', (e) => {
   filtrarCanalesPorInput(e.target.value);
 });
 
@@ -687,9 +635,9 @@ function crearIframe(source) {
   const div = document.createElement('div');
     div.classList.add('ratio', 'ratio-16x9');
   const divIFRAME = document.createElement('iframe');
-    divIFRAME.setAttribute('src', source);
-    divIFRAME.setAttribute('allowFullScreen', '');
-    divIFRAME.setAttribute('referrerpolicy', 'no-referrer')   // para stream 24-horas-6
+    divIFRAME.src = source;
+    divIFRAME.allowFullscreen = true;
+    divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas-6
     div.append(divIFRAME);
   fragmentIFRAME.append(div);
   return fragmentIFRAME;
@@ -698,282 +646,234 @@ function crearIframe(source) {
 function crearOverlay(nombre, fuente, pais) {
   const fragmentOVERLAY = document.createDocumentFragment();
   const a = document.createElement('a');
-    if (pais === undefined) {
-      a.innerHTML = nombre;
-    } else {
-      let nombrePais = paises[pais];
-      a.innerHTML = `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}">`;
-    }
-    a.setAttribute('title', 'Ir a la página oficial de esta transmisión');
-    a.setAttribute('href', fuente);
-    a.setAttribute('rel', 'noopener nofollow noreferrer');
+  let contenido = (pais === undefined) ? nombre : `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
+  a.innerHTML = contenido;
+  a.title = 'Ir a la página oficial de esta transmisión';
+  a.href = fuente;
+  a.rel = 'noopener nofollow noreferrer';
+
   const divOVERLAY = document.createElement('div');
-  divOVERLAY.classList.add('barra-overlay');
-  if(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')) {
-      divOVERLAY.classList.remove('d-none');
-  } else {
-    divOVERLAY.classList.add('d-none');
-  }
-  divOVERLAY.append(a);
-  fragmentOVERLAY.append(divOVERLAY);
-  return fragmentOVERLAY;
+    divOVERLAY.classList.add('barra-overlay');
+    divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
+    divOVERLAY.append(a);
+
+    fragmentOVERLAY.append(divOVERLAY);
+    return fragmentOVERLAY;
 };
-
-
-
 
 // ----- tele
 let tele = {
-    add: (canal) => {
-      if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
-        // destructuring (almacena variables legibles) desde listaCanales == canales.js
-        let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais} = listaCanales[canal];
-        // guarda en localstorage
-        canalesStorage[canal] = nombre;
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-        // fragmento almacena codigo finalizado para ser añadido a 'canalesGrid'
-        let fragmentTransmision = document.createDocumentFragment();
-        // crea 'div' primario indiferente del tipo de señal
-        let divTransmision = document.createElement('div');
-          divTransmision.classList.add('stream');
-          divTransmision.setAttribute('data-canal', canal);
-          tele.movil() ? divTransmision.classList.add(`col-${sizeMovil}`) : divTransmision.classList.add(`col-${size}`);
-        // btn quitar señal desde grid
-        let btnRemove = document.createElement('button');
-          if(overlayCheckbox.checked === true) {
-            btnRemove.classList.remove('d-none');
-          } else {
-            btnRemove.classList.add('d-none');
-          }
-          btnRemove.classList.add('overlay-btn-close', 'btn-close');
-          btnRemove.setAttribute('aria-label', 'Close');
-          btnRemove.setAttribute('type', 'button');
-          btnRemove.setAttribute('title', 'Quitar señal');
-          btnRemove.addEventListener('click', () => {
-            tele.remove(canal)
-          });
-        // examina tipo señal https://stackoverflow.com/q/5113374
-        if (typeof iframe_url !== 'undefined') {
-            divTransmision.append(
-              crearIframe(iframe_url), 
-              crearOverlay(nombre, fuente, pais)
-              );
-        } else if (typeof m3u8_url !== 'undefined') {
-            const divM3u8 = document.createElement('div');
-              divM3u8.classList.add('m3u-stream');
-            const videoM3u8 = document.createElement('video');
-              videoM3u8.setAttribute('data-canal-m3u', canal);
-              videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
-              videoM3u8.toggleAttribute('controls');
-            divM3u8.append(videoM3u8);
-              divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais));
-              fragmentTransmision.append(divTransmision);
-            canalesGrid.append(fragmentTransmision);
-            // carga enlace '.m3u8' una vez insertado 'videoM3u8' en 'canalesGrid'
-            let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
-              playerM3u8.src({
-                src: m3u8_url,
-                controls: true,
-              });
-            playerM3u8.autoplay('muted');
-        } else if (typeof yt_id !== 'undefined') {
-            divTransmision.append(
-
-              
-              crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`), 
-              crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais)
-              );
-        } else if (typeof yt_embed !== 'undefined') {
-            divTransmision.append(
-              crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`), 
-              crearOverlay(nombre, fuente, pais)
-              );
-        } else if (typeof yt_playlist !== 'undefined') {
-            divTransmision.append(
-              crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`), 
-              crearOverlay(nombre, fuente, pais)
-              );
-        } else {
-          console.log(`${canal} - Canal Inválido`);
-        };
-        // formato para insertar canal en DOM si la señal NO es m3u8 (para no repetir al final dentro de cada else if) 
-        if (typeof m3u8_url === 'undefined'){
-          fragmentTransmision.append(divTransmision);
-          canalesGrid.append(fragmentTransmision);
-        };
-        // cambia aspecto bóton al ser activado
-        let btnTransmisionOn = document.querySelector(`button[data-canal="${canal}"]`);
-          btnTransmisionOn.classList.remove('btn-outline-secondary');
-          btnTransmisionOn.classList.add('btn-primary');
-        // añade "btnRemove" luego de "barra-overlay"
-        divTransmision.append(btnRemove);
+  add: (canal) => {
+    if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
+      let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais} = listaCanales[canal];
+      canalesStorage[canal] = nombre;
+      localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
+  
+      let fragmentTransmision = document.createDocumentFragment();
+      let divTransmision = document.createElement('div');
+        divTransmision.classList.add('stream', `col-${tele.movil() ? sizeMovil : size}`);
+        divTransmision.setAttribute('data-canal', canal);
+  
+      let btnRemove = document.createElement('button');
+        btnRemove.classList.toggle('d-none', !overlayCheckbox.checked);
+        btnRemove.classList.add('overlay-btn-close', 'btn-close');
+        btnRemove.setAttribute('aria-label', 'Close');
+        btnRemove.setAttribute('type', 'button');
+        btnRemove.setAttribute('title', 'Quitar señal');
+        btnRemove.addEventListener('click', () => {
+          tele.remove(canal)
+      });
+  
+      if (typeof iframe_url !== 'undefined') {
+        divTransmision.append(crearIframe(iframe_url), crearOverlay(nombre, fuente, pais));
+      } else if (typeof m3u8_url !== 'undefined') {
+        const divM3u8 = document.createElement('div');
+        divM3u8.classList.add('m3u-stream');
+        const videoM3u8 = document.createElement('video');
+          videoM3u8.setAttribute('data-canal-m3u', canal);
+          videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
+          videoM3u8.toggleAttribute('controls');
+          divM3u8.append(videoM3u8);
+        divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais));
+        fragmentTransmision.append(divTransmision);
+        canalesGrid.append(fragmentTransmision);
+  
+        let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
+        playerM3u8.src({
+          src: m3u8_url,
+          controls: true,
+        });
+        playerM3u8.autoplay('muted');
+      } else if (typeof yt_id !== 'undefined') {
+        divTransmision.append(
+          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`), 
+          crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais)
+        );
+      } else if (typeof yt_embed !== 'undefined') {
+        divTransmision.append(
+          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`), 
+          crearOverlay(nombre, fuente, pais)
+        );
+      } else if (typeof yt_playlist !== 'undefined') {
+        divTransmision.append(
+          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`), 
+          crearOverlay(nombre, fuente, pais)
+        );
       } else {
-        console.log(`${canal} no es válido como canal, revisa si se borró y/o reinicia tu localStorage`);
+        console.log(`${canal} - Canal Inválido`);
       }
-    },
-    remove: (canal) => {
-      let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
-      if (transmisionPorRemover != null) {
-        canalesGrid.removeChild(transmisionPorRemover);
-        let btnTransmisionOff = document.querySelector(`button[data-canal="${canal}"]`);
-          btnTransmisionOff.classList.remove('btn-primary');
-          btnTransmisionOff.classList.add('btn-outline-secondary');
+  
+      if (typeof m3u8_url === 'undefined'){
+        fragmentTransmision.append(divTransmision);
+        canalesGrid.append(fragmentTransmision);
       }
+  
+      let btnTransmisionOn = document.querySelector(`button[data-canal="${canal}"]`);
+        btnTransmisionOn.classList.replace('btn-outline-secondary', 'btn-primary');
+      divTransmision.append(btnRemove);
+    } else {
+      console.log(`${canal} no es válido como canal, revisa si se borró y/o reinicia tu localStorage`);
+    }
+  },  
+  remove: (canal) => {
+    let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+    if (transmisionPorRemover) {
+      canalesGrid.removeChild(transmisionPorRemover);
+  
+      let btnTransmisionOff = document.querySelector(`button[data-canal="${canal}"]`);
+      btnTransmisionOff.classList.replace('btn-primary', 'btn-outline-secondary');
+  
       // remueve de localstorage
       delete canalesStorage[canal];
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-    },
-    movil: () => {
-      // https://stackoverflow.com/a/11381730
-      let check = false;
-      ((a) => {
-        if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
-          check = true;
-      })(navigator.userAgent || navigator.vendor || window.opera);
-      return check;
-    },
-    populateModal: () => {
-      const containerBtnsCanales = document.querySelector('.modal-body-canales');
-      const fragmentBtn = document.createDocumentFragment();
-      let numeroCanalesConPais = [];
-      for (const canal in listaCanales) {
-        let {nombre, pais} = listaCanales[canal];
-        let btnTransmision = document.createElement('button');
-          btnTransmision.classList.add('btn', 'btn-outline-secondary');
-          btnTransmision.setAttribute('data-canal', canal);
-        let p = document.createElement('p');
-          p.classList.add('btn-inside');
-            if (pais) {
-              let img = document.createElement('img');
-                p.textContent = nombre;
-                let nombrePais = paises[pais.toLowerCase()];
-                img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
-                img.setAttribute('alt', `bandera ${nombrePais}`);
-                img.setAttribute('title', nombrePais);
-                btnTransmision.setAttribute('country', `${nombrePais}`)
-                p.append(img)
-                numeroCanalesConPais.push(pais)
-            } else {
-              p.textContent = nombre;
-              btnTransmision.setAttribute('country', 'Unknow')
-              numeroCanalesConPais.push('Unknow');
-            }
-        btnTransmision.append(p);
-        btnTransmision.addEventListener('click', function () {
-          if (btnTransmision.getAttribute('class').includes('btn-outline-secondary')) {
-            tele.add(canal);
-          } else if (btnTransmision.getAttribute('class').includes('btn-primary')) {
-            tele.remove(canal);
-          }
-        });
-        fragmentBtn.append(btnTransmision);
-      };
-      containerBtnsCanales.append(fragmentBtn);
-      // ----- filtro de canales por pais
-      // https://www.javascripttutorial.net/array/javascript-remove-duplicates-from-array/
-      let paisesExistentesSinRepetirse = [...new Set(numeroCanalesConPais)];     
-      // https://stackoverflow.com/a/19395302
-      const conteoNumeroCanalesConPais = {};
-      numeroCanalesConPais.forEach((x) => { conteoNumeroCanalesConPais[x] = (conteoNumeroCanalesConPais[x] || 0) + 1; });
-      // selecciona div contenedor de botones del DOM
-      let containerBtnBanderas = document.querySelector('#listado-filtro-paises')
-      // btn por defecto, muestra todos los canales/paises
-      const btnMostrarTodoPais = document.querySelector('#mostrar-todo-pais');
-      btnMostrarTodoPais.addEventListener('click', () => {
-        let todoBtn = containerBtnBanderas.querySelectorAll('button');
-          todoBtn.forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-outline-secondary');
-          });
-        filtrarCanalesPorInput('');
-        filtroCanales.value = ''
-        btnMostrarTodoPais.classList.remove('btn-outline-secondary');
-        btnMostrarTodoPais.classList.add('btn-primary');
-      });
-      // crea fragmento y lo llena con banderas para ser insertadas en modal
-      let fragmentBtnsFiltroBanderas = document.createDocumentFragment()
-      for (const bandera of paisesExistentesSinRepetirse){
-        // recupera nombre completo pais en español desde listado
-        let nombrePais = paises[bandera];
-        // crea btn para cada filtro independiente si pais existe
-        let btn = document.createElement('button');
-          btn.classList.add('btn', 'btn-outline-secondary', 'justify-content-between', 'align-items-left');
-          btn.setAttribute('type', 'button');
-          btn.setAttribute('data-country', bandera);
-        let span = document.createElement('span');
-          span.classList.add('badge', 'bg-secondary', 'rounded-pill', 'ms-2');
-          span.innerHTML = conteoNumeroCanalesConPais[bandera];
-        // si existe el pais en el listado
-        if (paises[bandera]) {
-          /* btn.innerHTML = nombrePais */
-        let img = document.createElement('img')
-          img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
+    }
+  },
+  movil: () => {
+    // https://stackoverflow.com/a/11381730
+    let check = false;
+    ((a) => {
+      if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
+        check = true;
+    })(navigator.userAgent || navigator.vendor || window.opera);
+    return check;
+  },
+  populateModal: () => {
+    const containerBtnsCanales = document.querySelector('.modal-body-canales');
+    const fragmentBtn = document.createDocumentFragment();
+    let numeroCanalesConPais = [];
+    for (const canal in listaCanales) {
+      let {nombre, pais} = listaCanales[canal];
+      let btnTransmision = document.createElement('button');
+        btnTransmision.classList.add('btn', 'btn-outline-secondary');
+        btnTransmision.setAttribute('data-canal', canal);
+      
+      const p = document.createElement('p');
+        p.classList.add('btn-inside');
+        p.textContent = nombre;
+
+      if (pais) {
+        let img = document.createElement('img');
+          let nombrePais = paises[pais.toLowerCase()];
+          img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
           img.setAttribute('alt', `bandera ${nombrePais}`);
           img.setAttribute('title', nombrePais);
-        btn.append(img, span)
-        // si no existe el pais en el listado (btn unknow)
-        } else {
-          btn.innerHTML = bandera
-        btn.append(span)
-        }
-        // eventlistener se encarga de cambiar aspecto btn tanto como insertar valor en input para filtro
-        btn.addEventListener('click', () => {
-          let todoBtn = containerBtnBanderas.querySelectorAll('button');
-          todoBtn.forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-outline-secondary');
-          });
-          let btnClick = document.querySelector(`button[data-country="${bandera}"]`);
-          if (btnClick.getAttribute('class').includes('btn-outline-secondary')) {
-            if(paises[bandera]){
-              filtrarCanalesPorInput(nombrePais);
-              filtroCanales.value = nombrePais;
-            } else {
-              filtrarCanalesPorInput(bandera);
-              filtroCanales.value = bandera;
-            }
-            btnClick.classList.remove('btn-outline-secondary');
-            btnClick.classList.add('btn-primary');
-          } else if (btnClick.getAttribute('class').includes('btn-primary')) {
-            filtrarCanalesPorInput('')
-            filtroCanales.value = ''
-            btnClick.classList.remove('btn-primary');
-            btnClick.classList.add('btn-outline-secondary');
-          }
-        });
-        fragmentBtnsFiltroBanderas.append(btn)
-      }
-      containerBtnBanderas.append(fragmentBtnsFiltroBanderas)
-    },
-    init: () => {
-      tele.populateModal();
-      if (tele.movil()) {
-        // si localstorage no existe (primera vez que carga el sitio o se limpio cache) carga estos canales
-        if (localStorage.getItem("canales_storage") === null) {
-          tele.add('24-horas');
-          tele.add('meganoticias-3');
-          tele.add('t13-4');
-        } else {
-          // si localstorage existe carga canales guardados (o no, ya que puede estar vacio por lo que no insertaria nada)
-          for (const canal of Object.keys(lsCanalesJson)) {
-            tele.add(canal);
-          }
-        }
+          btnTransmision.setAttribute('country', `${nombrePais}`)
+          p.append(img)
+          numeroCanalesConPais.push(pais)
       } else {
-        if (localStorage.getItem('canales_storage') === null) {
-          tele.add('24-horas');
-          tele.add('meganoticias-3');
-          tele.add('t13-4');
-          tele.add('chv-noticias-3');
-          tele.add('bbtv');
-          tele.add('lofi-girl');
-        } else {
-          for (const canal of Object.keys(lsCanalesJson)) {
-            tele.add(canal);
-          }
-        }
+        btnTransmision.setAttribute('country', 'Unknow')
+        numeroCanalesConPais.push('Unknow');
       }
+
+      btnTransmision.append(p);
+
+      btnTransmision.addEventListener('click', () => {
+        const action = btnTransmision.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
+        tele[action](canal);
+      });
+      
+      fragmentBtn.append(btnTransmision);
+    };
+    containerBtnsCanales.append(fragmentBtn);
+
+    // ----- filtro de canales por pais
+    // https://www.javascripttutorial.net/array/javascript-remove-duplicates-from-array/
+    let paisesSinRepetir = [...new Set(numeroCanalesConPais)];     
+    // https://stackoverflow.com/a/19395302
+    const conteoNumeroCanalesConPais = {};
+    numeroCanalesConPais.forEach((x) => { conteoNumeroCanalesConPais[x] = (conteoNumeroCanalesConPais[x] || 0) + 1; });
+    // selecciona div contenedor de botones del DOM
+    let containerBtnBanderas = document.querySelector('#listado-filtro-paises')
+    // btn por defecto, muestra todos los canales/paises
+    const btnMostrarTodoPais = document.querySelector('#mostrar-todo-pais');
+    btnMostrarTodoPais.addEventListener('click', () => {
+      let todoBtn = containerBtnBanderas.querySelectorAll('button');
+        todoBtn.forEach(btn => {
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-outline-secondary');
+        });
+      filtrarCanalesPorInput('');
+      filtroCanales.value = ''
+      btnMostrarTodoPais.classList.remove('btn-outline-secondary');
+      btnMostrarTodoPais.classList.add('btn-primary');
+    });
+
+    // crea fragmento y lo llena con banderas para ser insertadas en modal
+    let fragmentBtnsFiltroBanderas = document.createDocumentFragment();
+    for (const bandera of paisesSinRepetir) {
+      let nombrePais = paises[bandera];
+      let btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-outline-secondary', 'justify-content-between', 'align-items-left');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('data-country', bandera);
+
+      let span = document.createElement('span');
+        span.classList.add('badge', 'bg-secondary', 'rounded-pill', 'ms-2');
+        span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
+
+      if (paises[bandera]) {
+        let img = document.createElement('img');
+        img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
+        img.setAttribute('alt', `bandera ${nombrePais}`);
+        img.setAttribute('title', nombrePais);
+        btn.append(img, span);
+      } else {
+        btn.innerHTML = bandera;
+        btn.append(span);
+      }
+
+      btn.addEventListener('click', () => {
+        
+        let todoBtn = containerBtnBanderas.querySelectorAll('button');
+        todoBtn.forEach(btn => {
+          btn.classList.replace('btn-primary', 'btn-outline-secondary');
+        });
+
+        let btnClick = containerBtnBanderas.querySelector(`button[data-country="${bandera}"]`);
+          btnClick.classList.replace('btn-outline-secondary', 'btn-primary');
+        let filtro = paises[bandera] ? nombrePais : bandera;
+        filtrarCanalesPorInput(filtro);
+        filtroCanales.value = filtro;
+      });
+      fragmentBtnsFiltroBanderas.append(btn);
     }
+    containerBtnBanderas.append(fragmentBtnsFiltroBanderas);
+  },
+  init: () => {
+    tele.populateModal();
+  
+    const localStorageCanales = localStorage.getItem('canales_storage');
+    const canalesPredeterminados = ['24-horas', 'meganoticias-3', 't13-4'];
+    const canalesExtras = ['chv-noticias-3', 'bbtv', 'lofi-girl'];
+  
+    const canalesAgregar = tele.movil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
+  
+    if (localStorageCanales === null) {
+      canalesAgregar.forEach(canal => tele.add(canal));
+    } else {
+      Object.keys(lsCanalesJson).forEach(canal => tele.add(canal));
+    }
+  }
 };
 
 tele.init();
@@ -987,15 +887,13 @@ tele.init();
 // ----- añade número total de señales a boton "global" del filtro banderas 
 document.querySelector('#span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
 
-// ----- btn limpiar/remover todas las señales activas
-const btnLimpiar = document.querySelector('#limpiar');
-btnLimpiar.addEventListener('click', () => {
-  let transmisionPorLimpiar = document.querySelectorAll('div.stream');
-    transmisionPorLimpiar.forEach(transmision => {
-      let dataCanal = transmision.getAttribute('data-canal');
-      tele.remove(dataCanal);
-    })
+// btn limpiar/remover todas las señales activas
+document.querySelector('#limpiar').addEventListener('click', () => {
+  document.querySelectorAll('div.stream').forEach(transmision => {
+    tele.remove(transmision.getAttribute('data-canal'));
+  });
 });
+
 
 // ----- copiar enlace a portapapeles y alerta copiado https://codepen.io/lancebush/pen/zdxLE 
 const btnEnlace = document.querySelector('#btn-enlace');
@@ -1014,6 +912,7 @@ btnEnlace.onclick = () => {
     document.querySelector('.notify-span').classList.remove('success');
   }, 2000);
 };
+
 
 // ----- btn compartir sitio (usa navigator.share en telefonos) 
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare

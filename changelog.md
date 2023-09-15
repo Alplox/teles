@@ -2,6 +2,25 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.14]
+### Changed
+- Código JavaScript reducido con el socio ChatGPT-3.5
+
+### Added
+
+#### 📺 Canales
+Chile
+
+- [CHV 4](https://www.chilevision.cl/senal-online) - [x](https://www.viendotele.cl/assets-tele/chv.html)
+
+### Changed
+
+#### 📺 Canales
+Chile
+
+- [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://chvv--hofece7009.repl.co/)
+
+
 ## [v0.13]
 ### Changed
 - Enlace a sitio de Pottersys; http://pslabs.cl/tele.html -> https://www.viendotele.cl/
