@@ -127,17 +127,17 @@ transmisionesFila.onchange = (event) => {
 };
 
 // ----- cargar desde localstorage
-/* let lsSlider = localStorage.getItem('slider_value');
+let lsSlider = localStorage.getItem('slider_value');
 let lsFondo = localStorage.getItem('fondo');
 let lsOverlay = localStorage.getItem('overlay');
-let lsNavbar = localStorage.getItem('navbar'); */
+let lsNavbar = localStorage.getItem('navbar');
 
-let { 
+/* let { 
   slider_value: lsSlider, 
   fondo: lsFondo, 
   overlay: lsOverlay, 
   navbar: lsNavbar 
-} = localStorage;
+} = localStorage; */
 
 window.addEventListener('DOMContentLoaded', () => {
   const overlayBarras = document.querySelectorAll('.barra-overlay, .overlay-btn-close');
@@ -151,10 +151,17 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // slider
-const sliderValueValue = parseInt(lsSlider) ?? 0;
+/* const sliderValueValue = parseInt(lsSlider) ?? 0;
+  slider.setAttribute('value', sliderValueValue);
+  sliderValue.innerHTML = sliderValueValue;
+  canalesGrid.style.maxWidth = `${sliderValueValue}%`; */
+
+if (lsSlider !== null) {
+  const sliderValueValue = parseInt(lsSlider) ?? 0;
   slider.setAttribute('value', sliderValueValue);
   sliderValue.innerHTML = sliderValueValue;
   canalesGrid.style.maxWidth = `${sliderValueValue}%`;
+};
 
 // fondo
 lsFondo !== 'hide' 
