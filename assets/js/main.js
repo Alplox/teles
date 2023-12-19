@@ -870,11 +870,10 @@ let tele = {
     tele.populateModal();
   
     const localStorageCanales = localStorage.getItem('canales_storage');
-    /* const canalesPredeterminados = ['24-horas', 'meganoticias-3', 't13-4']; */ //desactivado por plebiscito
-    /* const canalesExtras = ['chv-noticias-3', 'bbtv', 'lofi-girl']; */ //desactivado por plebiscito
+    const canalesPredeterminados = ['24-horas', 'meganoticias-3', 't13-4']; 
+    const canalesExtras = ['chv-noticias-3', 'bbtv', 'lofi-girl'];
   
-    const canalesPredeterminados = ['tips', '24-horas', 'meganoticias-3'];
-    const canalesExtras = ['t13-4', 'chv-noticias-3', 'bbtv'];
+    
   
     const canalesAgregar = tele.movil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
   
