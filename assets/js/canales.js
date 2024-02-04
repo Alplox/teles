@@ -45,6 +45,13 @@ const listaCanales = {
         'yt_id': 'UCB8s6rETjmWgXrp_BxyXqdg',
         'pais': 'cl'
     }, */
+// Emergencia activa (Chile)
+    'emergencia-activa': {
+        'nombre': 'Información útil incendios',
+        'iframe_url': 'https://alplox.github.io/teles/assets/js/emergencia.html',
+        'fuente': 'https://alplox.github.io/teles/',
+        'pais': 'cl'
+    },
 // CHILE
     '24-horas': {
         'nombre': '24 horas',

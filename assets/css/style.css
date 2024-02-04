@@ -393,6 +393,32 @@ select {
     background-color: var(--bs-blue);
 }
 
+
+
+
+.floating-btn-emergencia {
+    z-index: 3;
+	position: fixed;
+    
+	right: 70px;
+	bottom: 20px;
+	padding: 10px;
+	background-color: hsla(210, 11%, 15%, 0.5);
+    line-height: 0;
+}
+
+.floating-btn-emergencia:focus,
+.floating-btn-emergencia:focus-visible {
+    outline: 4px var(--bs-blue) solid;
+}
+
+.floating-btn-emergencia:active,
+.floating-btn-emergencia:hover {
+    background-color: var(--bs-blue);
+}
+
+
+
 .btn-share:hover .share-svg,
 .btn-sidepanel-compartir:active svg,
 .btn-sidepanel-compartir:hover .share-svg {

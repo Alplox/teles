@@ -870,8 +870,8 @@ let tele = {
     tele.populateModal();
   
     const localStorageCanales = localStorage.getItem('canales_storage');
-    const canalesPredeterminados = ['24-horas', 'meganoticias-3', 't13-4']; 
-    const canalesExtras = ['chv-noticias-3', 'bbtv', 'lofi-girl'];
+    const canalesPredeterminados = ['24-horas-5', 'meganoticias-3', 't13-4']; 
+    const canalesExtras = ['chv-noticias-3', 'emergencia-activa', 'lofi-girl'];
   
     
   

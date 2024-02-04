@@ -3,7 +3,7 @@
     "short_name": "teles",
     "description": "PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).",
     "display": "standalone",
-    "background_color": "#212529",
+    "background_color": "#f8f9fa",
     "theme_color": "#212529",
 
     "start_url": "/teles/",
