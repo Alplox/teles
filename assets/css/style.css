@@ -1,5 +1,5 @@
 /* 
-    style v0.14
+    style v0.15
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -44,8 +44,8 @@ a:focus {
 
 img, 
 svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .fondo {
@@ -84,6 +84,7 @@ button:hover > :not(.pe-1).bi-share-fill{
 .share-btns,
 .notify {
     text-align: center;
+    text-wrap: balance;
 }
 
 .navbar-text {
@@ -218,7 +219,7 @@ pwa-update::part(updateToast) {
 }
 
 .barra-overlay img {
-    height: .8rem;
+    height: .75rem;
 }
 
 .barra-overlay:hover,
@@ -252,7 +253,7 @@ pwa-update::part(updateToast) {
 .container-btn-group {
     display: grid;
     gap: 0.375rem;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));          /* https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/ */
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));          /* https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/ */
 }
 
 .form-floating {
@@ -378,20 +379,20 @@ select {
 	position: fixed;
 	right: 20px;
 	bottom: 20px;
-	padding: 10px;
-	background-color: hsla(210, 11%, 15%, 0.5);
-    line-height: 0;
+	/* padding: 10px; */
+	background-color: hsla(210, 11%, 15%, 0.7);
+    /* line-height: 0; */
 }
 
 .floating-btn:focus,
 .floating-btn:focus-visible {
-    outline: 4px var(--bs-blue) solid;
+    outline: 2px var(--bs-blue) solid;
 }
 
-.floating-btn:active,
+/* .floating-btn:active,
 .floating-btn:hover {
     background-color: var(--bs-blue);
-}
+} */
 
 
 

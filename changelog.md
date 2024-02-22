@@ -2,6 +2,273 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [v0.15]
+### Changed
+- Enlace https://ssd.eff.org/es/playlist/%C2%BFactivista-o-manifestante por https://ssd.eff.org/es/module/asistir-una-protesta debido a error 404
+
+#### 📺 Canales
+- Enlace Radio Infinita
+- Enlace Radio Carolina TV
+- Enlace Radio Romántica TV
+- Enlace Radio Radio Genial 100.5 FM
+- Enlace Radio El Sembrador
+- Enlace Radio Radio Ñuble
+- Enlace Radio Alternativa FM
+- Enlace canal M3U8 Stgo TV
+- Enlace canal M3U8 La Voz De Los Que Sobran
+- Enlace canal M3U8 Canal 21
+- Enlace canal M3U8 Ñublevision
+- Enlace canal M3U8 Ñuble RVT
+- Enlace canal M3U8 Canal 33
+- Enlace canal M3U8 Contivision
+- Enlace canal M3U8 Osorno TV
+- Enlace canal IFRAME TV Salud
+- Enlace canal YT-ID Canal 26
+- Enlace canal M3U8 Cámara de Diputados
+
+### Added
+- Icono a enlaces externos para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
+
+### Removed
+- Modal Registros Manifestaciones desarrolladas en Chile
+- Modal Denunciar violación DDHH
+- Enlaces relacionados COVID-19 junto a "pacomap.live" de Modal Enlaces Complementario
+- Seccion Proyectos GitHub de Modal Enlaces Complementario
+- Sitios: 
+    Capucha Informativa (no carga)
+    ChileOkulto (borro contenido)
+    En Punto (última actualizacion 2021)
+    Megafono Popular (no carga)
+    Piensa Prensa (sitio redirige a publicidad)
+    Primera Línea Revolucionaria Chile (última actualizacion 2022)
+    Revista ChileLibre (no carga)
+    Verdad Ahora (última actualizacion 2023)
+    Radio 19 de abril Cobertura colectiva  (no carga)
+    Radio Manque (no carga)
+    RadioTV-Liberación (no carga)
+- Información útil incendios (canal y modal)
+- Enlace Variación por u/sebastianrw https://whywelove.news/love/country/chile/envivo
+
+#### 📺 Canales
+Chile
+
+- [24 Horas 2](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [24 Horas 3](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [24 Horas s2](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [24 Horas s2 2](https://www.24horas.cl/envivo/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [Mega](https://www.mega.cl/) - [x](https://github.com/AINMcl/MonitorTV/blob/05188eeaea9622e986b338f63a46fb189898184f/IPTV/AINM.m3u)
+- [T13 3](https://www.t13.cl/)
+- [Canal 13](https://www.youtube.com/channel/UCd4D3LfXC_9MY2zSv_3gMgw)
+- [Canal 13 2](https://www.13.cl/en-vivo) - [x](https://github.com/AINMcl/AINMcl.github.io/blob/master/MonitorTV/Senal/WEB/Se%C3%B1alCANAL13_IFRAME.html)
+- [CHV Noticias 2](https://www.chvnoticias.cl/) - [x](https://pluto.tv/es/live-tv/chilevision-noticias)
+- [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://chvv--hofece7009.repl.co/)
+- [CHV 3](https://www.chilevision.cl/senal-online) - [x](https://github.com/AINMcl/MonitorTV/blob/05188eeaea9622e986b338f63a46fb189898184f/IPTV/AINM.m3u)
+- [Prensa Presidencia](https://prensa.presidencia.cl/streaming.aspx)
+- [DerechoFacil](https://www.twitch.tv/derechofacil)
+- [Nicolas Copano](https://www.youtube.com/channel/UCVTL17ftpqx3lQ_IaGUNgSg)
+- [Nicolas Copano 2](https://www.twitch.tv/copano)
+- [ARABTV](https://www.arabtv.cl/)
+- [ARABTV 2](https://www.arabtv.cl/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/cl.m3u)
+- [Arica TV](https://arica.tv/envivo/)
+- [Estaciontv](https://www.estaciontv.cl/site/) - [x](https://www.chileiptv.cl/)
+- [Estaciontv 2](https://www.estaciontv.cl/site/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [UCV TV 2](https://pucvmultimedios.cl/senal-online-tv.php) - [x](https://github.com/WJS1978/IPTV/blob/56dbbc76e3f1167966459f0d708b514bb792ae9c/iptv.m3u)
+- [Contivision 2](http://w.contivision.cl/cvn/envivo.php) - [x](https://m3u.cl/lista-iptv-chile.php)
+- [Teletón TV](https://teletontv.cl/)
+- [Teletón TV 2](https://teletontv.cl/) - [x](https://www.chileiptv.cl/)
+- [Cámara de Diputados 2](http://webtv.camara.cl/)
+- [Cámara de Diputados 3](http://webtv.camara.cl/)
+- [Convención Constitucional](https://www.convencion.tv/)
+- [Convención Constitucional 2](https://www.convencion.tv/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [Convención Constitucional 3](https://www.youtube.com/channel/UCRlIWVAxQdAnCl4D4UR9r3Q)
+- [Convención Constitucional YT 01](https://youtube.com/channel/UCc3koBbWMyvSyzRbG5eTgvQ)
+- [Convención Constitucional YT 02](https://youtube.com/channel/UCKmKUwcjv6HJP7-z9Nnpp2w)
+- [Convención Constitucional YT 03](https://youtube.com/channel/UCeIlCkkBplhU0SrWM9B7u7Q)
+- [Convención Constitucional YT 04](https://youtube.com/channel/UCkMWMYCPUGzf3UPAxcIaVqA)
+- [Convención Constitucional YT 05](https://youtube.com/channel/UChNeKfZ0-wwuOCyUSu6BlcA)
+- [Convención Constitucional YT 06](https://youtube.com/channel/UC-HPc8CLoGRSG0dgbzZbDWA)
+- [Convención Constitucional YT 07](https://youtube.com/channel/UC9p2Hsom7SXdro9FhN4K59w)
+- [Convención Constitucional YT 08](https://youtube.com/channel/UCFkkF0LKUOUOcQEwG4nTrHw)
+- [Convención Constitucional YT 09](https://youtube.com/channel/UCEK7dK0jllE0uXMhEQTV6og)
+- [Convención Constitucional YT 10](https://youtube.com/channel/UC1qhPKBTpfhjVcTMzmM8mGw)
+- [Convención Constitucional YT 11](https://youtube.com/channel/UCRVinYIynLNcn18wHjmI5Vg)
+- [Convención Constitucional YT 12](https://youtube.com/channel/UCJerNR157sjR83jMChSocPQ)
+- [Convención Constitucional YT 13](https://youtube.com/channel/UCxI0u9BUvXbGHrv200cgFZg)
+- [Convención Constitucional YT 14](https://youtube.com/channel/UCxAECnUReRnEwkFThbjtH2Q)
+- [Convención Constitucional YT 15](https://youtube.com/channel/UCTGMQgIdFvz3qlD9mKb8v9w)
+- [Tribunal Constitucional de Chile](https://www.youtube.com/channel/UCZaI-1N1oaGb-U8K2VNztjg)
+- [TV Educa Chile](https://www.tvn.cl/envivo/tveducachile/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [PuntajeNacional Chile](https://www.youtube.com/channel/UCCY6xIXHmGBGZUgUYxtfKSg)
+- [Gobierno de Chile](https://www.gob.cl/)
+- [COVID-19 Chile](https://bing.com/covid/local/chile)
+
+Internacionales 🌍
+Argentina
+
+- [América TV](https://www.youtube.com/channel/UC6NVDkuzY2exMOVFw4i9oHw)
+- [El Siete TV](https://www.youtube.com/channel/UC64ZNqX0FQHabP8iIkmnR3A)
+- [A24](https://www.youtube.com/channel/UCR9120YBAqMfntqgRTKmkjQ)
+- [Información Periodistica](https://ip.digital/vivo) - [x](https://github.com/iptv-org/iptv/blob/master/streams/ar.m3u)
+- [IP Noticias](https://www.youtube.com/channel/UC1bBjOZieJWHbsFA0LwjjJA)
+	
+Colombia
+- [Noticias Caracol](https://www.youtube.com/channel/UC2Xq2PK-got3Rtz9ZJ32hLQ)
+- [RED MÁS Noticias](https://www.youtube.com/channel/UCpcvsK0UAI3MIHsjjj3CgMg)
+
+Perú
+- [Nacional TV](https://ntvperu.pe/senal-en-vivo/)
+- [UCI](https://uci.pe/envivo)
+- [Nativa](https://www.youtube.com/channel/UCdl1ygFwPa6lUdNYPLjoAGg)
+- [Cable Visión Perú](https://www.cablevisionperu.pe/?page_id=1938)
+- [ATV](https://www.atv.pe/envivo-atv)
+- [ATV Más](https://www.atv.pe/envivo-atvmas)
+- [Congreso República del Perú](https://www.youtube.com/channel/UCsKiP5cZCYh9YhPGrI6GrkQ)
+- [Justicia TV](https://www.youtube.com/channel/UCwsURxTXqGqijgu98ndod3A)
+
+
+Venezuela
+- [teleSUR tv](https://www.youtube.com/channel/UCbHFKMtqLYkIBRiPHJwxu_w)
+- [VPItv](https://www.youtube.com/channel/UCVFiIRuxJ2GmJLUkHmlmj4w)
+
+México 
+- [MILENIO](https://www.youtube.com/channel/UCFxHplbcoJK9m70c4VyTIxg)
+
+España
+- [CNN en Español](https://www.youtube.com/channel/UC_lEiu6917IJz03TnntWUaQ)
+
+Brasil
+- [CNN Brasil](https://www.youtube.com/channel/UCvdwhh_fDyWccR42-rReZLw)
+
+Estados Unidos
+- [ABC7](https://www.youtube.com/channel/UCVxBA3Cbu3pm8w8gEIoMEog)	
+- [CNN US](https://us.cnn.com/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/us.m3u)
+- [CNBC EU](https://www.cnbc.com/live-tv/) - [x](https://vidgrid.tk.gg/)
+- [C-SPAN 1](https://www.c-span.org/networks/?channel=c-span) - [x](https://vidgrid.tk.gg/)
+- [C-SPAN 2](https://www.c-span.org/networks/?channel=c-span) - [x](https://vidgrid.tk.gg/)
+- [C-SPAN 3](https://www.c-span.org/networks/?channel=c-span) - [x](https://vidgrid.tk.gg/)
+- [Fox Business](https://www.youtube.com/channel/UCCXoCcu9Rp7NPbTzIvogpZg)
+- [LiveNOW from FOX](https://www.youtube.com/channel/UCJg9wBPyKMNA5sRDnvzmkdg)
+- [NBCLA](https://www.youtube.com/channel/UCSWoppsVL0TLxFQ2qP_DLqQ)
+- [NBC Now (Live Event)](https://www.nbcnews.com/now)
+- [NBC Now](https://www.nbcnews.com/now)
+- [PBS America](https://www.pbsamerica.co.uk/) - [x](https://vidgrid.tk.gg/)
+- [Record News](https://www.youtube.com/channel/UCuiLR4p6wQ3xLEm15pEn1Xw)
+- [Sky News](https://www.youtube.com/channel/UCoMdktPbSTixAyNGwb-UYkQ)
+- [The Sun](https://www.youtube.com/channel/UCIzXayRP7-P0ANpq-nD-h5g)
+
+Francia
+- [euronews (in English) 2](https://www.euronews.com/live) - [x](https://github.com/Free-IPTV/Countries/blob/master/UK01_UNITED_KINGDOM.m3u)
+- [FRANCE 24 French](https://www.france24.com/fr/direct) - [x](https://github.com/iptv-org/iptv/blob/master/streams/fr.m3u)
+- [LCI](https://www.tf1info.fr/direct/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/fr.m3u)
+
+Alemania
+- [DW Español](https://www.youtube.com/channel/UCT4Jg8h03dD0iN3Pb5L0PMA)
+- [DW Deutsch](https://www.youtube.com/channel/UCMIgOXM2JEQ2Pv2d0_PVfcg)
+
+Rusia
+- [5 канал](https://www.youtube.com/channel/UCkyrSWEcjZKpIwMxiPfOcgg)
+- [Москва 24](https://www.youtube.com/channel/UCIme7og-uTpdRXRgm0zzA2A)
+- [Россия 24](https://ok.ru/videoembed/3574052691599?nochat=1&autoplay=1) - [x](https://xn--b1agj9af.xn--80aswg/video/rossija-24/)
+- [РБК](https://www.youtube.com/channel/UCWAK-dRtTEjnQnD96L6UMsQ)
+- [RT America](https://www.youtube.com/channel/UCczrL-2b-gYK3l4yDld4XlQ)
+- [RT Arabic](https://www.youtube.com/channel/UCsP3Clx2qtH2mNZ6KolVoZQ)
+- [RT Español](https://www.youtube.com/channel/UC2mtXUpAYLYJIZ2deSPhlqw)
+- [RT en vivo](https://www.youtube.com/channel/UCEIhICHOQOonjE6V0SLdrHQ)
+- [RT France](https://www.youtube.com/channel/UCqEVwTnDzlzKOGYNFemqnYA)
+- [RT News](https://www.youtube.com/channel/UCpwvZwUam-URkxB7g4USKpg)
+- [RT UK](https://www.youtube.com/channel/UC_ab7FFA2ACk2yTHgNan8lQ)
+- [Телеканал Дождь](https://www.youtube.com/channel/UCdubelOloxR3wzwJG9x8YqQ)
+- [Україна 24](https://www.youtube.com/channel/UCMp5Buw-6LpbbV9r9Sl_5yg)
+
+Ucrania
+- [34 телеканал](https://www.youtube.com/channel/UCAxGITqXFNmV7PNCU82D_MA)
+- [Апостроф TV](https://www.youtube.com/channel/UC0lnIB2qcArjFJPtq79WGZA)
+
+China
+- [民視直播 FTVN Live 53](https://www.youtube.com/channel/UClIfopQZlkkSpM1VgCFLRJA)
+- [三立LIVE新聞](https://www.youtube.com/channel/UC2TuODJhC03pLgd6MpWP0iw)
+- [中天電視](https://www.youtube.com/channel/UC5l1Yto5oOIgRXlI4p4VKbw)
+- [CGTN Europe](https://www.youtube.com/channel/UCj0TppyxzQWm9JbMg3CP8Rg)
+
+Hong Kong
+- [蘋果動新聞 HK Apple Daily](https://www.youtube.com/channel/UCeqUUXaM75wrK5Aalo6UorQ)
+
+Japón
+- [ANNnewsCH](https://www.youtube.com/channel/UCGCZAYq5Xxojl_tSXcVJhiQ)
+- [NHK WORLD-JAPAN](https://www.youtube.com/channel/UCSPEjw8F2nQDtmUKPFNF7_A)
+
+Corea del Sur
+- [MBCNEWS](https://www.youtube.com/channel/UCF4Wxdo3inmxP-Y59wXDsFw)
+
+Nigeria
+- [TVC News Nigeria](https://www.youtube.com/channel/UCgp4A6I8LCWrhUzn-5SbKvA)
+
+India 
+- [IndiaTV](https://www.youtube.com/channel/UCttspZesZIDEwwpVIgoZtWQ)
+- [Republic World](https://www.youtube.com/channel/UCwqusr8YDwM-3mEYTDeJHzw)
+
+Reino Unido
+- [GBNews](https://www.youtube.com/channel/UC0vn8ISa4LKMunLbzaXLnOQ)
+
+
+
+Radios 📻
+Chile
+- [Biobio TV 2](https://www.biobiochile.cl/biobiotv/) - [x](https://m3u.cl/lista-iptv-chile.php)
+- [ADN 3](http://tv.adnradio.cl/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/cl.m3u)
+- [ADN 4](http://tv.adnradio.cl/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/cl.m3u)
+- [ADN 5](http://tv.adnradio.cl/) - [x](https://m3u.cl/lista-iptv-chile.php)
+- [Carolina TV 2](https://www.carolina.cl/tv/) - [x](https://www.chileiptv.cl/)
+- [Carolina TV 3](https://www.carolina.cl/tv/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/cl.m3u)
+- [FM Tiempo](https://www.fmtiempo.cl/)
+- [FM Tiempo 2](https://www.fmtiempo.cl/) - [x](https://www.chileiptv.cl/)
+- [Alegría TV](https://www.alegriafm.cl/) - [x](https://www.chileiptv.cl/)
+- [Alegría TV 2](https://www.alegriafm.cl/) - [x](https://github.com/iptv-org/iptv/blob/master/streams/cl.m3u)
+- [Romántica TV 2](https://www.romantica.cl/romantica-tv/) - [x](https://www.chileiptv.cl/)
+- [Mi Radio es Más](https://www.youtube.com/channel/UCflUbt1g29kPG-H9SV5QIyw)
+- [Radio María Chile](https://www.youtube.com/channel/UClMwb2kCYemWyDIZ2dYttKA)
+	
+Perú
+- [PBO](https://www.youtube.com/channel/UCgR0st4ZLABi-LQcWNu3wnQ)
+- [Radio Santa Rosa](https://www.youtube.com/channel/UCIGV0oiNkdK2-tnf10DNp2A)
+
+Música 🎵
+
+- [IMUC Chile](https://www.youtube.com/channel/UCIIDtZoaK9UZi4FaGMmL_hw)
+- [naxos japan](https://www.youtube.com/channel/UCwP6-81HmoDyC3nfBAyGPXQ)
+- [the bootleg boy](https://www.youtube.com/channel/UC0fiLCwTmAukotCXYnqfj0A)
+- [the bootleg boy 2](https://www.youtube.com/channel/UCwkTfp14Sj7o6q9_8ADJpnA)
+- [Abao en Tokio](https://www.youtube.com/channel/UC84whx2xxsiA1gXHXXqKGOA)
+
+Cámaras 📷
+
+- [Providencia, Ledrium](https://www.youtube.com/channel/UCTDewuGhfwGv6JRNnqa-yXw)
+- [glaseado.cl, Huayquique](https://www.glaseado.cl/surf-cams/huayquique/)
+- [glaseado.cl,Las Urracas](https://www.glaseado.cl/surf-cams/las-urracas/)
+- [glaseado.cl, La Punta](https://www.glaseado.cl/surf-cams/la-punta/)
+- [Av Angamos](https://www.youtube.com/channel/UCP9nvEUj8EN-wuOQajPQbAw)
+- [Av La Marina](https://www.youtube.com/channel/UCP9nvEUj8EN-wuOQajPQbAw)
+- [Washington DC LIVE Cam & US Capitol](https://www.youtube.com/channel/UCRj7u6fmW8RYQl98hcwbwng)
+- [Las Vegas, Treasure Island](https://www.youtube.com/channel/UCRj7u6fmW8RYQl98hcwbwng)
+- [San Diego, Down Town + Airport](https://www.youtube.com/channel/UCRj7u6fmW8RYQl98hcwbwng)
+- [Paris, EIFFEL Tower](https://www.youtube.com/channel/UCRj7u6fmW8RYQl98hcwbwng)
+- [Steadycamline, Jerusalem](https://www.youtube.com/channel/UC1byT4dOeBAZwVqQ309iAuA)
+
+Espacio 🔭
+- [NASA ISS Live Stream](https://www.youtube.com/watch?v=EEIk7gwjgIM)
+- [Space Videos](https://www.youtube.com/channel/UCakgsb0w7QB0VHdnCc-OVEA)
+- [NASASpaceflight](https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA)
+- [NASASpaceflight](https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA)
+- [Earth view from ISS](https://www.youtube.com/watch?v=XBPjVzSoepo)
+- [LabPadre](https://www.youtube.com/channel/UCFwMITSkc1Fms6PoJoh1OUQ)
+- [Multi-cam Ucrania, Zabby](https://www.youtube.com/channel/UCxc2Kkmuc8-BXVEQ82ChVow)
+- [Multi-cam Ucrania, Sloth On Meth](https://www.youtube.com/channel/UCkO2xL-Fx_tYXXxuuAv_j6A)
+
+Varios
+- [COVID-19 Dashboard](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)
+- [COVID-19 Live](https://www.youtube.com/channel/UCDGiCfCZIV5phsoGiPwIcyQ)
+
 ## [v0.14]
 ### Changed
 - Código JavaScript reducido con el socio ChatGPT-3.5

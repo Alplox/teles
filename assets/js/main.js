@@ -1,5 +1,5 @@
 /* 
-  main v0.14
+  main v0.15
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -650,10 +650,16 @@ function crearIframe(source) {
   return fragmentIFRAME;
 };
 
-function crearOverlay(nombre, fuente, pais) {
+function crearOverlay(nombre, fuente, pais, altIcon) {
   const fragmentOVERLAY = document.createDocumentFragment();
   const a = document.createElement('a');
-  let contenido = (pais === undefined) ? nombre : `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
+  if (pais === undefined && altIcon === undefined) {
+    contenido = nombre;
+  } else if (pais === undefined && altIcon !== undefined) {
+      contenido = `${altIcon} ${nombre}`;
+  } else {
+      contenido = `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
+  }
   a.innerHTML = contenido;
   a.title = 'Ir a la página oficial de esta transmisión';
   a.href = fuente;
@@ -672,7 +678,7 @@ function crearOverlay(nombre, fuente, pais) {
 let tele = {
   add: (canal) => {
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
-      let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais} = listaCanales[canal];
+      let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon} = listaCanales[canal];
       canalesStorage[canal] = nombre;
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
   
@@ -692,7 +698,7 @@ let tele = {
       });
   
       if (typeof iframe_url !== 'undefined') {
-        divTransmision.append(crearIframe(iframe_url), crearOverlay(nombre, fuente, pais));
+        divTransmision.append(crearIframe(iframe_url), crearOverlay(nombre, fuente, pais, alt_icon));
       } else if (typeof m3u8_url !== 'undefined') {
         const divM3u8 = document.createElement('div');
         divM3u8.classList.add('m3u-stream');
@@ -701,7 +707,7 @@ let tele = {
           videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
           videoM3u8.toggleAttribute('controls');
           divM3u8.append(videoM3u8);
-        divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais));
+        divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon));
         fragmentTransmision.append(divTransmision);
         canalesGrid.append(fragmentTransmision);
   
@@ -714,17 +720,17 @@ let tele = {
       } else if (typeof yt_id !== 'undefined') {
         divTransmision.append(
           crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`), 
-          crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais)
+          crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon)
         );
       } else if (typeof yt_embed !== 'undefined') {
         divTransmision.append(
           crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`), 
-          crearOverlay(nombre, fuente, pais)
+          crearOverlay(nombre, fuente, pais, alt_icon)
         );
       } else if (typeof yt_playlist !== 'undefined') {
         divTransmision.append(
           crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`), 
-          crearOverlay(nombre, fuente, pais)
+          crearOverlay(nombre, fuente, pais, alt_icon)
         );
       } else {
         console.log(`${canal} - Canal Inválido`);
@@ -769,7 +775,7 @@ let tele = {
     const fragmentBtn = document.createDocumentFragment();
     let numeroCanalesConPais = [];
     for (const canal in listaCanales) {
-      let {nombre, pais} = listaCanales[canal];
+      let {nombre, pais, alt_icon} = listaCanales[canal];
       let btnTransmision = document.createElement('button');
         btnTransmision.classList.add('btn', 'btn-outline-secondary');
         btnTransmision.setAttribute('data-canal', canal);
@@ -787,6 +793,9 @@ let tele = {
           btnTransmision.setAttribute('country', `${nombrePais}`)
           p.append(img)
           numeroCanalesConPais.push(pais)
+      } else if (alt_icon){
+        p.innerHTML += alt_icon
+        numeroCanalesConPais.push('Unknow');
       } else {
         btnTransmision.setAttribute('country', 'Unknow')
         numeroCanalesConPais.push('Unknow');
@@ -830,19 +839,19 @@ let tele = {
     for (const bandera of paisesSinRepetir) {
       let nombrePais = paises[bandera];
       let btn = document.createElement('button');
-        btn.classList.add('btn', 'btn-outline-secondary', 'justify-content-between', 'align-items-left');
+        btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center');
         btn.setAttribute('type', 'button');
         btn.setAttribute('data-country', bandera);
 
       let span = document.createElement('span');
-        span.classList.add('badge', 'bg-secondary', 'rounded-pill', 'ms-2');
+        span.classList.add('badge', 'bg-secondary', 'rounded-pill');
         span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
-
       if (paises[bandera]) {
         let img = document.createElement('img');
         img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
         img.setAttribute('alt', `bandera ${nombrePais}`);
         img.setAttribute('title', nombrePais);
+        img.classList.add('rounded-5');
         btn.append(img, span);
       } else {
         btn.innerHTML = bandera;
@@ -850,7 +859,6 @@ let tele = {
       }
 
       btn.addEventListener('click', () => {
-        
         let todoBtn = containerBtnBanderas.querySelectorAll('button');
         todoBtn.forEach(btn => {
           btn.classList.replace('btn-primary', 'btn-outline-secondary');
@@ -870,10 +878,8 @@ let tele = {
     tele.populateModal();
   
     const localStorageCanales = localStorage.getItem('canales_storage');
-    const canalesPredeterminados = ['24-horas-5', 'meganoticias-3', 't13-4']; 
-    const canalesExtras = ['chv-noticias-3', 'emergencia-activa', 'lofi-girl'];
-  
-    
+    const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4']; 
+    const canalesExtras = ['chv-noticias-3', 'galeria-cima', 'lofi-girl'];
   
     const canalesAgregar = tele.movil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
   
