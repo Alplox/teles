@@ -1,15 +1,10 @@
 /* 
-    style v0.15
+    style v0.16
     by Alplox 
     https://github.com/Alplox/teles
 */
 
 * {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    
     -webkit-font-smoothing: subpixel-antialiased;
     -moz-font-smoothing: subpixel-antialiased;
     -ms-font-smoothing: subpixel-antialiased;
@@ -18,17 +13,6 @@
     text-rendering:  optimizeLegibility;
 }
 
-*,
-*:before,
-*:after {
-    box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-}
-
-body {
-    background: #000000;
-}
 
 a {
     text-decoration: none;
@@ -38,8 +22,14 @@ a:focus {
     outline: 2px var(--bs-indigo) ridge;
 }
 
-.texto-chikito{
+
+
+.fs-x-small{
     font-size: x-small;
+}
+
+.fs-smaller{
+    font-size: smaller;
 }
 
 img, 
@@ -84,7 +74,6 @@ button:hover > :not(.pe-1).bi-share-fill{
 .share-btns,
 .notify {
     text-align: center;
-    text-wrap: balance;
 }
 
 .navbar-text {
@@ -188,8 +177,8 @@ pwa-update::part(updateToast) {
 }
 
 .reloj a,
-.barra-overlay,
-.overlay-btn-close {
+.barra-overlay button,
+.barra-overlay a{
     font-size: clamp(0.5rem, 0.75rem, 1rem);
 }
 
@@ -198,24 +187,9 @@ pwa-update::part(updateToast) {
     border: none;
 }
 
-/* div canal */
-.stream {
-    position: relative;
-    min-height: 100%;
-}
-
 /* barra sobre canales */
 .barra-overlay {
-    position: absolute;
-    z-index: 3;
-    top: 5px;
-    right: 29px;
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
-    width: fit-content;
-    padding: 2px 5px; 
     opacity: 0.5;
-    background: #000000;
 }
 
 .barra-overlay img {
@@ -223,24 +197,13 @@ pwa-update::part(updateToast) {
 }
 
 .barra-overlay:hover,
-.overlay-btn-close:hover{
+.barra-overlay:focus-within{
     opacity: 1;
 }
 
-.fondo a:hover,
-.barra-overlay a:hover,
-.modal-body a:hover {
-    border-bottom: 2px var(--bs-indigo) ridge;
-}
-
-.overlay-btn-close {
-    position: absolute;
-    z-index: 3;
-    background-color: var(--bs-red);
-    top: 5px;
-    right: 5px;
-    padding: 5px;
-    opacity: 0.5;
+.barra-overlay a:focus {
+    outline: none;
+    outline: 2px var(--bs-indigo) ridge;
 }
 
 /* modales interior */
@@ -248,6 +211,12 @@ pwa-update::part(updateToast) {
     display: grid;
     gap: 0.375rem;
     grid-template-columns: repeat(3, 1fr);
+}
+
+.offcanvas-body-canales {
+    display: grid;
+    gap: 0.375rem;
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .container-btn-group {
@@ -290,7 +259,7 @@ pwa-update::part(updateToast) {
 }
 
 /* Sidepanel inspirado en: https://codepen.io/FlorinPop17/pen/XWWZYYG */
-.offcanvas {
+.offcanvas-personalizaciones  {
 	transition: transform 0.4s ease-in-out;
 	background-color: hsla(210, 11%, 15%, 0.8);
     -webkit-box-shadow:
@@ -311,25 +280,25 @@ pwa-update::part(updateToast) {
     96px 100px 78px rgba(0, 0, 0, 0.2);
 }
 
-.offcanvas-end {
+.offcanvas-personalizaciones {
    /*  top: unset; */
     right: 0px;
     top: 10%;
 	bottom: 20%;
 }
 
-.offcanvas-header {
+.offcanvas-personalizaciones .offcanvas-header {
     justify-content: center;
     padding: 0;
 }
 
-.offcanvas-header button{
+.offcanvas-personalizaciones .offcanvas-header button{
     display: flex;
     justify-content: flex-end;
     padding: 1rem 1rem;
 }
 
-.offcanvas p {
+.offcanvas-personalizaciones p {
 	top: 0;
 	width: 185px;
 	padding: 2px 17px 5px; 
@@ -338,13 +307,13 @@ pwa-update::part(updateToast) {
 	background: var(--bs-dark);
 }
 
-.offcanvas ul {
+.offcanvas-personalizaciones ul {
 	display: flex;
     flex-direction: column;
     list-style: none;
 }
 
-.offcanvas ul li {
+.offcanvas-personalizaciones ul li {
     padding: 10px 0;
 }
 
@@ -354,15 +323,15 @@ select {
     cursor: pointer;
 }
 
-.offcanvas li:last-child,
-.offcanvas li:nth-last-child(2) {
+.offcanvas-personalizaciones li:last-child,
+.offcanvas-personalizaciones li:nth-last-child(2) {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
 }
 
-.offcanvas-body {
+.offcanvas-personalizaciones .offcanvas-body {
     padding: 0rem 1rem;
 }
 
@@ -452,9 +421,15 @@ select {
 }
 
 @media (max-width: 768px) {
-    .modal-body-canales {
+    .modal-body-canales,
+    .offcanvas-body-canales {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+    }
+
+    .offcanvas-canales {
+        width: 250px;
+       
     }
 }
 

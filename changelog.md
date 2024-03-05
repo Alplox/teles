@@ -2,6 +2,17 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.16]
+### Changed
+- CSS: <a>:focus y <a>:hover 
+- manifesto PWA
+- CSS: .barra-overlay debido a que no estaba bien centrado su contenido
+- .barra-overlay se añade tabindex=0 para poder hacer focus con tecla TAB
+- Texto: de "Desactivar" a "Quitar" en modal canales (para que sea igual a boton quitar que tienen las señales)
+- separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
+
+### Added
+- Icono a enlaces externos dentro de señal activa <iframe> para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
 
 ## [v0.15]
 ### Changed
@@ -306,7 +317,7 @@ Chile
 ## [v0.12]
 ### Changed
 - Cambio versión Bootstrap Icons de 1.9.0 a 1.10.4
-- Rediseño leve, enfoque en usar iconos externos librería Boostrap Icons y no emojis para mejor compatibilidad
+- Rediseño leve, enfoque en usar iconos externos librería Bootstrap Icons y no emojis para mejor compatibilidad
 
 #### 📺 Canales
 Chile

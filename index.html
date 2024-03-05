@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.15
+    teles v0.16
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -13,8 +13,7 @@
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
     <!-- bootstrap -->
-    <link href="https://unpkg.com/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <script src="https://unpkg.com/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- bootstrap icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
     <!-- video-js -->
@@ -60,10 +59,127 @@
             Santiago_z179: {}
         });
     </script>
+
+
+
 </head>
 
 <body>
-    <!-- alerta noscript -->
+
+
+
+    <!-- Boton tema claro/oscuro -->
+    <div class="position-fixed py-2 px-3 bg-dark text-white rounded-pill" style="bottom:1rem;left:1rem;">
+        <div class="form-check form-switch pull-right">
+          <input class="form-check-input" type="checkbox" id="darkMode">
+          <label id="darkModeLabel" for="darkMode">Claro</label>
+        </div>
+    </div>
+
+
+    <script>
+        var darkMode = document.getElementById('darkMode');
+        
+        var darkLabel = "darkModeLabel";
+        var darkLang = "Oscuro";
+        var lightLang = "Claro";
+        
+        window.addEventListener('load', function () {
+          if (darkMode) {
+            initTheme();
+            darkMode.addEventListener('change', function () {
+              resetTheme();
+            });
+          }
+        });
+        
+        function initTheme() {
+          var darkThemeSelected = localStorage.getItem('darkMode') !== null && localStorage.getItem('darkMode') === 'dark';
+          darkMode.checked = darkThemeSelected;
+          darkThemeSelected ? document.documentElement.setAttribute('data-bs-theme', 'dark') : document.documentElement.removeAttribute('data-bs-theme');
+       
+          darkThemeSelected ? document.getElementById(darkLabel).innerHTML = darkLang : document.getElementById(darkLabel).innerHTML = lightLang;
+        }
+        
+        function resetTheme() {
+          if (darkMode.checked) {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+            localStorage.setItem('darkMode', 'dark');
+           
+            document.getElementById(darkLabel).innerHTML = darkLang;
+          } else {
+            document.documentElement.removeAttribute('data-bs-theme');
+            localStorage.removeItem('darkMode');
+           
+            document.getElementById(darkLabel).innerHTML = lightLang;
+          }
+        }
+        </script>
+
+
+
+
+
+
+
+    <div class="offcanvas offcanvas-canales offcanvas-start" 
+        data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Selecciona tus canales</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+     
+    <div class="d-flex flex-column">
+        <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
+            Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
+            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
+        </p>
+        <button class="btn btn-sm btn-outline-primary mx-2 mb-2 text-center " type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
+            Mostrar filtro por país <i class="bi bi-funnel"></i>
+        </button>
+        <div class="collapse p-2" id="collapse-btn-group">
+            <div class="card card-body">
+                <div class="btn-group btn-group-sm container-btn-group" 
+                role="group" 
+                aria-label="Toggle radio para grupo botones" 
+                id='offcanvas-collapse-botones-listado-filtro-paises'>
+                    <button 
+                    id="offcanvas-btn-mostrar-todo-pais" 
+                    class='btn btn-primary' 
+                    type='button' 
+                    data-country='all'>Todos
+                        <span class="badge bg-secondary rounded-pill" id='offcanvas-span-con-numero-total-canales'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+      <div class="offcanvas-body">
+        
+        <div class="offcanvas-body-canales" id="offcanvas-body-botones-canales"></div>
+       
+      </div> <!-- Termina body offcanvas -->
+
+        <div class="p-2 d-flex flex-column">
+            <div class="form-floating">
+                <input type="search" class="form-control" id="offcanvas-input-filtro" placeholder="Buscar por país o canal">
+                <label for="filtro">Buscar por país o canal</label>
+            </div>
+            <div class="d-flex justify-content-evenly mt-2">
+                <button class="btn btn-sm btn-danger w-100 me-2" id="btn-offcanvas-quitar-todo-canal-activo">
+                    Quitar todo canal activo
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="offcanvas">Cerrar</button>
+            </div>
+           
+        </div>
+    
+   
+    </div>
+
+    <!-- Alerta noscript -->
     <noscript>
         <div class="container-fluid no-js">
             <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
@@ -72,15 +188,23 @@
         </div>
     </noscript>
 
-    <!-- alerta tras borrado localstorage -->
+    <!-- Alerta tras borrado localstorage -->
     <div id="alert-reset"></div>
 
     <!-- Navbar -->
-    <nav class='navbar navbar-expand-lg navbar-dark bg-dark text-white'>
+    <nav class='navbar navbar-expand-lg navbar-dark bg-dark text-white' data-bs-theme="dark">
         <div class="container-fluid">
-            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                data-bs-target="#modal-canales">Señales <i class="ps-1 bi bi-display"></i></button>
-            <span class="reloj px-4" title="Hora Santiago, Chile">
+
+            <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
+                <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="offcanvas" 
+                data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><i class="bi bi-chevron-right"></i></button>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal"
+                data-bs-target="#modal-canales">Canales <i class="ps-1 bi bi-display"></i></button>
+              </div>
+
+            <!-- <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
+                data-bs-target="#modal-canales">Canales <i class="ps-1 bi bi-display"></i></button> -->
+                <span class="reloj px-4" title="Hora Santiago, Chile">
                 <span id="Santiago_z179" tabindex="-1">
                     <span onclick="location='http://time.is/'" class="wea" title="http://time.is/" tabindex="-1"></span>
                 </span>
@@ -102,7 +226,7 @@
                             Enlaces complementarios</button>
                     </li>
                     <li class='nav-item'>
-                        <button type="button" class='nav-link btn btn-compartir'><i class="pe-1 text-warning bi bi-share-fill"></i> Compartir
+                        <button type="button" class='nav-link btn btn-compartir'><i class="pe-1 bi bi-share-fill"></i> Compartir
                         </button>
                     </li>
                 </ul>
@@ -113,7 +237,7 @@
                             data-bs-auto-close="outside" aria-expanded="false" id="dropdown-about">
                             Acerca de
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="dropdown-about">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about" data-bs-theme="dark">
                             <li>
                                 <a class='dropdown-item' href='#' data-bs-toggle="offcanvas" data-bs-target="#sidepanel">Personalizaciones</a>
                             </li>
@@ -151,14 +275,18 @@
             </div>
         </div>
     </nav>
-
+    
     <!-- Grid canales -->
     <main class="row g-0" id="canales-grid">
-        <section class="fondo container">
-            <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
-            <h1 class="display-1 text-white user-select-none">teles</h1>
-            <h2><a href="https://github.com/Alplox/teles">https://github.com/Alplox/teles <i class="bi bi-box-arrow-up-right"></i></a></h2>
-            <i class="badge bg-dark user-select-none">v0.15</i>
+        <section class="fondo container z-n1">
+            <button type="button" class="btn btn-dark position-relative user-select-none pe-none border-0" tabindex="-1">
+                <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles"> 
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
+                    <i class="badge bg-secondary user-select-none">v0.16</i>
+                </span>
+                </button>
+                <h1 class="display-1 user-select-none">teles</h1>
+                <h2><a href="https://github.com/Alplox/teles">https://github.com/Alplox/teles <i class="bi bi-box-arrow-up-right"></i></a></h2>
         </section>
     </main>
 
@@ -173,34 +301,43 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-caption">
+                    <p class="modal-caption fs-smaller">
                         Si quieres contribuir con algun canal o ver las fuentes de estos
                         puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
                             rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
-                        </p>
+                    </p>
                     <p>
-                        <button class="btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
-                          Mostrar filtro por país
+                        <button class="btn btn-sm btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
+                          Mostrar filtro por país <i class="bi bi-funnel"></i>
                         </button>
                     </p>
                     <div class="collapse pb-2" id="collapse-btn-group">
                         <div class="card card-body" >
-                        <div class="btn-group btn-group-sm container-btn-group" role="group" aria-label="Toggle radio para grupo botones" id='listado-filtro-paises'>
-                            <button id="mostrar-todo-pais" class='btn btn-primary' type='button' data-country='all'>Todos
-                                <span class="badge bg-secondary rounded-pill" id='span-con-numero-total-canales'></span>
+                        <div class="btn-group btn-group-sm container-btn-group" 
+                            role="group" 
+                            aria-label="Toggle radio para grupo botones" 
+                            id='modal-collapse-botones-listado-filtro-paises'
+                        >
+                            <button 
+                                id="modal-btn-mostrar-todo-pais" 
+                                class='btn btn-primary' 
+                                type='button' 
+                                data-country='all'
+                            >Todos
+                                <span class="badge bg-secondary rounded-pill" id='modal-span-con-numero-total-canales'></span>
                             </button>
                         </div>
                         </div>
                     </div>
-                    <div class="modal-body-canales" id="por-filtrar"></div>
+                    <div class="modal-body-canales" id="modal-body-botones-canales"></div>
                 </div>
                 <div class="modal-footer">
                     <div class="form-floating">
-                        <input type="search" class="form-control" id="filtro" placeholder="Buscar por país o canal">
+                        <input type="search" class="form-control" id="modal-input-filtro" placeholder="Buscar por país o canal">
                         <label for="filtro">Buscar por país o canal</label>
                     </div>
-                    <button class="btn btn-danger" id="limpiar">
-                        Desactivar todo canal activo
+                    <button class="btn btn-danger" id="btn-modal-quitar-todo-canal-activo">
+                        Quitar todo canal activo
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -247,7 +384,7 @@
                 </div>
                 <div class="modal-footer d-flex align-items-center justify-content-center">
                     <button type="button" class="btn btn-lg btn-success pulsate-3" id="btn-entendido" data-bs-dismiss="modal"
-                        data-bs-target="#modal-bienvenida">Entendido <p class="texto-chikito m-0 p-0">(No volver a mostrar)</p></button>
+                        data-bs-target="#modal-bienvenida">Entendido <p class="fs-x-small m-0 p-0">(No volver a mostrar)</p></button>
                 </div>
             </div>
         </div>
@@ -919,54 +1056,55 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Compartir <i class="text-warning bi bi-share-fill"></i></h5>
                 </div>
-                <div class="modal-body share-btns">
-                    <!-- Boton Facebook -->
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"
+                <div class="modal-body">
+                    <div class="share-btns">
+                        <!-- Boton Facebook -->
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"
                         rel="nofollow noreferrer" title="Facebook">
                         <img class="share-item" src="assets/svg/socials/facebook-logo.svg" alt="Facebook logo">
-                    </a>
-                    <!-- Boton Twitter -->
-                    <a href="https://twitter.com/intent/tweet/?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Twitter">
-                        <img class="share-item" src="assets/svg/socials/twitter-logo.svg" alt="Twitter logo">
-                    </a>
-                    <!-- Boton WSP app -->
-                    <a href="whatsapp://send?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).%20https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Whatsapp">
-                        <img class="share-item" src="assets/svg/socials/whatsapp-logo.svg" alt="Whatsapp logo">
-                    </a>
-                    <!-- Boton Telegram -->
-                    <a href="https://telegram.me/share/url?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Telegram">
-                        <img class="share-item" src="assets/svg/socials/telegram-logo.svg" alt="Telegram logo">
-                    </a>
-                    <!-- Boton Tumblr -->
-                    <a href="https://www.tumblr.com/widgets/share/tool?posttype=link&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;caption=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;content=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;canonicalUrl=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;shareSource=tumblr_share_button"
-                        rel="nofollow noreferrer" title="Tumblr">
-                        <img class="share-item" src="assets/svg/socials/tumblr-logo.svg" alt="Tumblr logo">
-                    </a>
-                    <!-- Boton Pinterest -->
-                    <a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;media=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;description=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
-                        rel="nofollow noreferrer" title="Pinterest">
-                        <img class="share-item" src="assets/svg/socials/pinterest-logo.svg" alt="Pinterest logo">
-                    </a>
-                    <!-- Boton LinkedIn -->
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;summary=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;source=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="LinkedIn">
-                        <img class="share-item" src="assets/svg/socials/linkedin-logo.svg" alt="LinkedIn logo">
-                    </a>
-                    <!-- Boton Reddit -->
-                    <a href="https://reddit.com/submit/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;resubmit=true&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
-                        rel="nofollow noreferrer" title="Reddit">
-                        <img class="share-item" src="assets/svg/socials/reddit-logo.svg" alt="Reddit logo">
-                    </a>
-                    <!-- Boton MAIL -->
-                    <a href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        target="_self" rel="nofollow noreferrer noopener" title="Mail">
-                        <img class="share-item" src="assets/svg/socials/mail.svg" alt="Mail logo">
-                    </a>
-                    <hr>
-                    <div class="input-group">
+                        </a>
+                        <!-- Boton Twitter -->
+                        <a href="https://twitter.com/intent/tweet/?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                            rel="nofollow noreferrer" title="Twitter">
+                            <img class="share-item" src="assets/svg/socials/twitter-logo.svg" alt="Twitter logo">
+                        </a>
+                        <!-- Boton WSP app -->
+                        <a href="whatsapp://send?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).%20https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                            rel="nofollow noreferrer" title="Whatsapp">
+                            <img class="share-item" src="assets/svg/socials/whatsapp-logo.svg" alt="Whatsapp logo">
+                        </a>
+                        <!-- Boton Telegram -->
+                        <a href="https://telegram.me/share/url?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                            rel="nofollow noreferrer" title="Telegram">
+                            <img class="share-item" src="assets/svg/socials/telegram-logo.svg" alt="Telegram logo">
+                        </a>
+                        <!-- Boton Tumblr -->
+                        <a href="https://www.tumblr.com/widgets/share/tool?posttype=link&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;caption=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;content=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;canonicalUrl=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;shareSource=tumblr_share_button"
+                            rel="nofollow noreferrer" title="Tumblr">
+                            <img class="share-item" src="assets/svg/socials/tumblr-logo.svg" alt="Tumblr logo">
+                        </a>
+                        <!-- Boton Pinterest -->
+                        <a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;media=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;description=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
+                            rel="nofollow noreferrer" title="Pinterest">
+                            <img class="share-item" src="assets/svg/socials/pinterest-logo.svg" alt="Pinterest logo">
+                        </a>
+                        <!-- Boton LinkedIn -->
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;summary=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;source=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                            rel="nofollow noreferrer" title="LinkedIn">
+                            <img class="share-item" src="assets/svg/socials/linkedin-logo.svg" alt="LinkedIn logo">
+                        </a>
+                        <!-- Boton Reddit -->
+                        <a href="https://reddit.com/submit/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;resubmit=true&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
+                            rel="nofollow noreferrer" title="Reddit">
+                            <img class="share-item" src="assets/svg/socials/reddit-logo.svg" alt="Reddit logo">
+                        </a>
+                        <!-- Boton MAIL -->
+                        <a href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                            target="_self" rel="nofollow noreferrer noopener" title="Mail">
+                            <img class="share-item" src="assets/svg/socials/mail.svg" alt="Mail logo">
+                        </a>
+                    </div>
+                    <div class="input-group mt-3">
                         <input class="form-control" type="text" value="https://alplox.github.io/teles/" aria-label="enlace sitio" readonly id="enlace-compartir">
                         <button type="button" class="btn btn-primary" id="btn-enlace">Copiar
                             enlace</button>
@@ -989,7 +1127,7 @@
     </button>
 
     <!-- sidepanel/personalizaciones -->
-    <div class="offcanvas offcanvas-end border border-5 border-dark rounded-3 text-white" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
+    <div class="offcanvas offcanvas-personalizaciones offcanvas-end border border-5 border-dark rounded-3 text-white" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
         <div class="offcanvas-header">
             <p>Personalización</p>
             <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -1022,13 +1160,13 @@
                 </li>
                 <li>
                     <select class="form-select border border-secondary bg-primary rounded-3 text-white" id="transmision-por-fila" aria-label="ajustar número transmisiones por fila">
-                        <option disabled selected>Nº Transmisiones por fila</option>
-                        <option value="12">1 transmisión por fila</option>
-                        <option value="6">2 transmisiones por fila</option>
-                        <option value="4">3 transmisiones por fila</option>
-                        <option value="3">4 transmisiones por fila</option>
-                        <option value="2">6 transmisiones por fila</option>
-                        <option value="1">12 transmisiones por fila a lo enfermo</option>
+                        <option disabled selected>Número de canales por fila</option>
+                        <option value="12">1 Canal por fila</option>
+                        <option value="6">2 Canales por fila</option>
+                        <option value="4">3 Canales por fila</option>
+                        <option value="3">4 Canales por fila</option>
+                        <option value="2">6 Canales por fila</option>
+                        <option value="1">12 Canales por fila a lo enfermo</option>
                     </select>
                 </li>
                 <li>
@@ -1036,7 +1174,7 @@
                 </li>
                 <li>
                     <button type="button" class="btn btn-outline-light col" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales">Señales <i class="bi bi-display"></i></button>
+                        data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button>
                     <button type="button" class="btn btn-sidepanel-compartir btn-outline-warning col"
                         title="Compartir">Compartir
                         <i class="text-warning bi bi-share-fill"></i>
@@ -1053,21 +1191,23 @@
     <div class="modal modal-alert py-5" tabindex="-1" role="dialog" id="modal-reset">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content rounded-4 shadow">
-            <div class="modal-body p-4">
-                <h5 class="text-center">¿Seguro que quieres reiniciar todas tus personalizaciones?</h5>
+            <div class="modal-body p-4 text-center">
+                <h5>¿Seguro que quieres reiniciar todas tus personalizaciones?</h5>
                 <p class="m-0">Esto borrara todas las entradas que hayan sido creadas, por este sitio, en tu navegador a través de localStorage.</p>
-                <p class="mb-0 mt-2 text-center">(<a href="https://developer.mozilla.org/es/docs/Web/API/Window/localStorage" rel="nofollow noreferrer">¿Qué es localStorage? <i class="bi bi-box-arrow-up-right"></i></a>)</p>
+                <p class="mb-0 mt-2">(<a href="https://developer.mozilla.org/es/docs/Web/API/Window/localStorage" rel="nofollow noreferrer">¿Qué es localStorage? <i class="bi bi-box-arrow-up-right"></i></a>)</p>
             </div>
             <div class="modal-footer flex-nowrap p-0">
-                <button type="button" class="btn btn-lg btn-danger fs-6 col-6 m-0 rounded-0" id="btn-reset" data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong>Si (borrarlas)</strong></button>
+                <button type="button" class="btn btn-lg btn-danger fs-6 col-6 m-0 rounded-0" id="btn-reset" data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong>Si (borrarlas) <i class="bi bi-trash3"></i></strong></button>
                 <button type="button" class="btn btn-lg btn-secondary fs-6 col-6 m-0 rounded-0" data-bs-dismiss="modal">No (manterlas)</button>
             </div>
           
         </div>
       </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="assets/js/main.js"></script>
+<script src="assets/js/filtroCanales.js"></script>
+<script src="assets/js/botonesQuitarTodo.js"></script>
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 

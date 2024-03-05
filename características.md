@@ -24,11 +24,11 @@
       - [ ] Activos/desactivados
     - [ ] `QUIZAS` Botón ordenar canales a-z
       - [ ] Recordar con localStorage
-    - [X] Botón limpiar toda señal activa
+    - [X] Botón limpiar todo canal activo
     - [X] Bandera acorde a país
   - [X] Habilidad de borrar localStorage
-  - [ ] `IMPROBABLE` Verificar si señal esta online
-  - [ ] `QUIZAS` Overlay en señales Youtube para alternar a instancia invidious
+  - [ ] `IMPROBABLE` Verificar si canal esta online
+  - [ ] `QUIZAS` Overlay en canales Youtube para alternar a instancia invidious
 - [X] Personalizaciones
   - [X] Interruptor navbar
     - [X] Recordar con localStorage
@@ -59,7 +59,7 @@
   - [X] Reducir código canales.js
   - [X] Quitar SVG's in-line de HTML
   - [ ] `IMPROBABLE` Canales en formato JSON
-  - [ ] `IMPROBABLE` Unificar múltiples señales en 1 objeto
+  - [ ] `IMPROBABLE` Unificar múltiples canales en 1 objeto
   - [ ] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
 - [X] Licencia
 - [X] Vanilla JS
