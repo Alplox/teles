@@ -255,11 +255,18 @@ const listaCanales = {
     },
     'radio-el-conquistador': {
         'nombre': 'Radio El Conquistador FM',
-        'iframe_url': 'https://redirector.rudo.video/hls-video/931b584451fa6dd1313ee66efbfd5802e3f3bcea/elconquistadortv/elconquistadortv.smil/playlist.m3u8',
+        'm3u8_url': 'https://redirector.rudo.video/hls-video/931b584451fa6dd1313ee66efbfd5802e3f3bcea/elconquistadortv/elconquistadortv.smil/playlist.m3u8',
         'fuente': 'https://www.elconquistadorfm.net/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
-    },
+    },  
+    'radio-el-conquistador-2': {
+        'nombre': 'Radio El Conquistador FM 2',
+        'iframe_url': 'https://rudo.video/live/elconquistadortv',
+        'fuente': 'https://www.elconquistadorfm.net/',
+        'pais': 'cl',
+        'alt_icon': '<i class="bi bi-boombox"></i>'
+    }, 
     'radio-folclor-chile': {
         'nombre': 'Radio Folclor de Chile',
         'yt_id': 'UC0Hl8kJe8Xwv8g63Q4qefQg',
