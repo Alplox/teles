@@ -642,30 +642,37 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
 
   let btnRemove = document.createElement('button');
     /*  btnRemove.classList.toggle('d-none', !overlayCheckbox.checked); */
-    btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1');
+    btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
     btnRemove.setAttribute('aria-label', 'Close');
     btnRemove.setAttribute('type', 'button');
     btnRemove.setAttribute('title', 'Quitar canal');
-    btnRemove.innerHTML = 'Quitar <i class="bi bi-x-circle"></i>'
+    btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>'
     btnRemove.addEventListener('click', () => {
         tele.remove(canalId)
     });
 
   let btnCambiarSeñal = document.createElement('button');
-    btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1');
+    btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
     btnCambiarSeñal.setAttribute('type', 'button');
     btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
-    btnCambiarSeñal.innerHTML = 'Cambiar <i class="bi bi-arrow-repeat"></i>'
+    btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>'
       btnCambiarSeñal.addEventListener('click', () => {
           tele.change(canalId)
       });
 
+  let btnMoverEnGrid = document.createElement('button');
+  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnMoverEnGrid.setAttribute('type', 'button');
+  btnMoverEnGrid.setAttribute('title', 'Mover este canal');
+  btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
+  
 
 
   const divOVERLAY = document.createElement('div');
-    divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
+    divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-evenly', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
     divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
+    divOVERLAY.append(btnMoverEnGrid)
     divOVERLAY.append(btnCambiarSeñal)
     divOVERLAY.append(a);
     divOVERLAY.append(btnRemove)
@@ -677,6 +684,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
 // ----- tele
 let tele = {
   add: (canal) => {
+    // listaCanales = canales.js
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
       let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon} = listaCanales[canal];
       canalesStorage[canal] = nombre;
@@ -686,17 +694,6 @@ let tele = {
       let divTransmision = document.createElement('div');
         divTransmision.classList.add('position-relative', `col-${tele.movil() ? sizeMovil : size}`);
         divTransmision.setAttribute('data-canal', canal);
-  
-      /* let btnRemove = document.createElement('button');
-        btnRemove.classList.toggle('d-none', !overlayCheckbox.checked);
-        btnRemove.classList.add('overlay-btn-close', 'btn', 'btn-danger', 'position-absolute', 'top-0', 'end-0', 'rounded-5', 'p-0', 'px-1');
-        btnRemove.setAttribute('aria-label', 'Close');
-        btnRemove.setAttribute('type', 'button');
-        btnRemove.setAttribute('title', 'Quitar canal');
-        btnRemove.innerHTML = 'Quitar <i class="bi bi-x-circle"></i>'
-        btnRemove.addEventListener('click', () => {
-          tele.remove(canal)
-      }); */
   
       if (typeof iframe_url !== 'undefined') {
         divTransmision.append(crearIframe(iframe_url, nombre), crearOverlay(nombre, fuente, pais, alt_icon, canal));
@@ -805,7 +802,7 @@ let tele = {
         btnTransmision.setAttribute('data-canal', canal);
     
         const p = document.createElement('p');
-        p.classList.add('btn-inside');
+        p.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start');
         p.textContent = nombre;
     
         if (pais) {
@@ -993,23 +990,61 @@ tele.init();
 
 
 
-// ----- copiar enlace a portapapeles y alerta copiado https://codepen.io/lancebush/pen/zdxLE 
+// ----- copiar enlace a portapapeles y alerta copiado
 const btnEnlace = document.querySelector('#btn-enlace');
 
 btnEnlace.onclick = () => {
   let e = document.querySelector('#enlace-compartir');
   e.select();
   e.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(e.value);
-
-  document.querySelector('.notify').classList.toggle('active');
-  document.querySelector('.notify-span').classList.toggle('success');
-
-  setTimeout(() => {
-    document.querySelector('.notify').classList.remove('active');
-    document.querySelector('.notify-span').classList.remove('success');
-  }, 2000);
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(e.value)
+      .then(() => {
+        btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
+        btnEnlace.classList.add('bg-success');
+        setTimeout(() => {
+          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.classList.remove('bg-success');
+        }, 2000);
+      })
+      .catch(error => {
+        btnEnlace.innerHTML ='Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
+        btnEnlace.classList.add('bg-danger');
+        setTimeout(() => {
+          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.classList.remove('bg-danger');
+        }, 2000);
+        console.error('Error al copiar el enlace: ', error);
+      });
+  } else {
+    console.error('La funcionalidad de escritura en el portapapeles no está disponible en este navegador.');
+    try {
+      // Intenta copiar el texto de respaldo
+      document.execCommand('copy', false, e.value);
+      btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
+        btnEnlace.classList.add('bg-success');
+        setTimeout(() => {
+          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.classList.remove('bg-success');
+        }, 2000);
+      console.log('Texto copiado al portapapeles con éxito.');
+    } catch (error) {
+      btnEnlace.innerHTML = 'Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
+        btnEnlace.classList.add('bg-danger');
+        setTimeout(() => {
+          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.classList.remove('bg-danger');
+        }, 2000);
+      console.error('Error al copiar el texto al portapapeles: ', error);
+    }
+  }
 };
+
+
+
+
+
 
 
 // ----- btn compartir sitio (usa navigator.share en telefonos) 
@@ -1063,4 +1098,21 @@ function toggleFullscreen() {
 
 btnFullscreen.addEventListener('click', () => {
   toggleFullscreen();
+});
+
+
+
+
+
+
+
+
+
+
+
+new Sortable(canalesGrid, {
+	animation: 550,
+  handle: '.handle',
+  ghostClass: 'marca-al-mover',
+ 
 });

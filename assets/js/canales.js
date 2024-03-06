@@ -50,7 +50,7 @@ const listaCanales = {
         'nombre': '24 horas',
         'yt_id': 'UCTXNz3gjAypWp3EhlIATEJQ',
         'pais': 'cl'
-    },     
+    },   
     '24-horas-2': {
         'nombre': '24 horas 2',
         'iframe_url': 'https://mdstrm.com/live-stream/57d1a22064f5d85712b20dab?jsapi=true&autoplay=true&volume=0',
@@ -253,6 +253,27 @@ const listaCanales = {
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
+    'radio-el-conquistador': {
+        'nombre': 'Radio El Conquistador FM',
+        'm3u8_url': 'https://redirector.rudo.video/hls-video/931b584451fa6dd1313ee66efbfd5802e3f3bcea/elconquistadortv/elconquistadortv.smil/playlist.m3u8',
+        'fuente': 'https://www.elconquistadorfm.net/',
+        'pais': 'cl',
+        'alt_icon': '<i class="bi bi-boombox"></i>'
+    },  
+    'radio-el-conquistador-2': {
+        'nombre': 'Radio El Conquistador FM 2',
+        'iframe_url': 'https://rudo.video/live/elconquistadortv',
+        'fuente': 'https://www.elconquistadorfm.net/',
+        'pais': 'cl',
+        'alt_icon': '<i class="bi bi-boombox"></i>'
+    }, 
+    'radio-el-conquistador-3': {
+        'nombre': 'Radio El Conquistador FM 3',
+        'iframe_url': 'https://player.twitch.tv/?channel=elconquistadortv&parent=alplox.github.io',
+        'fuente': 'https://www.twitch.tv/elconquistadortv',
+        'pais': 'cl',
+        'alt_icon': '<i class="bi bi-boombox"></i>'
+    }, 
     'radio-folclor-chile': {
         'nombre': 'Radio Folclor de Chile',
         'yt_id': 'UC0Hl8kJe8Xwv8g63Q4qefQg',

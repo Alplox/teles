@@ -42,12 +42,12 @@
     - [ ] Recordar con localStorage
   - [X] Ocultar modal descargo de responsabilidad tras cargar
     - [X] Recordar con localStorage
-  - [ ] `IMPROBABLE` Interruptor cambiar tema
-    - [ ] Tema claro
+  - [X] `IMPROBABLE` Interruptor cambiar tema
+    - [X] Tema claro
     - [ ] `QUIZAS` Tema sepia
-    - [ ] Tema oscuro
+    - [X] Tema oscuro
     - [ ] `QUIZAS` Tema oled
-    - [ ] Recordar con localStorage
+    - [X] Recordar con localStorage
   - [X] Interruptor pantalla completa
   - [ ] Interruptor listado canales en modal/sidebar
     - [ ] Recordar con localStorage

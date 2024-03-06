@@ -113,6 +113,9 @@ Toda contribución es bienvenida 😊
 	- [Romántica TV](https://www.romantica.cl/romantica-tv/)
 	- [Radio Genial 100.5 FM](https://radiogenial.cl/)
 	- [Radio La Clave](https://radiolaclave.cl/)
+	- [Radio El Conquistador FM](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
+	- [Radio El Conquistador FM 2](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
+	- [Radio El Conquistador FM 3](https://www.twitch.tv/elconquistadortv)
 	- [Radio Folclor de Chile](https://www.youtube.com/channel/UC0Hl8kJe8Xwv8g63Q4qefQg)
 	- [El Sembrador](https://tv.radioelsembrador.cl/) 
 	- [Radio Ñuble](https://radionuble.cl/v1/)
@@ -527,5 +530,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## 🤝 Gracias por todas las contribuciones
+Toda contribución es bienvenida 😊
+
+[![Contributors](https://contrib.rocks/image?repo=Alplox/teles)](https://github.com/Alplox/teles/graphs/contributors)
 
 [![Visits Badge](https://badges.strrl.dev/visits/Alplox/teles)](https://badges.strrl.dev)
