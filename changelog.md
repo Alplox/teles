@@ -8,15 +8,18 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - manifesto PWA
 - CSS: .barra-overlay debido a que no estaba bien centrado su contenido
 - .barra-overlay se añade tabindex=0 para poder hacer focus con tecla TAB
-- Texto: de "Desactivar" a "Quitar" en modal canales (para que sea igual a boton quitar que tienen las señales)
+- Texto: de "Desactivar" a "Quitar" en modal canales (para que sea igual a botón quitar que tienen las señales)
 - separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
 - Reescrito archivo "NOTICE.md"
 
 ### Added
 - Icono a enlaces externos dentro de señal activa <iframe> para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
-- Seccion agradecimientos constribuciones en "README.md"
+- Sección agradecimientos contribuciones en "README.md"
 - Capacidad de reordenar canales con plugin [SortableJS](https://github.com/SortableJS/Sortable)
-- Icono para constribuciones en modal créditos y README.md con [contributors-img](https://github.com/lacolaco/contributors-img)
+- Icono para contribuciones en modal créditos y README.md con [contributors-img](https://github.com/lacolaco/contributors-img)
+- Efectos de sonido para alerta de copiado enlace en modal compartir: [button-pressed por Pixabay](https://pixabay.com/sound-effects/button-pressed-38129/), [Cancel/miss chime por Raclure](https://freesound.org/people/Raclure/sounds/405548/)
+- Efecto de sonido a botones de quitar todos los canales activos [TV, Shutdown.wav por MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/523553/)
+
 
 #### Radios 📻
 Chile

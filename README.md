@@ -1,24 +1,24 @@
-## PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)
-# Enlace: https://alplox.github.io/teles/
+# ¿Qué es teles?
 
-Obviamente puede ser adaptado para otro tipo de contenido, eso ya es cosa suya.
+teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).
 
-Toda contribución es bienvenida 😊
-
-[[Repositorio original (RIP)]](https://github.com/Alplox/tele)
+# Enlace teles
+Enlace: https://alplox.github.io/teles/
 
 # Tabla de contenido
-- [Canales disponibles junto a su origen 📺](#canales-disponibles-junto-a-su-origen-)
-- [Variaciones Creadas por Terceros🖥️](#variaciones-creadas-por-terceros-)
-- [Medios de Prensa Alternativos 📰 📻](#medios-de-prensa-alternativos-)
-- [Enlaces Complementarios 🔗🦠](#enlaces-complementarios-)
-- [Descargo de responsabilidad 📝](#descargo-de-responsabilidad-)
-- [Licencia](#licencia-)
+- [Canales disponibles junto a su origen 📺](#canales-disponibles-junto-a-su-origen)
+- [Variaciones creadas por terceros](#variaciones-creadas-por-terceros)
+- [Medios de prensa alternativos 📰 📻](#medios-de-prensa-alternativos)
+- [Enlaces complementarios](#enlaces-complementarios)
+- [Descargo de responsabilidad](#descargo-de-responsabilidad)
+- [Licencia](#licencia)
 
 [![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg)](https://alplox.github.io/teles/)
 [![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07-opciones.gif)](https://alplox.github.io/teles/)
 
-# Canales disponibles junto a su origen: [↑](#tabla-de-contenido)
+# Canales disponibles junto a su origen: 
+[↑ Volver arriba ↑](#tabla-de-contenido)
+
 (clic encima de cada título para expandir categorías)
 <details>
 <summary>Canales Chile 🇨🇱</summary>
@@ -348,10 +348,8 @@ Toda contribución es bienvenida 😊
 </details>
 
 
-    *si algún canal del listado no se encuentra disponible en la página significa que su estado es offline.*
-
-
-# Variaciones Creadas por Terceros: [↑](#tabla-de-contenido) 
+# Variaciones Creadas por Terceros: 
+[↑ Volver arriba ↑](#tabla-de-contenido)
 
 | Enlaces Variaciones                                    | Por:                                                     | Fuente                                                                                                                 |
 |--------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
@@ -391,8 +389,9 @@ Toda contribución es bienvenida 😊
 
 ___
 
-# Medios de Prensa Alternativos: [↑](#tabla-de-contenido)
-📰 📻 
+# Medios de Prensa Alternativos:
+
+[↑ Volver arriba ↑](#tabla-de-contenido)
 
 *No porque un sitio sea "alternativo" lo convierte en verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o cualquier medio de prensa venga el caso 
 
@@ -439,7 +438,9 @@ ___
 
 ___
 
-# Enlaces Complementarios: [↑](#tabla-de-contenido)
+# Enlaces Complementarios: 
+[↑ Volver arriba ↑](#tabla-de-contenido)
+
 Sitios que poseen información útil en cuanto a diversos temas que no sabía dónde añadir para compartirlos:
 
 | Sitio                                                                                                                                                                                                                                  | Mirror                                     | RRSS                                                                                                                                                                                                                                                                      |
@@ -489,7 +490,10 @@ Sitios que poseen información útil en cuanto a diversos temas que no sabía d�
 
 ___
 
-# Descargo de responsabilidad [↑](#tabla-de-contenido)
+# Descargo de responsabilidad 
+
+[↑ Volver arriba ↑](#tabla-de-contenido)
+
 - "teles" es un proyecto de código abierto gratuito que permite gestionar canales de televisión de libre acceso por Internet.
 - “teles” no decodifica transmisiones. Los enlaces que figuran en este proyecto son procesados desde diferentes sitios públicos con libre distribución/acceso.
 - "teles" no posee ningún tipo de monetización, en consecuencia, no se lucra de ninguna forma o medio.
@@ -503,7 +507,9 @@ ___
 
 ___
 
-# Licencia [↑](#tabla-de-contenido)
+# Licencia
+
+[↑ Volver arriba ↑](#tabla-de-contenido)
 
 [MIT License ⚖️](https://github.com/Alplox/teles/blob/master/LICENSE)
 ```
@@ -531,8 +537,13 @@ SOFTWARE.
 ```
 
 ## 🤝 Gracias por todas las contribuciones
+
+[↑ Volver arriba ↑](#tabla-de-contenido)
+
 Toda contribución es bienvenida 😊
 
 [![Contributors](https://contrib.rocks/image?repo=Alplox/teles)](https://github.com/Alplox/teles/graphs/contributors)
 
 [![Visits Badge](https://badges.strrl.dev/visits/Alplox/teles)](https://badges.strrl.dev)
+
+[[Repositorio original (RIP)]](https://github.com/Alplox/tele)

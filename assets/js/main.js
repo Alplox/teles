@@ -604,10 +604,11 @@ let paises = {
 
 
 // ----- funciones 
-function crearIframe(source, titleIframe) {
+function crearIframe(source, titleIframe, canalId) {
   const fragmentIFRAME = document.createDocumentFragment();
   const div = document.createElement('div');
     div.classList.add('ratio', 'ratio-16x9');
+    div.setAttribute('data-canal-cambio', canalId);
   const divIFRAME = document.createElement('iframe');
     divIFRAME.src = source;
     divIFRAME.allowFullscreen = true;
@@ -634,11 +635,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   a.href = fuente;
   a.setAttribute('tabindex', 0)
   a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'bg-black', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1')  
-
-
-
-
+  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'bg-black', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1'); 
 
   let btnRemove = document.createElement('button');
     /*  btnRemove.classList.toggle('d-none', !overlayCheckbox.checked); */
@@ -646,7 +643,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     btnRemove.setAttribute('aria-label', 'Close');
     btnRemove.setAttribute('type', 'button');
     btnRemove.setAttribute('title', 'Quitar canal');
-    btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>'
+    btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
     btnRemove.addEventListener('click', () => {
         tele.remove(canalId)
     });
@@ -655,19 +652,17 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
     btnCambiarSeñal.setAttribute('type', 'button');
     btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
-    btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>'
+    btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
+    btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
       btnCambiarSeñal.addEventListener('click', () => {
           tele.change(canalId)
       });
 
   let btnMoverEnGrid = document.createElement('button');
-  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-  btnMoverEnGrid.setAttribute('type', 'button');
-  btnMoverEnGrid.setAttribute('title', 'Mover este canal');
-  btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
-
-  
-
+    btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+    btnMoverEnGrid.setAttribute('type', 'button');
+    btnMoverEnGrid.setAttribute('title', 'Mover este canal');
+    btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
   const divOVERLAY = document.createElement('div');
     divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-evenly', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
@@ -692,11 +687,11 @@ let tele = {
   
       let fragmentTransmision = document.createDocumentFragment();
       let divTransmision = document.createElement('div');
-        divTransmision.classList.add('position-relative', `col-${tele.movil() ? sizeMovil : size}`);
+        divTransmision.classList.add('position-relative', `col-${tele.movil() ? sizeMovil : size}`, 'shadow');
         divTransmision.setAttribute('data-canal', canal);
   
       if (typeof iframe_url !== 'undefined') {
-        divTransmision.append(crearIframe(iframe_url, nombre), crearOverlay(nombre, fuente, pais, alt_icon, canal));
+        divTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
       } else if (typeof m3u8_url !== 'undefined') {
         const divM3u8 = document.createElement('div');
         divM3u8.classList.add('m3u-stream');
@@ -717,17 +712,17 @@ let tele = {
         playerM3u8.autoplay('muted');
       } else if (typeof yt_id !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre), 
+          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal), 
           crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
         );
       } else if (typeof yt_embed !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre), 
+          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal), 
           crearOverlay(nombre, fuente, pais, alt_icon, canal)
         );
       } else if (typeof yt_playlist !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre), 
+          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal), 
           crearOverlay(nombre, fuente, pais, alt_icon, canal)
         );
       } else {
@@ -764,21 +759,81 @@ let tele = {
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
     }
   },
-  change: (canal) => {
+  change: (canalPorReemplazar, canalDeReemplazo) => {
     
-      let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+
+
+
+    /* tele.change(canal) */
+    // selecionar div con clase ratio-19x6 y borrar el contenido                // DONE
+    // hacer que aparesca el div con el datalist                                // DONE
+    // almacenar el valor del canal en el cual se cargo el datalist             // DONE
+    // ver como rellenar el datalist con los canales                            // https://youtu.be/JfrDbNVi14k
+    // desaparecer datalist cuando se selecione un canal                        // relativamente palta
+    // reemplazar con nueva señal contenido de div "transmicionPorRemover"      // quizas modificar en add(canal) que si lleva otro tipo de id haga algo diferente para que no lo inserte el canal al final
+    // no olvidar que se deben de actualizar las clases en modal y offcanvas del boton del canal  // relativamente palta
+    // junto a lo de reemplazar el valor en localstorage                        // deberia poder reutilizarce el del remove(canal)
+
+
+
+
+
+
+
+
+      let transmisionPorRemover = document.querySelector(`div[data-canal-cambio="${canalPorReemplazar}"]`);
       if (transmisionPorRemover) {
-        canalesGrid.removeChild(transmisionPorRemover);
+        transmisionPorRemover.innerHTML = ''
     
-        let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canal}"]`);
+        let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canalPorReemplazar}"]`);
         btnTransmisionOff.forEach(btn => {
           btn.classList.replace('btn-primary', 'btn-outline-secondary');
         });
+
+      const divDatalist = document.createElement('div');
+        divDatalist.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'px-5', 'bg-dark-subtle');
+      const labelDatalist = document.createElement('label');
+        labelDatalist.setAttribute('for', `datalist-de-${canalPorReemplazar}`)
+        labelDatalist.classList.add('form-label');
+        labelDatalist.innerText = 'Cambiar canal por:'
+      divDatalist.append(labelDatalist)
+
+      const inputDatalist = document.createElement('input');
+        inputDatalist.classList.add('form-control');
+        inputDatalist.setAttribute('list', `datalist-options-${canalPorReemplazar}`)
+        inputDatalist.setAttribute('id', `datalist-de-${canalPorReemplazar}`)
+        inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
+      divDatalist.append(inputDatalist)
+
+      const datalistCanales = document.createElement('datalist');
+        datalistCanales.setAttribute('id', `datalist-options-${canalPorReemplazar}`)
+      divDatalist.append(datalistCanales)
+
+        transmisionPorRemover.append(divDatalist)
+     
+
+
+
+
+
+
+
+
   
-        // remueve de localstorage
+        /* // remueve de localstorage
         delete canalesStorage[canal];
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
+        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage)); */
       }
+
+
+
+
+
+
+
+
+
+      // -------------------------------------------
   },
   movil: () => {
     // https://stackoverflow.com/a/11381730
@@ -987,11 +1042,10 @@ tele.init();
  | (_) || | |   / (_) \__ \ \ \ / _` |
   \___/ |_| |_|_\\___/|___/ /_\_\__,_|
 */
-
-
-
 // ----- copiar enlace a portapapeles y alerta copiado
 const btnEnlace = document.querySelector('#btn-enlace');
+const audioCopiadoFallido = new Audio('/assets/sounds/Cancel-miss-chime-by-Raclure.wav');
+const audioCopiadoExitoso = new Audio('/assets/sounds/button-pressed-by-Pixabay.mp3');
 
 btnEnlace.onclick = () => {
   let e = document.querySelector('#enlace-compartir');
@@ -1001,6 +1055,7 @@ btnEnlace.onclick = () => {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(e.value)
       .then(() => {
+        audioCopiadoExitoso.play();
         btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
         btnEnlace.classList.add('bg-success');
         setTimeout(() => {
@@ -1009,6 +1064,7 @@ btnEnlace.onclick = () => {
         }, 2000);
       })
       .catch(error => {
+        audioCopiadoFallido.play();
         btnEnlace.innerHTML ='Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
         btnEnlace.classList.add('bg-danger');
         setTimeout(() => {
@@ -1021,6 +1077,7 @@ btnEnlace.onclick = () => {
     console.error('La funcionalidad de escritura en el portapapeles no está disponible en este navegador.');
     try {
       // Intenta copiar el texto de respaldo
+      audioCopiadoExitoso.play();
       document.execCommand('copy', false, e.value);
       btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
         btnEnlace.classList.add('bg-success');
@@ -1030,6 +1087,7 @@ btnEnlace.onclick = () => {
         }, 2000);
       console.log('Texto copiado al portapapeles con éxito.');
     } catch (error) {
+      audioCopiadoFallido.play();
       btnEnlace.innerHTML = 'Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
         btnEnlace.classList.add('bg-danger');
         setTimeout(() => {
@@ -1041,11 +1099,9 @@ btnEnlace.onclick = () => {
   }
 };
 
-
-
-
-
-
+// ----- añade número total de canales a boton "global" del filtro banderas 
+document.querySelector('#modal-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
+document.querySelector('#offcanvas-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
 
 // ----- btn compartir sitio (usa navigator.share en telefonos) 
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
@@ -1102,17 +1158,9 @@ btnFullscreen.addEventListener('click', () => {
 
 
 
-
-
-
-
-
-
-
-
+// plugin para mover canales en grid
 new Sortable(canalesGrid, {
 	animation: 550,
   handle: '.handle',
   ghostClass: 'marca-al-mover',
- 
 });

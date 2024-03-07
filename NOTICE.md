@@ -37,3 +37,9 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * Workbox - [(MIT)](https://github.com/GoogleChrome/workbox/blob/v7/LICENSE)
 
 * contributors-img https://contrib.rocks/ - [(No Licencia)](https://github.com/lacolaco/contributors-img)
+
+* [Audio] button-pressed por Pixabay https://pixabay.com/sound-effects/button-pressed-38129/ - [(Licencia)](https://pixabay.com/service/license-summary/)
+
+* [Audio] Cancel/miss chime por Raclure https://freesound.org/people/Raclure/sounds/405548/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
+
+* [Audio] TV, Shutdown.wav por MATRIXXX_ https://freesound.org/people/MATRIXXX_/sounds/523553/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
