@@ -6,7 +6,7 @@ const audioLoopEstaticaCRT = new Audio('/assets/sounds/DefectLineTransformer-por
 btnReset.addEventListener('click', () => {  
   limpiarCanalesActivos();
   localStorage.clear();
-  audioLoopEstaticaCRT.volume = 0.3;
+  audioLoopEstaticaCRT.volume = 0.5;
   audioLoopEstaticaCRT.loop = true;
   audioLoopEstaticaCRT.play();
   alertReset.classList.remove('d-none');

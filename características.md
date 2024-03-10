@@ -39,7 +39,7 @@
   - [X] Slider tamaño
     - [X] Recordar con localStorage
   - [X] Selector número transmisiones por fila
-    - [ ] Recordar con localStorage
+    - [X] Recordar con localStorage
   - [X] Ocultar modal descargo de responsabilidad tras cargar
     - [X] Recordar con localStorage
   - [X] `IMPROBABLE` Interruptor cambiar tema

@@ -33,6 +33,8 @@ Chile
 - Efecto flicker para texto tras borrado localStorage https://codepen.io/patrickhlauke/pen/YaoBop
 - Tema oscuro/claro, fondos SVG temas generados con https://wickedbackgrounds.com/app transformados a css con https://yoksel.github.io/url-encoder/
 - Opción cambiar/reemplazar canal desde grid
+- Habilidad recordar selección de número de canales por fila con localStorage
+- Alerta en caso de que busqueda canales no arroje resultados
 
 #### 📺 Canales
 Chile

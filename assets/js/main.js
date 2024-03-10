@@ -114,17 +114,58 @@ slider.addEventListener('input', (event) => {
 // ----- selector numero canales por fila
 let size = 4;
 let sizeMovil = 12;
-let transmisionesFila = document.querySelector('#transmision-por-fila');
+let transmisionesFila = document.querySelectorAll('#transmision-por-fila button');
 
-transmisionesFila.onchange = (event) => {
-  size = event.target.value;
-  sizeMovil = event.target.value;
+
+// revisa si usuario ya modifico este valor y aplica ajustes para mostrarlo en sidepanel personalizaciones de forma acorde
+let lsTransmisionesFila = localStorage.getItem('numero_canales_por_fila')
+if (lsTransmisionesFila !== null) {
+  size = lsTransmisionesFila;
+  sizeMovil = lsTransmisionesFila;
+  let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${lsTransmisionesFila}']`)
+  transmisionesFila.forEach(btn => {
+    btn.classList.replace('btn-primary', 'btn-secondary')
+  })
+  botonDejarActivo.classList.replace('btn-secondary', 'btn-primary')
+}
+// si se carga desde telefono por primera vez ajusta cantidad y boton selecionado en numero de canales por fila
+if (checkMovil() && lsTransmisionesFila === null) {
+  let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${sizeMovil}']`)
+  transmisionesFila.forEach(btn => {
+    btn.classList.replace('btn-primary', 'btn-secondary')
+  })
+  botonDejarActivo.classList.replace('btn-secondary', 'btn-primary');
+ 
   let transmisionesEnGrid = document.querySelectorAll('div[data-canal]');
-  for (let v of transmisionesEnGrid) {
-    v.classList.remove('col-12', 'col-6', 'col-4', 'col-3', 'col-2');
-    v.classList.add(`col-${event.target.value}`);
-  }
-};
+    for (let v of transmisionesEnGrid) {
+      v.classList.remove('col-12', 'col-6', 'col-4', 'col-3', 'col-2');
+      v.classList.add(`col-${sizeMovil}`);
+    }
+}
+
+transmisionesFila.forEach(btn => {
+  btn.addEventListener('click', (event) => {
+    //primero borra la clase primary del boton que estaba activo por defecto
+    transmisionesFila.forEach(btn => {
+      btn.classList.replace('btn-primary', 'btn-secondary')
+    })
+
+    //añade clase primary al boton pulsado
+    btn.classList.replace('btn-secondary', 'btn-primary')
+    // guarda valores de value
+    console.log(event.target.value + " wena " + btn)
+    size = event.target.value;
+    sizeMovil = event.target.value;
+
+    localStorage.setItem('numero_canales_por_fila', event.target.value);
+
+    let transmisionesEnGrid = document.querySelectorAll('div[data-canal]');
+    for (let v of transmisionesEnGrid) {
+      v.classList.remove('col-12', 'col-6', 'col-4', 'col-3', 'col-2');
+      v.classList.add(`col-${event.target.value}`);
+    }
+  })
+})
 
 // ----- cargar desde localstorage
 let lsSlider = localStorage.getItem('slider_value');
@@ -500,6 +541,42 @@ function displayAutocompleteCanales(matchingData, inputForm) {
   let inputId = inputForm.getAttribute('id');
     inputId = inputId.replace('input-de-', 'autocomplete-de-');
   autocompleteContainer.setAttribute('id', inputId);
+
+
+
+
+
+
+
+
+
+  
+
+  // que siempre autocompleteContainer tenga el tamaño restante debajo del input
+  const formFloating = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')} div.form-floating`);
+  const alturaFF = formFloating.offsetHeight;
+  const marginBottomFF = parseInt(getComputedStyle(formFloating).marginBottom);
+  const parentDiv = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')}`);
+  const alturaPD = parentDiv.offsetHeight;
+  const alturaMaximaAC = alturaPD - alturaFF - marginBottomFF;
+  autocompleteContainer.style.maxHeight = alturaMaximaAC + "px";
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // genera boton abajo del input de cada canal
   matchingData.forEach(btn => {
     let btnAtr = btn.getAttribute('data-canal');
@@ -519,7 +596,14 @@ function displayAutocompleteCanales(matchingData, inputForm) {
 
     // que hacer cuando se hace clic en algun canal del listado sugerencias
     sugerencia.addEventListener('click', () => {
-      // continuar aqui :)
+      // continuar aqui :/
+
+      // problemas encontrados:
+      // 1- si se deja configuracion de 6 canales por fila y 12 canales por fila, container sugerencias queda inutilizable
+      // 2- mismo problema que punto 1 se repite con el overlay debido a que comienza con overflow y el separado automatico se va a la cresta (mas aun en telefonos desde opcion 3 canales por fila)
+      // 3- falta añadir que se muestra div cambio canal cuando señal es de fuente m3u8
+      // 4- falta aun guardar orden canales si se reordenan
+      // 5- quizas añadir opcion de ocultar foton flotante personalizaciones
       
       autocompleteContainer.remove();
     });
@@ -544,11 +628,11 @@ function crearIframe(source, titleIframe, canalId) {
   div.setAttribute('data-canal-cambio', canalId);
 
   const divGeneralInputCambio = document.createElement('div');
-    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column', 'justify-content-center', 'align-items-center', 'px-5', 'bg-dark-subtle', 'w-100', 'h-100');
+    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column',  'px-5', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden');
     divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
 
   const divFormFloating = document.createElement('div');
-    divFormFloating.classList.add('form-floating');
+    divFormFloating.classList.add('form-floating', 'm-auto');
 
   const inputDatalist = document.createElement('input');
     inputDatalist.classList.add('form-control');
@@ -570,7 +654,7 @@ function crearIframe(source, titleIframe, canalId) {
     displayAutocompleteCanales(listaBotones, inputCambioCanal);
   });
 
-  inputDatalist.addEventListener('focus', function () {
+  inputDatalist.addEventListener('click', function () {
     let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
     let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
     displayAutocompleteCanales(listaBotones, inputCambioCanal);

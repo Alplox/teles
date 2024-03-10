@@ -14,148 +14,107 @@ function normalizarInput(normalizarEsto) {
   return normalizarEsto.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+// alertas en caso de no encontrar input
+const modalMensajeAlerta = document.querySelector('.modal-mensaje-alerta');
+const modalTextoNoEncontrado = document.querySelector('#modalTextoNoEncontrado');
+const offcanvasMensajeAlerta = document.querySelector('.offcanvas-mensaje-alerta');
+const offcanvasTextoNoEncontrado = document.querySelector('#offcanvasTextoNoEncontrado');
+
+function ocultarElemento(elemento, ocultar) {
+  elemento.classList.toggle('d-none', ocultar);
+}
+
+// filtro canales
 function filtrarCanalesPorInput(e, btnsCanales) {
- 
+  let algunaCoincidencia = false;
   const idDelElemento = btnsCanales.id;
   const inputNormalized = normalizarInput(e);
-
   if (idDelElemento === 'modal-body-botones-canales') {
     const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
-
-            if (inputNormalized === 'unknow') {
-              btnsCanalesDentroContainer.forEach(btn => {
-                const country = btn.getAttribute('country');
-                const countryNormalized = normalizarInput(country); 
-                btn.classList.toggle('d-none', countryNormalized !== inputNormalized);
-                
-              });
-            } else if (inputNormalized === '' || inputNormalized === null) {
-              let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises > button');
-              todoBtn.forEach(btn => {
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-outline-secondary');
-              });
-
-
-              btnsCanalesDentroContainer.forEach(btn => {
-                if (btn.classList.contains('d-none')) {
-                  btn.classList.toggle('d-none');
-                }
-              });
-            
-              btnMostrarTodoPaisModal.classList.remove('btn-outline-secondary');
-              btnMostrarTodoPaisModal.classList.add('btn-primary');
-
-            
-            } else {
-              btnsCanalesDentroContainer.forEach(btn => {
-                const contenidoBtn = btn.innerHTML;
-                const contenidoBtnNormalized = normalizarInput(contenidoBtn);
-                btn.classList.toggle('d-none', !contenidoBtnNormalized.includes(inputNormalized));
-              });
-            }
-            filtroCanalesModal.value = inputNormalized
-
-
-
-
-
-  } else if (idDelElemento === 'offcanvas-body-botones-canales') {
-    const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
-
     if (inputNormalized === 'unknow') {
       btnsCanalesDentroContainer.forEach(btn => {
         const country = btn.getAttribute('country');
         const countryNormalized = normalizarInput(country); 
         btn.classList.toggle('d-none', countryNormalized !== inputNormalized);
-        
       });
-    } else if (inputNormalized === '') {
+    } else if (inputNormalized === '' || inputNormalized === null) {
+      let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises > button');
+      todoBtn.forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-secondary');
+      });
+      btnsCanalesDentroContainer.forEach(btn => {
+        if (btn.classList.contains('d-none')) {
+          btn.classList.toggle('d-none');
+        }
+      });
+      btnMostrarTodoPaisModal.classList.remove('btn-outline-secondary');
+      btnMostrarTodoPaisModal.classList.add('btn-primary');
+      ocultarElemento(modalMensajeAlerta, true);
+    } else {
+      btnsCanalesDentroContainer.forEach(btn => {
+        const contenidoBtn = btn.innerHTML;
+        const contenidoBtnNormalized = normalizarInput(contenidoBtn);
+        let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
+          btn.classList.toggle('d-none', !coincidencia);
+          if (coincidencia) {
+            algunaCoincidencia = true;
+          }
+        });
+        ocultarElemento(modalMensajeAlerta, algunaCoincidencia); // Mostrar o ocultar mensaje de alerta según si hay coincidencias o no
+        modalTextoNoEncontrado.textContent = inputNormalized;
+    }
+    filtroCanalesModal.value = inputNormalized
+  } else if (idDelElemento === 'offcanvas-body-botones-canales') {
+    const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
+    if (inputNormalized === 'unknow') {
+      btnsCanalesDentroContainer.forEach(btn => {
+        const country = btn.getAttribute('country');
+        const countryNormalized = normalizarInput(country); 
+        btn.classList.toggle('d-none', countryNormalized !== inputNormalized);
+      });
+    } else if (inputNormalized === '' || inputNormalized === null) {
       let todoBtn = document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises > button');
       todoBtn.forEach(btn => {
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-outline-secondary');
       });
-
       btnsCanalesDentroContainer.forEach(btn => {
         if (btn.classList.contains('d-none')) {
           btn.classList.toggle('d-none');
         }
-        });
-    
+      });
       btnMostrarTodoPaisOffcanvas.classList.remove('btn-outline-secondary');
       btnMostrarTodoPaisOffcanvas.classList.add('btn-primary');
-
-    
+      ocultarElemento(offcanvasMensajeAlerta, true);
     } else {
       btnsCanalesDentroContainer.forEach(btn => {
         const contenidoBtn = btn.innerHTML;
         const contenidoBtnNormalized = normalizarInput(contenidoBtn);
-        btn.classList.toggle('d-none', !contenidoBtnNormalized.includes(inputNormalized));
+        let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
+        btn.classList.toggle('d-none', !coincidencia);
+        if (coincidencia) {
+          algunaCoincidencia = true;
+        }
       });
+      ocultarElemento(offcanvasMensajeAlerta, algunaCoincidencia); // Mostrar o ocultar mensaje de alerta según si hay coincidencias o no
+      offcanvasTextoNoEncontrado.textContent = inputNormalized;
     }
     filtroCanalesOffcanvas.value = inputNormalized
-
   }
- 
 }
 
 filtroCanalesModal.addEventListener('input', (e) => {
+  filtroCanalesModal.focus()
   filtrarCanalesPorInput(e.target.value, modalBodyBotonesCanales);
 });
 
 filtroCanalesOffcanvas.addEventListener('input', (e) => {
+  filtroCanalesOffcanvas.focus()
   filtrarCanalesPorInput(e.target.value, offcanvasBodyBotonesCanales);
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ----- filtro de canales por pais
-
-// selecciona div contenedor de botones del DOM
-/* let containerBtnBanderas = document.querySelector('#listado-filtro-paises') */
-// btn por defecto, muestra todos los canales/paises
-/* const btnMostrarTodoPais = document.querySelector('#mostrar-todo-pais'); */
-/* function crearBotonesFiltroPorPais(containerBtnBanderas, btnMostrarTodoPais){
-    btnMostrarTodoPais.addEventListener('click', () => {
-
-    let todoBtn = containerBtnBanderas.querySelectorAll('button');
-      todoBtn.forEach(btn => {
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-outline-secondary');
-      });
-    filtrarCanalesPorInput('', containerBtnBanderas);
-    
-    btnMostrarTodoPais.classList.remove('btn-outline-secondary');
-    btnMostrarTodoPais.classList.add('btn-primary');
-    });
-}
-
-crearBotonesFiltroPorPais(document.querySelector('#modal-collapse-botones-listado-filtro-paises'), document.querySelector('#modal-btn-mostrar-todo-pais'))
-crearBotonesFiltroPorPais(document.querySelector('#offcanvas-listado-filtro-paises'), document.querySelector('#offcanvas-btn-mostrar-todo-pais'))
-
- */
-
+// ----- botones mostrar todos los canales
 const btnMostrarTodoPaisModal = document.querySelector('#modal-btn-mostrar-todo-pais');
 btnMostrarTodoPaisModal.addEventListener('click', () => {
   let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises > button');
@@ -168,8 +127,6 @@ btnMostrarTodoPaisModal.addEventListener('click', () => {
   btnMostrarTodoPaisModal.classList.add('btn-primary');
 });
 
-
-
 const btnMostrarTodoPaisOffcanvas = document.querySelector('#offcanvas-btn-mostrar-todo-pais');
 btnMostrarTodoPaisOffcanvas.addEventListener('click', () => {
   let todoBtn = document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises > button');
@@ -181,4 +138,3 @@ btnMostrarTodoPaisOffcanvas.addEventListener('click', () => {
   btnMostrarTodoPaisOffcanvas.classList.remove('btn-outline-secondary');
   btnMostrarTodoPaisOffcanvas.classList.add('btn-primary');
 });
-    
