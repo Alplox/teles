@@ -58,7 +58,7 @@
 - [X] Formato
   - [X] Reducir código canales.js
   - [X] Quitar SVG's in-line de HTML
-  - [ ] `IMPROBABLE` Canales en formato JSON
+  - [X] `IMPROBABLE` Canales en formato JSON
   - [ ] `IMPROBABLE` Unificar múltiples canales en 1 objeto
   - [ ] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
 - [X] Licencia

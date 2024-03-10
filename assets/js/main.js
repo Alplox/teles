@@ -9,18 +9,18 @@
 | |  / _ \ / __| /_\ | |  / __|_   _/ _ \| _ \  /_\ / __| __|
 | |_| (_) | (__ / _ \| |__\__ \ | || (_) |   / / _ \ (_ | _| 
 |____\___/ \___/_/ \_\____|___/ |_| \___/|_|_\/_/ \_\___|___|
-*/  
+*/
 // ----- RECORDAR CANALES ACTIVOS CON LOCALSTORAGE
 // https://www.javascripttutorial.net/web-apis/javascript-localstorage/
 // https://stackoverflow.com/a/23728844
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete
 
 // pasar item [STRING] de localstorage a una variable (aunque no exista aún)
-let lsCanales= localStorage.getItem('canales_storage');
+let lsCanales = localStorage.getItem('canales_storage');
 // variable vacia, obtiene valor si localstorage posee el item 'canales_storage'
 let lsCanalesJson;
 // variable que almacena string/json durante intercambio para localstorage
-let canalesStorage = {  };
+let canalesStorage = {};
 
 if (lsCanales !== null) {
   // pasa string de localstorage a una variable objeto [JSON]
@@ -37,10 +37,10 @@ let lsModal = localStorage.getItem('modal_status');
 if (lsModal !== 'hide') {
   modalBienvenida.show();
   localStorage.setItem('modal_status', 'show');
-} 
+}
 
 btnEntendido.addEventListener('click', () => {
-  if(lsModal !== 'hide') {
+  if (lsModal !== 'hide') {
     modalBienvenida.hide();
     localStorage.setItem('modal_status', 'hide');
   }
@@ -164,34 +164,14 @@ if (lsSlider !== null) {
 };
 
 // fondo
-lsFondo !== 'hide' 
-  ? (fondo.classList.remove('d-none'), checkboxOn(fondoCheckbox,fondoStatus,'fondo'))
-  : (fondo.classList.add('d-none'), checkboxOff(fondoCheckbox,fondoStatus,'fondo'));
+lsFondo !== 'hide'
+  ? (fondo.classList.remove('d-none'), checkboxOn(fondoCheckbox, fondoStatus, 'fondo'))
+  : (fondo.classList.add('d-none'), checkboxOff(fondoCheckbox, fondoStatus, 'fondo'));
 
 // navbar
-lsNavbar !== 'hide' 
-  ? (navbar.classList.remove('d-none'), checkboxOn(navbarCheckbox,navbarStatus,'navbar'))
-  : (navbar.classList.add('d-none'), checkboxOff(navbarCheckbox,navbarStatus,'navbar'));
-
-
-// ----- alerta borrado localstorage
-const btnReset = document.querySelector('#btn-reset');
-const alertReset = document.querySelector('#alert-reset');
-
-function crearAlert(message, type) {
-  let divAlert = document.createElement('div');
-    divAlert.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-  alertReset.append(divAlert);
-};
-
-if (btnReset) {
-  btnReset.addEventListener('click', function () {  
-    localStorage.clear();
-    crearAlert('Tu localStorage ha sido eliminado, prueba recargando el sitio/PWA ヾ( ˃ᴗ˂ )◞ • *✰', 'success');
-    document.querySelector('.alert').scrollIntoView();
-  })
-};
-
+lsNavbar !== 'hide'
+  ? (navbar.classList.remove('d-none'), checkboxOn(navbarCheckbox, navbarStatus, 'navbar'))
+  : (navbar.classList.add('d-none'), checkboxOff(navbarCheckbox, navbarStatus, 'navbar'));
 
 
 /*
@@ -202,96 +182,6 @@ if (btnReset) {
  | |____ / ____ \| |\  |/ ____ \| |____| |____ ____) |
   \_____/_/    \_\_| \_/_/    \_\______|______ _____/ 
 */
-
-// ----- traducción videojs
-videojs.addLanguage("es",{
-  "Play": "Reproducir",
-  "Play Video": "Reproducir Vídeo",
-  "Pause": "Pausa",
-  "Current Time": "Tiempo reproducido",
-  "Duration": "Duración total",
-  "Remaining Time": "Tiempo restante",
-  "Stream Type": "Tipo de secuencia",
-  "LIVE": "DIRECTO",
-  "Loaded": "Cargado",
-  "Progress": "Progreso",
-  "Fullscreen": "Pantalla completa",
-  "Non-Fullscreen": "Pantalla no completa",
-  "Mute": "Silenciar",
-  "Unmute": "No silenciado",
-  "Playback Rate": "Velocidad de reproducción",
-  "Subtitles": "Subtítulos",
-  "subtitles off": "Subtítulos desactivados",
-  "Captions": "Subtítulos especiales",
-  "captions off": "Subtítulos especiales desactivados",
-  "Chapters": "Capítulos",
-  "You aborted the media playback": "Ha interrumpido la reproducción del vídeo.",
-  "A network error caused the media download to fail part-way.": "Un error de red ha interrumpido la descarga del vídeo.",
-  "The media could not be loaded, either because the server or network failed or because the format is not supported.": "No se ha podido cargar el vídeo debido a un fallo de red o porque la transmisión dejo de estar disponible.",
-  "The media playback was aborted due to a corruption problem or because the media used features your browser did not support.": "La reproducción de vídeo se ha interrumpido por un problema de corrupción de datos o porque el vídeo precisa funciones que su navegador no ofrece.",
-  "No compatible source was found for this media.": "No se ha encontrado ninguna fuente compatible con este vídeo.",
-  "Audio Player": "Reproductor de audio",
-  "Video Player": "Reproductor de video",
-  "Replay": "Volver a reproducir",
-  "Seek to live, currently behind live": "Buscar en vivo, actualmente demorado con respecto a la transmisión en vivo",
-  "Seek to live, currently playing live": "Buscar en vivo, actualmente reproduciendo en vivo",
-  "Progress Bar": "Barra de progreso",
-  "progress bar timing: currentTime={1} duration={2}": "{1} de {2}",
-  "Descriptions": "Descripciones",
-  "descriptions off": "descripciones desactivadas",
-  "Audio Track": "Pista de audio",
-  "Volume Level": "Nivel de volumen",
-  "The media is encrypted and we do not have the keys to decrypt it.": "El material audiovisual está cifrado y no tenemos las claves para descifrarlo.",
-  "Close": "Cerrar",
-  "Modal Window": "Ventana modal",
-  "This is a modal window": "Esta es una ventana modal",
-  "This modal can be closed by pressing the Escape key or activating the close button.": "Esta ventana modal puede cerrarse presionando la tecla Escape o activando el botón de cierre.",
-  ", opens captions settings dialog": ", abre el diálogo de configuración de leyendas",
-  ", opens subtitles settings dialog": ", abre el diálogo de configuración de subtítulos",
-  ", selected": ", seleccionado",
-  "Close Modal Dialog": "Cierra cuadro de diálogo modal",
-  ", opens descriptions settings dialog": ", abre el diálogo de configuración de las descripciones",
-  "captions settings": "configuración de leyendas",
-  "subtitles settings": "configuración de subtítulos",
-  "descriptions settings": "configuración de descripciones",
-  "Text": "Texto",
-  "White": "Blanco",
-  "Black": "Negro",
-  "Red": "Rojo",
-  "Green": "Verde",
-  "Blue": "Azul",
-  "Yellow": "Amarillo",
-  "Magenta": "Magenta",
-  "Cyan": "Cian",
-  "Background": "Fondo",
-  "Window": "Ventana",
-  "Transparent": "Transparente",
-  "Semi-Transparent": "Semitransparente",
-  "Opaque": "Opaca",
-  "Font Size": "Tamaño de fuente",
-  "Text Edge Style": "Estilo de borde del texto",
-  "None": "Ninguno",
-  "Raised": "En relieve",
-  "Depressed": "Hundido",
-  "Uniform": "Uniforme",
-  "Dropshadow": "Sombra paralela",
-  "Font Family": "Familia de fuente",
-  "Proportional Sans-Serif": "Sans-Serif proporcional",
-  "Monospace Sans-Serif": "Sans-Serif monoespacio",
-  "Proportional Serif": "Serif proporcional",
-  "Monospace Serif": "Serif monoespacio",
-  "Casual": "Informal",
-  "Script": "Cursiva",
-  "Small Caps": "Minúsculas",
-  "Reset": "Restablecer",
-  "restore all settings to the default values": "restablece todas las configuraciones a los valores predeterminados",
-  "Done": "Listo",
-  "Caption Settings Dialog": "Diálogo de configuración de leyendas",
-  "Beginning of dialog window. Escape will cancel and close the window.": "Comienzo de la ventana de diálogo. La tecla Escape cancelará la operación y cerrará la ventana.",
-  "End of dialog window.": "Final de la ventana de diálogo.",
-  "{1} is loading.": "{1} se está cargando."
-});
-
 // https://flagcdn.com/en/codes.json
 let paises = {
   "ad": "Andorra",
@@ -602,20 +492,100 @@ let paises = {
   "zw": "Zimbabwe, Zimbabue"
 }
 
-
 // ----- funciones 
+// matchingData = listado botones rescatado desde el modal
+function displayAutocompleteCanales(matchingData, inputForm) { 
+  const autocompleteContainer = document.createElement('div');
+  autocompleteContainer.classList.add('autocomplete-container', 'shadow');
+  let inputId = inputForm.getAttribute('id');
+    inputId = inputId.replace('input-de-', 'autocomplete-de-');
+  autocompleteContainer.setAttribute('id', inputId);
+  // genera boton abajo del input de cada canal
+  matchingData.forEach(btn => {
+    let btnAtr = btn.getAttribute('data-canal');
+    let btnP = btn.querySelector('p');
+    let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
+    let btnPClass = btnP.getAttribute('class'); // rescatar clases parrafo para estilo de titulo a la izquierda e iconos a la derecha
+   
+    // almacena item internos del boton del modal si es que existen
+    let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
+    let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
+    let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
+    // crear boton listado sugerencias a mostrar cuando se haga input
+    let sugerencia = document.createElement('button');
+    sugerencia.classList.add('sugerencia', 'fs-smaller', 'border', 'p-2', 'w-100', 'rounded-0', ...btnClass.split(' '), ...btnPClass.split(' '))
+    sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
+    sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
+
+    // que hacer cuando se hace clic en algun canal del listado sugerencias
+    sugerencia.addEventListener('click', () => {
+      // continuar aqui :)
+      
+      autocompleteContainer.remove();
+    });
+    autocompleteContainer.appendChild(sugerencia);
+  });
+  const existingAutocompleteContainer = document.querySelector(`#${inputId}.autocomplete-container`)
+  existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) : inputForm.parentNode.appendChild(autocompleteContainer);
+
+  document.addEventListener('click', function (event) {
+    const autocompleteContainer = document.querySelector('.autocomplete-container');
+    if (autocompleteContainer && !event.target.closest('.autocomplete-container') && event.target !== inputForm) {
+      autocompleteContainer.remove();
+    } 
+  });
+}
+
 function crearIframe(source, titleIframe, canalId) {
   const fragmentIFRAME = document.createDocumentFragment();
+  /* div general canal */
   const div = document.createElement('div');
-    div.classList.add('ratio', 'ratio-16x9');
-    div.setAttribute('data-canal-cambio', canalId);
+  div.classList.add('ratio', 'ratio-16x9');
+  div.setAttribute('data-canal-cambio', canalId);
+
+  const divGeneralInputCambio = document.createElement('div');
+    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column', 'justify-content-center', 'align-items-center', 'px-5', 'bg-dark-subtle', 'w-100', 'h-100');
+    divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
+
+  const divFormFloating = document.createElement('div');
+    divFormFloating.classList.add('form-floating');
+
+  const inputDatalist = document.createElement('input');
+    inputDatalist.classList.add('form-control');
+    inputDatalist.setAttribute('type', 'search');
+    inputDatalist.setAttribute('id', `input-de-${canalId}`)
+    inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
+
+  const labelDatalist = document.createElement('label');
+    labelDatalist.setAttribute('for', `input-de-${canalId}`)
+    labelDatalist.innerText = 'Cambiar canal por:'
+  
+    divFormFloating.append(inputDatalist)
+    divFormFloating.append(labelDatalist)
+  divGeneralInputCambio.append(divFormFloating)
+  
+  inputDatalist.addEventListener('input', function () {
+    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+    displayAutocompleteCanales(listaBotones, inputCambioCanal);
+  });
+
+  inputDatalist.addEventListener('focus', function () {
+    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+    displayAutocompleteCanales(listaBotones, inputCambioCanal);
+  });
+
+  div.append(divGeneralInputCambio)
+
+  /* div iframe videos */
   const divIFRAME = document.createElement('iframe');
-    divIFRAME.src = source;
-    divIFRAME.allowFullscreen = true;
-    console.log(titleIframe)
-    divIFRAME.title = titleIframe
-    divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas-6
-    div.append(divIFRAME);
+  divIFRAME.src = source;
+  divIFRAME.setAttribute('iframe-canal-cambio', canalId);
+  divIFRAME.allowFullscreen = true;
+  divIFRAME.title = titleIframe
+  divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas-6
+  div.append(divIFRAME);
   fragmentIFRAME.append(div);
   return fragmentIFRAME;
 };
@@ -626,54 +596,85 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   if (pais === undefined && altIcon === undefined) {
     contenido = nombre;
   } else if (pais === undefined && altIcon !== undefined) {
-      contenido = `${nombre} ${altIcon}`;
+    contenido = `${nombre} ${altIcon}`;
   } else {
-      contenido = `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
+    contenido = `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
   }
   a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
   a.title = 'Ir a la página oficial de esta transmisión';
   a.href = fuente;
-  a.setAttribute('tabindex', 0)
+  a.setAttribute('tabindex', 0);
   a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'bg-black', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1'); 
+  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'bg-black', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1');
 
   let btnRemove = document.createElement('button');
-    /*  btnRemove.classList.toggle('d-none', !overlayCheckbox.checked); */
-    btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-    btnRemove.setAttribute('aria-label', 'Close');
-    btnRemove.setAttribute('type', 'button');
-    btnRemove.setAttribute('title', 'Quitar canal');
-    btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
-    btnRemove.addEventListener('click', () => {
-        tele.remove(canalId)
-    });
+  btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnRemove.setAttribute('aria-label', 'Close');
+  btnRemove.setAttribute('type', 'button');
+  btnRemove.setAttribute('title', 'Quitar canal');
+  btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
+  btnRemove.addEventListener('click', () => {
+    tele.remove(canalId)
+  });
 
   let btnCambiarSeñal = document.createElement('button');
-    btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-    btnCambiarSeñal.setAttribute('type', 'button');
-    btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
-    btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
-    btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
-      btnCambiarSeñal.addEventListener('click', () => {
-          tele.change(canalId)
-      });
+  btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnCambiarSeñal.setAttribute('type', 'button');
+  btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
+  btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
+  btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
+  btnCambiarSeñal.addEventListener('click', () => {
+    // Selecciona el iframe por el atributo iframe-canal-cambio
+    let interiorIframePorCambiar = document.querySelector(`iframe[iframe-canal-cambio="${canalId}"]`);
 
+    let divGeneralCambiarCanal = document.querySelector(`div#div-cambio-de-${canalId}`);
+    divGeneralCambiarCanal.classList.remove('d-none');
+    divGeneralCambiarCanal.classList.add('d-flex');
+
+    if (interiorIframePorCambiar) {
+        // Guarda una referencia al padre del iframe
+        const padreIframe = interiorIframePorCambiar.parentNode;
+        // Guarda una referencia al índice del iframe en su padre
+        const indiceIframe = Array.prototype.indexOf.call(padreIframe.children, interiorIframePorCambiar);
+        // Remueve el iframe del DOM
+        padreIframe.removeChild(interiorIframePorCambiar);
+        // Función para volver a agregar el iframe
+        function volverAlIframeOriginal() {
+            divGeneralCambiarCanal.classList.remove('d-flex');
+            divGeneralCambiarCanal.classList.add('d-none');
+            // Inserta el iframe de nuevo en el mismo lugar en el que estaba antes de ser eliminado
+            padreIframe.insertBefore(interiorIframePorCambiar, padreIframe.children[indiceIframe]);
+            // ocultar el container de sugerencias al volver
+            const existingAutocompleteContainer = document.querySelector(`#input-de-${canalId}.autocomplete-container`)
+            if (existingAutocompleteContainer) {
+              existingAutocompleteContainer.remove();
+            }
+            // limpiar texto de input
+            const inputCanal = document.querySelector(`#input-de-${canalId}`)
+            inputCanal.value = '';
+            // Elimina el evento "click" para volver a agregar el iframe
+            btnCambiarSeñal.removeEventListener("click", volverAlIframeOriginal);
+        }
+        // Agrega un evento "click" al botón para volver a agregar el iframe
+        btnCambiarSeñal.addEventListener("click", volverAlIframeOriginal);
+    }
+  });
   let btnMoverEnGrid = document.createElement('button');
-    btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-    btnMoverEnGrid.setAttribute('type', 'button');
-    btnMoverEnGrid.setAttribute('title', 'Mover este canal');
-    btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
+  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnMoverEnGrid.setAttribute('type', 'button');
+  btnMoverEnGrid.setAttribute('title', 'Mover este canal');
+  btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
   const divOVERLAY = document.createElement('div');
-    divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-evenly', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
-    divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
-    divOVERLAY.append(btnMoverEnGrid)
-    divOVERLAY.append(btnCambiarSeñal)
-    divOVERLAY.append(a);
-    divOVERLAY.append(btnRemove)
+  divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-evenly', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
+  divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
+  divOVERLAY.append(btnMoverEnGrid)
+  divOVERLAY.append(btnCambiarSeñal)
+  divOVERLAY.append(a);
+  divOVERLAY.append(btnRemove)
 
-    fragmentOVERLAY.append(divOVERLAY);
-    return fragmentOVERLAY;
+  fragmentOVERLAY.append(divOVERLAY);
+  return fragmentOVERLAY;
 };
 
 // ----- tele
@@ -681,29 +682,29 @@ let tele = {
   add: (canal) => {
     // listaCanales = canales.js
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
-      let {iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon} = listaCanales[canal];
+      let { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon } = listaCanales[canal];
       canalesStorage[canal] = nombre;
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-  
+
       let fragmentTransmision = document.createDocumentFragment();
       let divTransmision = document.createElement('div');
-        divTransmision.classList.add('position-relative', `col-${tele.movil() ? sizeMovil : size}`, 'shadow');
-        divTransmision.setAttribute('data-canal', canal);
-  
+      divTransmision.classList.add('position-relative', `col-${checkMovil() ? sizeMovil : size}`, 'shadow');
+      divTransmision.setAttribute('data-canal', canal);
+
       if (typeof iframe_url !== 'undefined') {
         divTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
       } else if (typeof m3u8_url !== 'undefined') {
         const divM3u8 = document.createElement('div');
         divM3u8.classList.add('m3u-stream');
         const videoM3u8 = document.createElement('video');
-          videoM3u8.setAttribute('data-canal-m3u', canal);
-          videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
-          videoM3u8.toggleAttribute('controls');
-          divM3u8.append(videoM3u8);
+        videoM3u8.setAttribute('data-canal-m3u', canal);
+        videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
+        videoM3u8.toggleAttribute('controls');
+        divM3u8.append(videoM3u8);
         divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
         fragmentTransmision.append(divTransmision);
         canalesGrid.append(fragmentTransmision);
-  
+
         let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
         playerM3u8.src({
           src: m3u8_url,
@@ -712,43 +713,42 @@ let tele = {
         playerM3u8.autoplay('muted');
       } else if (typeof yt_id !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal), 
+          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
           crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
         );
       } else if (typeof yt_embed !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal), 
+          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
           crearOverlay(nombre, fuente, pais, alt_icon, canal)
         );
       } else if (typeof yt_playlist !== 'undefined') {
         divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal), 
+          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
           crearOverlay(nombre, fuente, pais, alt_icon, canal)
         );
       } else {
         console.log(`${canal} - Canal Inválido`);
       }
-  
-      if (typeof m3u8_url === 'undefined'){
+
+      if (typeof m3u8_url === 'undefined') {
         fragmentTransmision.append(divTransmision);
         canalesGrid.append(fragmentTransmision);
       }
-  
+
       let btnTransmisionOn = document.querySelectorAll(`button[data-canal="${canal}"]`);
       btnTransmisionOn.forEach(btn => {
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
-        /* divTransmision.append(btnRemove); */
       });
 
     } else {
       console.log(`${canal} no es válido como canal, revisa si se borró y/o reinicia tu localStorage`);
     }
-  },  
+  },
   remove: (canal) => {
     let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
     if (transmisionPorRemover) {
       canalesGrid.removeChild(transmisionPorRemover);
-  
+
       let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canal}"]`);
       btnTransmisionOff.forEach(btn => {
         btn.classList.replace('btn-primary', 'btn-outline-secondary');
@@ -759,273 +759,164 @@ let tele = {
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
     }
   },
-  change: (canalPorReemplazar, canalDeReemplazo) => {
-    
-
-
-
-    /* tele.change(canal) */
-    // selecionar div con clase ratio-19x6 y borrar el contenido                // DONE
-    // hacer que aparesca el div con el datalist                                // DONE
-    // almacenar el valor del canal en el cual se cargo el datalist             // DONE
-    // ver como rellenar el datalist con los canales                            // https://youtu.be/JfrDbNVi14k
-    // desaparecer datalist cuando se selecione un canal                        // relativamente palta
-    // reemplazar con nueva señal contenido de div "transmicionPorRemover"      // quizas modificar en add(canal) que si lleva otro tipo de id haga algo diferente para que no lo inserte el canal al final
-    // no olvidar que se deben de actualizar las clases en modal y offcanvas del boton del canal  // relativamente palta
-    // junto a lo de reemplazar el valor en localstorage                        // deberia poder reutilizarce el del remove(canal)
-
-
-
-
-
-
-
-
-      let transmisionPorRemover = document.querySelector(`div[data-canal-cambio="${canalPorReemplazar}"]`);
-      if (transmisionPorRemover) {
-        transmisionPorRemover.innerHTML = ''
-    
-        let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canalPorReemplazar}"]`);
-        btnTransmisionOff.forEach(btn => {
-          btn.classList.replace('btn-primary', 'btn-outline-secondary');
-        });
-
-      const divDatalist = document.createElement('div');
-        divDatalist.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'px-5', 'bg-dark-subtle');
-      const labelDatalist = document.createElement('label');
-        labelDatalist.setAttribute('for', `datalist-de-${canalPorReemplazar}`)
-        labelDatalist.classList.add('form-label');
-        labelDatalist.innerText = 'Cambiar canal por:'
-      divDatalist.append(labelDatalist)
-
-      const inputDatalist = document.createElement('input');
-        inputDatalist.classList.add('form-control');
-        inputDatalist.setAttribute('list', `datalist-options-${canalPorReemplazar}`)
-        inputDatalist.setAttribute('id', `datalist-de-${canalPorReemplazar}`)
-        inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
-      divDatalist.append(inputDatalist)
-
-      const datalistCanales = document.createElement('datalist');
-        datalistCanales.setAttribute('id', `datalist-options-${canalPorReemplazar}`)
-      divDatalist.append(datalistCanales)
-
-        transmisionPorRemover.append(divDatalist)
-     
-
-
-
-
-
-
-
-
-  
-        /* // remueve de localstorage
-        delete canalesStorage[canal];
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage)); */
-      }
-
-
-
-
-
-
-
-
-
-      // -------------------------------------------
-  },
-  movil: () => {
-    // https://stackoverflow.com/a/11381730
-    let check = false;
-    ((a) => {
-      if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
-        check = true;
-    })(navigator.userAgent || navigator.vendor || window.opera);
-    return check;
-  },
   populateModal: () => {
     let numeroCanalesConPais = [];
 
     const fragmentBtn = document.createDocumentFragment();
     const fragmentBtn2 = document.createDocumentFragment();
-    
+
     for (const canal in listaCanales) {
-        let { nombre, pais, alt_icon } = listaCanales[canal];
-        let btnTransmision = document.createElement('button');
-        btnTransmision.classList.add('btn', 'btn-outline-secondary');
-        btnTransmision.setAttribute('data-canal', canal);
-    
-        const p = document.createElement('p');
-        p.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start');
-        p.textContent = nombre;
-    
-        if (pais) {
-            let img = document.createElement('img');
-            let nombrePais = paises[pais.toLowerCase()];
-            img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
-            img.setAttribute('alt', `bandera ${nombrePais}`);
-            img.setAttribute('title', nombrePais);
-            img.classList.add('h-100', 'm-0');
-            btnTransmision.setAttribute('country', `${nombrePais}`);
-            p.append(img);
-            numeroCanalesConPais.push(pais);
-        } else if (alt_icon) {
-            p.innerHTML += alt_icon;
-            btnTransmision.setAttribute('country', 'Unknow');
-            numeroCanalesConPais.push('Unknow');
-        } else {
-            btnTransmision.setAttribute('country', 'Unknow');
-            numeroCanalesConPais.push('Unknow');
-        }
-    
-        btnTransmision.append(p);
-        fragmentBtn.appendChild(btnTransmision);
-    
-        const clonedBtnTransmision = btnTransmision.cloneNode(true); // Clonar el botón
-        fragmentBtn2.appendChild(clonedBtnTransmision);
+      let { nombre, pais, alt_icon } = listaCanales[canal];
+      let btnTransmision = document.createElement('button');
+      btnTransmision.classList.add('btn', 'btn-outline-secondary');
+      btnTransmision.setAttribute('data-canal', canal);
+
+      const pNombreCanalDentroBoton = document.createElement('p');
+      pNombreCanalDentroBoton.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2');
+
+      const spanNombreCanal = document.createElement('span');
+      spanNombreCanal.classList.add('flex-grow-1');
+      spanNombreCanal.textContent = nombre;
+      pNombreCanalDentroBoton.append(spanNombreCanal)
+
+      if (pais && !alt_icon) {
+        let img = document.createElement('img');
+        let nombrePais = paises[pais.toLowerCase()];
+        img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
+        img.setAttribute('alt', `bandera ${nombrePais}`);
+        img.setAttribute('title', nombrePais);
+        img.classList.add('h-100', 'm-0');
+        btnTransmision.setAttribute('country', `${nombrePais}`);
+        pNombreCanalDentroBoton.append(img);
+        numeroCanalesConPais.push(pais);
+      } else if (pais && alt_icon) {
+        let iconoAlternativo = document.createElement('div');
+        iconoAlternativo.innerHTML = alt_icon;
+        pNombreCanalDentroBoton.append(iconoAlternativo)
+        let img = document.createElement('img');
+        let nombrePais = paises[pais.toLowerCase()];
+        img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
+        img.setAttribute('alt', `bandera ${nombrePais}`);
+        img.setAttribute('title', nombrePais);
+        img.classList.add('h-100', 'm-0');
+        btnTransmision.setAttribute('country', `${nombrePais}`);
+        pNombreCanalDentroBoton.append(img);
+        numeroCanalesConPais.push(pais);
+      } else if (!pais && alt_icon) {
+        pNombreCanalDentroBoton.innerHTML += alt_icon;
+        btnTransmision.setAttribute('country', 'Unknow');
+        numeroCanalesConPais.push('Unknow');
+      } else {
+        btnTransmision.setAttribute('country', 'Unknow');
+        numeroCanalesConPais.push('Unknow');
+      }
+
+      btnTransmision.append(pNombreCanalDentroBoton);
+      fragmentBtn.appendChild(btnTransmision);
+
+      const clonedBtnTransmision = btnTransmision.cloneNode(true); // Clonar el botón
+      fragmentBtn2.appendChild(clonedBtnTransmision);
     }
-    
+
     // Agregar fragmentos al DOM después de completar el bucle
     document.querySelector('#modal-body-botones-canales').appendChild(fragmentBtn);
     document.querySelector('#offcanvas-body-botones-canales').appendChild(fragmentBtn2);
-    
+
     // Asignar eventos después de que los botones estén en el DOM
     document.querySelectorAll('#modal-body-botones-canales button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
-            tele[action](btn.getAttribute('data-canal'));
-        });
+      btn.addEventListener('click', () => {
+        const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
+        tele[action](btn.getAttribute('data-canal'));
+      });
     });
-    
+
     document.querySelectorAll('#offcanvas-body-botones-canales button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
-            tele[action](btn.getAttribute('data-canal'));
-        });
+      btn.addEventListener('click', () => {
+        const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
+        tele[action](btn.getAttribute('data-canal'));
+      });
     });
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // https://www.javascripttutorial.net/array/javascript-remove-duplicates-from-array/
-    let paisesSinRepetir = [...new Set(numeroCanalesConPais)];     
+    let paisesSinRepetir = [...new Set(numeroCanalesConPais)];
     // https://stackoverflow.com/a/19395302
     const conteoNumeroCanalesConPais = {};
     numeroCanalesConPais.forEach((x) => { conteoNumeroCanalesConPais[x] = (conteoNumeroCanalesConPais[x] || 0) + 1; });
-     // crea fragmento y lo llena con banderas para ser insertadas en modal
-     let fragmentBtnsFiltroBanderas = document.createDocumentFragment();
-     for (const bandera of paisesSinRepetir) {
+    // crea fragmento y lo llena con banderas para ser insertadas en modal
+    let fragmentBtnsFiltroBanderas = document.createDocumentFragment();
+    for (const bandera of paisesSinRepetir) {
       let nombrePais = paises[bandera];
       let btn = document.createElement('button');
-          btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center');
-          btn.setAttribute('type', 'button');
-          btn.setAttribute('data-country', bandera);
+      btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center');
+      btn.setAttribute('type', 'button');
+      btn.setAttribute('data-country', bandera);
       let span = document.createElement('span');
-          span.classList.add('badge', 'bg-secondary', 'rounded-pill');
-          span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
+      span.classList.add('badge', 'bg-secondary', 'rounded-pill');
+      span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
       if (paises[bandera]) {
-          let img = document.createElement('img');
-            img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
-            img.setAttribute('alt', `bandera ${nombrePais}`);
-            img.setAttribute('title', nombrePais);
-            img.classList.add('rounded-5');
-            btn.append(img, span);
+        let img = document.createElement('img');
+        img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
+        img.setAttribute('alt', `bandera ${nombrePais}`);
+        img.setAttribute('title', nombrePais);
+        img.classList.add('rounded-5');
+        btn.append(img, span);
       } else {
-          btn.innerHTML = bandera;
-          btn.append(span);
+        btn.innerHTML = bandera;
+        btn.append(span);
       }
 
-    fragmentBtnsFiltroBanderas.appendChild(btn);
-  }
+      fragmentBtnsFiltroBanderas.appendChild(btn);
+    }
 
- // Clona el fragmento para poder agregarlo a diferentes contenedores
- const clonedFragmentBtn = fragmentBtnsFiltroBanderas.cloneNode(true);
+    // Clona el fragmento para poder agregarlo a diferentes contenedores
+    const clonedFragmentBtn = fragmentBtnsFiltroBanderas.cloneNode(true);
 
- // Agrega los fragmentos con los botones y sus eventos a los contenedores en el DOM
- document.querySelector('#modal-collapse-botones-listado-filtro-paises').appendChild(fragmentBtnsFiltroBanderas);
- document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').appendChild(clonedFragmentBtn);
+    // Agrega los fragmentos con los botones y sus eventos a los contenedores en el DOM
+    document.querySelector('#modal-collapse-botones-listado-filtro-paises').appendChild(fragmentBtnsFiltroBanderas);
+    document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').appendChild(clonedFragmentBtn);
 
+    document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log("El clic se originó dentro del contenedor containerModalBody")
+        // El clic se originó dentro del contenedor containerBtnBanderas
+        let todoBtn = document.querySelector('#modal-collapse-botones-listado-filtro-paises').querySelectorAll('button');
+        todoBtn.forEach(btn => {
+          btn.classList.replace('btn-primary', 'btn-outline-secondary');
+        });
 
+        btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
-
- document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    console.log("El clic se originó dentro del contenedor containerModalBody")
-    // El clic se originó dentro del contenedor containerBtnBanderas
-    let todoBtn = document.querySelector('#modal-collapse-botones-listado-filtro-paises').querySelectorAll('button');
-    todoBtn.forEach(btn => {
-    btn.classList.replace('btn-primary', 'btn-outline-secondary');
+        let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
+        filtrarCanalesPorInput(filtro, document.querySelector('#modal-body-botones-canales'));
+      });
     });
 
-    btn.classList.replace('btn-outline-secondary', 'btn-primary');
+    document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log("El clic se originó dentro del contenedor containerOffcanvasBody")
+        let todoBtn = document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').querySelectorAll('button');
+        todoBtn.forEach(btn => {
+          btn.classList.replace('btn-primary', 'btn-outline-secondary');
+        });
 
-    let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
-    filtrarCanalesPorInput(filtro, document.querySelector('#modal-body-botones-canales'));
-  });
-});
+        btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
- document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    console.log("El clic se originó dentro del contenedor containerOffcanvasBody")
-    let todoBtn = document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').querySelectorAll('button');
-    todoBtn.forEach(btn => {
-    btn.classList.replace('btn-primary', 'btn-outline-secondary');
+        let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
+        filtrarCanalesPorInput(filtro, document.querySelector('#offcanvas-body-botones-canales'));
+      });
     });
 
-    btn.classList.replace('btn-outline-secondary', 'btn-primary');
-  
-    let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
-    filtrarCanalesPorInput(filtro, document.querySelector('#offcanvas-body-botones-canales'));
-  });
-});
 
- 
   },
   init: () => {
     tele.populateModal();
-  
+
     const localStorageCanales = localStorage.getItem('canales_storage');
-    const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4']; 
+    const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4'];
     const canalesExtras = ['chv-noticias-3', 'galeria-cima', 'lofi-girl'];
-  
-    const canalesAgregar = tele.movil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
-  
+
+    const canalesAgregar = checkMovil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
+
     if (localStorageCanales === null) {
       canalesAgregar.forEach(canal => tele.add(canal));
     } else {
@@ -1042,125 +933,14 @@ tele.init();
  | (_) || | |   / (_) \__ \ \ \ / _` |
   \___/ |_| |_|_\\___/|___/ /_\_\__,_|
 */
-// ----- copiar enlace a portapapeles y alerta copiado
-const btnEnlace = document.querySelector('#btn-enlace');
-const audioCopiadoFallido = new Audio('/assets/sounds/Cancel-miss-chime-by-Raclure.wav');
-const audioCopiadoExitoso = new Audio('/assets/sounds/button-pressed-by-Pixabay.mp3');
-
-btnEnlace.onclick = () => {
-  let e = document.querySelector('#enlace-compartir');
-  e.select();
-  e.setSelectionRange(0, 99999);
-  
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(e.value)
-      .then(() => {
-        audioCopiadoExitoso.play();
-        btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
-        btnEnlace.classList.add('bg-success');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-success');
-        }, 2000);
-      })
-      .catch(error => {
-        audioCopiadoFallido.play();
-        btnEnlace.innerHTML ='Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
-        btnEnlace.classList.add('bg-danger');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-danger');
-        }, 2000);
-        console.error('Error al copiar el enlace: ', error);
-      });
-  } else {
-    console.error('La funcionalidad de escritura en el portapapeles no está disponible en este navegador.');
-    try {
-      // Intenta copiar el texto de respaldo
-      audioCopiadoExitoso.play();
-      document.execCommand('copy', false, e.value);
-      btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
-        btnEnlace.classList.add('bg-success');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-success');
-        }, 2000);
-      console.log('Texto copiado al portapapeles con éxito.');
-    } catch (error) {
-      audioCopiadoFallido.play();
-      btnEnlace.innerHTML = 'Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
-        btnEnlace.classList.add('bg-danger');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-danger');
-        }, 2000);
-      console.error('Error al copiar el texto al portapapeles: ', error);
-    }
-  }
-};
-
 // ----- añade número total de canales a boton "global" del filtro banderas 
 document.querySelector('#modal-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
 document.querySelector('#offcanvas-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
 
-// ----- btn compartir sitio (usa navigator.share en telefonos) 
-// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
-const datosCompartir = {
-  title: 'teles',
-  text: 'PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).',
-  url: 'https://alplox.github.io/teles/',
-};
-
-const btnsCompartir = document.querySelectorAll('button.btn-outline-warning, button.btn-compartir');
-
-if (tele.movil()){
-  for (const btn of btnsCompartir){
-    btn.addEventListener('click', async () => {
-      try {
-        await navigator.share(datosCompartir);
-      } catch(err) {
-        console.log(`Error: ${err}`);
-      } 
-    });
-  }
-} else {
-  for (const btn of btnsCompartir){
-    btn.setAttribute('data-bs-toggle', 'modal');
-    btn.setAttribute('data-bs-target', '#modal-compartir');
-    btn.setAttribute('data-bs-dismiss', 'modal');
-  }
-};
-
-// ----- btn fullscreen
-// https://javascript.plainenglish.io/enter-full-screen-mode-with-javascript-a8a782d96dc
-const btnFullscreen = document.querySelector('#fullscreen');
-
-function getFullscreenElement() {
-  return document.fullscreenElement   //standard property
-  || document.webkitFullscreenElement //safari/opera support
-  || document.mozFullscreenElement    //firefox support
-  || document.msFullscreenElement;    //ie/edge support
-}
-
-function toggleFullscreen() {
-  if(getFullscreenElement()) {
-    document.exitFullscreen();
-    btnFullscreen.innerHTML = '<i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa';
-  }else {
-    document.documentElement.requestFullscreen();
-    btnFullscreen.innerHTML = '<i class="bi bi-fullscreen-exit"></i> Salir pantalla completa';
-  }
-}
-
-btnFullscreen.addEventListener('click', () => {
-  toggleFullscreen();
-});
-
-
 
 // plugin para mover canales en grid
 new Sortable(canalesGrid, {
-	animation: 550,
+  animation: 550,
   handle: '.handle',
   ghostClass: 'marca-al-mover',
 });

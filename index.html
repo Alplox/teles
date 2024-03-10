@@ -64,61 +64,9 @@
 </head>
 
 <body>
-    <!-- offcanvas canales -->
-    <div class="offcanvas offcanvas-canales offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Selecciona tus canales</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-     
-        <div class="d-flex flex-column">
-            <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
-                Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
-                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
-            </p>
-            <button class="btn btn-sm btn-outline-primary mx-2 mb-2 text-center " type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
-                Mostrar filtro por país <i class="bi bi-funnel"></i>
-            </button>
-            <div class="collapse p-2" id="collapse-btn-group">
-                <div class="card card-body">
-                    <div class="btn-group btn-group-sm container-btn-group" 
-                    role="group" 
-                    aria-label="Toggle radio para grupo botones" 
-                    id='offcanvas-collapse-botones-listado-filtro-paises'>
-                        <button 
-                        id="offcanvas-btn-mostrar-todo-pais" 
-                        class='btn btn-primary' 
-                        type='button' 
-                        data-country='all'>Todos
-                            <span class="badge bg-secondary rounded-pill" id='offcanvas-span-con-numero-total-canales'></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="offcanvas-body">
-            <div class="offcanvas-body-canales" id="offcanvas-body-botones-canales">
-            </div>
-        </div>
-
-        <div class="p-2 d-flex flex-column">
-            <div class="form-floating">
-                <input type="search" class="form-control" id="offcanvas-input-filtro" placeholder="Buscar por país o canal">
-                <label for="filtro">Buscar por país o canal</label>
-            </div>
-            <div class="d-flex justify-content-evenly mt-2">
-                <button class="btn btn-sm btn-danger w-100 me-2" id="btn-offcanvas-quitar-todo-canal-activo">
-                    Quitar todo canal activo
-                </button>
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="offcanvas">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Alerta noscript -->
     <noscript>
-        <div class="container-fluid no-js">
+        <div class="bg-noscript z-9999 position-fixed overflow-hidden d-flex flex-column align-items-center justify-content-center vw-100 vh-100 p-5">
             <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
             <h2>Si lo has deshabilitado, por favor <strong>vuelve a activarlo</strong>.</h2>
             <div class="wave"></div>
@@ -126,18 +74,24 @@
     </noscript>
 
     <!-- Alerta tras borrado localstorage -->
-    <div id="alert-reset"></div>
+    <div id="alert-reset" class="d-none bg-flicker z-9999 position-fixed overflow-hidden vw-100 vh-100">
+        <div class="d-flex flex-column align-items-center justify-content-center bg-dark-subtle p-5 vw-100 vh-100">
+            <h1 class="user-select-none">ヾ( ˃ᴗ˂ )◞ • *✰</h1>
+            <h1 class="text-flicker user-select-none">Tu localStorage ha sido <strong>eliminado</strong>, prueba recargando el sitio/PWA </h1>
+            <button type="button" class="btn btn-lg btn-light mt-5" onclick="location.reload()">Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+    </div>
 
     <!-- Navbar -->
-    <nav class='navbar navbar-expand-lg bg-dark shadow' data-bs-theme="dark">
+    <nav class='navbar navbar-expand-lg bg-dark-subtle shadow-sm'>
         <div class="container-fluid">
             <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
-                <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="offcanvas" 
-                data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><i class="bi bi-chevron-right"></i></button>
-                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal"
+                <button type="button" class="btn btn-sm bg-light-subtle border border-success-subtle" data-bs-toggle="offcanvas" 
+                data-bs-target="#offcanvasCanales" aria-controls="offcanvasCanales"><i class="bi bi-chevron-right"></i></button>
+                <button type="button" class="btn btn-sm bg-light-subtle border border-success-subtle" data-bs-toggle="modal"
                 data-bs-target="#modal-canales">Canales <i class="ps-1 bi bi-display"></i></button>
             </div>
-            <span class="reloj px-4 text-light" title="Hora Santiago, Chile">
+            <span class="reloj px-4" title="Hora Santiago, Chile">
                 <span id="Santiago_z179" tabindex="-1">
                     <span onclick="location='http://time.is/'" title="http://time.is/" tabindex="-1"></span>
                 </span>
@@ -149,17 +103,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar-toggler">
                 <ul class="navbar-nav me-auto mb-lg-0">
-                    <li class='nav-item'>
-                        <button type="button" class='nav-link btn' data-bs-toggle="modal" data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i class="bi bi-boombox"></i>
+                    <li class='nav-item '>
+                        <button type="button" class='nav-link' data-bs-toggle="modal" data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i class="bi bi-boombox"></i>
                             Medios de prensa alternativos</button>
                     </li>
                     <li class='nav-item'>
-                        <button type="button" class='nav-link btn' data-bs-toggle="modal"
+                        <button type="button" class='nav-link' data-bs-toggle="modal"
                             data-bs-target="#modal-complementario"><i class="bi bi-link-45deg"></i>
                             Enlaces complementarios</button>
                     </li>
                     <li class='nav-item'>
-                        <button type="button" class='nav-link btn btn-compartir'><i class="pe-1 bi bi-share-fill"></i> Compartir
+                        <button type="button" class='nav-link btn-compartir'><i class="pe-1 bi bi-share-fill"></i> Compartir
                         </button>
                     </li>
                 </ul>
@@ -212,7 +166,7 @@
     <!-- Grid canales -->
     <main class="row g-0" id="canales-grid">
         <section class="fondo z-n1 position-fixed d-flex flex-column justify-content-center align-items-center user-select-none w-100 vh-100">
-            <div class="bg-dark-subtle d-flex flex-column justify-content-center align-items-center p-5 rounded-5 shadow-lg">
+            <div class="bg-dark-subtle d-flex flex-column justify-content-center align-items-center p-5 rounded-5 shadow">
                 <div class="position-relative user-select-none bg-info-subtle p-3 rounded-4" tabindex="-1">
                     <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles" class="img-fondo"> 
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
@@ -220,7 +174,7 @@
                     </span>
                 </div>
                     <p class="display-1 user-select-none">teles</p>
-                    <a href="https://github.com/Alplox/teles" class="fs-5">https://github.com/Alplox/teles <i class="bi bi-box-arrow-up-right"></i></a>
+                    <!-- <a href="https://github.com/Alplox/teles" class="fs-5">https://github.com/Alplox/teles <i class="bi bi-box-arrow-up-right"></i></a> -->
             </div>
         </section>
 
@@ -313,18 +267,72 @@
                         <input type="search" class="form-control" id="modal-input-filtro" placeholder="Buscar por país o canal">
                         <label for="filtro">Buscar por país o canal</label>
                     </div>
-                    <button class="btn btn-danger" id="btn-modal-quitar-todo-canal-activo">
-                        Quitar todo canal activo
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <div class="d-flex justify-content-between w-100">
+                        <button class="btn btn-danger" id="btn-modal-quitar-todo-canal-activo">
+                            Quitar todo canal activo
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- offcanvas canales -->
+    <div class="offcanvas offcanvas-canales offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasCanales" aria-labelledby="offcanvasCanalesLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasCanalesLabel">Selecciona tus canales</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+     
+        <div class="d-flex flex-column">
+            <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
+                Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
+                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
+            </p>
+            <button class="btn btn-sm btn-outline-primary mx-2 mb-2 text-center " type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
+                Mostrar filtro por país <i class="bi bi-funnel"></i>
+            </button>
+            <div class="collapse p-2" id="collapse-btn-group">
+                <div class="card card-body">
+                    <div class="btn-group btn-group-sm container-btn-group" 
+                    role="group" 
+                    aria-label="Toggle radio para grupo botones" 
+                    id='offcanvas-collapse-botones-listado-filtro-paises'>
+                        <button 
+                        id="offcanvas-btn-mostrar-todo-pais" 
+                        class='btn btn-primary' 
+                        type='button' 
+                        data-country='all'>Todos
+                            <span class="badge bg-secondary rounded-pill" id='offcanvas-span-con-numero-total-canales'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="offcanvas-body">
+            <div class="offcanvas-body-canales" id="offcanvas-body-botones-canales">
+            </div>
+        </div>
+
+        <div class="p-2 d-flex flex-column bg-dark">
+            <div class="form-floating">
+                <input type="search" class="form-control" id="offcanvas-input-filtro" placeholder="Buscar por país o canal">
+                <label for="filtro">Buscar por país o canal</label>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <button class="btn btn-sm btn-danger" id="btn-offcanvas-quitar-todo-canal-activo">
+                    Quitar todo canal activo
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="offcanvas">Cerrar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal bienvenida/Descargo de responsabilidad -->
     <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Modal de Bienvenida" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Descargo de responsabilidad</h5>
@@ -373,6 +381,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Créditos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>
@@ -782,6 +791,13 @@
                                 <td></td>
                             </tr>
                             <tr>
+                                <td><a href="https://portalsaluddigital.minsal.cl/4141-linea-prevencion-del-suicidio/"
+                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>*4141 Línea Prevención del Suicidio
+                                        (portalsaluddigital.minsal.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
                                 <td><a href="https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/"
                                         rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Líneas gratuitas de apoyo psicológico en Chile <i class="bi bi-box-arrow-up-right"></i></a>
                                 </td>
@@ -1039,6 +1055,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Compartir <i class="text-warning bi bi-share-fill"></i></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="share-btns">
@@ -1110,83 +1127,85 @@
     </button>
 
     <!-- sidepanel/personalizaciones -->
-    <div class="offcanvas offcanvas-personalizaciones offcanvas-end border border-5 border-dark-subtle rounded-3 top-50 end-0 translate-middle-y h-auto"
+    <div class="offcanvas bg-dark bg-opacity-75 offcanvas-end border border-5 border-dark-subtle rounded-3 overflow-auto"
     tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
-        <div class="offcanvas-header justify-content-center p-0">
-            <p class="bg-dark-subtle rounded-bottom text-center px-5">Personalización</p>
-            <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body p-0 px-3">
-            <ul class="d-flex flex-column justify-content-center align-items-center w-100 gap-3 list-unstyled">
-                <li class="w-100">
-                    <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
-                        <div class="form-check form-switch" title="ocultar navbar">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch-navbar">
-                            <label class="form-check-label" for="switch-navbar" id="status-navbar">Navbar
-                                <span></span></label>
+        <div class="w-100 h-100">
+            <div class="offcanvas-header justify-content-center p-0">
+                <p class="bg-dark-subtle rounded-bottom text-center px-5 fs-5 pb-1">Personalización</p>
+                <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0 px-3 pt-4">
+                <ul class="d-flex flex-column justify-content-center align-items-center w-100 gap-3 list-unstyled">
+                    <li class="w-100">
+                        <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar navbar">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-navbar">
+                                <label class="form-check-label" for="switch-navbar" id="status-navbar">Navbar
+                                    <span></span></label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="w-100">
-                    <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
-                        <div class="form-check form-switch" title="ocultar overlay">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch-overlay">
-                            <label class="form-check-label" for="switch-overlay" id="status-overlay">Overlay
-                                canales <span></span></label>
+                    </li>
+                    <li class="w-100">
+                        <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar overlay">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-overlay">
+                                <label class="form-check-label" for="switch-overlay" id="status-overlay">Overlay
+                                    canales <span></span></label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="w-100">
-                    <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
-                        <div class="form-check form-switch" title="ocultar fondo">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
-                            <label class="form-check-label" for="switch-fondo" id="status-fondo">Branding fondo <span></span></label>
+                    </li>
+                    <li class="w-100">
+                        <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar fondo">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
+                                <label class="form-check-label" for="switch-fondo" id="status-fondo">Branding fondo <span></span></label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="w-100">
-                    <!-- Boton tema claro/oscuro -->
-                    <div class=" py-2 px-3 bg-dark-subtle rounded-pill">
-                        <div class="form-check form-switch pull-right">
-                        <input class="form-check-input" type="checkbox" id="darkMode">
-                        <label id="darkModeLabel" for="darkMode">Tema [Claro <i class="bi bi-sun"></i>] </label>
+                    </li>
+                    <li class="w-100">
+                        <!-- Boton tema claro/oscuro -->
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch pull-right d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" id="darkMode">
+                                <label id="darkModeLabel" for="darkMode" class="d-flex justify-content-between align-items-center w-100">Tema [Claro] <i class="bi bi-sun bg-white px-2 py-1 rounded-circle"></i></label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="w-100">
-                    <div class="py-2 px-3 bg-dark-subtle rounded-4">
-                        <label for="tamaño-streams" class="slider-label form-label">Tamaño [<span>100</span>%]</label>
-                        <input type="range" value="100" min="50" max="100" class="form-range" id="tamaño-streams">
-                    </div>
-                </li>
-                <li class="w-100">
-                    <select class="form-select border-0 bg-dark-subtle rounded-3" id="transmision-por-fila" aria-label="ajustar número transmisiones por fila">
-                        <option disabled selected>Número de canales por fila</option>
-                        <option value="12">1 Canal por fila</option>
-                        <option value="6">2 Canales por fila</option>
-                        <option value="4">3 Canales por fila</option>
-                        <option value="3">4 Canales por fila</option>
-                        <option value="2">6 Canales por fila</option>
-                        <option value="1">12 Canales por fila a lo enfermo</option>
-                    </select>
-                </li>
-                <li class="w-100 bg-dark-subtle rounded-3">  <!-- bg aqui debido a delay que se produce si esta en boton... -->
-                    <button type="button" class="btn bg-transparent w-100" id="fullscreen">
-                        <i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa
-                    </button>
-                </li>
-                <li class="w-100 d-flex justify-content-center align-items-center gap-3">
-                    <button type="button" class="btn btn-outline-light" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button>
-                    <button type="button" class="btn btn-outline-warning"
-                        title="Compartir" data-bs-dismiss="offcanvas">Compartir
-                        <i class="text-warning bi bi-share-fill"></i>
-                    </button>
-                </li>
-                <li class="w-100 d-flex justify-content-center align-items-center">
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-reset">Reiniciar personalizaciones</button>
-                </li>
-            </ul>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4">
+                            <label for="tamaño-streams" class="slider-label form-label">Tamaño [<span>100</span>%]</label>
+                            <input type="range" value="100" min="50" max="100" class="form-range" id="tamaño-streams">
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <select class="form-select border-0 bg-dark-subtle rounded-3" id="transmision-por-fila" aria-label="ajustar número transmisiones por fila">
+                            <option disabled selected>Número de canales por fila</option>
+                            <option value="12">1 Canal por fila</option>
+                            <option value="6">2 Canales por fila</option>
+                            <option value="4">3 Canales por fila</option>
+                            <option value="3">4 Canales por fila</option>
+                            <option value="2">6 Canales por fila</option>
+                            <option value="1">12 Canales por fila a lo enfermo</option>
+                        </select>
+                    </li>
+                    <li class="w-100 bg-dark-subtle rounded-3">  <!-- bg aqui debido a delay que se produce si esta en boton... -->
+                        <button type="button" class="btn bg-transparent w-100" id="fullscreen">
+                            <i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa
+                        </button>
+                    </li>
+                    <li class="w-100 d-flex justify-content-center align-items-center gap-3 mt-auto">
+                        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal"
+                            data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button>
+                        <button type="button" class="btn btn-outline-warning"
+                            title="Compartir" data-bs-dismiss="offcanvas">Compartir
+                            <i class="text-warning bi bi-share-fill"></i>
+                        </button>
+                    </li>
+                    <li class="w-100 d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-reset">Reiniciar personalizaciones</button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -1209,12 +1228,23 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="assets/js/main.js"></script>
+    
+    <script src="assets/js/traduccionVideoJS.js"></script>
+    
     
     <!-- funciones -->
     <script src="assets/js/darkMode.js"></script>
     <script src="assets/js/filtroCanales.js"></script>
+    <script src="assets/js/checkMovil.js"></script>
+
+    <script src="assets/js/main.js"></script>
     <script src="assets/js/botonesQuitarTodo.js"></script>
+    <script src="assets/js/botonesCompartir.js"></script>
+    <script src="assets/js/botonPantallaCompleta.js"></script>
+    <script src="assets/js/botonCopiarEnlace.js"></script>
+    <script src="assets/js/resetLocalStorage.js"></script>
+    
+    
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 

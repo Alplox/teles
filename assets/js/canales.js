@@ -14,6 +14,7 @@ tipos de enlaces posibles [Recordar utilizar solo enlaces https si se aloja en G
 
         'fuente': 'url'           ("fuente" es el enlace de origen de la señal, a modo de transparencia y libertad de abandonar la página si solo se quiere continuar con dicha señal, si se extrae una señal ya sea tipo "iframe" o "m3u8" de www.pagina-ejemplo.cl debe de ponerse www.pagina-ejemplo.cl en "fuente". Si no se obtiene señal desde el emisor oficial como tal, se utiliza el sitio del emisor sobre el de terceros (ejemplo: saque canal de una lista IPTV, por lo que pongo el sitio del canal, no la lista IPTV. Ya que eso va en el listado de canales en archivo README))
         'pais': 'nombre país'     (nombre país es en base a ISO 3166, https://flagcdn.com/en/codes.json (Recomendable en minúsculas))
+        'alt_icon': 'icono bootstrap'  (este concepto de icono alternativo se usa mayoritariamente para señales que no pertenece a un país en específico tanto como para quizás segmentar por tipo de señal, si es un canal o una radio. No es obligatorio)
     }
 
 by Alplox 
@@ -97,8 +98,14 @@ const listaCanales = {
         'fuente': 'https://www.meganoticias.cl/senal-en-vivo/meganoticias/',
         'pais': 'cl'
     },
-    'mega-2': {
-        'nombre': 'Mega 2',
+    'meganoticias-4': {
+        'nombre': 'Meganoticias 4',
+        'iframe_url': 'https://rudo.video/live/mega?volume=0&mute=1',
+        'fuente': 'https://www.meganoticias.cl/senal-en-vivo/meganoticias/',
+        'pais': 'cl'
+    },
+    'mega': {
+        'nombre': 'Mega',
         'm3u8_url': 'https://unlimited1-cl-isp.dps.live/mega/mega.smil/playlist.m3u8',
         'fuente': 'https://www.mega.cl/',
         'pais': 'cl'
@@ -122,13 +129,25 @@ const listaCanales = {
     },
     't13-4': {
         'nombre': 'T13 4',
-        'iframe_url': 'https://rudo.video/live/t13',
+        'iframe_url': 'https://rudo.video/live/t13?volume=0&mute=1',
         'fuente': 'https://www.t13.cl/',
         'pais': 'cl'
     },
     'canal-13': {
         'nombre': 'Canal 13',
-        'iframe_url': 'https://ainmcl.github.io/MonitorTV/Monitores/Senal/WEB/Se%C3%B1alCANAL13_IFRAME.html',
+        'iframe_url': 'https://rudo.video/live/c13?volume=0&mute=1',
+        'fuente': 'https://www.13.cl/en-vivo',
+        'pais': 'cl'
+    },
+    'canal-13-2': {
+        'nombre': 'Canal 13 2',
+        'm3u8_url': 'https://jireh-hls-live-video.dpsgo.com/hls-video/10b92cafdf3646cbc1e727f3dc76863621a327fd/c13/playlist.m3u8',
+        'fuente': 'https://www.13.cl/en-vivo',
+        'pais': 'cl'
+    },
+    'canal-13-3': {
+        'nombre': 'Canal 13 3',
+        'm3u8_url': 'https://dai.google.com/linear/hls/pa/event/bFL1IVq9RNGlWQaqgiFuNw/stream/529d29eb-8117-44d3-9e21-cdfd68c3c097:MRN2/master.m3u8',
         'fuente': 'https://www.13.cl/en-vivo',
         'pais': 'cl'
     },
@@ -150,7 +169,7 @@ const listaCanales = {
     },
     'chv-noticias-3': {
         'nombre': 'CHV Noticias 3',
-        'iframe_url': 'https://rudo.video/live/chvn',
+        'iframe_url': 'https://rudo.video/live/chvn?volume=0&mute=1',
         'fuente': 'https://www.chvnoticias.cl/senal-online/',
         'pais': 'cl'
     },
@@ -171,69 +190,76 @@ const listaCanales = {
         'fuente': 'https://www.lared.cl/senal-online',
         'pais': 'cl'
     },
+    'la-red-2': {
+        'nombre': 'La Red 2',
+        'iframe_url': 'https://rudo.video/live/lared?volume=0&mute=1',
+        'fuente': 'https://www.lared.cl/senal-online',
+        'pais': 'cl'
+    },
+// RADIOS
     'cooperativa': {
-        'nombre': 'Cooperativa',
+        'nombre': 'Radio Cooperativa',
         'iframe_url': 'https://rudo.video/live/coopetv?volume=0&mute=1',
         'fuente': 'http://programas.cooperativa.cl/showalairelibre/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'bbtv': {
-        'nombre': 'Biobio TV',
+        'nombre': 'Radio Biobio TV',
         'iframe_url': 'https://rudo.video/live/bbtv?volume=0&mute=1',
         'fuente': 'https://www.biobiochile.cl/biobiotv/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'adn': {
-        'nombre': 'ADN',
+        'nombre': 'Radio ADN',
         'iframe_url': 'https://rudo.video/live/adntv?volume=0&mute=1',
         'fuente': 'http://tv.adnradio.cl/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'adn-2': {
-        'nombre': 'ADN 2',
+        'nombre': 'Radio ADN 2',
         'yt_id': 'UCczkrFICr0xEgDsk51zZojA',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'duna': {
-        'nombre': 'Duna',
+        'nombre': 'Radio Duna',
         'iframe_url': 'https://rudo.video/live/dunatv?volume=0&mute=1',
         'fuente': 'https://www.duna.cl/tv/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'infinita': {
-        'nombre': 'Infinita',
+        'nombre': 'Radio Infinita',
         'iframe_url': 'https://mdstrm.com/live-stream/63a066e54ed536087960b550?autoplay=true&player=63af7b6cc5048f0846557764',
         'fuente': 'http://www.infinita.cl/home/',
         'pais': 'cl'
     },
     'universo': {
-        'nombre': 'Universo',
+        'nombre': 'Radio Universo',
         'iframe_url': 'https://redirector.dps.live/universo/aac/icecast.audio',
         'fuente': 'https://www.universo.cl/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'radio-ae': {
-        'nombre': 'AE Radio DuocUC',
+        'nombre': 'Radio AE Radio DuocUC',
         'iframe_url': 'https://live.grupoz.cl/3e3852b5c1ea7821ab9cdfadbbe735f2?sound=0',
         'fuente': 'https://www.aeradio.cl/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'carolina-tv': {
-        'nombre': 'Carolina TV',
+        'nombre': 'Radio Carolina TV',
         'iframe_url': 'https://mdstrm.com/live-stream/63a06468117f42713374addd?autoplay=true&player=63af7b6cc5048f0846557764',
         'fuente': 'https://www.carolina.cl/tv/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'romantica-tv': {
-        'nombre': 'Romántica TV',
+        'nombre': 'Radio Romántica TV',
         'iframe_url': 'https://mdstrm.com/live-stream/63a0674c1137d408b45d4821?autoplay=true&player=63af7b6cc5048f0846557764',
         'fuente': 'https://www.romantica.cl/romantica-tv/',
         'pais': 'cl',
@@ -262,7 +288,7 @@ const listaCanales = {
     },  
     'radio-el-conquistador-2': {
         'nombre': 'Radio El Conquistador FM 2',
-        'iframe_url': 'https://rudo.video/live/elconquistadortv',
+        'iframe_url': 'https://rudo.video/live/elconquistadortv?volume=0&mute=1',
         'fuente': 'https://www.elconquistadorfm.net/',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
@@ -281,7 +307,7 @@ const listaCanales = {
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'sembrador': {
-        'nombre': 'El Sembrador',
+        'nombre': 'Radio El Sembrador',
         'm3u8_url': 'https://tv.streaming-chile.com:1936/elsembrador/elsembrador/playlist.m3u8',
         'fuente': 'https://tv.radioelsembrador.cl/',
         'pais': 'cl',
@@ -295,12 +321,13 @@ const listaCanales = {
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'alternativa-fm': {
-        'nombre': 'Alternativa FM',
+        'nombre': 'Radio Alternativa FM',
         'm3u8_url': 'https://5eaccbab48461.streamlock.net:1936/8216/8216/playlist.m3u8',
         'fuente': 'https://www.alternativafm.cl/p/alternativa-tv.html',
         'pais': 'cl',
         'alt_icon': '<i class="bi bi-boombox"></i>'
     },
+// canales generales
     'stgo-tv': {
         'nombre': 'Stgo TV',
         'm3u8_url': 'https://stv4.janus.cl/playlist/stream.m3u8',
@@ -321,7 +348,7 @@ const listaCanales = {
     },
     'voz-sobran': {
         'nombre': 'La Voz De Los Que Sobran',
-        'iframe_url': 'https://rudo.video/live/lvdlqs',
+        'iframe_url': 'https://rudo.video/live/lvdlqs?volume=0&mute=1',
         'fuente': 'https://lavozdelosquesobran.cl/',
         'pais': 'cl'
     },
@@ -333,7 +360,7 @@ const listaCanales = {
     },
     'holvoet-tv': {
         'nombre': 'Holvoet TV',
-        'iframe_url': 'https://rudo.video/live/holvoettv',
+        'iframe_url': 'https://rudo.video/live/holvoettv?volume=0&mute=1',
         'fuente': 'https://holvoet.cl/en-vivo/',
         'pais': 'cl'
     },
@@ -571,7 +598,7 @@ const listaCanales = {
         'pais': 'pe'
     },
     'ovacion-tv': {
-        'nombre': 'Ovación TV',
+        'nombre': 'Radio Ovación TV',
         'm3u8_url': 'https://5c3fb01839654.streamlock.net:1963/iptvovacion1/liveovacion1tv/playlist.m3u8',
         'fuente': 'https://ovacion.pe/radio',
         'pais': 'pe',

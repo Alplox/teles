@@ -31,12 +31,16 @@ Enlace: https://alplox.github.io/teles/
 - [TVN 2](https://www.tvn.cl/)
 - [Meganoticias](https://www.youtube.com/channel/UCkccyEbqhhM3uKOI6Shm-4Q)
 - [Meganoticias 2](https://www.twitch.tv/meganoticiascl)
-- [Mega 2](https://www.mega.cl/) - [x](https://www.m3u.cl/iptv-chile.php)
+- [Meganoticias 3](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Meganoticias 4](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Mega](https://www.mega.cl/) - [x](https://www.m3u.cl/iptv-chile.php)
 - [T13](https://www.youtube.com/channel/UCsRnhjcUCR78Q3Ud6OXCTNg)
 - [T13 2](https://www.twitch.tv/t13envivo)
 - [T13 3](https://www.t13.cl/)
 - [T13 4](https://www.t13.cl/)
-- [Canal 13](https://www.13.cl/en-vivo) - [x](https://github.com/AINMcl/MonitorTV/)
+- [Canal 13](https://www.13.cl/en-vivo)
+- [Canal 13 2](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Canal 13 3](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
 - [CNN Chile](https://www.youtube.com/channel/UCpOAcjJNAp0Y0fhznRrXIJQ)
 - [CHV Noticias](https://www.youtube.com/channel/UCRsUoZYC1ULUspipMRnMhwg)
 - [CHV Noticias 2](https://www.chvnoticias.cl/) - [x](https://pluto.tv/es/live-tv/chilevision-noticias)
@@ -44,6 +48,7 @@ Enlace: https://alplox.github.io/teles/
 - [CHV](https://www.youtube.com/channel/UC8EdTmyUaFIfZvVttJ9lgIA)
 - [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://github.com/AINMcl/MonitorTV/blob/05188eeaea9622e986b338f63a46fb189898184f/IPTV/AINM.m3u)
 - [La Red](https://www.lared.cl/senal-online) - [x](https://www.m3u.cl/iptv-chile.php)
+- [La Red 2](https://www.lared.cl/senal-online) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
 - [Stgo TV](https://www.santiagotelevision.cl/)
 - [TV+](https://www.chilevision.cl/senal-online) - [x](https://m3u.cl/lista-iptv-chile.php)
 - [TV+ 2](https://www.chilevision.cl/senal-online)
@@ -382,6 +387,9 @@ Enlace: https://alplox.github.io/teles/
 | https://ar.teleringa.com/                          | ???                                                                   | ❌                                                                                          |
 | https://cablegratis.online/tv-chile-en-vivo/       | ???                                                                   | ❌                                                                                          |
 | https://vidgrid.tk.gg/                             | [MattieTK](https://twitter.com/MattieTK)                              | [Fuente](https://twitter.com/MattieTK/status/1496815557198315521?cxt=HHwWgoCs0bP04MUpAAAA) |
+| https://alienxproject.github.io/X/                 | [alienxproject](https://github.com/alienxproject)                     | [Fuente](https://github.com/alienxproject/X) |
+| https://navezjt.github.io/JCN-TV/                  | [Navezjt](https://github.com/Navezjt)                                 | [Fuente](https://github.com/Navezjt/JCN-TV) |
+
 
 
 
@@ -451,6 +459,7 @@ Sitios que poseen información útil en cuanto a diversos temas que no sabía d�
 | [Saludablemente                                        (gob.cl)](https://www.gob.cl/saludablemente/)                                                                                                                                   |                                            |                                                                                                                                                                                                                                                                           |
 | [Líneas gratuitas de apoyo psicológico en Chile](https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/)                                                                                 | [mirror](https://kvak.io/?n=trf2pc71y2f3)  |                                                                                                                                                                                                                                                                           |
 | [Hablemos                                        de Todo (INJUV)](https://hablemosdetodo.injuv.gob.cl/)                                                                                                                                |                                            |                                                                                                                                                                                                                                                                           |
+| [*4141 Línea Prevención del Suicidio                                         (portalsaluddigital.minsal.cl)](https://portalsaluddigital.minsal.cl/4141-linea-prevencion-del-suicidio/)                                                 |                                            |                                                                                                                                                                                                                                                                           |
 | [Guía para cuidarse los ojos en                                        manifestaciones](https://www.reddit.com/r/chile/comments/du4hn0/gu%C3%ADa_para_cuidarse_los_ojos_en_estas/)                                                     | [mirror](https://kvak.io/?n=d1gd1i1j1l120) |                                                                                                                                                                                                                                                                           |
 | [Uso de Tecnologías y Privacidad en Internet](https://old.reddit.com/r/chile/comments/dt4s2u/uso_de_tecnolog%C3%ADas_y_privacidad_en_internet/)                                                                                        | [mirror](https://kvak.io/?n=s0gd1i1g2i1l5) |                                                                                                                                                                                                                                                                           |
 | [Autoprotección Digital Contra La Vigilancia](https://ssd.eff.org/es/module/asistir-una-protesta)                                                                                                                                      |                                            |                                                                                                                                                                                                                                                                           |
@@ -486,6 +495,7 @@ Sitios que poseen información útil en cuanto a diversos temas que no sabía d�
 | [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@-71.24,-33.13,10.50z)                                                                                                                                |                                            |                                                                                                                                                                                                                                                                           |
 | [google.com/maps](https://www.google.com/maps/@-33.0993464,-71.4870313,12z/data=!3m1!4b1!4m2!21m1!1s%2Fg%2F11y2ty3bn9!5m1!1e8?hl=es-419&entry=ttu)                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
 | [star.nesdis.noaa.gov](https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G16&sector=ssa)                                                                                                                                            |                                            |                                                                                                                                                                                                                                                                           |
+
                                                                                   
 
 ___

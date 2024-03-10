@@ -9,17 +9,39 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CSS: .barra-overlay debido a que no estaba bien centrado su contenido
 - .barra-overlay se añade tabindex=0 para poder hacer focus con tecla TAB
 - Texto: de "Desactivar" a "Quitar" en modal canales (para que sea igual a botón quitar que tienen las señales)
-- separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
+- Separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
 - Reescrito archivo "NOTICE.md"
+- Alerta tras borrado localStorage
+
+#### 📺 Canales
+Chile
+
+- [Canal 13](https://www.13.cl/en-vivo)
 
 ### Added
 - Icono a enlaces externos dentro de señal activa <iframe> para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
 - Sección agradecimientos contribuciones en "README.md"
-- Capacidad de reordenar canales con plugin [SortableJS](https://github.com/SortableJS/Sortable)
+- Capacidad de reordenar canales con plugin desde grid [SortableJS](https://github.com/SortableJS/Sortable)
 - Icono para contribuciones en modal créditos y README.md con [contributors-img](https://github.com/lacolaco/contributors-img)
 - Efectos de sonido para alerta de copiado enlace en modal compartir: [button-pressed por Pixabay](https://pixabay.com/sound-effects/button-pressed-38129/), [Cancel/miss chime por Raclure](https://freesound.org/people/Raclure/sounds/405548/)
 - Efecto de sonido a botones de quitar todos los canales activos [TV, Shutdown.wav por MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/523553/)
+- Efecto sonido de fondo a alerta tras borrado localStorage [DefectLineTransformer por blaukreuz](https://freesound.org/people/blaukreuz/sounds/440128/)
+- Variacion rancia https://alienxproject.github.io/X/
+- "Variacion" https://navezjt.github.io/JCN-TV/
+- Enlace complementario Línea Prevención del Suicidio
+- Efecto flicker para fondo tras borrado localStorage https://codepen.io/frbarbre/pen/BaObOXL
+- Efecto flicker para texto tras borrado localStorage https://codepen.io/patrickhlauke/pen/YaoBop
+- Tema oscuro/claro, fondos SVG temas generados con https://wickedbackgrounds.com/app transformados a css con https://yoksel.github.io/url-encoder/
+- Opción cambiar/reemplazar canal desde grid
 
+#### 📺 Canales
+Chile
+
+- [Meganoticias 3](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Meganoticias 4](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Canal 13](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Canal 13 3](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [La Red 2](https://www.lared.cl/senal-online) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
 
 #### Radios 📻
 Chile
@@ -27,6 +49,12 @@ Chile
 - [Radio El Conquistador FM](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
 - [Radio El Conquistador FM 2](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
 - [Radio El Conquistador FM 3](https://www.twitch.tv/elconquistadortv)
+
+### Removed
+- Archivo bloquean.txt
+- Archivo emergencia.html
+- Archivo archivo.html
+
 
 ## [v0.15]
 ### Changed

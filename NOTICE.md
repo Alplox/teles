@@ -12,9 +12,15 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * Basado en variación https://tele.0x00.cl/ por u/0x00cl - (No licencia)
 
-* Sidepanel personalizaciones - Theme Toggler - #049 of #100Days100Projects por Florin Pop https://codepen.io/FlorinPop17/pen/XWWZYYG - [(MIT)](https://codepen.io/FlorinPop17/pen/XWWZYYG)
+* Sidepanel personalizaciones inspirado en Theme Toggler - #049 of #100Days100Projects por Florin Pop https://codepen.io/FlorinPop17/pen/XWWZYYG - [(MIT)](https://codepen.io/FlorinPop17/pen/XWWZYYG)
 
 * Botón tema claro/oscuro https://www.cssscript.com/dark-mode-switcher-for-bootstrap-5/ - (No licencia, articulo menciona MIT)
+
+* Efecto flicker para fondo tras borrado localStorage https://codepen.io/frbarbre/pen/BaObOXL - [(MIT)](https://codepen.io/frbarbre/pen/BaObOXL)
+
+* Efecto flicker para texto tras borrado localStorage https://codepen.io/patrickhlauke/pen/YaoBop - [(MIT)](https://codepen.io/patrickhlauke/pen/YaoBop)
+
+* Fondos SVG generados con https://wickedbackgrounds.com/app - (No licencia) y transformados a CSS con https://yoksel.github.io/url-encoder/ - (No licencia)
 
 # Este software utiliza los siguientes paquetes de código abierto:
 
@@ -43,3 +49,5 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * [Audio] Cancel/miss chime por Raclure https://freesound.org/people/Raclure/sounds/405548/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
 
 * [Audio] TV, Shutdown.wav por MATRIXXX_ https://freesound.org/people/MATRIXXX_/sounds/523553/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
+
+* [Audio] DefectLineTransformer por blaukreuz https://freesound.org/people/blaukreuz/sounds/440128/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)

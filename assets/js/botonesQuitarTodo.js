@@ -1,5 +1,5 @@
 
-const audioLimpiarCanalesActivos = new Audio('/assets/sounds/TV,-Shutdown-by-MATRIXXX_.mp3');
+const audioLimpiarCanalesActivos = new Audio('/assets/sounds/TV-Shutdown-por-MATRIXXX_.mp3');
 
 // Función para limpiar/remover todos los canales activos
 const limpiarCanalesActivos = () => {
