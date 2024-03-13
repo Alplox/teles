@@ -124,13 +124,13 @@ const listaCanales = {
     't13-3': {
         'nombre': 'T13 3',
         'm3u8_url': 'https://redirector.rudo.video/hls-video/10b92cafdf3646cbc1e727f3dc76863621a327fd/t13/t13.smil/playlist.m3u8',
-        'fuente': 'https://www.t13.cl/',
+        'fuente': 'https://www.t13.cl/en-vivo',
         'pais': 'cl'
     },
     't13-4': {
         'nombre': 'T13 4',
         'iframe_url': 'https://rudo.video/live/t13?volume=0&mute=1',
-        'fuente': 'https://www.t13.cl/',
+        'fuente': 'https://www.t13.cl/en-vivo',
         'pais': 'cl'
     },
     'canal-13': {
@@ -235,7 +235,8 @@ const listaCanales = {
         'nombre': 'Radio Infinita',
         'iframe_url': 'https://mdstrm.com/live-stream/63a066e54ed536087960b550?autoplay=true&player=63af7b6cc5048f0846557764',
         'fuente': 'http://www.infinita.cl/home/',
-        'pais': 'cl'
+        'pais': 'cl',
+        'alt_icon': '<i class="bi bi-boombox"></i>'
     },
     'universo': {
         'nombre': 'Radio Universo',

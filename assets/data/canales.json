@@ -76,13 +76,13 @@
     "t13-3": {
         "nombre": "T13 3",
         "m3u8_url": "https://redirector.rudo.video/hls-video/10b92cafdf3646cbc1e727f3dc76863621a327fd/t13/t13.smil/playlist.m3u8",
-        "fuente": "https://www.t13.cl/",
+        "fuente": "https://www.t13.cl/en-vivo",
         "pais": "cl"
     },
     "t13-4": {
         "nombre": "T13 4",
         "iframe_url": "https://rudo.video/live/t13",
-        "fuente": "https://www.t13.cl/",
+        "fuente": "https://www.t13.cl/en-vivo",
         "pais": "cl"
     },
     "canal-13": {

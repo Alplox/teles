@@ -12,6 +12,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
 - Reescrito archivo "NOTICE.md"
 - Alerta tras borrado localStorage
+- SVG's logos redes sociales por iconos Bootstrap
 
 #### 📺 Canales
 Chile
@@ -56,6 +57,7 @@ Chile
 - Archivo bloquean.txt
 - Archivo emergencia.html
 - Archivo archivo.html
+- SVG's logos redes sociales
 
 
 ## [v0.15]

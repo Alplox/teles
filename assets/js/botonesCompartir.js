@@ -6,22 +6,17 @@ const datosCompartir = {
     url: 'https://alplox.github.io/teles/',
   };
   
-  const btnsCompartir = document.querySelectorAll('button.btn-outline-warning, button.btn-compartir');
+  const btnCompartir = document.querySelector('button.btn-compartir');
+  const contenedorBtnsCompartirExistentes = document.querySelector('#contenedor-botones-compartir');
   
   if (checkMovil()){
-    for (const btn of btnsCompartir){
-      btn.addEventListener('click', async () => {
-        try {
-          await navigator.share(datosCompartir);
-        } catch(err) {
-          console.log(`Error: ${err}`);
-        } 
-      });
-    }
-  } else {
-    for (const btn of btnsCompartir){
-      btn.setAttribute('data-bs-toggle', 'modal');
-      btn.setAttribute('data-bs-target', '#modal-compartir');
-      btn.setAttribute('data-bs-dismiss', 'modal');
-    }
+    btnCompartir.classList.remove('d-none');
+    btnCompartir.addEventListener('click', async () => {
+      try {
+        await navigator.share(datosCompartir);
+      } catch(err) {
+        console.log(`Error: ${err}`);
+      } 
+    });
+    contenedorBtnsCompartirExistentes.classList.add('d-none');
   };

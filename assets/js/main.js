@@ -124,17 +124,17 @@ if (lsTransmisionesFila !== null) {
   sizeMovil = lsTransmisionesFila;
   let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${lsTransmisionesFila}']`)
   transmisionesFila.forEach(btn => {
-    btn.classList.replace('btn-primary', 'btn-secondary')
+    btn.classList.replace('btn-primary', 'bg-light-subtle')
   })
-  botonDejarActivo.classList.replace('btn-secondary', 'btn-primary')
+  botonDejarActivo.classList.replace('bg-light-subtle', 'btn-primary')
 }
 // si se carga desde telefono por primera vez ajusta cantidad y boton selecionado en numero de canales por fila
 if (checkMovil() && lsTransmisionesFila === null) {
   let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${sizeMovil}']`)
   transmisionesFila.forEach(btn => {
-    btn.classList.replace('btn-primary', 'btn-secondary')
+    btn.classList.replace('btn-primary', 'bg-light-subtle')
   })
-  botonDejarActivo.classList.replace('btn-secondary', 'btn-primary');
+  botonDejarActivo.classList.replace('bg-light-subtle', 'btn-primary');
  
   let transmisionesEnGrid = document.querySelectorAll('div[data-canal]');
     for (let v of transmisionesEnGrid) {
@@ -147,11 +147,11 @@ transmisionesFila.forEach(btn => {
   btn.addEventListener('click', (event) => {
     //primero borra la clase primary del boton que estaba activo por defecto
     transmisionesFila.forEach(btn => {
-      btn.classList.replace('btn-primary', 'btn-secondary')
+      btn.classList.replace('btn-primary', 'bg-light-subtle')
     })
 
     //añade clase primary al boton pulsado
-    btn.classList.replace('btn-secondary', 'btn-primary')
+    btn.classList.replace('bg-light-subtle', 'btn-primary')
     // guarda valores de value
     console.log(event.target.value + " wena " + btn)
     size = event.target.value;
@@ -577,7 +577,7 @@ function displayAutocompleteCanales(matchingData, inputForm) {
 
 
 
-  // genera boton abajo del input de cada canal
+  // genera boton abajo del input de cada canal para el cambio
   matchingData.forEach(btn => {
     let btnAtr = btn.getAttribute('data-canal');
     let btnP = btn.querySelector('p');
@@ -599,11 +599,12 @@ function displayAutocompleteCanales(matchingData, inputForm) {
       // continuar aqui :/
 
       // problemas encontrados:
-      // 1- si se deja configuracion de 6 canales por fila y 12 canales por fila, container sugerencias queda inutilizable
+      // 1- si se deja configuracion de 6 canales por fila y 12 canales por fila, container sugerencias queda inutilizable 
+      //    (solucion posible, abrir modal nomas)
       // 2- mismo problema que punto 1 se repite con el overlay debido a que comienza con overflow y el separado automatico se va a la cresta (mas aun en telefonos desde opcion 3 canales por fila)
       // 3- falta añadir que se muestra div cambio canal cuando señal es de fuente m3u8
       // 4- falta aun guardar orden canales si se reordenan
-      // 5- quizas añadir opcion de ocultar foton flotante personalizaciones
+      // 5- quizas añadir opcion de ocultar boton flotante personalizaciones
       
       autocompleteContainer.remove();
     });
@@ -628,11 +629,11 @@ function crearIframe(source, titleIframe, canalId) {
   div.setAttribute('data-canal-cambio', canalId);
 
   const divGeneralInputCambio = document.createElement('div');
-    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column',  'px-5', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden');
+    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column',  'px-5', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden', 'align-items-start');
     divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
 
   const divFormFloating = document.createElement('div');
-    divFormFloating.classList.add('form-floating', 'm-auto');
+    divFormFloating.classList.add('form-floating', 'mt-3'); /* 'm-auto', */
 
   const inputDatalist = document.createElement('input');
     inputDatalist.classList.add('form-control');
@@ -678,24 +679,28 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   const fragmentOVERLAY = document.createDocumentFragment();
   const a = document.createElement('a');
   if (pais === undefined && altIcon === undefined) {
-    contenido = nombre;
+    contenido = `<span class="ocultar-en-768px">${nombre}</span>`;
   } else if (pais === undefined && altIcon !== undefined) {
-    contenido = `${nombre} ${altIcon}`;
+    contenido = `<span class="ocultar-en-768px">${nombre} ${altIcon}</span>`;
   } else {
-    contenido = `${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}">`;
+    contenido = `<span class="ocultar-en-768px">${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}"></span>`;
   }
   a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
   a.title = 'Ir a la página oficial de esta transmisión';
   a.href = fuente;
   a.setAttribute('tabindex', 0);
+  a.setAttribute('data-bs-toggle', 'tooltip');
+  a.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
   a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'bg-black', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1');
+  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1');
 
   let btnRemove = document.createElement('button');
   btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
   btnRemove.setAttribute('aria-label', 'Close');
   btnRemove.setAttribute('type', 'button');
   btnRemove.setAttribute('title', 'Quitar canal');
+  btnRemove.setAttribute('data-bs-toggle', 'tooltip');
+  btnRemove.setAttribute('data-bs-title', 'Quitar canal');
   btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
   btnRemove.addEventListener('click', () => {
     tele.remove(canalId)
@@ -705,6 +710,8 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
   btnCambiarSeñal.setAttribute('type', 'button');
   btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
+  btnCambiarSeñal.setAttribute('data-bs-toggle', 'tooltip');
+  btnCambiarSeñal.setAttribute('data-bs-title', 'Cambiar este canal');
   btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
   btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
   btnCambiarSeñal.addEventListener('click', () => {
@@ -743,14 +750,17 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
         btnCambiarSeñal.addEventListener("click", volverAlIframeOriginal);
     }
   });
+  
   let btnMoverEnGrid = document.createElement('button');
-  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'handle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'handle','btn-secondary', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
   btnMoverEnGrid.setAttribute('type', 'button');
   btnMoverEnGrid.setAttribute('title', 'Mover este canal');
+  btnMoverEnGrid.setAttribute('data-bs-toggle', 'tooltip');
+  btnMoverEnGrid.setAttribute('data-bs-title', 'Mover este canal');
   btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
   const divOVERLAY = document.createElement('div');
-  divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-evenly', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
+  divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-end', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
   divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
   divOVERLAY.append(btnMoverEnGrid)
   divOVERLAY.append(btnCambiarSeñal)
@@ -824,23 +834,26 @@ let tele = {
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
       });
 
+      activarTooltipsBootstrap();
     } else {
       console.log(`${canal} no es válido como canal, revisa si se borró y/o reinicia tu localStorage`);
     }
   },
   remove: (canal) => {
     let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+    
     if (transmisionPorRemover) {
+      removerTooltipsBootstrap();
       canalesGrid.removeChild(transmisionPorRemover);
-
       let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canal}"]`);
       btnTransmisionOff.forEach(btn => {
         btn.classList.replace('btn-primary', 'btn-outline-secondary');
       });
-
       // remueve de localstorage
       delete canalesStorage[canal];
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
+      detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
+      activarTooltipsBootstrap();
     }
   },
   populateModal: () => {
@@ -911,6 +924,7 @@ let tele = {
       btn.addEventListener('click', () => {
         const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
         tele[action](btn.getAttribute('data-canal'));
+        detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
       });
     });
 
@@ -918,6 +932,7 @@ let tele = {
       btn.addEventListener('click', () => {
         const action = btn.classList.contains('btn-outline-secondary') ? 'add' : 'remove';
         tele[action](btn.getAttribute('data-canal'));
+        detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
       });
     });
 
@@ -1003,8 +1018,10 @@ let tele = {
 
     if (localStorageCanales === null) {
       canalesAgregar.forEach(canal => tele.add(canal));
+      detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
     } else {
       Object.keys(lsCanalesJson).forEach(canal => tele.add(canal));
+      detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
     }
   }
 };

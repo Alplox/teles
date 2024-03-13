@@ -4,8 +4,10 @@ const alertReset = document.querySelector('#alert-reset');
 const audioLoopEstaticaCRT = new Audio('/assets/sounds/DefectLineTransformer-por-blaukreuz.wav');
 
 btnReset.addEventListener('click', () => {  
-  limpiarCanalesActivos();
+  detectarSiExistenCanalesParaQuitar();
   localStorage.clear();
+  audioLimpiarCanalesActivos.play();
+  audioLimpiarCanalesActivos.volume = 0.8;
   audioLoopEstaticaCRT.volume = 0.5;
   audioLoopEstaticaCRT.loop = true;
   audioLoopEstaticaCRT.play();
