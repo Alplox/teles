@@ -63,12 +63,27 @@ svg {
 }
 
 /* ventana de sugerencias para autocompletar */
-.autocomplete-container {
+/* .autocomplete-container {
   position: absolute;
   border: 1px solid var(--bs-gray);
   width: 100%;
+
   overflow-y: auto;
   scrollbar-color: rgb(0, 0, 0) rgb(117, 117, 117);
+  scrollbar-width: thin;
+}
+ */
+
+html[data-bs-theme="light"] .sugerencia.bg-dark-subtle:hover{
+  background: var(--bs-gray-500) !important;
+}
+
+html[data-bs-theme="dark"] .sugerencia.bg-dark-subtle:hover{
+  background: var(--bs-gray-900) !important;
+}
+
+.scrollbar-thin-gray {
+  scrollbar-color: var(--bs-dark-subtle) var(--bs-gray);
   scrollbar-width: thin;
 }
 
@@ -154,6 +169,8 @@ pwa-update::part(updateToast) {
 .barra-overlay a {
   font-size: clamp(0.5rem, 0.75rem, 1rem);
 }
+
+
 
 .reloj a:hover {
   color: var(--bs-white);

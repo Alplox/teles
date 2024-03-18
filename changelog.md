@@ -27,15 +27,15 @@ Chile
 - Efectos de sonido para alerta de copiado enlace en modal compartir: [button-pressed por Pixabay](https://pixabay.com/sound-effects/button-pressed-38129/), [Cancel/miss chime por Raclure](https://freesound.org/people/Raclure/sounds/405548/)
 - Efecto de sonido a botones de quitar todos los canales activos [TV, Shutdown.wav por MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/523553/)
 - Efecto sonido de fondo a alerta tras borrado localStorage [DefectLineTransformer por blaukreuz](https://freesound.org/people/blaukreuz/sounds/440128/)
-- Variacion rancia https://alienxproject.github.io/X/
-- "Variacion" https://navezjt.github.io/JCN-TV/
+- Variación rancia https://alienxproject.github.io/X/
+- "Variación" https://navezjt.github.io/JCN-TV/
 - Enlace complementario Línea Prevención del Suicidio
 - Efecto flicker para fondo tras borrado localStorage https://codepen.io/frbarbre/pen/BaObOXL
 - Efecto flicker para texto tras borrado localStorage https://codepen.io/patrickhlauke/pen/YaoBop
 - Tema oscuro/claro, fondos SVG temas generados con https://wickedbackgrounds.com/app transformados a css con https://yoksel.github.io/url-encoder/
 - Opción cambiar/reemplazar canal desde grid
 - Habilidad recordar selección de número de canales por fila con localStorage
-- Alerta en caso de que busqueda canales no arroje resultados
+- Alerta en caso de que búsqueda canales no arroje resultados
 
 #### 📺 Canales
 Chile
@@ -91,16 +91,16 @@ Chile
 - Modal Registros Manifestaciones desarrolladas en Chile
 - Modal Denunciar violación DDHH
 - Enlaces relacionados COVID-19 junto a "pacomap.live" de Modal Enlaces Complementario
-- Seccion Proyectos GitHub de Modal Enlaces Complementario
+- Sección Proyectos GitHub de Modal Enlaces Complementario
 - Sitios: 
     Capucha Informativa (no carga)
     ChileOkulto (borro contenido)
-    En Punto (última actualizacion 2021)
-    Megafono Popular (no carga)
+    En Punto (última actualización 2021)
+    Megáfono Popular (no carga)
     Piensa Prensa (sitio redirige a publicidad)
-    Primera Línea Revolucionaria Chile (última actualizacion 2022)
+    Primera Línea Revolucionaria Chile (última actualización 2022)
     Revista ChileLibre (no carga)
-    Verdad Ahora (última actualizacion 2023)
+    Verdad Ahora (última actualización 2023)
     Radio 19 de abril Cobertura colectiva  (no carga)
     Radio Manque (no carga)
     RadioTV-Liberación (no carga)

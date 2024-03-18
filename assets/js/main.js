@@ -17,7 +17,7 @@
 
 // pasar item [STRING] de localstorage a una variable (aunque no exista aún)
 let lsCanales = localStorage.getItem('canales_storage');
-// variable vacia, obtiene valor si localstorage posee el item 'canales_storage'
+// variable vacía, obtiene valor si localstorage posee el item 'canales_storage'
 let lsCanalesJson;
 // variable que almacena string/json durante intercambio para localstorage
 let canalesStorage = {};
@@ -25,7 +25,7 @@ let canalesStorage = {};
 if (lsCanales !== null) {
   // pasa string de localstorage a una variable objeto [JSON]
   lsCanalesJson = JSON.parse(window.localStorage.getItem('canales_storage'));
-  // solo para info rapida desde la consola (opcional dejarlo)
+  // solo para info rápida desde la consola (opcional dejarlo)
   console.log(`Tienes [${Object.entries(lsCanalesJson).length}] canales en tú localStorage = ${JSON.stringify(Object.values(lsCanalesJson).join(' - '))}`);
 }
 
@@ -78,7 +78,6 @@ overlayCheckbox.addEventListener('click', () => {
     });
   }
 });
-
 
 // ocultar navbar
 const navbarCheckbox = document.querySelector('#switch-navbar');
@@ -153,7 +152,6 @@ transmisionesFila.forEach(btn => {
     //añade clase primary al boton pulsado
     btn.classList.replace('bg-light-subtle', 'btn-primary')
     // guarda valores de value
-    console.log(event.target.value + " wena " + btn)
     size = event.target.value;
     sizeMovil = event.target.value;
 
@@ -190,12 +188,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   (hideOverlay ? checkboxOff : checkboxOn)(overlayCheckbox, overlayStatus, 'overlay');
 });
-
-// slider
-/* const sliderValueValue = parseInt(lsSlider) ?? 0;
-  slider.setAttribute('value', sliderValueValue);
-  sliderValue.innerHTML = sliderValueValue;
-  canalesGrid.style.maxWidth = `${sliderValueValue}%`; */
 
 if (lsSlider !== null) {
   const sliderValueValue = parseInt(lsSlider) ?? 0;
@@ -537,88 +529,149 @@ let paises = {
 // matchingData = listado botones rescatado desde el modal
 function displayAutocompleteCanales(matchingData, inputForm) { 
   const autocompleteContainer = document.createElement('div');
-  autocompleteContainer.classList.add('autocomplete-container', 'shadow');
+  autocompleteContainer.classList.add('autocomplete-container', 'shadow', 'd-flex', 'flex-column', 'gap-2');
   let inputId = inputForm.getAttribute('id');
     inputId = inputId.replace('input-de-', 'autocomplete-de-');
   autocompleteContainer.setAttribute('id', inputId);
-
-
-
-
-
-
-
-
-
   
+  // boton que dice que no hay resultados
+  let botonSinResultadoEnSugerencias = document.createElement('button');
+  botonSinResultadoEnSugerencias.classList.add('d-none', 'bg-danger-subtle', 'fs-smaller', 'border', 'p-2', 'w-100', 'rounded-0', 'pe-none', 'user-select-none')
+  botonSinResultadoEnSugerencias.textContent = "Sin resultados";
+  botonSinResultadoEnSugerencias.setAttribute('id', 'boton-sugerencias-sin-resultados')
+  autocompleteContainer.append(botonSinResultadoEnSugerencias)
 
   // que siempre autocompleteContainer tenga el tamaño restante debajo del input
-  const formFloating = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')} div.form-floating`);
+ /*  const formFloating = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')} div.form-floating`);
   const alturaFF = formFloating.offsetHeight;
-  const marginBottomFF = parseInt(getComputedStyle(formFloating).marginBottom);
+  const marginTopFF = parseInt(getComputedStyle(formFloating).marginTop);
   const parentDiv = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')}`);
   const alturaPD = parentDiv.offsetHeight;
-  const alturaMaximaAC = alturaPD - alturaFF - marginBottomFF;
-  autocompleteContainer.style.maxHeight = alturaMaximaAC + "px";
+  const alturaMaximaAC = alturaPD - alturaFF - marginTopFF;
+    if (alturaMaximaAC <= 35 || alturaPD < alturaFF){
+      console.log("1-alturaPD= " + alturaPD + " alturaFF= " +  alturaFF + " marginTopFF= " +   marginTopFF)
 
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // genera boton abajo del input de cada canal para el cambio
-  matchingData.forEach(btn => {
-    let btnAtr = btn.getAttribute('data-canal');
-    let btnP = btn.querySelector('p');
-    let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
-    let btnPClass = btnP.getAttribute('class'); // rescatar clases parrafo para estilo de titulo a la izquierda e iconos a la derecha
-   
-    // almacena item internos del boton del modal si es que existen
-    let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
-    let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
-    let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
-    // crear boton listado sugerencias a mostrar cuando se haga input
-    let sugerencia = document.createElement('button');
-    sugerencia.classList.add('sugerencia', 'fs-smaller', 'border', 'p-2', 'w-100', 'rounded-0', ...btnClass.split(' '), ...btnPClass.split(' '))
-    sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
-    sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
-
-    // que hacer cuando se hace clic en algun canal del listado sugerencias
-    sugerencia.addEventListener('click', () => {
-      // continuar aqui :/
-
-      // problemas encontrados:
-      // 1- si se deja configuracion de 6 canales por fila y 12 canales por fila, container sugerencias queda inutilizable 
-      //    (solucion posible, abrir modal nomas)
-      // 2- mismo problema que punto 1 se repite con el overlay debido a que comienza con overflow y el separado automatico se va a la cresta (mas aun en telefonos desde opcion 3 canales por fila)
-      // 3- falta añadir que se muestra div cambio canal cuando señal es de fuente m3u8
-      // 4- falta aun guardar orden canales si se reordenan
-      // 5- quizas añadir opcion de ocultar boton flotante personalizaciones
+      /* 
+        -quitar el input y dejar boton que abra modal con canales
       
-      autocompleteContainer.remove();
-    });
-    autocompleteContainer.appendChild(sugerencia);
-  });
-  const existingAutocompleteContainer = document.querySelector(`#${inputId}.autocomplete-container`)
-  existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) : inputForm.parentNode.appendChild(autocompleteContainer);
 
-  document.addEventListener('click', function (event) {
-    const autocompleteContainer = document.querySelector('.autocomplete-container');
-    if (autocompleteContainer && !event.target.closest('.autocomplete-container') && event.target !== inputForm) {
-      autocompleteContainer.remove();
-    } 
+    } else {
+      console.log("2-alturaPD= " + alturaPD + " alturaFF= " +  alturaFF + " marginTopFF= " +   marginTopFF)
+      /* autocompleteContainer.style.maxHeight = alturaMaximaAC + "px"; *
+
+      // genera boton abajo del input de cada canal para el cambio
+      matchingData.forEach(btn => {
+        let btnAtr = btn.getAttribute('data-canal');
+        let btnP = btn.querySelector('p');
+        let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
+        let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
+      
+        // almacena item internos del boton del modal si es que existen
+        let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
+        let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
+        let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
+        // crear boton listado sugerencias a mostrar cuando se haga input
+        let sugerencia = document.createElement('button');
+        sugerencia.classList.add('sugerencia', 'fs-smaller', 'border', 'p-2', 'w-100', 'rounded-0', ...btnClass.split(' '), ...btnPClass.split(' '))
+        sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
+        sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
+
+        // que hacer cuando se hace clic en algún canal del listado sugerencias
+        sugerencia.addEventListener('click', () => {
+          // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
+          let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
+            idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
+          // Obtiene valor del div donde se va a realizar cambio
+          let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
+          // toma barra activa y la borra
+          let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
+            barraOverlayDeCanalActivo.remove()
+          console.log(`div padre= ${idDivPadreSugerencia} a ser reemplazado por= ${canalSugerenciaPulsada}`)
+          // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
+          tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
+          // borra div con canales de sugerencia
+          autocompleteContainer.remove();
+        });
+
+        autocompleteContainer.append(sugerencia);
+      });
+
+      const existingAutocompleteContainer = document.querySelector(`#${inputId}`)
+      
+
+      existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) : inputForm.closest('.form-floating').append(autocompleteContainer);
+
+      document.addEventListener('click', function (event) {
+        const autocompleteContainer = document.querySelector(`#${inputId}`);
+        if (autocompleteContainer && event.target !== inputForm) {
+          autocompleteContainer.remove();
+        } 
+      });
+
+
+
+  } */
+
+
+
+
+
+// genera boton abajo del input de cada canal para el cambio
+matchingData.forEach(btn => {
+  let btnAtr = btn.getAttribute('data-canal');
+  let btnP = btn.querySelector('p');
+  let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
+  if (btnClass.includes('btn-outline-secondary')) {
+    btnClass = btnClass.replace('btn-outline-secondary', 'bg-dark-subtle');  // Reemplaza "btn-outline-secondary" por "btn-secondary"
+  }
+  let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
+
+  // almacena item internos del boton del modal si es que existen
+  let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
+  let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
+  let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
+  // crear boton listado sugerencias a mostrar cuando se haga input
+  let sugerencia = document.createElement('button');
+  sugerencia.classList.add('sugerencia', 'fs-smaller', 'border-0', 'p-2', 'w-100', ...btnClass.split(' '), ...btnPClass.split(' '))
+  sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
+  sugerencia.setAttribute('data-bs-dismiss', 'modal');
+  sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
+
+  // que hacer cuando se hace clic en algún canal del listado sugerencias
+  sugerencia.addEventListener('click', () => {
+    // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
+    let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
+      idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
+    // Obtiene valor del div donde se va a realizar cambio
+    let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
+    // toma barra activa y la borra
+    let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
+      barraOverlayDeCanalActivo.remove()
+    console.log(`div padre= ${idDivPadreSugerencia} a ser reemplazado por= ${canalSugerenciaPulsada}`)
+    // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
+    tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
+    // borra div con canales de sugerencia
+    autocompleteContainer.remove();
   });
+
+  autocompleteContainer.append(sugerencia);
+});
+
+/* const existingAutocompleteContainer = document.querySelector(`#${inputId}`)
+ */
+let modalBody = document.querySelector(`#Modal-cambiar-${inputId.replace('autocomplete-de-', '')} div.modal-body`)
+
+/* existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) :  */modalBody.append(autocompleteContainer);
+/* 
+document.addEventListener('click', function (event) {
+  const autocompleteContainer = document.querySelector(`#${inputId}`);
+  if (autocompleteContainer && event.target !== inputForm)
+{
+    autocompleteContainer.remove();
+  } 
+});
+ */
+  
 }
 
 function crearIframe(source, titleIframe, canalId) {
@@ -627,46 +680,12 @@ function crearIframe(source, titleIframe, canalId) {
   const div = document.createElement('div');
   div.classList.add('ratio', 'ratio-16x9');
   div.setAttribute('data-canal-cambio', canalId);
-
-  const divGeneralInputCambio = document.createElement('div');
-    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column',  'px-5', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden', 'align-items-start');
-    divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
-
-  const divFormFloating = document.createElement('div');
-    divFormFloating.classList.add('form-floating', 'mt-3'); /* 'm-auto', */
-
-  const inputDatalist = document.createElement('input');
-    inputDatalist.classList.add('form-control');
-    inputDatalist.setAttribute('type', 'search');
-    inputDatalist.setAttribute('id', `input-de-${canalId}`)
-    inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
-
-  const labelDatalist = document.createElement('label');
-    labelDatalist.setAttribute('for', `input-de-${canalId}`)
-    labelDatalist.innerText = 'Cambiar canal por:'
-  
-    divFormFloating.append(inputDatalist)
-    divFormFloating.append(labelDatalist)
-  divGeneralInputCambio.append(divFormFloating)
-  
-  inputDatalist.addEventListener('input', function () {
-    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-    displayAutocompleteCanales(listaBotones, inputCambioCanal);
-  });
-
-  inputDatalist.addEventListener('click', function () {
-    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-    displayAutocompleteCanales(listaBotones, inputCambioCanal);
-  });
-
-  div.append(divGeneralInputCambio)
+  /* div.append(crearDivCambioCanal(canalId)) */
 
   /* div iframe videos */
   const divIFRAME = document.createElement('iframe');
   divIFRAME.src = source;
-  divIFRAME.setAttribute('iframe-canal-cambio', canalId);
+  divIFRAME.setAttribute('contenedor-canal-cambio', canalId);
   divIFRAME.allowFullscreen = true;
   divIFRAME.title = titleIframe
   divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas-6
@@ -674,6 +693,63 @@ function crearIframe(source, titleIframe, canalId) {
   fragmentIFRAME.append(div);
   return fragmentIFRAME;
 };
+
+function crearDivCambioCanal(canalId) {
+  const divGeneralInputCambio = document.createElement('div');
+    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column', 'px-3', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden', 'align-items-start');
+    divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
+
+  const divFormFloating = document.createElement('div');
+    divFormFloating.classList.add('form-floating', 'mt-3'); /* 'm-auto', */
+
+  const inputDatalist = document.createElement('input');
+    inputDatalist.classList.add('form-control', 'fs-smaller');
+    inputDatalist.setAttribute('type', 'text');
+    inputDatalist.setAttribute('id', `input-de-${canalId}`)
+    inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
+
+  const labelDatalist = document.createElement('label');
+    labelDatalist.classList.add('text-wrap', 'fs-smaller');
+    labelDatalist.setAttribute('for', `input-de-${canalId}`)
+    labelDatalist.innerText = 'Cambiar canal por:'
+  
+    divFormFloating.append(inputDatalist)
+    divFormFloating.append(labelDatalist)
+  divGeneralInputCambio.append(divFormFloating)
+  
+
+  inputDatalist.addEventListener('input', (e) => {
+    let algunaCoincidencia = false;
+    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+    displayAutocompleteCanales(listaBotones, inputCambioCanal);
+    // empieza tema del filtro
+    const inputNormalized = normalizarInput(e.target.value);
+    let listaBotonesInteriorContainerSugerencias = document.querySelectorAll(`#autocomplete-de-${canalId} button.sugerencia`);
+    let botonQueDiceSinResultadosDentroContainerSugerencias = document.querySelector(`#autocomplete-de-${canalId} button#boton-sugerencias-sin-resultados`);
+
+    listaBotonesInteriorContainerSugerencias.forEach(btn => {
+      const contenidoBtn = btn.innerHTML;
+      const contenidoBtnNormalized = normalizarInput(contenidoBtn);
+      let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
+        btn.classList.toggle('d-none', !coincidencia);
+        if (coincidencia) {
+          algunaCoincidencia = true;
+        }
+    });
+  
+    ocultarElemento(botonQueDiceSinResultadosDentroContainerSugerencias, algunaCoincidencia)
+ });
+
+  inputDatalist.addEventListener('click', function () {
+    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+    displayAutocompleteCanales(listaBotones, inputCambioCanal);
+  });
+
+  return divGeneralInputCambio;
+}
+
 
 function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   const fragmentOVERLAY = document.createDocumentFragment();
@@ -715,10 +791,125 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
   btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
   btnCambiarSeñal.addEventListener('click', () => {
-    // Selecciona el iframe por el atributo iframe-canal-cambio
-    let interiorIframePorCambiar = document.querySelector(`iframe[iframe-canal-cambio="${canalId}"]`);
+ 
+    
+      let modal = document.createElement('div');
+      modal.classList.add('modal', 'fade');
+      modal.id = `Modal-cambiar-${canalId}`;
+      modal.setAttribute('tabindex', '-1');
+      modal.setAttribute('aria-labelledby', `Modal-cambiar-${canalId}-label`);
+      modal.setAttribute('aria-hidden', 'true');
+      
+      let modalDialog = document.createElement('div');
+      modalDialog.classList.add('modal-dialog', 'modal-fullscreen-sm-down', 'modal-dialog-scrollable');
+      
+      let modalContent = document.createElement('div');
+      modalContent.classList.add('modal-content', 'bg-transparent', 'border-0');
 
-    let divGeneralCambiarCanal = document.querySelector(`div#div-cambio-de-${canalId}`);
+      let modalHeader = document.createElement('div');
+      modalHeader.classList.add('modal-header', 'bg-transparent', 'border-0');
+      
+      let modalBody = document.createElement('div');
+      modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray');
+      
+      let formFloating = document.createElement('div');
+      formFloating.classList.add('form-floating');
+      
+      let input = document.createElement('input');
+      input.classList.add('form-control');
+      input.type = 'search';
+      input.id = `input-de-${canalId}`;
+      input.placeholder = 'Escribe para buscar...';
+      input.addEventListener('input', (e) => {
+        let algunaCoincidencia = false;
+       
+        // empieza tema del filtro
+        const inputNormalized = normalizarInput(e.target.value);
+        let listaBotonesInteriorContainerSugerencias = document.querySelectorAll(`#autocomplete-de-${canalId} button.sugerencia`);
+        let botonQueDiceSinResultadosDentroContainerSugerencias = document.querySelector(`#autocomplete-de-${canalId} button#boton-sugerencias-sin-resultados`);
+    
+        listaBotonesInteriorContainerSugerencias.forEach(btn => {
+          const contenidoBtn = btn.innerHTML;
+          const contenidoBtnNormalized = normalizarInput(contenidoBtn);
+          let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
+            btn.classList.toggle('d-none', !coincidencia);
+            if (coincidencia) {
+              algunaCoincidencia = true;
+            }
+        });
+      
+        ocultarElemento(botonQueDiceSinResultadosDentroContainerSugerencias, algunaCoincidencia)
+     });
+
+
+     /* input.addEventListener('click', function () {
+      let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+      let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+      displayAutocompleteCanales(listaBotones, inputCambioCanal);
+    }); */
+
+   
+      
+     let label = document.createElement('label');
+      label.htmlFor = `input-de-${canalId}`;
+      label.innerHTML = `Cambiar [${nombre}] por:`;
+      
+      formFloating.appendChild(input);
+      formFloating.appendChild(label);
+      modalHeader.appendChild(formFloating);
+      
+      let modalFooter = document.createElement('div');
+      modalFooter.classList.add('modal-footer', 'bg-transparent', 'border-0', 'd-flex', 'align-items-center', 'justify-content-center');
+      
+      let closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.classList.add('btn', 'btn-secondary', 'rounded-pill', 'd-flex', 'justify-content-center', 'align-items-center');
+      closeButton.style.height = '2.5rem';  //  https://stackoverflow.com/a/73306474
+      closeButton.style.width = '2.5rem'; 
+      closeButton.setAttribute('data-bs-dismiss', 'modal');
+      closeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
+      
+      modalFooter.appendChild(closeButton);
+      
+      modalContent.appendChild(modalHeader)
+      modalContent.appendChild(modalBody);
+      modalContent.appendChild(modalFooter);
+      modalDialog.appendChild(modalContent);
+      modal.appendChild(modalDialog);
+      
+      // Agregar modal al DOM
+      document.body.append(modal);
+      
+      // Activar el modal
+      let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
+      myModal.show();
+      let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+      let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+      displayAutocompleteCanales(listaBotones, inputCambioCanal);
+ 
+      // Agregar evento para eliminar el modal del DOM cuando se cierre
+      modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+      });
+ 
+
+
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /* // Selecciona el contenedor donde se carga señal canal
+    let interiorIframePorCambiar = document.querySelector(`[contenedor-canal-cambio="${canalId}"]`);
+    let divGeneralCambiarCanal = document.querySelector(`#div-cambio-de-${canalId}`);
     divGeneralCambiarCanal.classList.remove('d-none');
     divGeneralCambiarCanal.classList.add('d-flex');
 
@@ -748,7 +939,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
         }
         // Agrega un evento "click" al botón para volver a agregar el iframe
         btnCambiarSeñal.addEventListener("click", volverAlIframeOriginal);
-    }
+    } */
   });
   
   let btnMoverEnGrid = document.createElement('button');
@@ -760,6 +951,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
   const divOVERLAY = document.createElement('div');
+  divOVERLAY.setAttribute('id', `overlay-de-canal-${canalId}`)
   divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-end', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
   divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
   divOVERLAY.append(btnMoverEnGrid)
@@ -773,7 +965,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
 
 // ----- tele
 let tele = {
-  add: (canal) => {
+  add: (canal, divExistenteEnCasoDeCambio) => {
     // listaCanales = canales.js
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
       let { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon } = listaCanales[canal];
@@ -781,52 +973,154 @@ let tele = {
       localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
 
       let fragmentTransmision = document.createDocumentFragment();
-      let divTransmision = document.createElement('div');
-      divTransmision.classList.add('position-relative', `col-${checkMovil() ? sizeMovil : size}`, 'shadow');
-      divTransmision.setAttribute('data-canal', canal);
+      
 
-      if (typeof iframe_url !== 'undefined') {
-        divTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
-      } else if (typeof m3u8_url !== 'undefined') {
-        const divM3u8 = document.createElement('div');
-        divM3u8.classList.add('m3u-stream');
-        const videoM3u8 = document.createElement('video');
-        videoM3u8.setAttribute('data-canal-m3u', canal);
-        videoM3u8.classList.add('m3u-player', 'video-js', 'vjs-16-9', 'vjs-fluid');
-        videoM3u8.toggleAttribute('controls');
-        divM3u8.append(videoM3u8);
-        divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
-        fragmentTransmision.append(divTransmision);
-        canalesGrid.append(fragmentTransmision);
 
-        let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
-        playerM3u8.src({
-          src: m3u8_url,
-          controls: true,
+      if (divExistenteEnCasoDeCambio) {
+        let divPadreACambiar = document.querySelector(`div[data-canal="${divExistenteEnCasoDeCambio}"]`)
+        let divExistenteACambiar = document.querySelector(`div[data-canal-cambio="${divExistenteEnCasoDeCambio}"]`)
+       
+       
+        if (typeof iframe_url !== 'undefined') {
+          fragmentTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
+        } else if (typeof m3u8_url !== 'undefined') {
+          const divM3u8 = document.createElement('div');
+          divM3u8.classList.add('m3u-stream', 'ratio', 'ratio-16x9');
+          divM3u8.setAttribute('data-canal-cambio', canal);
+          const videoM3u8 = document.createElement('video');
+          videoM3u8.setAttribute('data-canal-m3u', canal);
+          videoM3u8.classList.add('m3u-player', 'position-absolute', 'video-js', 'vjs-16-9', 'vjs-fluid');
+          videoM3u8.setAttribute('contenedor-canal-cambio', canal);
+          videoM3u8.toggleAttribute('controls');
+ 
+          
+
+      
+          /* divM3u8.append(crearDivCambioCanal(canal)) */ // parte de función "crearIframe" para formato m3u8
+          divM3u8.append(videoM3u8);
+          fragmentTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
+          divPadreACambiar.append(fragmentTransmision);
+       
+          
+          let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
+          playerM3u8.src({
+            src: m3u8_url,
+            controls: true,
+          });
+          playerM3u8.autoplay('muted');
+
+          divExistenteACambiar.remove()
+
+
+        } else if (typeof yt_id !== 'undefined') {
+          fragmentTransmision.append(
+            crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
+          );
+        } else if (typeof yt_embed !== 'undefined') {
+          fragmentTransmision.append(
+            crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, fuente, pais, alt_icon, canal)
+          );
+        } else if (typeof yt_playlist !== 'undefined') {
+          fragmentTransmision.append(
+            crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, fuente, pais, alt_icon, canal)
+          );
+        } else {
+          console.log(`${canal} - Canal Inválido`);
+        }
+
+       
+        console.log(divExistenteEnCasoDeCambio)
+        // aplica clases a botones para demostrar que canal ya no esta activo tras reemplazo
+        let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${divExistenteEnCasoDeCambio}"]`);
+        btnTransmisionOff.forEach(btn => {
+          btn.classList.replace('btn-primary', 'btn-outline-secondary');
         });
-        playerM3u8.autoplay('muted');
-      } else if (typeof yt_id !== 'undefined') {
-        divTransmision.append(
-          crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
-          crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
-        );
-      } else if (typeof yt_embed !== 'undefined') {
-        divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
-          crearOverlay(nombre, fuente, pais, alt_icon, canal)
-        );
-      } else if (typeof yt_playlist !== 'undefined') {
-        divTransmision.append(
-          crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
-          crearOverlay(nombre, fuente, pais, alt_icon, canal)
-        );
-      } else {
-        console.log(`${canal} - Canal Inválido`);
-      }
+        // remueve de localstorage
+        delete canalesStorage[divExistenteEnCasoDeCambio];
+        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
+  
+        // deja atributo con el canal que se deja activo tras cambio
+        divPadreACambiar.setAttribute('data-canal', canal)
 
-      if (typeof m3u8_url === 'undefined') {
-        fragmentTransmision.append(divTransmision);
-        canalesGrid.append(fragmentTransmision);
+        /* 
+        este código verifica si la variable m3u8_url está definida. 
+        Si no está definida, agrega un fragmento de HTML (o elemento) 
+        al final de un div existente llamado divPadreACambiar. 
+        Esto se hace para manejar el caso en el que la URL de una transmisión de 
+        video (en formato M3U8) no se proporciona o no está disponible.
+        */
+        if (typeof m3u8_url === 'undefined') {
+          divPadreACambiar.append(fragmentTransmision);
+          // quita canal cargado previamente tras cambio
+          divExistenteACambiar.remove()
+        }
+         
+         
+
+      } else {
+        let divTransmision = document.createElement('div');
+        divTransmision.classList.add('position-relative', `col-${checkMovil() ? sizeMovil : size}`, 'shadow');
+        divTransmision.setAttribute('data-canal', canal);
+        /// esto estaba
+        if (typeof iframe_url !== 'undefined') {
+          divTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
+        } else if (typeof m3u8_url !== 'undefined') {
+          const divM3u8 = document.createElement('div');
+          divM3u8.classList.add('m3u-stream', 'ratio', 'ratio-16x9');
+          divM3u8.setAttribute('data-canal-cambio', canal);
+          const videoM3u8 = document.createElement('video');
+          videoM3u8.setAttribute('contenedor-canal-cambio', canal);
+          videoM3u8.setAttribute('data-canal-m3u', canal);
+          videoM3u8.classList.add('m3u-player', 'position-absolute', 'video-js', 'vjs-16-9', 'vjs-fluid');
+          videoM3u8.toggleAttribute('controls');
+          
+          
+          /* divM3u8.append(crearDivCambioCanal(canal)) */ // parte de función "crearIframe" para formato m3u8
+
+          divM3u8.append(videoM3u8);
+          divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
+          fragmentTransmision.append(divTransmision);
+          canalesGrid.append(fragmentTransmision);
+
+          let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
+          playerM3u8.src({
+            src: m3u8_url,
+            controls: true,
+          });
+          playerM3u8.autoplay('muted');
+
+
+          
+          
+
+        } else if (typeof yt_id !== 'undefined') {
+          divTransmision.append(
+            crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
+          );
+        } else if (typeof yt_embed !== 'undefined') {
+          divTransmision.append(
+            crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, fuente, pais, alt_icon, canal)
+          );
+        } else if (typeof yt_playlist !== 'undefined') {
+          divTransmision.append(
+            crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
+            crearOverlay(nombre, fuente, pais, alt_icon, canal)
+          );
+        } else {
+          console.log(`${canal} - Canal Inválido`);
+        }
+
+        if (typeof m3u8_url === 'undefined') {
+          fragmentTransmision.append(divTransmision);
+          canalesGrid.append(fragmentTransmision);
+        }
+        /// ./fin "esto estaba"
+
       }
 
       let btnTransmisionOn = document.querySelectorAll(`button[data-canal="${canal}"]`);
@@ -909,15 +1203,15 @@ let tele = {
       }
 
       btnTransmision.append(pNombreCanalDentroBoton);
-      fragmentBtn.appendChild(btnTransmision);
+      fragmentBtn.append(btnTransmision);
 
       const clonedBtnTransmision = btnTransmision.cloneNode(true); // Clonar el botón
-      fragmentBtn2.appendChild(clonedBtnTransmision);
+      fragmentBtn2.append(clonedBtnTransmision);
     }
 
     // Agregar fragmentos al DOM después de completar el bucle
-    document.querySelector('#modal-body-botones-canales').appendChild(fragmentBtn);
-    document.querySelector('#offcanvas-body-botones-canales').appendChild(fragmentBtn2);
+    document.querySelector('#modal-body-botones-canales').append(fragmentBtn);
+    document.querySelector('#offcanvas-body-botones-canales').append(fragmentBtn2);
 
     // Asignar eventos después de que los botones estén en el DOM
     document.querySelectorAll('#modal-body-botones-canales button').forEach(btn => {
@@ -964,15 +1258,15 @@ let tele = {
         btn.append(span);
       }
 
-      fragmentBtnsFiltroBanderas.appendChild(btn);
+      fragmentBtnsFiltroBanderas.append(btn);
     }
 
     // Clona el fragmento para poder agregarlo a diferentes contenedores
     const clonedFragmentBtn = fragmentBtnsFiltroBanderas.cloneNode(true);
 
     // Agrega los fragmentos con los botones y sus eventos a los contenedores en el DOM
-    document.querySelector('#modal-collapse-botones-listado-filtro-paises').appendChild(fragmentBtnsFiltroBanderas);
-    document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').appendChild(clonedFragmentBtn);
+    document.querySelector('#modal-collapse-botones-listado-filtro-paises').append(fragmentBtnsFiltroBanderas);
+    document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').append(clonedFragmentBtn);
 
     document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1044,4 +1338,9 @@ new Sortable(canalesGrid, {
   animation: 550,
   handle: '.handle',
   ghostClass: 'marca-al-mover',
+});
+
+canalesGrid.addEventListener("drag", () => {
+  removerTooltipsBootstrap();
+  activarTooltipsBootstrap();
 });
