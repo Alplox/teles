@@ -13,11 +13,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reescrito archivo "NOTICE.md"
 - Alerta tras borrado localStorage
 - SVG's logos redes sociales por iconos Bootstrap
+- Imágenes ejemplo sitio en README.md, index.html y site.webmanifest acorde a version nueva
 
 #### 📺 Canales
 Chile
 
 - [Canal 13](https://www.13.cl/en-vivo)
+- [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://m3u.cl/lista-iptv-chile.php)
 
 ### Added
 - Icono a enlaces externos dentro de señal activa <iframe> para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
@@ -37,6 +39,8 @@ Chile
 - Opción cambiar/reemplazar canal desde grid
 - Habilidad recordar selección de número de canales por fila con localStorage
 - Alerta en caso de que búsqueda canales no arroje resultados
+- Opción para reordenar botones canales de forma ascendente o descendente
+- screenshots para PWA, hechas con Progressier https://progressier.com
 
 #### 📺 Canales
 Chile
@@ -59,6 +63,7 @@ Chile
 - Archivo emergencia.html
 - Archivo archivo.html
 - SVG's logos redes sociales
+- Imágenes ejemplo sitio v0.07
 
 
 ## [v0.15]

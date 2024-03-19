@@ -23,7 +23,7 @@
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
-    <script src="assets/js/canalesRespaldo.js"></script>
+    <script src="assets/data/canalesRespaldo.js"></script>
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="teles">
@@ -31,7 +31,7 @@
     <meta property="og:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta property="og:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg">
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
     <!-- Twitter Card-->
     <meta name="twitter:card"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
@@ -41,7 +41,7 @@
     <meta name="twitter:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta name="twitter:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg">
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
@@ -79,7 +79,7 @@
                 <div class="wave"></div>
             </div>
         </noscript>
-
+    
         <!-- Alerta tras borrado localstorage -->
         <div id="alert-reset" class="d-none bg-flicker z-9999 position-fixed overflow-hidden vw-100 vh-100">
             <div class="d-flex flex-column align-items-center justify-content-center bg-dark-subtle p-5 vw-100 vh-100">
@@ -155,12 +155,14 @@
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href="#" data-bs-toggle="modal"
-                                        data-bs-target="#modal-creditos">Créditos</a>
+                                        data-bs-target="#modal-creditos">Créditos
+                                    </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href="https://github.com/Alplox/teles"
                                         rel="nofollow noreferrer"><i class="bi bi-github"></i> Repositorio <i
-                                            class="bi bi-box-arrow-up-right"></i></a>
+                                            class="bi bi-box-arrow-up-right"></i>
+                                    </a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider">
@@ -171,7 +173,7 @@
                                 <li>
                                     <a class='dropdown-item' href='https://www.viendotele.cl/'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
                                         Variación por @pottersys <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
@@ -179,21 +181,21 @@
                                     <a class='dropdown-item'
                                         href='https://ainmcl.github.io/MonitorTV/Monitores/Home.html'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
                                         Variación por AINMcl <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='https://tele.martinsantibanez.com/monitor'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
                                         Variación por martinsantibanez <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='https://sanguinet.github.io/tele/'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/pe.svg" alt="bandera Perú" title="Perú"> Variación
+                                        <img src="https://flagcdn.com/pe.svg" alt="bandera Perú" title="Perú" /> Variación
                                         por SanguiNET <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
@@ -252,8 +254,8 @@
                             
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-dark w-100" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapse-btn-group" aria-expanded="false"
-                                    aria-controls="collapse-btn-group">
+                                    data-bs-target="#modal-collapse-btn-group" aria-expanded="false"
+                                    aria-controls="modal-collapse-btn-group">
                                     Mostrar filtro por país <i class="bi bi-funnel"></i>
                                 </button>
                                 <div class="ms-auto">
@@ -280,15 +282,18 @@
                                
                             </div>
 
-                            <div class="collapse pb-2" id="collapse-btn-group">
+                            <div class="collapse py-2" id="modal-collapse-btn-group">
                                 <div class="card card-body">
                                     <div class="btn-group btn-group-sm container-btn-group" role="group"
                                         aria-label="Toggle radio para grupo botones"
                                         id='modal-collapse-botones-listado-filtro-paises'>
                                         <button id="modal-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
-                                            data-country='all'>Todos
-                                            <span class="badge bg-secondary rounded-pill"
-                                                id='modal-span-con-numero-total-canales'></span>
+                                            data-country='all'>
+                                            <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100"> 
+                                                Todos
+                                                <span class="badge bg-secondary rounded-pill"
+                                                    id='modal-span-con-numero-total-canales'></span>
+                                            </p>
                                         </button>
                                     </div>
                                 </div>
@@ -310,7 +315,7 @@
                                         <ul>
                                             <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
                                             <li>Prueba diferentes palabras clave.</li>
-                                            <li>Prueba palabras clave más generales.</li>
+                                            <li>Prueba palabras en español.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -352,8 +357,8 @@
                 <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">     
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-dark w-100" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false"
-                            aria-controls="collapse-btn-group">
+                            data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
+                            aria-controls="offcanvas-collapse-btn-group">
                             Mostrar filtro por país <i class="bi bi-funnel"></i>
                         </button>
                         <div class="ms-auto">
@@ -378,15 +383,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-2" id="collapse-btn-group">
+                    <div class="collapse py-2" id="offcanvas-collapse-btn-group">
                         <div class="card card-body">
-                            <div class="btn-group btn-group-sm container-btn-group" role="group"
+                            <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray" role="group"
                                 aria-label="Toggle radio para grupo botones"
                                 id='offcanvas-collapse-botones-listado-filtro-paises'>
                                 <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
-                                    data-country='all'>Todos
-                                    <span class="badge bg-secondary rounded-pill"
+                                    data-country='all'>
+                                    <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100">
+                                        Todos
+                                        <span class="badge bg-secondary rounded-pill"
                                         id='offcanvas-span-con-numero-total-canales'></span>
+                                    </p>
                                 </button>
                             </div>
                         </div>
@@ -395,6 +403,9 @@
             </div>
 
             <div class="offcanvas-body mb-2 scrollbar-thin-gray">
+
+                
+
                 <div class="offcanvas-body-canales h-100" id="offcanvas-body-botones-canales">
                     <!-- Mensaje alerta sin resultados offcanvas -->
                     <div class="offcanvas-mensaje-alerta d-none shadow" tabindex="0">
@@ -409,7 +420,7 @@
                                 <ul>
                                     <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
                                     <li>Prueba diferentes palabras clave.</li>
-                                    <li>Prueba palabras clave más generales.</li>
+                                    <li>Prueba palabras en español.</li>
                                 </ul>
                             </div>
                         </div>
@@ -1609,6 +1620,5 @@
 ██║███╗██║██╔══╝  ██║╚██╗██║██╔══██║    ██║███╗██║██╔══╝  ██║╚██╗██║██╔══██║
 ╚███╔███╔╝███████╗██║ ╚████║██║  ██║    ╚███╔███╔╝███████╗██║ ╚████║██║  ██║
  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚══╝╚══╝ ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝
- -->
-
+-->
 </html>

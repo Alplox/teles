@@ -33,7 +33,7 @@ function filtrarCanalesPorInput(e, btnsCanales) {
   if (idDelElemento === 'modal-body-botones-canales') {
     const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
     
-    if (inputNormalized === 'unknow') {
+    if (inputNormalized === 'desconocido') {
       btnsCanalesDentroContainer.forEach(btn => {
         const country = btn.getAttribute('country');
         const countryNormalized = normalizarInput(country); 
@@ -69,7 +69,7 @@ function filtrarCanalesPorInput(e, btnsCanales) {
     filtroCanalesModal.value = e
   } else if (idDelElemento === 'offcanvas-body-botones-canales') {
     const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
-    if (inputNormalized === 'unknow') {
+    if (inputNormalized === 'desconocido') {
       btnsCanalesDentroContainer.forEach(btn => {
         const country = btn.getAttribute('country');
         const countryNormalized = normalizarInput(country); 

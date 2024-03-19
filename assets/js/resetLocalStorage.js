@@ -8,7 +8,7 @@ btnReset.addEventListener('click', () => {
   localStorage.clear();
   audioLimpiarCanalesActivos.play();
   audioLimpiarCanalesActivos.volume = 0.8;
-  audioLoopEstaticaCRT.volume = 0.6;
+  audioLoopEstaticaCRT.volume = 0.8;
   audioLoopEstaticaCRT.loop = true;
   audioLoopEstaticaCRT.play();
   alertReset.classList.remove('d-none');

@@ -132,7 +132,7 @@
     },
     "chv-2": {
         "nombre": "CHV 2",
-        "iframe_url": "https://www.viendotele.cl/assets-tele/chv.html",
+        "m3u8_url": "https://scl.edge.grupoz.cl/transmision/live/playlist.m3u8",
         "fuente": "https://www.chilevision.cl/senal-online",
         "pais": "cl"
     },

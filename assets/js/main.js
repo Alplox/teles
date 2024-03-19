@@ -537,7 +537,7 @@ async function fetchCodigosBandera() {
 let listaCanales
 
 // Función para cargar el archivo JSON y almacenarlo en una variable
-async function cargarCanales() {
+async function fetchCargarCanales() {
   try {
       // Realizar el fetch y esperar la respuesta
       const response = await fetch('assets/data/canales.json');
@@ -631,7 +631,6 @@ function crearIframe(source, titleIframe, canalId) {
 
 function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   const fragmentOVERLAY = document.createDocumentFragment();
-  const a = document.createElement('a');
   if (pais === undefined && altIcon === undefined) {
     contenido = `<span class="ocultar-en-768px">${nombre}</span>`;
   } else if (pais === undefined && altIcon !== undefined) {
@@ -657,6 +656,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
   btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
   btnCambiarSeñal.addEventListener('click', () => {
+    let fragmentModal = document.createDocumentFragment();
     let modal = document.createElement('div');
     modal.classList.add('modal', 'fade');
     modal.id = `Modal-cambiar-${canalId}`;
@@ -728,7 +728,9 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     modalDialog.append(modalContent);
     modal.append(modalDialog);
     
-    document.body.append(modal);
+    fragmentModal.append(modal);
+
+    document.body.append(fragmentModal);
     
     // Activar el modal, darle focus al input si esta en PC y mostrar listado sugerencias canales
     let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
@@ -746,38 +748,38 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     });
   });
 
-  a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
-  a.title = 'Ir a la página oficial de esta transmisión';
-  a.href = fuente;
-  a.setAttribute('tabindex', 0);
-  a.setAttribute('data-bs-toggle', 'tooltip');
-  a.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
-  a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1', 'pe-auto', 'mt-1');
+  const a = document.createElement('a');
+    a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
+    a.title = 'Ir a la página oficial de esta transmisión';
+    a.href = fuente;
+    a.setAttribute('tabindex', 0);
+    a.setAttribute('data-bs-toggle', 'tooltip');
+    a.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
+    a.rel = 'noopener nofollow noreferrer';
+    a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1', 'pe-auto', 'mt-1');
 
-  let btnRemove = document.createElement('button');
-  btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1', 'me-1');
-  btnRemove.setAttribute('aria-label', 'Close');
-  btnRemove.setAttribute('type', 'button');
-  btnRemove.setAttribute('title', 'Quitar canal');
-  btnRemove.setAttribute('data-bs-toggle', 'tooltip');
-  btnRemove.setAttribute('data-bs-title', 'Quitar canal');
-  btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
-  btnRemove.addEventListener('click', () => {
-    tele.remove(canalId)
+  const btnRemove = document.createElement('button');
+    btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1', 'me-1');
+    btnRemove.setAttribute('aria-label', 'Close');
+    btnRemove.setAttribute('type', 'button');
+    btnRemove.setAttribute('title', 'Quitar canal');
+    btnRemove.setAttribute('data-bs-toggle', 'tooltip');
+    btnRemove.setAttribute('data-bs-title', 'Quitar canal');
+    btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
     const audioQuitarCanal = new Audio('assets/sounds/User-Interface-Clicks-and-Buttons-1-por-original_sound.mp3');
-    audioQuitarCanal.play()
-  });
+    btnRemove.addEventListener('click', () => {
+      tele.remove(canalId)
+      audioQuitarCanal.play()
+    });
 
   const divOVERLAY = document.createElement('div');
-  divOVERLAY.setAttribute('id', `overlay-de-canal-${canalId}`)
-  divOVERLAY.classList.add('position-absolute', 'barra-overlay', 'w-100', 'h-100', 'bg-transparent', 'pe-none', 
-  'd-flex', 'flex-wrap', 'justify-content-end', 'align-items-start', 'gap-1', 'top-0', 'end-0');
-  divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
-  divOVERLAY.append(btnMoverEnGrid)
-  divOVERLAY.append(btnCambiarSeñal)
-  divOVERLAY.append(a);
-  divOVERLAY.append(btnRemove)
+    divOVERLAY.setAttribute('id', `overlay-de-canal-${canalId}`)
+    divOVERLAY.classList.add('position-absolute', 'barra-overlay', 'w-100', 'h-100', 'bg-transparent', 'pe-none', 'd-flex', 'flex-wrap', 'justify-content-end', 'align-items-start', 'gap-1', 'top-0', 'end-0');
+    divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
+    divOVERLAY.append(btnMoverEnGrid)
+    divOVERLAY.append(btnCambiarSeñal)
+    divOVERLAY.append(a);
+    divOVERLAY.append(btnRemove)
 
   fragmentOVERLAY.append(divOVERLAY);
   return fragmentOVERLAY;
@@ -786,9 +788,8 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
 
 // ----- tele
 let tele = {
-  add:  (canal, divExistenteEnCasoDeCambio) => {
-
-    // listaCanales = canales.js
+  add: (canal, divExistenteEnCasoDeCambio) => {
+    // listaCanales = canales.json
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
       let { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon } = listaCanales[canal];
     
@@ -960,7 +961,7 @@ let tele = {
       activarTooltipsBootstrap();
     }
   },
-  populateModal: () => {
+  crearBotonesParaCanales: () => {
     let numeroCanalesConPais = [];
 
     const fragmentBtn = document.createDocumentFragment();
@@ -1005,11 +1006,11 @@ let tele = {
         numeroCanalesConPais.push(pais);
       } else if (!pais && alt_icon) {
         pNombreCanalDentroBoton.innerHTML += alt_icon;
-        btnTransmision.setAttribute('country', 'Unknow');
-        numeroCanalesConPais.push('Unknow');
+        btnTransmision.setAttribute('country', 'Desconocido');
+        numeroCanalesConPais.push('Desconocido');
       } else {
-        btnTransmision.setAttribute('country', 'Unknow');
-        numeroCanalesConPais.push('Unknow');
+        btnTransmision.setAttribute('country', 'Desconocido');
+        numeroCanalesConPais.push('Desconocido');
       }
 
       btnTransmision.append(pNombreCanalDentroBoton);
@@ -1050,22 +1051,34 @@ let tele = {
     for (const bandera of paisesSinRepetir) {
       let nombrePais = codigosBandera[bandera];
       let btn = document.createElement('button');
-      btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center');
+      btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center', 'w-100');
       btn.setAttribute('type', 'button');
       btn.setAttribute('data-country', bandera);
-      let span = document.createElement('span');
-      span.classList.add('badge', 'bg-secondary', 'rounded-pill');
-      span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
+
+      const pNombreCanalDentroBoton = document.createElement('p');
+      pNombreCanalDentroBoton.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100');
+
+      const spanBtnNombrePais = document.createElement('span');
+      spanBtnNombrePais.classList.add('flex-grow-1');
+      spanBtnNombrePais.textContent = nombrePais;
+      pNombreCanalDentroBoton.append(spanBtnNombrePais)
+
+      let spanBadge = document.createElement('span');
+      spanBadge.classList.add('badge', 'bg-secondary'/* , 'rounded-pill' */);
+      spanBadge.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
       if (codigosBandera[bandera]) {
         let img = document.createElement('img');
         img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
         img.setAttribute('alt', `bandera ${nombrePais}`);
         img.setAttribute('title', nombrePais);
-        img.classList.add('rounded-5');
-        btn.append(img, span);
+        img.classList.add('h-100', 'm-0');
+       
+        pNombreCanalDentroBoton.append(img);
+        pNombreCanalDentroBoton.append(spanBadge);
+        btn.append(pNombreCanalDentroBoton)
       } else {
-        btn.innerHTML = bandera;
-        btn.append(span);
+        btn.textContent = bandera
+        btn.append(spanBadge);
       }
 
       fragmentBtnsFiltroBanderas.append(btn);
@@ -1089,7 +1102,7 @@ let tele = {
 
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
-        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Unknow';
+        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Desconocido';
         filtrarCanalesPorInput(filtro, document.querySelector('#modal-body-botones-canales'));
       });
     });
@@ -1104,7 +1117,7 @@ let tele = {
 
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
-        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Unknow';
+        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Desconocido';
         filtrarCanalesPorInput(filtro, document.querySelector('#offcanvas-body-botones-canales'));
       });
     });
@@ -1112,13 +1125,10 @@ let tele = {
 
   },
   init: async () => {
-    // Llamar a la función para realizar el fetch de nombre paises
-    await fetchCodigosBandera();
+    await fetchCodigosBandera(); // Llamar a la función para realizar el fetch de nombre paises
+    await fetchCargarCanales();  // Llamar a la función para realizar el fetch de lista canales
 
-    // Llamar a la función para realizar el fetch de lista canales
-    await cargarCanales();
-
-    tele.populateModal();
+    tele.crearBotonesParaCanales();
 
     const localStorageCanales = localStorage.getItem('canales_storage');
     const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4'];
@@ -1157,9 +1167,12 @@ new Sortable(canalesGrid, {
   ghostClass: 'marca-al-mover',
 });
 
+
+
+// Permitir mover divs
 canalesGrid.addEventListener("dragstart", () => {
   // busca el div antepuesto en cada canal y le quita clase "pe-none" para poder abarcar todo el tamaño del div del canal para el threshold https://sortablejs.github.io/Sortable/#thresholds
-  const elements = canalesGrid.querySelectorAll('.pe-none');
+  const elements = canalesGrid.querySelectorAll('.bg-transparent');
   elements.forEach(element => {
       element.classList.toggle('pe-none');
   });
@@ -1169,7 +1182,7 @@ canalesGrid.addEventListener("dragstart", () => {
 
 
 canalesGrid.addEventListener("dragend", () => {
-  // Volvemos a activar tooltips
+  // Volvemos a activar tooltips para su funcionamiento normal
   activarTooltipsBootstrap();
   // busca el div antepuesto en cada canal y le regresa las clase de "pe-none" para poder hacer clic en iframes o videojs
   const elements = canalesGrid.querySelectorAll('.bg-transparent');
@@ -1178,6 +1191,7 @@ canalesGrid.addEventListener("dragend", () => {
   });
 
   // capturamos valores de los div para que se pase a borrar el listado canales de localStorage y reemplazado por el orden nuevo, de forma de recordar orden a la siguiente carga 
+  // no es la mejor forma de dar solución a este problema pero es la única que se me ocurrió xd
   const elementsLS = canalesGrid.querySelectorAll('div[data-canal]');
   localStorage.removeItem('canales_storage');
   let canalesStorage = JSON.parse(localStorage.getItem('canales_storage')) || {};

@@ -20,7 +20,6 @@
     "id": "/teles/",
     
     "icons": [
-
         {
             "src": "./assets/favicon/PWA/maskable-icon-x192.png",
             "sizes": "192x192",
@@ -80,20 +79,52 @@
             "purpose": "maskable"
         }
     ],
+
     "screenshots": [
         {
-            "src": "./assets/img/previews/v0.07.jpg",
-            "sizes": "1901x963",
-            "type": "image/jpg",
-            "form_factor": "wide",
-            "label": "Application"
+            "src": "./assets/img/PWA/1.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
         },
         {
-            "src": "./assets/img/previews/v0.07-opciones.gif",
-            "sizes": "1901x961",
+            "src": "./assets/img/PWA/2.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
+        },
+        {
+            "src": "./assets/img/PWA/3.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
+        },
+        {
+            "src": "./assets/img/PWA/4.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
+        },
+        {
+            "src": "./assets/img/PWA/5.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
+        },
+        {
+            "src": "./assets/img/PWA/6.jpg",
+            "type": "image/jpeg",
+            "sizes": "1080x1920"
+        },
+        {
+            "src": "./assets/img/previews/teles-v0-16-canales-por-defecto.jpg",
+            "sizes": "1920x1080",
+            "type": "image/jpg",
+            "form_factor": "wide",
+            "label": "Sitio con canales por defecto"
+        },
+        {
+            "src": "./assets/img/previews/teles-v0-16-personalizar.gif",
+            "sizes": "1865x947",
             "type": "image/gif",
-            "label": "Application"
+            "label": "Personalización disponible"
         }
     ]
+
 }
 

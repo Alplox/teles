@@ -13,8 +13,9 @@ Enlace: https://alplox.github.io/teles/
 - [Descargo de responsabilidad](#descargo-de-responsabilidad)
 - [Licencia](#licencia)
 
-[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg)](https://alplox.github.io/teles/)
-[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07-opciones.gif)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-vacio-temas.jpg)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-personalizar.gif)](https://alplox.github.io/teles/)
 
 # Canales disponibles junto a su origen: 
 [↑ Volver arriba ↑](#tabla-de-contenido)
@@ -46,7 +47,7 @@ Enlace: https://alplox.github.io/teles/
 - [CHV Noticias 2](https://www.chvnoticias.cl/) - [x](https://pluto.tv/es/live-tv/chilevision-noticias)
 - [CHV Noticias 3](https://www.chvnoticias.cl/senal-online/)
 - [CHV](https://www.youtube.com/channel/UC8EdTmyUaFIfZvVttJ9lgIA)
-- [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://github.com/AINMcl/MonitorTV/blob/05188eeaea9622e986b338f63a46fb189898184f/IPTV/AINM.m3u)
+- [CHV 2](https://www.chilevision.cl/senal-online) - [x](https://m3u.cl/lista-iptv-chile.php)
 - [La Red](https://www.lared.cl/senal-online) - [x](https://www.m3u.cl/iptv-chile.php)
 - [La Red 2](https://www.lared.cl/senal-online) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
 - [Stgo TV](https://www.santiagotelevision.cl/)
