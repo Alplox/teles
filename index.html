@@ -23,7 +23,7 @@
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
-    <script src="assets/js/canales.js"></script>
+    <script src="assets/js/canalesRespaldo.js"></script>
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="teles">
@@ -110,7 +110,7 @@
                             class="ps-1 bi bi-display"></i>
                     </button>
                 </div>
-                <span class="reloj px-4" title="Hora Santiago, Chile">
+                <span class="reloj px-4" title="Hora Santiago, Chile"  data-bs-toggle="tooltip" data-bs-title="Hora Santiago, Chile">
                     <span id="Santiago_z179" tabindex="-1">
                         <span onclick="location='http://time.is/'" title="http://time.is/" tabindex="-1"></span>
                     </span>
@@ -146,7 +146,8 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
                                 <li>
                                     <a class='dropdown-item' href='#' data-bs-toggle="offcanvas"
-                                        data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización</a>
+                                        data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización
+                                    </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='#' data-bs-toggle="modal"
@@ -247,26 +248,53 @@
                                 rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
                                     class="bi bi-box-arrow-up-right"></i></a>.
                         </p>
-                        <p>
-                            <button class="btn btn-sm btn-outline-primary w-100" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapse-btn-group" aria-expanded="false"
-                                aria-controls="collapse-btn-group">
-                                Mostrar filtro por país <i class="bi bi-funnel"></i>
-                            </button>
-                        </p>
-                        <div class="collapse pb-2" id="collapse-btn-group">
-                            <div class="card card-body">
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones"
-                                    id='modal-collapse-botones-listado-filtro-paises'>
-                                    <button id="modal-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
-                                        data-country='all'>Todos
-                                        <span class="badge bg-secondary rounded-pill"
-                                            id='modal-span-con-numero-total-canales'></span>
-                                    </button>
+                        <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-dark w-100" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-btn-group" aria-expanded="false"
+                                    aria-controls="collapse-btn-group">
+                                    Mostrar filtro por país <i class="bi bi-funnel"></i>
+                                </button>
+                                <div class="ms-auto">
+                                    <div class="btn-group " role="group">
+                                        <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Orden <i class="bi bi-sort-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu p-2">
+                                            <li class="mb-1">
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-ascendente" autocomplete="off">
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
+                                            </li>
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-descendente" autocomplete="off">
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
+                                            </li>
+                                            <li>
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-original" autocomplete="off" checked>
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                               
+                            </div>
+
+                            <div class="collapse pb-2" id="collapse-btn-group">
+                                <div class="card card-body">
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones"
+                                        id='modal-collapse-botones-listado-filtro-paises'>
+                                        <button id="modal-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
+                                            data-country='all'>Todos
+                                            <span class="badge bg-secondary rounded-pill"
+                                                id='modal-span-con-numero-total-canales'></span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                       </div>
+                            
                         <div class="modal-body-canales" id="modal-body-botones-canales">
                             <!-- Mensaje alerta sin resultados modal -->
                             <div class="modal-mensaje-alerta d-none shadow" tabindex="0">
@@ -315,28 +343,52 @@
                 <h5 class="offcanvas-title" id="offcanvasCanalesLabel">Selecciona tus canales</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-
             <div class="d-flex flex-column">
                 <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
                     Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
                         rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
                             class="bi bi-box-arrow-up-right"></i></a>.
                 </p>
-                <button class="btn btn-sm btn-outline-primary mx-2 mb-2 text-center " type="button"
-                    data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false"
-                    aria-controls="collapse-btn-group">
-                    Mostrar filtro por país <i class="bi bi-funnel"></i>
-                </button>
-                <div class="collapse p-2" id="collapse-btn-group">
-                    <div class="card card-body">
-                        <div class="btn-group btn-group-sm container-btn-group" role="group"
-                            aria-label="Toggle radio para grupo botones"
-                            id='offcanvas-collapse-botones-listado-filtro-paises'>
-                            <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
-                                data-country='all'>Todos
-                                <span class="badge bg-secondary rounded-pill"
-                                    id='offcanvas-span-con-numero-total-canales'></span>
-                            </button>
+                <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">     
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-dark w-100" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false"
+                            aria-controls="collapse-btn-group">
+                            Mostrar filtro por país <i class="bi bi-funnel"></i>
+                        </button>
+                        <div class="ms-auto">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Orden <i class="bi bi-sort-down"></i>
+                                </button>
+                                <ul class="dropdown-menu p-2">
+                                    <li class="mb-1">
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-ascendente" autocomplete="off">
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
+                                    </li>
+                                    <li class="my-1">
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-descendente" autocomplete="off">
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
+                                    </li>
+                                    <li>
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-original" autocomplete="off" checked>
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse p-2" id="collapse-btn-group">
+                        <div class="card card-body">
+                            <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                aria-label="Toggle radio para grupo botones"
+                                id='offcanvas-collapse-botones-listado-filtro-paises'>
+                                <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
+                                    data-country='all'>Todos
+                                    <span class="badge bg-secondary rounded-pill"
+                                        id='offcanvas-span-con-numero-total-canales'></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1324,13 +1376,15 @@
             </div>
         </div>
 
-        <!-- btn flotante sidepanel -->
-        <button
-            class="focus-outline-blue border border-2 border-dark rounded-5 btn btn-sm bg-dark-subtle position-fixed bottom-0 end-0 z-2 me-4 mb-3"
-            aria-label="Acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel"
-            aria-controls="sidepanel" tabindex="0">
-            <i class="bi bi-gear"></i> Personalización
-        </button>
+        <!-- btns flotantes -->
+        <div class="btn-group position-fixed bottom-0 end-0 z-2" role="group" aria-label="grupo botones flotantes">
+            <button type="button" class="focus-outline-blue btn btn-sm bg-light-subtle  rounded-start-5 mb-3 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales" aria-controls="offcanvasCanales">
+                <i class="bi bi-chevron-right"></i> Canales
+            </button>
+            <button class="focus-outline-blue btn btn-sm bg-dark-subtle  rounded-end-5 me-4 mb-3 shadow-sm" aria-label="Acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
+                <i class="bi bi-gear" ></i> Personalización
+            </button>
+        </div>
 
         <!-- sidepanel/personalizaciones -->
         <div class="offcanvas bg-dark bg-opacity-75 offcanvas-end border border-5 border-dark-subtle rounded-3 overflow-auto"
@@ -1489,8 +1543,8 @@
                 </ul>
             </div>
             <div class="d-flex p-3 bg-dark bg-opacity-75 gap-2">
-                <button type="button" class="btn btn-outline-light " data-bs-toggle="modal"
-                    data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button>
+                <!-- <button type="button" class="btn btn-outline-light " data-bs-toggle="modal"
+                    data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button> -->
                 <a class="btn btn-outline-secondary" role="button" href="https://github.com/Alplox/teles"
                     rel="nofollow noreferrer">
                     <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i>
@@ -1538,6 +1592,8 @@
         <script src="assets/js/F_enableTooltipBS.js"></script>
 
         <script src="assets/js/main.js"></script>
+
+        <script src="assets/js/ordenBotones.js"></script>
         
         <script src="assets/js/botonesQuitarTodo.js"></script>
         <script src="assets/js/botonesCompartir.js"></script>

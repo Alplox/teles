@@ -27,6 +27,7 @@ Chile
 - Efectos de sonido para alerta de copiado enlace en modal compartir: [button-pressed por Pixabay](https://pixabay.com/sound-effects/button-pressed-38129/), [Cancel/miss chime por Raclure](https://freesound.org/people/Raclure/sounds/405548/)
 - Efecto de sonido a botones de quitar todos los canales activos [TV, Shutdown.wav por MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/523553/)
 - Efecto sonido de fondo a alerta tras borrado localStorage [DefectLineTransformer por blaukreuz](https://freesound.org/people/blaukreuz/sounds/440128/)
+- Efecto de sonido a botones de quitar canal [User Interface Clicks and Buttons 1 por original_sound](https://freesound.org/people/original_sound/sounds/493551/)
 - Variación rancia https://alienxproject.github.io/X/
 - "Variación" https://navezjt.github.io/JCN-TV/
 - Enlace complementario Línea Prevención del Suicidio

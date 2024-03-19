@@ -1,7 +1,7 @@
 // ----- copiar enlace a portapapeles y alerta copiado
 const btnEnlace = document.querySelector('#btn-enlace');
-const audioCopiadoFallido = new Audio('/assets/sounds/Cancel-miss-chime-by-Raclure.wav');
-const audioCopiadoExitoso = new Audio('/assets/sounds/button-pressed-by-Pixabay.mp3');
+const audioCopiadoFallido = new Audio('assets/sounds/Cancel-miss-chime-by-Raclure.wav');
+const audioCopiadoExitoso = new Audio('assets/sounds/button-pressed-by-Pixabay.mp3');
 
 btnEnlace.onclick = () => {
   let e = document.querySelector('#enlace-compartir');

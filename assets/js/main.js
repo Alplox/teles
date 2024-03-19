@@ -115,7 +115,6 @@ let size = 4;
 let sizeMovil = 12;
 let transmisionesFila = document.querySelectorAll('#transmision-por-fila button');
 
-
 // revisa si usuario ya modifico este valor y aplica ajustes para mostrarlo en sidepanel personalizaciones de forma acorde
 let lsTransmisionesFila = localStorage.getItem('numero_canales_por_fila')
 if (lsTransmisionesFila !== null) {
@@ -127,7 +126,7 @@ if (lsTransmisionesFila !== null) {
   })
   botonDejarActivo.classList.replace('bg-light-subtle', 'btn-primary')
 }
-// si se carga desde telefono por primera vez ajusta cantidad y boton selecionado en numero de canales por fila
+// si se carga desde telefono por primera vez ajusta cantidad y botón seleccionado en numero de canales por fila
 if (checkMovil() && lsTransmisionesFila === null) {
   let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${sizeMovil}']`)
   transmisionesFila.forEach(btn => {
@@ -171,13 +170,6 @@ let lsFondo = localStorage.getItem('fondo');
 let lsOverlay = localStorage.getItem('overlay');
 let lsNavbar = localStorage.getItem('navbar');
 
-/* let { 
-  slider_value: lsSlider, 
-  fondo: lsFondo, 
-  overlay: lsOverlay, 
-  navbar: lsNavbar 
-} = localStorage; */
-
 window.addEventListener('DOMContentLoaded', () => {
   const overlayBarras = document.querySelectorAll('.barra-overlay');
   const hideOverlay = lsOverlay === 'hide';
@@ -216,316 +208,348 @@ lsNavbar !== 'hide'
   \_____/_/    \_\_| \_/_/    \_\______|______ _____/ 
 */
 // https://flagcdn.com/en/codes.json
-let paises = {
-  "ad": "Andorra",
-  "ae": "United Arab Emirates",
-  "af": "Afghanistan, Afganistán",
-  "ag": "Antigua and Barbuda",
-  "ai": "Anguilla",
-  "al": "Albania",
-  "am": "Armenia",
-  "ao": "Angola",
-  "aq": "Antarctica",
-  "ar": "Argentina",
-  "as": "American Samoa",
-  "at": "Austria",
-  "au": "Australia",
-  "aw": "Aruba",
-  "ax": "Åland Islands",
-  "az": "Azerbaijan",
-  "ba": "Bosnia and Herzegovina",
-  "bb": "Barbados",
-  "bd": "Bangladesh",
-  "be": "Belgium",
-  "bf": "Burkina Faso",
-  "bg": "Bulgaria",
-  "bh": "Bahrain",
-  "bi": "Burundi",
-  "bj": "Benin",
-  "bl": "Saint Barthélemy",
-  "bm": "Bermuda",
-  "bn": "Brunei",
-  "bo": "Bolivia",
-  "bq": "Caribbean Netherlands",
-  "br": "Brazil, Brasil",
-  "bs": "Bahamas",
-  "bt": "Bhutan",
-  "bv": "Bouvet Island",
-  "bw": "Botswana",
-  "by": "Belarus",
-  "bz": "Belize",
-  "ca": "Canada",
-  "cc": "Cocos (Keeling) Islands",
-  "cd": "DR Congo",
-  "cf": "Central African Republic",
-  "cg": "Republic of the Congo",
-  "ch": "Switzerland",
-  "ci": "Côte d'Ivoire (Ivory Coast)",
-  "ck": "Cook Islands",
-  "cl": "Chile",
-  "cm": "Cameroon",
-  "cn": "China",
-  "co": "Colombia",
-  "cr": "Costa Rica",
-  "cu": "Cuba",
-  "cv": "Cape Verde",
-  "cw": "Curaçao",
-  "cx": "Christmas Island",
-  "cy": "Cyprus",
-  "cz": "Czechia",
-  "de": "Germany, Alemania",
-  "dj": "Djibouti",
-  "dk": "Denmark",
-  "dm": "Dominica",
-  "do": "Dominican Republic",
-  "dz": "Algeria",
-  "ec": "Ecuador",
-  "ee": "Estonia",
-  "eg": "Egypt",
-  "eh": "Western Sahara",
-  "er": "Eritrea",
-  "es": "Spain, España",
-  "et": "Ethiopia",
-  "eu": "European Union",
-  "fi": "Finland",
-  "fj": "Fiji",
-  "fk": "Falkland Islands",
-  "fm": "Micronesia",
-  "fo": "Faroe Islands",
-  "fr": "France, Francia",
-  "ga": "Gabon",
-  "gb": "United Kingdom, Reino Unido",
-  "gb-eng": "England",
-  "gb-nir": "Northern Ireland",
-  "gb-sct": "Scotland",
-  "gb-wls": "Wales",
-  "gd": "Grenada",
-  "ge": "Georgia",
-  "gf": "French Guiana",
-  "gg": "Guernsey",
-  "gh": "Ghana",
-  "gi": "Gibraltar",
-  "gl": "Greenland",
-  "gm": "Gambia",
-  "gn": "Guinea",
-  "gp": "Guadeloupe",
-  "gq": "Equatorial Guinea",
-  "gr": "Greece",
-  "gs": "South Georgia",
-  "gt": "Guatemala",
-  "gu": "Guam",
-  "gw": "Guinea-Bissau",
-  "gy": "Guyana",
-  "hk": "Hong Kong",
-  "hm": "Heard Island and McDonald Islands",
-  "hn": "Honduras",
-  "hr": "Croatia",
-  "ht": "Haiti",
-  "hu": "Hungary",
-  "id": "Indonesia",
-  "ie": "Ireland",
-  "il": "Israel",
-  "im": "Isle of Man",
-  "in": "India",
-  "io": "British Indian Ocean Territory",
-  "iq": "Iraq",
-  "ir": "Iran",
-  "is": "Iceland",
-  "it": "Italy",
-  "je": "Jersey",
-  "jm": "Jamaica",
-  "jo": "Jordan",
-  "jp": "Japan, Japon",
-  "ke": "Kenya",
-  "kg": "Kyrgyzstan",
-  "kh": "Cambodia",
-  "ki": "Kiribati",
-  "km": "Comoros",
-  "kn": "Saint Kitts and Nevis",
-  "kp": "North Korea, Corea del Norte",
-  "kr": "South Korea, Corea del Sur",
-  "kw": "Kuwait",
-  "ky": "Cayman Islands",
-  "kz": "Kazakhstan",
-  "la": "Laos",
-  "lb": "Lebanon",
-  "lc": "Saint Lucia",
-  "li": "Liechtenstein",
-  "lk": "Sri Lanka",
-  "lr": "Liberia",
-  "ls": "Lesotho",
-  "lt": "Lithuania",
-  "lu": "Luxembourg",
-  "lv": "Latvia",
-  "ly": "Libya",
-  "ma": "Morocco",
-  "mc": "Monaco",
-  "md": "Moldova",
-  "me": "Montenegro",
-  "mf": "Saint Martin",
-  "mg": "Madagascar",
-  "mh": "Marshall Islands",
-  "mk": "North Macedonia",
-  "ml": "Mali",
-  "mm": "Myanmar",
-  "mn": "Mongolia",
-  "mo": "Macau",
-  "mp": "Northern Mariana Islands",
-  "mq": "Martinique",
-  "mr": "Mauritania",
-  "ms": "Montserrat",
-  "mt": "Malta",
-  "mu": "Mauritius",
-  "mv": "Maldives",
-  "mw": "Malawi",
-  "mx": "Mexico",
-  "my": "Malaysia",
-  "mz": "Mozambique",
-  "na": "Namibia",
-  "nc": "New Caledonia",
-  "ne": "Niger",
-  "nf": "Norfolk Island",
-  "ng": "Nigeria",
-  "ni": "Nicaragua",
-  "nl": "Netherlands",
-  "no": "Norway",
-  "np": "Nepal",
-  "nr": "Nauru",
-  "nu": "Niue",
-  "nz": "New Zealand",
-  "om": "Oman",
-  "pa": "Panama",
-  "pe": "Peru",
-  "pf": "French Polynesia",
-  "pg": "Papua New Guinea",
-  "ph": "Philippines",
-  "pk": "Pakistan",
-  "pl": "Poland",
-  "pm": "Saint Pierre and Miquelon",
-  "pn": "Pitcairn Islands",
-  "pr": "Puerto Rico",
-  "ps": "Palestine",
-  "pt": "Portugal",
-  "pw": "Palau",
-  "py": "Paraguay",
-  "qa": "Qatar, Catar",
-  "re": "Réunion",
-  "ro": "Romania",
-  "rs": "Serbia",
-  "ru": "Russia, Rusia",
-  "rw": "Rwanda",
-  "sa": "Saudi Arabia",
-  "sb": "Solomon Islands",
-  "sc": "Seychelles",
-  "sd": "Sudan",
-  "se": "Sweden",
-  "sg": "Singapore, Singapur",
-  "sh": "Saint Helena, Ascension and Tristan da Cunha",
-  "si": "Slovenia",
-  "sj": "Svalbard and Jan Mayen",
-  "sk": "Slovakia",
-  "sl": "Sierra Leone",
-  "sm": "San Marino",
-  "sn": "Senegal",
-  "so": "Somalia",
-  "sr": "Suriname",
-  "ss": "South Sudan",
-  "st": "São Tomé and Príncipe",
-  "sv": "El Salvador",
-  "sx": "Sint Maarten",
-  "sy": "Syria",
-  "sz": "Eswatini (Swaziland)",
-  "tc": "Turks and Caicos Islands",
-  "td": "Chad",
-  "tf": "French Southern and Antarctic Lands",
-  "tg": "Togo",
-  "th": "Thailand",
-  "tj": "Tajikistan",
-  "tk": "Tokelau",
-  "tl": "Timor-Leste",
-  "tm": "Turkmenistan",
-  "tn": "Tunisia",
-  "to": "Tonga",
-  "tr": "Turkey, Turquía",
-  "tt": "Trinidad and Tobago",
-  "tv": "Tuvalu",
-  "tw": "Taiwan",
-  "tz": "Tanzania",
-  "ua": "Ukraine, Ucrania",
-  "ug": "Uganda",
-  "um": "United States Minor Outlying Islands",
-  "un": "United Nations",
-  "us": "United States, Estados Unidos",
-  "us-ak": "Alaska",
-  "us-al": "Alabama",
-  "us-ar": "Arkansas",
-  "us-az": "Arizona",
-  "us-ca": "California",
-  "us-co": "Colorado",
-  "us-ct": "Connecticut",
-  "us-de": "Delaware",
-  "us-fl": "Florida",
-  "us-ga": "Georgia",
-  "us-hi": "Hawaii",
-  "us-ia": "Iowa",
-  "us-id": "Idaho",
-  "us-il": "Illinois",
-  "us-in": "Indiana",
-  "us-ks": "Kansas",
-  "us-ky": "Kentucky",
-  "us-la": "Louisiana",
-  "us-ma": "Massachusetts",
-  "us-md": "Maryland",
-  "us-me": "Maine",
-  "us-mi": "Michigan",
-  "us-mn": "Minnesota",
-  "us-mo": "Missouri",
-  "us-ms": "Mississippi",
-  "us-mt": "Montana",
-  "us-nc": "North Carolina",
-  "us-nd": "North Dakota",
-  "us-ne": "Nebraska",
-  "us-nh": "New Hampshire",
-  "us-nj": "New Jersey",
-  "us-nm": "New Mexico",
-  "us-nv": "Nevada",
-  "us-ny": "New York",
-  "us-oh": "Ohio",
-  "us-ok": "Oklahoma",
-  "us-or": "Oregon",
-  "us-pa": "Pennsylvania",
-  "us-ri": "Rhode Island",
-  "us-sc": "South Carolina",
-  "us-sd": "South Dakota",
-  "us-tn": "Tennessee",
-  "us-tx": "Texas",
-  "us-ut": "Utah",
-  "us-va": "Virginia",
-  "us-vt": "Vermont",
-  "us-wa": "Washington",
-  "us-wi": "Wisconsin",
-  "us-wv": "West Virginia",
-  "us-wy": "Wyoming",
-  "uy": "Uruguay",
-  "uz": "Uzbekistan",
-  "va": "Vatican City (Holy See)",
-  "vc": "Saint Vincent and the Grenadines",
-  "ve": "Venezuela",
-  "vg": "British Virgin Islands",
-  "vi": "United States Virgin Islands",
-  "vn": "Vietnam",
-  "vu": "Vanuatu",
-  "wf": "Wallis and Futuna",
-  "ws": "Samoa",
-  "xk": "Kosovo",
-  "ye": "Yemen",
-  "yt": "Mayotte",
-  "za": "South Africa, Sudáfrica",
-  "zm": "Zambia",
-  "zw": "Zimbabwe, Zimbabue"
-}
+// Variable global para almacenar los códigos de bandera
+let codigosBandera
 
 // ----- funciones 
+// Función para realizar el fetch y almacenar los datos en la variable global
+async function fetchCodigosBandera() {
+  try {
+      // Realizar el fetch y esperar la respuesta
+      const response = await fetch('https://flagcdn.com/es/codes.json');
+      // Convertir la respuesta a formato JSON y almacenarla en la variable global
+      codigosBandera = await response.json();
+  } catch (error) {
+      console.error('Error al realizar el fetch Códigos Banderas:', error);
+      // respaldo en caso de falla
+      codigosBandera = {
+        "ad": "Andorra",
+        "ae": "Emiratos Árabes Unidos",
+        "af": "Afganistán",
+        "ag": "Antigua y Barbuda",
+        "ai": "Anguila",
+        "al": "Albania",
+        "am": "Armenia",
+        "ao": "Angola",
+        "aq": "Antártida",
+        "ar": "Argentina",
+        "as": "Samoa Americana",
+        "at": "Austria",
+        "au": "Australia",
+        "aw": "Aruba",
+        "ax": "Åland",
+        "az": "Azerbaiyán",
+        "ba": "Bosnia y Herzegovina",
+        "bb": "Barbados",
+        "bd": "Bangladesh",
+        "be": "Bélgica",
+        "bf": "Burkina Faso",
+        "bg": "Bulgaria",
+        "bh": "Baréin",
+        "bi": "Burundi",
+        "bj": "Benín",
+        "bl": "San Bartolomé",
+        "bm": "Bermudas",
+        "bn": "Brunéi",
+        "bo": "Bolivia",
+        "bq": "Caribe Neerlandés",
+        "br": "Brasil",
+        "bs": "Bahamas",
+        "bt": "Bután",
+        "bv": "Isla Bouvet",
+        "bw": "Botsuana",
+        "by": "Bielorrusia",
+        "bz": "Belice",
+        "ca": "Canadá",
+        "cc": "Islas Cocos",
+        "cd": "Congo (Rep. Dem.)",
+        "cf": "República Centroafricana",
+        "cg": "Congo",
+        "ch": "Suiza",
+        "ci": "Costa de Marfil",
+        "ck": "Islas Cook",
+        "cl": "Chile",
+        "cm": "Camerún",
+        "cn": "China",
+        "co": "Colombia",
+        "cr": "Costa Rica",
+        "cu": "Cuba",
+        "cv": "Cabo Verde",
+        "cw": "Curazao",
+        "cx": "Isla de Navidad",
+        "cy": "Chipre",
+        "cz": "República Checa",
+        "de": "Alemania",
+        "dj": "Yibuti",
+        "dk": "Dinamarca",
+        "dm": "Dominica",
+        "do": "República Dominicana",
+        "dz": "Argelia",
+        "ec": "Ecuador",
+        "ee": "Estonia",
+        "eg": "Egipto",
+        "eh": "Sahara Occidental",
+        "er": "Eritrea",
+        "es": "España",
+        "et": "Etiopía",
+        "eu": "Unión Europea",
+        "fi": "Finlandia",
+        "fj": "Fiyi",
+        "fk": "Islas Malvinas",
+        "fm": "Micronesia",
+        "fo": "Islas Feroe",
+        "fr": "Francia",
+        "ga": "Gabón",
+        "gb": "Reino Unido",
+        "gb-eng": "Inglaterra",
+        "gb-nir": "Irlanda del Norte",
+        "gb-sct": "Escocia",
+        "gb-wls": "Gales",
+        "gd": "Granada",
+        "ge": "Georgia",
+        "gf": "Guayana Francesa",
+        "gg": "Guernsey",
+        "gh": "Ghana",
+        "gi": "Gibraltar",
+        "gl": "Groenlandia",
+        "gm": "Gambia",
+        "gn": "Guinea",
+        "gp": "Guadalupe",
+        "gq": "Guinea Ecuatorial",
+        "gr": "Grecia",
+        "gs": "Islas Georgias del Sur y Sándwich del Sur",
+        "gt": "Guatemala",
+        "gu": "Guam",
+        "gw": "Guinea-Bisáu",
+        "gy": "Guyana",
+        "hk": "Hong Kong",
+        "hm": "Islas Heard y McDonald",
+        "hn": "Honduras",
+        "hr": "Croacia",
+        "ht": "Haití",
+        "hu": "Hungría",
+        "id": "Indonesia",
+        "ie": "Irlanda",
+        "il": "Israel",
+        "im": "Isla de Man",
+        "in": "India",
+        "io": "Territorio Británico del Océano Índico",
+        "iq": "Irak",
+        "ir": "Irán",
+        "is": "Islandia",
+        "it": "Italia",
+        "je": "Jersey",
+        "jm": "Jamaica",
+        "jo": "Jordania",
+        "jp": "Japón",
+        "ke": "Kenia",
+        "kg": "Kirguistán",
+        "kh": "Camboya",
+        "ki": "Kiribati",
+        "km": "Comoras",
+        "kn": "San Cristóbal y Nieves",
+        "kp": "Corea del Norte",
+        "kr": "Corea del Sur",
+        "kw": "Kuwait",
+        "ky": "Islas Caimán",
+        "kz": "Kazajistán",
+        "la": "Laos",
+        "lb": "Líbano",
+        "lc": "Santa Lucía",
+        "li": "Liechtenstein",
+        "lk": "Sri Lanka",
+        "lr": "Liberia",
+        "ls": "Lesoto",
+        "lt": "Lituania",
+        "lu": "Luxemburgo",
+        "lv": "Letonia",
+        "ly": "Libia",
+        "ma": "Marruecos",
+        "mc": "Mónaco",
+        "md": "Moldavia",
+        "me": "Montenegro",
+        "mf": "San Martín (Francia)",
+        "mg": "Madagascar",
+        "mh": "Islas Marshall",
+        "mk": "Macedonia del Norte",
+        "ml": "Malí",
+        "mm": "Myanmar",
+        "mn": "Mongolia",
+        "mo": "Macao",
+        "mp": "Islas Marianas del Norte",
+        "mq": "Martinica",
+        "mr": "Mauritania",
+        "ms": "Montserrat",
+        "mt": "Malta",
+        "mu": "Mauricio",
+        "mv": "Maldivas",
+        "mw": "Malawi",
+        "mx": "México",
+        "my": "Malasia",
+        "mz": "Mozambique",
+        "na": "Namibia",
+        "nc": "Nueva Caledonia",
+        "ne": "Níger",
+        "nf": "Isla Norfolk",
+        "ng": "Nigeria",
+        "ni": "Nicaragua",
+        "nl": "Países Bajos",
+        "no": "Noruega",
+        "np": "Nepal",
+        "nr": "Nauru",
+        "nu": "Niue",
+        "nz": "Nueva Zelanda",
+        "om": "Omán",
+        "pa": "Panamá",
+        "pe": "Perú",
+        "pf": "Polinesia Francesa",
+        "pg": "Papúa Nueva Guinea",
+        "ph": "Filipinas",
+        "pk": "Pakistán",
+        "pl": "Polonia",
+        "pm": "San Pedro y Miquelón",
+        "pn": "Islas Pitcairn",
+        "pr": "Puerto Rico",
+        "ps": "Palestina",
+        "pt": "Portugal",
+        "pw": "Palaos",
+        "py": "Paraguay",
+        "qa": "Catar",
+        "re": "Reunión",
+        "ro": "Rumania",
+        "rs": "Serbia",
+        "ru": "Rusia",
+        "rw": "Ruanda",
+        "sa": "Arabia Saudita",
+        "sb": "Islas Salomón",
+        "sc": "Seychelles",
+        "sd": "Sudán",
+        "se": "Suecia",
+        "sg": "Singapur",
+        "sh": "Santa Elena, Ascensión y Tristán de Acuña",
+        "si": "Eslovenia",
+        "sj": "Svalbard y Jan Mayen",
+        "sk": "Eslovaquia",
+        "sl": "Sierra Leona",
+        "sm": "San Marino",
+        "sn": "Senegal",
+        "so": "Somalia",
+        "sr": "Surinam",
+        "ss": "Sudán del Sur",
+        "st": "Santo Tomé y Príncipe",
+        "sv": "El Salvador",
+        "sx": "San Martín (Países Bajos)",
+        "sy": "Siria",
+        "sz": "Suazilandia",
+        "tc": "Islas Turcas y Caicos",
+        "td": "Chad",
+        "tf": "Tierras Australes y Antárticas Francesas",
+        "tg": "Togo",
+        "th": "Tailandia",
+        "tj": "Tayikistán",
+        "tk": "Tokelau",
+        "tl": "Timor Oriental",
+        "tm": "Turkmenistán",
+        "tn": "Túnez",
+        "to": "Tonga",
+        "tr": "Turquía",
+        "tt": "Trinidad y Tobago",
+        "tv": "Tuvalu",
+        "tw": "Taiwán",
+        "tz": "Tanzania",
+        "ua": "Ucrania",
+        "ug": "Uganda",
+        "um": "Islas Ultramarinas Menores de los Estados Unidos",
+        "un": "Organización de las Naciones Unidas",
+        "us": "Estados Unidos",
+        "us-ak": "Alaska",
+        "us-al": "Alabama",
+        "us-ar": "Arkansas",
+        "us-az": "Arizona",
+        "us-ca": "California",
+        "us-co": "Colorado",
+        "us-ct": "Connecticut",
+        "us-de": "Delaware",
+        "us-fl": "Florida",
+        "us-ga": "Georgia",
+        "us-hi": "Hawái",
+        "us-ia": "Iowa",
+        "us-id": "Idaho",
+        "us-il": "Illinois",
+        "us-in": "Indiana",
+        "us-ks": "Kansas",
+        "us-ky": "Kentucky",
+        "us-la": "Luisiana",
+        "us-ma": "Massachusetts",
+        "us-md": "Maryland",
+        "us-me": "Maine",
+        "us-mi": "Míchigan",
+        "us-mn": "Minnesota",
+        "us-mo": "Misuri",
+        "us-ms": "Misisipi",
+        "us-mt": "Montana",
+        "us-nc": "Carolina del Norte",
+        "us-nd": "Dakota del Norte",
+        "us-ne": "Nebraska",
+        "us-nh": "Nuevo Hampshire",
+        "us-nj": "Nueva Jersey",
+        "us-nm": "Nuevo México",
+        "us-nv": "Nevada",
+        "us-ny": "Nueva York",
+        "us-oh": "Ohio",
+        "us-ok": "Oklahoma",
+        "us-or": "Oregón",
+        "us-pa": "Pensilvania",
+        "us-ri": "Rhode Island",
+        "us-sc": "Carolina del Sur",
+        "us-sd": "Dakota del Sur",
+        "us-tn": "Tennessee",
+        "us-tx": "Texas",
+        "us-ut": "Utah",
+        "us-va": "Virginia",
+        "us-vt": "Vermont",
+        "us-wa": "Washington",
+        "us-wi": "Wisconsin",
+        "us-wv": "Virginia Occidental",
+        "us-wy": "Wyoming",
+        "uy": "Uruguay",
+        "uz": "Uzbekistán",
+        "va": "Ciudad del Vaticano",
+        "vc": "San Vicente y las Granadinas",
+        "ve": "Venezuela",
+        "vg": "Islas Vírgenes Británicas",
+        "vi": "Islas Vírgenes de los Estados Unidos",
+        "vn": "Vietnam",
+        "vu": "Vanuatu",
+        "wf": "Wallis y Futuna",
+        "ws": "Samoa",
+        "xk": "Kosovo",
+        "ye": "Yemen",
+        "yt": "Mayotte",
+        "za": "Sudáfrica",
+        "zm": "Zambia",
+        "zw": "Zimbabue"
+      }
+  }
+}
+
+// Variable global para almacenar listado canales
+let listaCanales
+
+// Función para cargar el archivo JSON y almacenarlo en una variable
+async function cargarCanales() {
+  try {
+      // Realizar el fetch y esperar la respuesta
+      const response = await fetch('assets/data/canales.json');
+      // Convertir la respuesta a formato JSON y almacenarla en una variable
+      listaCanales = await response.json();
+  } catch (error) {
+      console.error('Error al cargar el archivo JSON Canales:', error);
+      // respaldo en caso de falla
+      listaCanales = listaCanalesViejo
+  }
+}
+
 // matchingData = listado botones rescatado desde el modal
 function displayAutocompleteCanales(matchingData, inputForm) { 
   const autocompleteContainer = document.createElement('div');
@@ -541,137 +565,47 @@ function displayAutocompleteCanales(matchingData, inputForm) {
   botonSinResultadoEnSugerencias.setAttribute('id', 'boton-sugerencias-sin-resultados')
   autocompleteContainer.append(botonSinResultadoEnSugerencias)
 
-  // que siempre autocompleteContainer tenga el tamaño restante debajo del input
- /*  const formFloating = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')} div.form-floating`);
-  const alturaFF = formFloating.offsetHeight;
-  const marginTopFF = parseInt(getComputedStyle(formFloating).marginTop);
-  const parentDiv = document.querySelector(`#div-cambio-de-${inputId.replace('autocomplete-de-', '')}`);
-  const alturaPD = parentDiv.offsetHeight;
-  const alturaMaximaAC = alturaPD - alturaFF - marginTopFF;
-    if (alturaMaximaAC <= 35 || alturaPD < alturaFF){
-      console.log("1-alturaPD= " + alturaPD + " alturaFF= " +  alturaFF + " marginTopFF= " +   marginTopFF)
+  // genera boton abajo del input de cada canal para el cambio
+  matchingData.forEach(btn => {
+    let btnAtr = btn.getAttribute('data-canal');
+    let btnP = btn.querySelector('p');
+    let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
+    if (btnClass.includes('btn-outline-secondary')) {
+      btnClass = btnClass.replace('btn-outline-secondary', 'bg-dark-subtle');  // Reemplaza "btn-outline-secondary" por "btn-secondary"
+    }
+    let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
+    // almacena item internos del boton del modal si es que existen
+    let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
+    let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
+    let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
+    // crear boton listado sugerencias a mostrar cuando se haga input
+    let sugerencia = document.createElement('button');
+    sugerencia.classList.add('sugerencia', 'fs-smaller', 'border-0', 'p-2', 'w-100', ...btnClass.split(' '), ...btnPClass.split(' '))
+    sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
+    sugerencia.setAttribute('data-bs-dismiss', 'modal');
+    sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
 
-      /* 
-        -quitar el input y dejar boton que abra modal con canales
-      
-
-    } else {
-      console.log("2-alturaPD= " + alturaPD + " alturaFF= " +  alturaFF + " marginTopFF= " +   marginTopFF)
-      /* autocompleteContainer.style.maxHeight = alturaMaximaAC + "px"; *
-
-      // genera boton abajo del input de cada canal para el cambio
-      matchingData.forEach(btn => {
-        let btnAtr = btn.getAttribute('data-canal');
-        let btnP = btn.querySelector('p');
-        let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
-        let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
-      
-        // almacena item internos del boton del modal si es que existen
-        let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
-        let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
-        let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
-        // crear boton listado sugerencias a mostrar cuando se haga input
-        let sugerencia = document.createElement('button');
-        sugerencia.classList.add('sugerencia', 'fs-smaller', 'border', 'p-2', 'w-100', 'rounded-0', ...btnClass.split(' '), ...btnPClass.split(' '))
-        sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
-        sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
-
-        // que hacer cuando se hace clic en algún canal del listado sugerencias
-        sugerencia.addEventListener('click', () => {
-          // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
-          let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
-            idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
-          // Obtiene valor del div donde se va a realizar cambio
-          let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
-          // toma barra activa y la borra
-          let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
-            barraOverlayDeCanalActivo.remove()
-          console.log(`div padre= ${idDivPadreSugerencia} a ser reemplazado por= ${canalSugerenciaPulsada}`)
-          // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
-          tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
-          // borra div con canales de sugerencia
-          autocompleteContainer.remove();
-        });
-
-        autocompleteContainer.append(sugerencia);
-      });
-
-      const existingAutocompleteContainer = document.querySelector(`#${inputId}`)
-      
-
-      existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) : inputForm.closest('.form-floating').append(autocompleteContainer);
-
-      document.addEventListener('click', function (event) {
-        const autocompleteContainer = document.querySelector(`#${inputId}`);
-        if (autocompleteContainer && event.target !== inputForm) {
-          autocompleteContainer.remove();
-        } 
-      });
-
-
-
-  } */
-
-
-
-
-
-// genera boton abajo del input de cada canal para el cambio
-matchingData.forEach(btn => {
-  let btnAtr = btn.getAttribute('data-canal');
-  let btnP = btn.querySelector('p');
-  let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
-  if (btnClass.includes('btn-outline-secondary')) {
-    btnClass = btnClass.replace('btn-outline-secondary', 'bg-dark-subtle');  // Reemplaza "btn-outline-secondary" por "btn-secondary"
-  }
-  let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
-
-  // almacena item internos del boton del modal si es que existen
-  let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
-  let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
-  let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
-  // crear boton listado sugerencias a mostrar cuando se haga input
-  let sugerencia = document.createElement('button');
-  sugerencia.classList.add('sugerencia', 'fs-smaller', 'border-0', 'p-2', 'w-100', ...btnClass.split(' '), ...btnPClass.split(' '))
-  sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
-  sugerencia.setAttribute('data-bs-dismiss', 'modal');
-  sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
-
-  // que hacer cuando se hace clic en algún canal del listado sugerencias
-  sugerencia.addEventListener('click', () => {
-    // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
-    let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
-      idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
-    // Obtiene valor del div donde se va a realizar cambio
-    let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
-    // toma barra activa y la borra
-    let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
-      barraOverlayDeCanalActivo.remove()
-    console.log(`div padre= ${idDivPadreSugerencia} a ser reemplazado por= ${canalSugerenciaPulsada}`)
-    // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
-    tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
-    // borra div con canales de sugerencia
-    autocompleteContainer.remove();
+    // que hacer cuando se hace clic en algún canal del listado sugerencias
+    sugerencia.addEventListener('click', () => {
+      // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
+      let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
+        idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
+      // Obtiene valor del div donde se va a realizar cambio
+      let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
+      // toma barra activa y la borra
+      let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
+        barraOverlayDeCanalActivo.remove()
+      console.log(`div padre= ${idDivPadreSugerencia} a ser reemplazado por= ${canalSugerenciaPulsada}`)
+      // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
+      tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
+      // borra div con canales de sugerencia
+      autocompleteContainer.remove();
+    });
+    autocompleteContainer.append(sugerencia);
   });
 
-  autocompleteContainer.append(sugerencia);
-});
-
-/* const existingAutocompleteContainer = document.querySelector(`#${inputId}`)
- */
-let modalBody = document.querySelector(`#Modal-cambiar-${inputId.replace('autocomplete-de-', '')} div.modal-body`)
-
-/* existingAutocompleteContainer ? existingAutocompleteContainer.replaceWith(autocompleteContainer) :  */modalBody.append(autocompleteContainer);
-/* 
-document.addEventListener('click', function (event) {
-  const autocompleteContainer = document.querySelector(`#${inputId}`);
-  if (autocompleteContainer && event.target !== inputForm)
-{
-    autocompleteContainer.remove();
-  } 
-});
- */
-  
+  let modalBody = document.querySelector(`#Modal-cambiar-${inputId.replace('autocomplete-de-', '')} div.modal-body`)
+  modalBody.append(autocompleteContainer);
 }
 
 function crearIframe(source, titleIframe, canalId) {
@@ -680,76 +614,20 @@ function crearIframe(source, titleIframe, canalId) {
   const div = document.createElement('div');
   div.classList.add('ratio', 'ratio-16x9');
   div.setAttribute('data-canal-cambio', canalId);
-  /* div.append(crearDivCambioCanal(canalId)) */
 
   /* div iframe videos */
   const divIFRAME = document.createElement('iframe');
   divIFRAME.src = source;
+  divIFRAME.classList.add('pe-auto');
   divIFRAME.setAttribute('contenedor-canal-cambio', canalId);
   divIFRAME.allowFullscreen = true;
   divIFRAME.title = titleIframe
-  divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas-6
+  divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas iframe
+
   div.append(divIFRAME);
   fragmentIFRAME.append(div);
   return fragmentIFRAME;
 };
-
-function crearDivCambioCanal(canalId) {
-  const divGeneralInputCambio = document.createElement('div');
-    divGeneralInputCambio.classList.add('d-none', 'position-absolute', 'flex-column', 'px-3', 'bg-dark-subtle', 'w-100', 'h-100', 'overflow-hidden', 'align-items-start');
-    divGeneralInputCambio.setAttribute('id', `div-cambio-de-${canalId}`);
-
-  const divFormFloating = document.createElement('div');
-    divFormFloating.classList.add('form-floating', 'mt-3'); /* 'm-auto', */
-
-  const inputDatalist = document.createElement('input');
-    inputDatalist.classList.add('form-control', 'fs-smaller');
-    inputDatalist.setAttribute('type', 'text');
-    inputDatalist.setAttribute('id', `input-de-${canalId}`)
-    inputDatalist.setAttribute('placeholder', 'Escribe para buscar...')
-
-  const labelDatalist = document.createElement('label');
-    labelDatalist.classList.add('text-wrap', 'fs-smaller');
-    labelDatalist.setAttribute('for', `input-de-${canalId}`)
-    labelDatalist.innerText = 'Cambiar canal por:'
-  
-    divFormFloating.append(inputDatalist)
-    divFormFloating.append(labelDatalist)
-  divGeneralInputCambio.append(divFormFloating)
-  
-
-  inputDatalist.addEventListener('input', (e) => {
-    let algunaCoincidencia = false;
-    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-    displayAutocompleteCanales(listaBotones, inputCambioCanal);
-    // empieza tema del filtro
-    const inputNormalized = normalizarInput(e.target.value);
-    let listaBotonesInteriorContainerSugerencias = document.querySelectorAll(`#autocomplete-de-${canalId} button.sugerencia`);
-    let botonQueDiceSinResultadosDentroContainerSugerencias = document.querySelector(`#autocomplete-de-${canalId} button#boton-sugerencias-sin-resultados`);
-
-    listaBotonesInteriorContainerSugerencias.forEach(btn => {
-      const contenidoBtn = btn.innerHTML;
-      const contenidoBtnNormalized = normalizarInput(contenidoBtn);
-      let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
-        btn.classList.toggle('d-none', !coincidencia);
-        if (coincidencia) {
-          algunaCoincidencia = true;
-        }
-    });
-  
-    ocultarElemento(botonQueDiceSinResultadosDentroContainerSugerencias, algunaCoincidencia)
- });
-
-  inputDatalist.addEventListener('click', function () {
-    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-    displayAutocompleteCanales(listaBotones, inputCambioCanal);
-  });
-
-  return divGeneralInputCambio;
-}
-
 
 function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   const fragmentOVERLAY = document.createDocumentFragment();
@@ -759,8 +637,115 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   } else if (pais === undefined && altIcon !== undefined) {
     contenido = `<span class="ocultar-en-768px">${nombre} ${altIcon}</span>`;
   } else {
-    contenido = `<span class="ocultar-en-768px">${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${paises[pais]}" title="${paises[pais]}"></span>`;
+    contenido = `<span class="ocultar-en-768px">${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${codigosBandera[pais]}" title="${codigosBandera[pais]}"></span>`;
   }
+
+  let btnMoverEnGrid = document.createElement('button');
+  btnMoverEnGrid.classList.add('btn', 'btn-sm','btn-secondary', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'handle', 'mt-1');
+  btnMoverEnGrid.setAttribute('type', 'button');
+  btnMoverEnGrid.setAttribute('title', 'Arrastrar y mover este canal');
+  btnMoverEnGrid.setAttribute('data-bs-toggle', 'tooltip');
+  btnMoverEnGrid.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
+  btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
+ 
+  let btnCambiarSeñal = document.createElement('button');
+  btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1');
+  btnCambiarSeñal.setAttribute('type', 'button');
+  btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
+  btnCambiarSeñal.setAttribute('data-bs-toggle', 'tooltip');
+  btnCambiarSeñal.setAttribute('data-bs-title', 'Cambiar este canal');
+  btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
+  btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
+  btnCambiarSeñal.addEventListener('click', () => {
+    let modal = document.createElement('div');
+    modal.classList.add('modal', 'fade');
+    modal.id = `Modal-cambiar-${canalId}`;
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', `Modal-cambiar-${canalId}-label`);
+    modal.setAttribute('aria-hidden', 'true');
+    
+    let modalDialog = document.createElement('div');
+    modalDialog.classList.add('modal-dialog', 'modal-fullscreen-sm-down', 'modal-dialog-scrollable');
+    
+    let modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content', 'bg-transparent', 'border-0');
+
+    let modalHeader = document.createElement('div');
+    modalHeader.classList.add('modal-header', 'bg-transparent', 'border-0');
+    
+    let modalBody = document.createElement('div');
+    modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray', 'pt-0');
+    
+    let formFloating = document.createElement('div');
+    formFloating.classList.add('form-floating');
+    
+    let input = document.createElement('input');
+    input.classList.add('form-control');
+    input.type = 'search';
+    input.id = `input-de-${canalId}`;
+    input.placeholder = 'Escribe para buscar...';
+    input.addEventListener('input', (e) => {
+      let algunaCoincidencia = false;
+      // empieza tema del filtro
+      const inputNormalized = normalizarInput(e.target.value);
+      let listaBotonesInteriorContainerSugerencias = document.querySelectorAll(`#autocomplete-de-${canalId} button.sugerencia`);
+      let botonQueDiceSinResultadosDentroContainerSugerencias = document.querySelector(`#autocomplete-de-${canalId} button#boton-sugerencias-sin-resultados`);
+      listaBotonesInteriorContainerSugerencias.forEach(btn => {
+        const contenidoBtn = btn.innerHTML;
+        const contenidoBtnNormalized = normalizarInput(contenidoBtn);
+        let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
+          btn.classList.toggle('d-none', !coincidencia);
+          if (coincidencia) {
+            algunaCoincidencia = true;
+          }
+      });
+      ocultarElemento(botonQueDiceSinResultadosDentroContainerSugerencias, algunaCoincidencia)
+    });
+
+    let label = document.createElement('label');
+    label.htmlFor = `input-de-${canalId}`;
+    label.innerHTML = `Cambiar [${nombre}] por:`;
+    
+    formFloating.append(input);
+    formFloating.append(label);
+    modalHeader.append(formFloating);
+    
+    let modalFooter = document.createElement('div');
+    modalFooter.classList.add('modal-footer', 'bg-transparent', 'border-0', 'd-flex', 'align-items-center', 'justify-content-center');
+    
+    let closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.classList.add('btn', 'btn-secondary', 'rounded-pill', 'd-flex', 'justify-content-center', 'align-items-center');
+    closeButton.style.height = '2.5rem';  //  https://stackoverflow.com/a/73306474
+    closeButton.style.width = '2.5rem'; 
+    closeButton.setAttribute('data-bs-dismiss', 'modal');
+    closeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
+    
+    modalFooter.append(closeButton);
+    modalContent.append(modalHeader)
+    modalContent.append(modalBody);
+    modalContent.append(modalFooter);
+    modalDialog.append(modalContent);
+    modal.append(modalDialog);
+    
+    document.body.append(modal);
+    
+    // Activar el modal, darle focus al input si esta en PC y mostrar listado sugerencias canales
+    let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
+    modal.addEventListener('shown.bs.modal', () => {
+      !checkMovil() && inputCambioCanal.focus();
+    });
+    myModal.show();
+    let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
+    let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
+    displayAutocompleteCanales(listaBotones, inputCambioCanal);
+
+    // Agregar evento para eliminar el modal del DOM cuando se cierre
+    modal.addEventListener('hidden.bs.modal', () => {
+      modal.remove();
+    });
+  });
+
   a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
   a.title = 'Ir a la página oficial de esta transmisión';
   a.href = fuente;
@@ -768,10 +753,10 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   a.setAttribute('data-bs-toggle', 'tooltip');
   a.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
   a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1');
+  a.classList.add('d-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1', 'pe-auto', 'mt-1');
 
   let btnRemove = document.createElement('button');
-  btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
+  btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1', 'me-1');
   btnRemove.setAttribute('aria-label', 'Close');
   btnRemove.setAttribute('type', 'button');
   btnRemove.setAttribute('title', 'Quitar canal');
@@ -780,179 +765,14 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   btnRemove.innerHTML = '<span class="ocultar-en-768px">Quitar</span><i class="bi bi-x-circle"></i>';
   btnRemove.addEventListener('click', () => {
     tele.remove(canalId)
+    const audioQuitarCanal = new Audio('assets/sounds/User-Interface-Clicks-and-Buttons-1-por-original_sound.mp3');
+    audioQuitarCanal.play()
   });
-
-  let btnCambiarSeñal = document.createElement('button');
-  btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-  btnCambiarSeñal.setAttribute('type', 'button');
-  btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
-  btnCambiarSeñal.setAttribute('data-bs-toggle', 'tooltip');
-  btnCambiarSeñal.setAttribute('data-bs-title', 'Cambiar este canal');
-  btnCambiarSeñal.innerHTML = '<span class="ocultar-en-768px">Cambiar</span><i class="bi bi-arrow-repeat"></i>';
-  btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
-  btnCambiarSeñal.addEventListener('click', () => {
- 
-    
-      let modal = document.createElement('div');
-      modal.classList.add('modal', 'fade');
-      modal.id = `Modal-cambiar-${canalId}`;
-      modal.setAttribute('tabindex', '-1');
-      modal.setAttribute('aria-labelledby', `Modal-cambiar-${canalId}-label`);
-      modal.setAttribute('aria-hidden', 'true');
-      
-      let modalDialog = document.createElement('div');
-      modalDialog.classList.add('modal-dialog', 'modal-fullscreen-sm-down', 'modal-dialog-scrollable');
-      
-      let modalContent = document.createElement('div');
-      modalContent.classList.add('modal-content', 'bg-transparent', 'border-0');
-
-      let modalHeader = document.createElement('div');
-      modalHeader.classList.add('modal-header', 'bg-transparent', 'border-0');
-      
-      let modalBody = document.createElement('div');
-      modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray');
-      
-      let formFloating = document.createElement('div');
-      formFloating.classList.add('form-floating');
-      
-      let input = document.createElement('input');
-      input.classList.add('form-control');
-      input.type = 'search';
-      input.id = `input-de-${canalId}`;
-      input.placeholder = 'Escribe para buscar...';
-      input.addEventListener('input', (e) => {
-        let algunaCoincidencia = false;
-       
-        // empieza tema del filtro
-        const inputNormalized = normalizarInput(e.target.value);
-        let listaBotonesInteriorContainerSugerencias = document.querySelectorAll(`#autocomplete-de-${canalId} button.sugerencia`);
-        let botonQueDiceSinResultadosDentroContainerSugerencias = document.querySelector(`#autocomplete-de-${canalId} button#boton-sugerencias-sin-resultados`);
-    
-        listaBotonesInteriorContainerSugerencias.forEach(btn => {
-          const contenidoBtn = btn.innerHTML;
-          const contenidoBtnNormalized = normalizarInput(contenidoBtn);
-          let coincidencia = contenidoBtnNormalized.includes(inputNormalized)
-            btn.classList.toggle('d-none', !coincidencia);
-            if (coincidencia) {
-              algunaCoincidencia = true;
-            }
-        });
-      
-        ocultarElemento(botonQueDiceSinResultadosDentroContainerSugerencias, algunaCoincidencia)
-     });
-
-
-     /* input.addEventListener('click', function () {
-      let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-      let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-      displayAutocompleteCanales(listaBotones, inputCambioCanal);
-    }); */
-
-   
-      
-     let label = document.createElement('label');
-      label.htmlFor = `input-de-${canalId}`;
-      label.innerHTML = `Cambiar [${nombre}] por:`;
-      
-      formFloating.appendChild(input);
-      formFloating.appendChild(label);
-      modalHeader.appendChild(formFloating);
-      
-      let modalFooter = document.createElement('div');
-      modalFooter.classList.add('modal-footer', 'bg-transparent', 'border-0', 'd-flex', 'align-items-center', 'justify-content-center');
-      
-      let closeButton = document.createElement('button');
-      closeButton.type = 'button';
-      closeButton.classList.add('btn', 'btn-secondary', 'rounded-pill', 'd-flex', 'justify-content-center', 'align-items-center');
-      closeButton.style.height = '2.5rem';  //  https://stackoverflow.com/a/73306474
-      closeButton.style.width = '2.5rem'; 
-      closeButton.setAttribute('data-bs-dismiss', 'modal');
-      closeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
-      
-      modalFooter.appendChild(closeButton);
-      
-      modalContent.appendChild(modalHeader)
-      modalContent.appendChild(modalBody);
-      modalContent.appendChild(modalFooter);
-      modalDialog.appendChild(modalContent);
-      modal.appendChild(modalDialog);
-      
-      // Agregar modal al DOM
-      document.body.append(modal);
-      
-      // Activar el modal
-      let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
-      myModal.show();
-      let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
-      let inputCambioCanal = document.querySelector(`#input-de-${canalId}`);
-      displayAutocompleteCanales(listaBotones, inputCambioCanal);
- 
-      // Agregar evento para eliminar el modal del DOM cuando se cierre
-      modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
-      });
- 
-
-
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /* // Selecciona el contenedor donde se carga señal canal
-    let interiorIframePorCambiar = document.querySelector(`[contenedor-canal-cambio="${canalId}"]`);
-    let divGeneralCambiarCanal = document.querySelector(`#div-cambio-de-${canalId}`);
-    divGeneralCambiarCanal.classList.remove('d-none');
-    divGeneralCambiarCanal.classList.add('d-flex');
-
-    if (interiorIframePorCambiar) {
-        // Guarda una referencia al padre del iframe
-        const padreIframe = interiorIframePorCambiar.parentNode;
-        // Guarda una referencia al índice del iframe en su padre
-        const indiceIframe = Array.prototype.indexOf.call(padreIframe.children, interiorIframePorCambiar);
-        // Remueve el iframe del DOM
-        padreIframe.removeChild(interiorIframePorCambiar);
-        // Función para volver a agregar el iframe
-        function volverAlIframeOriginal() {
-            divGeneralCambiarCanal.classList.remove('d-flex');
-            divGeneralCambiarCanal.classList.add('d-none');
-            // Inserta el iframe de nuevo en el mismo lugar en el que estaba antes de ser eliminado
-            padreIframe.insertBefore(interiorIframePorCambiar, padreIframe.children[indiceIframe]);
-            // ocultar el container de sugerencias al volver
-            const existingAutocompleteContainer = document.querySelector(`#input-de-${canalId}.autocomplete-container`)
-            if (existingAutocompleteContainer) {
-              existingAutocompleteContainer.remove();
-            }
-            // limpiar texto de input
-            const inputCanal = document.querySelector(`#input-de-${canalId}`)
-            inputCanal.value = '';
-            // Elimina el evento "click" para volver a agregar el iframe
-            btnCambiarSeñal.removeEventListener("click", volverAlIframeOriginal);
-        }
-        // Agrega un evento "click" al botón para volver a agregar el iframe
-        btnCambiarSeñal.addEventListener("click", volverAlIframeOriginal);
-    } */
-  });
-  
-  let btnMoverEnGrid = document.createElement('button');
-  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'handle','btn-secondary', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1');
-  btnMoverEnGrid.setAttribute('type', 'button');
-  btnMoverEnGrid.setAttribute('title', 'Mover este canal');
-  btnMoverEnGrid.setAttribute('data-bs-toggle', 'tooltip');
-  btnMoverEnGrid.setAttribute('data-bs-title', 'Mover este canal');
-  btnMoverEnGrid.innerHTML = '<span class="ocultar-en-768px">Mover</span><i class="bi bi-arrows-move"></i>'
 
   const divOVERLAY = document.createElement('div');
   divOVERLAY.setAttribute('id', `overlay-de-canal-${canalId}`)
-  divOVERLAY.classList.add('barra-overlay', 'position-absolute', 'd-flex', 'flex-wrap', 'justify-content-end', 'gap-1', 'top-0', 'end-0', 'mt-1', 'me-1', 'ps-1', 'pe-0');
+  divOVERLAY.classList.add('position-absolute', 'barra-overlay', 'w-100', 'h-100', 'bg-transparent', 'pe-none', 
+  'd-flex', 'flex-wrap', 'justify-content-end', 'align-items-start', 'gap-1', 'top-0', 'end-0');
   divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none')));
   divOVERLAY.append(btnMoverEnGrid)
   divOVERLAY.append(btnCambiarSeñal)
@@ -963,24 +783,26 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
   return fragmentOVERLAY;
 };
 
+
 // ----- tele
 let tele = {
-  add: (canal, divExistenteEnCasoDeCambio) => {
+  add:  (canal, divExistenteEnCasoDeCambio) => {
+
     // listaCanales = canales.js
     if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
       let { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon } = listaCanales[canal];
-      canalesStorage[canal] = nombre;
-      localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-
+    
       let fragmentTransmision = document.createDocumentFragment();
-      
-
 
       if (divExistenteEnCasoDeCambio) {
         let divPadreACambiar = document.querySelector(`div[data-canal="${divExistenteEnCasoDeCambio}"]`)
         let divExistenteACambiar = document.querySelector(`div[data-canal-cambio="${divExistenteEnCasoDeCambio}"]`)
-       
-       
+        
+        // evitar duplicados si canal que va a quedar de reemplazo ya existe en grid
+        if (document.querySelector(`div[data-canal="${canal}"]`) && divPadreACambiar !== document.querySelector(`div[data-canal="${canal}"]`)){
+          tele.remove(canal)
+        }
+
         if (typeof iframe_url !== 'undefined') {
           fragmentTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
         } else if (typeof m3u8_url !== 'undefined') {
@@ -992,16 +814,11 @@ let tele = {
           videoM3u8.classList.add('m3u-player', 'position-absolute', 'video-js', 'vjs-16-9', 'vjs-fluid');
           videoM3u8.setAttribute('contenedor-canal-cambio', canal);
           videoM3u8.toggleAttribute('controls');
- 
-          
-
-      
-          /* divM3u8.append(crearDivCambioCanal(canal)) */ // parte de función "crearIframe" para formato m3u8
           divM3u8.append(videoM3u8);
+
           fragmentTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
           divPadreACambiar.append(fragmentTransmision);
        
-          
           let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
           playerM3u8.src({
             src: m3u8_url,
@@ -1010,8 +827,6 @@ let tele = {
           playerM3u8.autoplay('muted');
 
           divExistenteACambiar.remove()
-
-
         } else if (typeof yt_id !== 'undefined') {
           fragmentTransmision.append(
             crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
@@ -1031,36 +846,41 @@ let tele = {
           console.log(`${canal} - Canal Inválido`);
         }
 
-       
-        console.log(divExistenteEnCasoDeCambio)
         // aplica clases a botones para demostrar que canal ya no esta activo tras reemplazo
         let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${divExistenteEnCasoDeCambio}"]`);
         btnTransmisionOff.forEach(btn => {
           btn.classList.replace('btn-primary', 'btn-outline-secondary');
         });
-        // remueve de localstorage
-        delete canalesStorage[divExistenteEnCasoDeCambio];
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
   
         // deja atributo con el canal que se deja activo tras cambio
         divPadreACambiar.setAttribute('data-canal', canal)
 
-        /* 
-        este código verifica si la variable m3u8_url está definida. 
-        Si no está definida, agrega un fragmento de HTML (o elemento) 
-        al final de un div existente llamado divPadreACambiar. 
-        Esto se hace para manejar el caso en el que la URL de una transmisión de 
-        video (en formato M3U8) no se proporciona o no está disponible.
-        */
         if (typeof m3u8_url === 'undefined') {
           divPadreACambiar.append(fragmentTransmision);
           // quita canal cargado previamente tras cambio
           divExistenteACambiar.remove()
         }
-         
-         
+
+        // capturamos valores de los div para que se pase a borrar el listado canales de localStorage y reemplazado por el orden nuevo, de forma de recordar orden a la siguiente carga 
+        const elementsLS = canalesGrid.querySelectorAll('div[data-canal]');
+        localStorage.removeItem('canales_storage');
+        let canalesStorage = JSON.parse(localStorage.getItem('canales_storage')) || {};
+
+        elementsLS.forEach(element => {
+            let divEnGrid = element.querySelector('div[data-canal-cambio]');
+
+            let canal = divEnGrid.getAttribute('data-canal-cambio');
+            let nombre = element.querySelector('a span.ocultar-en-768px').textContent.trim();
+            
+            canalesStorage[canal] = nombre;
+        });
+
+        // Guardar el objeto en el almacenamiento local después de completar todas las iteraciones
+        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
 
       } else {
+        canalesStorage[canal] = nombre;
+        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
         let divTransmision = document.createElement('div');
         divTransmision.classList.add('position-relative', `col-${checkMovil() ? sizeMovil : size}`, 'shadow');
         divTransmision.setAttribute('data-canal', canal);
@@ -1076,11 +896,8 @@ let tele = {
           videoM3u8.setAttribute('data-canal-m3u', canal);
           videoM3u8.classList.add('m3u-player', 'position-absolute', 'video-js', 'vjs-16-9', 'vjs-fluid');
           videoM3u8.toggleAttribute('controls');
-          
-          
-          /* divM3u8.append(crearDivCambioCanal(canal)) */ // parte de función "crearIframe" para formato m3u8
-
           divM3u8.append(videoM3u8);
+
           divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
           fragmentTransmision.append(divTransmision);
           canalesGrid.append(fragmentTransmision);
@@ -1091,11 +908,6 @@ let tele = {
             controls: true,
           });
           playerM3u8.autoplay('muted');
-
-
-          
-          
-
         } else if (typeof yt_id !== 'undefined') {
           divTransmision.append(
             crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
@@ -1119,8 +931,6 @@ let tele = {
           fragmentTransmision.append(divTransmision);
           canalesGrid.append(fragmentTransmision);
         }
-        /// ./fin "esto estaba"
-
       }
 
       let btnTransmisionOn = document.querySelectorAll(`button[data-canal="${canal}"]`);
@@ -1172,7 +982,7 @@ let tele = {
 
       if (pais && !alt_icon) {
         let img = document.createElement('img');
-        let nombrePais = paises[pais.toLowerCase()];
+        let nombrePais = codigosBandera[pais.toLowerCase()];
         img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
         img.setAttribute('alt', `bandera ${nombrePais}`);
         img.setAttribute('title', nombrePais);
@@ -1185,7 +995,7 @@ let tele = {
         iconoAlternativo.innerHTML = alt_icon;
         pNombreCanalDentroBoton.append(iconoAlternativo)
         let img = document.createElement('img');
-        let nombrePais = paises[pais.toLowerCase()];
+        let nombrePais = codigosBandera[pais.toLowerCase()];
         img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
         img.setAttribute('alt', `bandera ${nombrePais}`);
         img.setAttribute('title', nombrePais);
@@ -1238,7 +1048,7 @@ let tele = {
     // crea fragmento y lo llena con banderas para ser insertadas en modal
     let fragmentBtnsFiltroBanderas = document.createDocumentFragment();
     for (const bandera of paisesSinRepetir) {
-      let nombrePais = paises[bandera];
+      let nombrePais = codigosBandera[bandera];
       let btn = document.createElement('button');
       btn.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center');
       btn.setAttribute('type', 'button');
@@ -1246,7 +1056,7 @@ let tele = {
       let span = document.createElement('span');
       span.classList.add('badge', 'bg-secondary', 'rounded-pill');
       span.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
-      if (paises[bandera]) {
+      if (codigosBandera[bandera]) {
         let img = document.createElement('img');
         img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
         img.setAttribute('alt', `bandera ${nombrePais}`);
@@ -1268,7 +1078,7 @@ let tele = {
     document.querySelector('#modal-collapse-botones-listado-filtro-paises').append(fragmentBtnsFiltroBanderas);
     document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').append(clonedFragmentBtn);
 
-    document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button').forEach(btn => {
+    document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button:not(#modal-btn-mostrar-todo-pais)').forEach(btn => {
       btn.addEventListener('click', () => {
         console.log("El clic se originó dentro del contenedor containerModalBody")
         // El clic se originó dentro del contenedor containerBtnBanderas
@@ -1279,12 +1089,12 @@ let tele = {
 
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
-        let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
+        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Unknow';
         filtrarCanalesPorInput(filtro, document.querySelector('#modal-body-botones-canales'));
       });
     });
 
-    document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button').forEach(btn => {
+    document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button:not(#offcanvas-btn-mostrar-todo-pais)').forEach(btn => {
       btn.addEventListener('click', () => {
         console.log("El clic se originó dentro del contenedor containerOffcanvasBody")
         let todoBtn = document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').querySelectorAll('button');
@@ -1294,14 +1104,20 @@ let tele = {
 
         btn.classList.replace('btn-outline-secondary', 'btn-primary');
 
-        let filtro = paises[btn.dataset.country] ? paises[btn.dataset.country] : 'Unknow';
+        let filtro = codigosBandera[btn.dataset.country] ? codigosBandera[btn.dataset.country] : 'Unknow';
         filtrarCanalesPorInput(filtro, document.querySelector('#offcanvas-body-botones-canales'));
       });
     });
 
 
   },
-  init: () => {
+  init: async () => {
+    // Llamar a la función para realizar el fetch de nombre paises
+    await fetchCodigosBandera();
+
+    // Llamar a la función para realizar el fetch de lista canales
+    await cargarCanales();
+
     tele.populateModal();
 
     const localStorageCanales = localStorage.getItem('canales_storage');
@@ -1317,6 +1133,11 @@ let tele = {
       Object.keys(lsCanalesJson).forEach(canal => tele.add(canal));
       detectarSiMostrarOcultarBotonesDeQuitarTodaSeñal();
     }
+
+    // ----- añade número total de canales a boton "global" del filtro banderas 
+    document.querySelector('#modal-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
+    document.querySelector('#offcanvas-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
+
   }
 };
 
@@ -1328,19 +1149,48 @@ tele.init();
  | (_) || | |   / (_) \__ \ \ \ / _` |
   \___/ |_| |_|_\\___/|___/ /_\_\__,_|
 */
-// ----- añade número total de canales a boton "global" del filtro banderas 
-document.querySelector('#modal-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
-document.querySelector('#offcanvas-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
-
-
 // plugin para mover canales en grid
 new Sortable(canalesGrid, {
   animation: 550,
   handle: '.handle',
+  swapThreshold: 1,
   ghostClass: 'marca-al-mover',
 });
 
-canalesGrid.addEventListener("drag", () => {
+canalesGrid.addEventListener("dragstart", () => {
+  // busca el div antepuesto en cada canal y le quita clase "pe-none" para poder abarcar todo el tamaño del div del canal para el threshold https://sortablejs.github.io/Sortable/#thresholds
+  const elements = canalesGrid.querySelectorAll('.pe-none');
+  elements.forEach(element => {
+      element.classList.toggle('pe-none');
+  });
+  // removemos tooltips ya que como el propio boton de mover tiene uno, de no quitarlo queda flotando
   removerTooltipsBootstrap();
+});
+
+
+canalesGrid.addEventListener("dragend", () => {
+  // Volvemos a activar tooltips
   activarTooltipsBootstrap();
+  // busca el div antepuesto en cada canal y le regresa las clase de "pe-none" para poder hacer clic en iframes o videojs
+  const elements = canalesGrid.querySelectorAll('.bg-transparent');
+  elements.forEach(element => {
+      element.classList.toggle('pe-none');
+  });
+
+  // capturamos valores de los div para que se pase a borrar el listado canales de localStorage y reemplazado por el orden nuevo, de forma de recordar orden a la siguiente carga 
+  const elementsLS = canalesGrid.querySelectorAll('div[data-canal]');
+  localStorage.removeItem('canales_storage');
+  let canalesStorage = JSON.parse(localStorage.getItem('canales_storage')) || {};
+
+  elementsLS.forEach(element => {
+      let divEnGrid = element.querySelector('div[data-canal-cambio]');
+
+      let canal = divEnGrid.getAttribute('data-canal-cambio');
+      let nombre = element.querySelector('a span.ocultar-en-768px').textContent.trim();
+
+      canalesStorage[canal] = nombre;
+  });
+
+  // Guardar el objeto en el almacenamiento local después de completar todas las iteraciones
+  localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
 });

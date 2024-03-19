@@ -22,10 +22,12 @@
       - [X] Pais
       - [ ] Tipo (Canal, Radio, Cámara, Música)
       - [ ] Activos/desactivados
-    - [ ] `QUIZAS` Botón ordenar canales a-z
+    - [X] `QUIZAS` Botón ordenar canales a-z
       - [ ] Recordar con localStorage
     - [X] Botón limpiar todo canal activo
     - [X] Bandera acorde a país
+    - [X] Capacidad de mover canales dentro de grid
+      - [X] Recordar con localStorage
   - [X] Habilidad de borrar localStorage
   - [ ] `IMPROBABLE` Verificar si canal esta online
   - [ ] `QUIZAS` Overlay en canales Youtube para alternar a instancia invidious

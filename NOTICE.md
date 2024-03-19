@@ -51,3 +51,5 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * [Audio] TV, Shutdown.wav por MATRIXXX_ https://freesound.org/people/MATRIXXX_/sounds/523553/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
 
 * [Audio] DefectLineTransformer por blaukreuz https://freesound.org/people/blaukreuz/sounds/440128/ - [(CC0 1.0 DEED)](https://creativecommons.org/publicdomain/zero/1.0/)
+
+* [Audio] User Interface Clicks and Buttons 1 por original_sound https://freesound.org/people/original_sound/sounds/493551/ - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)

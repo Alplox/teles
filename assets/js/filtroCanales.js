@@ -29,8 +29,10 @@ function filtrarCanalesPorInput(e, btnsCanales) {
   let algunaCoincidencia = false;
   const idDelElemento = btnsCanales.id;
   const inputNormalized = normalizarInput(e);
+
   if (idDelElemento === 'modal-body-botones-canales') {
     const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
+    
     if (inputNormalized === 'unknow') {
       btnsCanalesDentroContainer.forEach(btn => {
         const country = btn.getAttribute('country');
@@ -38,7 +40,7 @@ function filtrarCanalesPorInput(e, btnsCanales) {
         btn.classList.toggle('d-none', countryNormalized !== inputNormalized);
       });
     } else if (inputNormalized === '' || inputNormalized === null) {
-      let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises > button');
+      let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises  button');
       todoBtn.forEach(btn => {
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-outline-secondary');
@@ -64,7 +66,7 @@ function filtrarCanalesPorInput(e, btnsCanales) {
         ocultarElemento(modalMensajeAlerta, algunaCoincidencia); // Mostrar o ocultar mensaje de alerta según si hay coincidencias o no
         modalTextoNoEncontrado.textContent = inputNormalized;
     }
-    filtroCanalesModal.value = inputNormalized
+    filtroCanalesModal.value = e
   } else if (idDelElemento === 'offcanvas-body-botones-canales') {
     const btnsCanalesDentroContainer = btnsCanales.querySelectorAll('button');
     if (inputNormalized === 'unknow') {
@@ -100,7 +102,7 @@ function filtrarCanalesPorInput(e, btnsCanales) {
       ocultarElemento(offcanvasMensajeAlerta, algunaCoincidencia); // Mostrar o ocultar mensaje de alerta según si hay coincidencias o no
       offcanvasTextoNoEncontrado.textContent = inputNormalized;
     }
-    filtroCanalesOffcanvas.value = inputNormalized
+    filtroCanalesOffcanvas.value = e
   }
 }
 
@@ -117,19 +119,20 @@ filtroCanalesOffcanvas.addEventListener('input', (e) => {
 // ----- botones mostrar todos los canales
 const btnMostrarTodoPaisModal = document.querySelector('#modal-btn-mostrar-todo-pais');
 btnMostrarTodoPaisModal.addEventListener('click', () => {
-  let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises > button');
+  let todoBtn = document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button');
     todoBtn.forEach(btn => {
       btn.classList.remove('btn-primary');
       btn.classList.add('btn-outline-secondary');
     });
   filtrarCanalesPorInput('', document.querySelector('#modal-body-botones-canales'));
+
   btnMostrarTodoPaisModal.classList.remove('btn-outline-secondary');
   btnMostrarTodoPaisModal.classList.add('btn-primary');
 });
 
 const btnMostrarTodoPaisOffcanvas = document.querySelector('#offcanvas-btn-mostrar-todo-pais');
 btnMostrarTodoPaisOffcanvas.addEventListener('click', () => {
-  let todoBtn = document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises > button');
+  let todoBtn = document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button');
     todoBtn.forEach(btn => {
       btn.classList.remove('btn-primary');
       btn.classList.add('btn-outline-secondary');

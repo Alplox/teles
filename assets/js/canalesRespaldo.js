@@ -21,7 +21,7 @@ by Alplox
 https://github.com/Alplox/teles
 */
 
-const listaCanales = {
+const listaCanalesViejo = {
 //Votaciones
     /* 'tips': {
         'nombre': '🗳️ Tips Votaciones',
