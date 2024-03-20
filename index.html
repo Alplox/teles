@@ -1,28 +1,29 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.15
+    teles v0.16
     by Alplox 
     https://github.com/Alplox/teles
 -->
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <base target="_blank"> <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base -->
-    <title>Teles</title>
+    <title>Teles - Noticias de Chile (y el mundo)</title>
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
     <!-- bootstrap -->
-    <link href="https://unpkg.com/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <script src="https://unpkg.com/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- bootstrap icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- video-js -->
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
-    <script src="assets/js/canales.js"></script>
+    <script src="assets/data/canalesRespaldo.js"></script>
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="teles">
@@ -30,14 +31,17 @@
     <meta property="og:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta property="og:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg">
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
     <!-- Twitter Card-->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card"
+        content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
+    <meta property="twitter:domain" content="alplox.github.io">
+    <meta property="twitter:url" content="https://alplox.github.io/teles/">
     <meta name="twitter:title" content="teles">
-    <meta name="twitter:site" content="https://alplox.github.io/teles/">
     <meta name="twitter:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/v0.07.jpg">
+    <meta name="twitter:image"
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
@@ -48,7 +52,7 @@
     <script type="module">
         import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
         const el = document.createElement('pwa-update');
-        el.swpath= "pwabuilder-sw.js"
+        el.swpath = "pwabuilder-sw.js"
         el.updatemessage = "Nueva versión disponible";
         el.offlineToastDuration = 2000;
         document.body.appendChild(el);
@@ -60,1014 +64,1554 @@
             Santiago_z179: {}
         });
     </script>
+    <!-- Sortable -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 
 <body>
-    <!-- alerta noscript -->
-    <noscript>
-        <div class="container-fluid no-js">
-            <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
-            <h2>Si lo has deshabilitado, por favor <strong>vuelve a activarlo</strong>.</h2>
-            <div class="wave"></div>
-        </div>
-    </noscript>
-
-    <!-- alerta tras borrado localstorage -->
-    <div id="alert-reset"></div>
-
-    <!-- Navbar -->
-    <nav class='navbar navbar-expand-lg navbar-dark bg-dark text-white'>
-        <div class="container-fluid">
-            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
-                data-bs-target="#modal-canales">Señales <i class="ps-1 bi bi-display"></i></button>
-            <span class="reloj px-4" title="Hora Santiago, Chile">
-                <span id="Santiago_z179" tabindex="-1">
-                    <span onclick="location='http://time.is/'" class="wea" title="http://time.is/" tabindex="-1"></span>
-                </span>
-                <a href="https://time.is/Santiago" id="time_is_link" rel="nofollow noreferrer" tabindex="0">Time.is <i class="bi bi-box-arrow-up-right"></i></a>
-            </span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-toggler"
-                aria-controls="navbar-toggler" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbar-toggler">
-                <ul class="navbar-nav me-auto mb-lg-0">
-                    <li class='nav-item'>
-                        <button type="button" class='nav-link btn' data-bs-toggle="modal" data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i class="bi bi-boombox"></i>
-                            Medios de prensa alternativos</button>
-                    </li>
-                    <li class='nav-item'>
-                        <button type="button" class='nav-link btn' data-bs-toggle="modal"
-                            data-bs-target="#modal-complementario"><i class="bi bi-link-45deg"></i>
-                            Enlaces complementarios</button>
-                    </li>
-                    <li class='nav-item'>
-                        <button type="button" class='nav-link btn btn-compartir'><i class="pe-1 text-warning bi bi-share-fill"></i> Compartir
-                        </button>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <button type="button" class='nav-link btn dropdown-toggle' data-bs-toggle="dropdown"
-                            data-bs-auto-close="outside" aria-expanded="false" id="dropdown-about">
-                            Acerca de
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="dropdown-about">
-                            <li>
-                                <a class='dropdown-item' href='#' data-bs-toggle="offcanvas" data-bs-target="#sidepanel">Personalizaciones</a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href='#' data-bs-toggle="modal" data-bs-target="#modal-bienvenida">Descargo de responsabilidad</a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href="#" data-bs-toggle="modal" data-bs-target="#modal-creditos">Créditos</a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href="https://github.com/Alplox/teles" rel="nofollow noreferrer">Ir a repositorio <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <span class="navbar-text dropdown-item">Variaciones creadas por terceros:</span>
-                            <li><a class='dropdown-item' href='https://www.viendotele.cl/'
-                                    rel="nofollow noreferrer"><img src="https://flagcdn.com/cl.svg" alt="bandera Chile"
-                                        title="Chile"> Variación por @pottersys <i class="bi bi-box-arrow-up-right"></i></a></li>
-                            <li><a class='dropdown-item' href='https://ainmcl.github.io/MonitorTV/Monitores/Home.html'
-                                    rel="nofollow noreferrer"><img src="https://flagcdn.com/cl.svg" alt="bandera Chile"
-                                        title="Chile"> Variación por AINMcl <i class="bi bi-box-arrow-up-right"></i></a></li>
-                            <li><a class='dropdown-item' href='https://tele.martinsantibanez.com/monitor'
-                                    rel="nofollow noreferrer"><img src="https://flagcdn.com/cl.svg" alt="bandera Chile"
-                                        title="Chile"> Variación por martinsantibanez <i class="bi bi-box-arrow-up-right"></i></a></li>
-                            <li><a class='dropdown-item' href='https://sanguinet.github.io/tele/'
-                                    rel="nofollow noreferrer"><img src="https://flagcdn.com/pe.svg" alt="bandera Perú"
-                                        title="Perú"> Variación por SanguiNET <i class="bi bi-box-arrow-up-right"></i></a></li>
-                            <li><a class='dropdown-item' href='https://alplox.github.io/la-tele/'
-                                    rel="nofollow noreferrer"><img src="https://flagcdn.com/cl.svg" alt="bandera Chile"
-                                        title="Chile"> Variación por Alplox <i class="bi bi-box-arrow-up-right"></i></a></li>
-                        </ul>
-                    </li>
-                </ul>
+    <div class="fondo-global">
+        <!-- Alerta noscript -->
+        <noscript>
+            <div
+                class="bg-noscript z-9999 position-fixed overflow-hidden d-flex flex-column align-items-center justify-content-center vw-100 vh-100 p-5">
+                <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
+                <h2>Si lo has deshabilitado, por favor <strong>vuelve a activarlo</strong>.</h2>
+                <div class="wave"></div>
+            </div>
+        </noscript>
+    
+        <!-- Alerta tras borrado localstorage -->
+        <div id="alert-reset" class="d-none bg-flicker z-9999 position-fixed overflow-hidden vw-100 vh-100">
+            <div class="d-flex flex-column align-items-center justify-content-center bg-dark-subtle p-5 vw-100 vh-100">
+                <h1 class="user-select-none">
+                    ヾ( ˃ᴗ˂ )◞ • *✰
+                </h1>
+                <h1 class="text-flicker user-select-none">
+                    Tu localStorage ha sido <strong>eliminado</strong>, prueba recargando el sitio/PWA
+                </h1>
+                <button type="button" class="btn btn-lg btn-light mt-5" onclick="location.reload()">
+                    Pulsa para recargar <i class="bi bi-arrow-clockwise"></i>
+                </button>
             </div>
         </div>
-    </nav>
 
-    <!-- Grid canales -->
-    <main class="row g-0" id="canales-grid">
-        <section class="fondo container">
-            <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
-            <h1 class="display-1 text-white user-select-none">teles</h1>
-            <h2><a href="https://github.com/Alplox/teles">https://github.com/Alplox/teles <i class="bi bi-box-arrow-up-right"></i></a></h2>
-            <i class="badge bg-dark user-select-none">v0.15</i>
-        </section>
-    </main>
+        <nav class='navbar navbar-expand-lg bg-dark-subtle shadow-sm'>
+            <div class="container-fluid">
 
-    <!-- Modal listado canales -->
-    <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="Modal con Listado de Canales"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-            <div class="modal-content text-center">
-                <div class="modal-header">
-                    <h5 class="modal-title">Selecciona tus canales</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
+                    <button type="button"
+                        class="focus-outline-blue btn btn-sm bg-light-subtle border border-success-subtle"
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales"
+                        aria-controls="offcanvasCanales"><i class="bi bi-chevron-right" title="Sidepanel Canales"></i>
+                    </button>
+                    <button type="button"
+                        class="focus-outline-blue btn btn-sm bg-light-subtle border border-success-subtle"
+                        data-bs-toggle="modal" data-bs-target="#modal-canales">Canales <i
+                            class="ps-1 bi bi-display"></i>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <p class="modal-caption">
-                        Si quieres contribuir con algun canal o ver las fuentes de estos
-                        puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
-                        </p>
-                    <p>
-                        <button class="btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-btn-group" aria-expanded="false" aria-controls="collapse-btn-group">
-                          Mostrar filtro por país
+                <span class="reloj px-4" title="Hora Santiago, Chile"  data-bs-toggle="tooltip" data-bs-title="Hora Santiago, Chile">
+                    <span id="Santiago_z179" tabindex="-1">
+                        <span onclick="location='http://time.is/'" title="http://time.is/" tabindex="-1"></span>
+                    </span>
+                    <a href="https://time.is/Santiago" id="time_is_link" rel="nofollow noreferrer" tabindex="0">Time.is
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-toggler"
+                    aria-controls="navbar-toggler" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar-toggler">
+                    <ul class="navbar-nav me-auto mb-lg-0">
+                        <li class='nav-item '>
+                            <button type="button" class='nav-link' data-bs-toggle="modal"
+                                data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i
+                                    class="bi bi-boombox"></i>
+                                Medios de prensa alternativos</button>
+                        </li>
+                        <li class='nav-item'>
+                            <button type="button" class='nav-link' data-bs-toggle="modal"
+                                data-bs-target="#modal-complementario"><i class="bi bi-link-45deg"></i>
+                                Enlaces complementarios</button>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <button type="button" class='nav-link btn dropdown-toggle' data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside" aria-expanded="false" id="dropdown-about">
+                                Acerca de
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
+                                <li>
+                                    <a class='dropdown-item' href='#' data-bs-toggle="offcanvas"
+                                        data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href='#' data-bs-toggle="modal"
+                                        data-bs-target="#modal-bienvenida">Descargo de responsabilidad</a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href="#" data-bs-toggle="modal"
+                                        data-bs-target="#modal-creditos">Créditos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href="https://github.com/Alplox/teles"
+                                        rel="nofollow noreferrer"><i class="bi bi-github"></i> Repositorio <i
+                                            class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li class="navbar-text dropdown-item user-select-none">
+                                    Variaciones creadas por terceros:
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href='https://www.viendotele.cl/'
+                                        rel="nofollow noreferrer">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        Variación por @pottersys <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item'
+                                        href='https://ainmcl.github.io/MonitorTV/Monitores/Home.html'
+                                        rel="nofollow noreferrer">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        Variación por AINMcl <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href='https://tele.martinsantibanez.com/monitor'
+                                        rel="nofollow noreferrer">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        Variación por martinsantibanez <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href='https://sanguinet.github.io/tele/'
+                                        rel="nofollow noreferrer">
+                                        <img src="https://flagcdn.com/pe.svg" alt="bandera Perú" title="Perú" /> Variación
+                                        por SanguiNET <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class='dropdown-item' href='https://alplox.github.io/la-tele/'
+                                        rel="nofollow noreferrer">
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        Variación por Alplox <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Grid canales -->
+        <main>
+            <section
+                class="fondo z-n1 position-fixed d-flex flex-column justify-content-center align-items-center  w-100 vh-100">
+                <div
+                    class="bg-dark-subtle d-flex flex-column justify-content-center align-items-center px-5 pb-4 pt-5 rounded-5 shadow">
+                    <div class="position-relative bg-light-subtle p-3 rounded-4" tabindex="-1">
+                        <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles" class="img-fondo">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
+                            <i class="badge bg-secondary">v0.16</i>
+                        </span>
+                    </div>
+                    <p class="display-1">teles</p>
+                </div>
+            </section>
+            <div class="row g-0" id="canales-grid">
+
+            </div>
+        </main>
+
+        <!-- Modal listado canales -->
+        <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="Modal con Listado de Canales"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content text-center">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Selecciona tus canales</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         </button>
-                    </p>
-                    <div class="collapse pb-2" id="collapse-btn-group">
-                        <div class="card card-body" >
-                        <div class="btn-group btn-group-sm container-btn-group" role="group" aria-label="Toggle radio para grupo botones" id='listado-filtro-paises'>
-                            <button id="mostrar-todo-pais" class='btn btn-primary' type='button' data-country='all'>Todos
-                                <span class="badge bg-secondary rounded-pill" id='span-con-numero-total-canales'></span>
+                    </div>
+                    <div class="modal-body scrollbar-thin-gray">
+                        <p class="modal-caption fs-smaller">
+                            Si quieres contribuir con algun canal o ver las fuentes de estos
+                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                                    class="bi bi-box-arrow-up-right"></i></a>.
+                        </p>
+                        <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-dark w-100" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#modal-collapse-btn-group" aria-expanded="false"
+                                    aria-controls="modal-collapse-btn-group">
+                                    Mostrar filtro por país <i class="bi bi-funnel"></i>
+                                </button>
+                                <div class="ms-auto">
+                                    <div class="btn-group " role="group">
+                                        <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Orden <i class="bi bi-sort-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu p-2">
+                                            <li class="mb-1">
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-ascendente" autocomplete="off">
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
+                                            </li>
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-descendente" autocomplete="off">
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
+                                            </li>
+                                            <li>
+                                                <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-original" autocomplete="off" checked>
+                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                               
+                            </div>
+
+                            <div class="collapse py-2" id="modal-collapse-btn-group">
+                                <div class="card card-body">
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones"
+                                        id='modal-collapse-botones-listado-filtro-paises'>
+                                        <button id="modal-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
+                                            data-country='all'>
+                                            <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100"> 
+                                                Todos
+                                                <span class="badge bg-secondary rounded-pill"
+                                                    id='modal-span-con-numero-total-canales'></span>
+                                            </p>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                       </div>
+                            
+                        <div class="modal-body-canales" id="modal-body-botones-canales">
+                            <!-- Mensaje alerta sin resultados modal -->
+                            <div class="modal-mensaje-alerta d-none shadow" tabindex="0">
+                                <div
+                                    class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
+                                    <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
+                                        <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
+                                        búsqueda (<span class="text-break fst-italic"
+                                            id="modalTextoNoEncontrado"></span>).
+                                    </p>
+                                    <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
+                                        <p>Sugerencias:</p>
+                                        <ul>
+                                            <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                                            <li>Prueba diferentes palabras clave.</li>
+                                            <li>Prueba palabras en español.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /Mensaje alerta sin resultados -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-floating">
+                            <input type="search" class="form-control" id="modal-input-filtro"
+                                placeholder="Buscar por país o canal">
+                            <label for="filtro">Buscar por país o canal</label>
+                        </div>
+                        <div class="d-flex justify-content-between w-100">
+                            <button class="btn btn-danger d-none" id="btn-modal-quitar-todo-canal-activo">
+                                Quitar todo canal activo
+                            </button>
+                            <button type="button" class="btn btn-secondary ms-auto"
+                                data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- offcanvas canales -->
+        <div class="offcanvas offcanvas-canales offcanvas-start" data-bs-scroll="true" tabindex="-1"
+            id="offcanvasCanales" aria-labelledby="offcanvasCanalesLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasCanalesLabel">Selecciona tus canales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="d-flex flex-column">
+                <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
+                    Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
+                        rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                            class="bi bi-box-arrow-up-right"></i></a>.
+                </p>
+                <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">     
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-dark w-100" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
+                            aria-controls="offcanvas-collapse-btn-group">
+                            Mostrar filtro por país <i class="bi bi-funnel"></i>
+                        </button>
+                        <div class="ms-auto">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Orden <i class="bi bi-sort-down"></i>
+                                </button>
+                                <ul class="dropdown-menu p-2">
+                                    <li class="mb-1">
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-ascendente" autocomplete="off">
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
+                                    </li>
+                                    <li class="my-1">
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-descendente" autocomplete="off">
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
+                                    </li>
+                                    <li>
+                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-original" autocomplete="off" checked>
+                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse py-2" id="offcanvas-collapse-btn-group">
+                        <div class="card card-body">
+                            <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray" role="group"
+                                aria-label="Toggle radio para grupo botones"
+                                id='offcanvas-collapse-botones-listado-filtro-paises'>
+                                <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
+                                    data-country='all'>
+                                    <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100">
+                                        Todos
+                                        <span class="badge bg-secondary rounded-pill"
+                                        id='offcanvas-span-con-numero-total-canales'></span>
+                                    </p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offcanvas-body mb-2 scrollbar-thin-gray">
+
+                
+
+                <div class="offcanvas-body-canales h-100" id="offcanvas-body-botones-canales">
+                    <!-- Mensaje alerta sin resultados offcanvas -->
+                    <div class="offcanvas-mensaje-alerta d-none shadow" tabindex="0">
+                        <div
+                            class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
+                            <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
+                                <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu búsqueda
+                                (<span class="text-break fst-italic" id="offcanvasTextoNoEncontrado"></span>).
+                            </p>
+                            <div class="bg-danger bg-opacity-10 p-3 rounded-3">
+                                <p>Sugerencias:</p>
+                                <ul>
+                                    <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                                    <li>Prueba diferentes palabras clave.</li>
+                                    <li>Prueba palabras en español.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Mensaje alerta sin resultados -->
+                </div>
+            </div>
+
+            <div class="p-2 d-flex flex-column bg-dark">
+                <div class="form-floating">
+                    <input type="search" class="form-control" id="offcanvas-input-filtro"
+                        placeholder="Buscar por país o canal">
+                    <label for="filtro">Buscar por país o canal</label>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <button class="btn btn-sm btn-danger d-none" id="btn-offcanvas-quitar-todo-canal-activo">
+                        Quitar todo canal activo
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary ms-auto"
+                        data-bs-dismiss="offcanvas">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal bienvenida/Descargo de responsabilidad -->
+        <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="Modal de Bienvenida" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Descargo de responsabilidad</h5>
+                    </div>
+                    <div class="modal-body scrollbar-thin-gray">
+                        <ul class="ps-3">
+                            <li tabindex="0">"teles" es un proyecto de código abierto gratuito que permite gestionar
+                                canales
+                                de televisión
+                                de libre acceso por Internet.</li>
+                            <li tabindex="0">"teles" no decodifica transmisiones. Los enlaces que figuran en este
+                                proyecto
+                                son procesados
+                                desde diferentes sitios públicos con libre distribución/acceso.</li>
+                            <li tabindex="0">"teles" no posee ningún tipo de monetización, en consecuencia, no se lucra
+                                de
+                                ninguna forma o
+                                medio.</li>
+                            <li tabindex="0">El proyecto cuenta con reproductores multimedia, los que no corresponden a
+                                una
+                                retransmisión
+                                de los canales ni implica la decodificación de éstos.</li>
+                            <li tabindex="0">No se es propietario, ni responsable de ninguno de los contenidos emitidos
+                                por
+                                parte de cada
+                                canal.</li>
+                            <li tabindex="0">"teles" no ofrece canales de pago bajo ninguna modalidad.</li>
+                            <li tabindex="0">En este proyecto no se almacena ninguna transmisión.</li>
+                            <li tabindex="0">El proyecto tanto como sus mantenedores no asumen responsabilidad alguna
+                                respecto a los
+                                derechos de propiedad
+                                intelectual que se puedan ver infringidos por terceros o cualquier usuario.</li>
+                            <li tabindex="0">El usuario por defecto tiene la capacidad de dirigirse al sitio oficial de
+                                cada
+                                transmisión
+                                en todo
+                                momento.</li>
+                            <li tabindex="0">Si posees los derechos de algún canal y deseas que sea retirado, <a
+                                    href="https://github.com/Alplox/teles/issues" rel="nofollow noreferrer"> contáctame
+                                    <i class="bi bi-box-arrow-up-right"></i></a>.
+                            </li>
+                        </ul>
+                        <hr>
+                        <p>— Si quieres conocer el origen de cada livestream visita el <a
+                                href="https://github.com/Alplox/teles" rel="nofollow noreferrer">repositorio
+                                GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a> de la
+                            página.
+                        </p>
+                    </div>
+                    <div class="modal-footer d-flex align-items-center justify-content-center">
+                        <button type="button" class="btn btn-lg btn-success pulsate-3" id="btn-entendido"
+                            data-bs-dismiss="modal" data-bs-target="#modal-bienvenida">Entendido <p
+                                class="fs-x-small m-0 p-0">(No volver a mostrar)</p></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Créditos -->
+        <div class="modal fade" id="modal-creditos" tabindex="-1" aria-labelledby="Modal Créditos" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Créditos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body scrollbar-thin-gray">
+                        <p>
+                            — Desarrollado por <a href="https://github.com/Alplox" rel="nofollow noreferrer">
+                                Alplox <i class="bi bi-box-arrow-up-right"></i></a>.
+                        </p>
+                        <p>
+                            <a href="https://github.com/Alplox/teles/blob/master/LICENSE" rel="nofollow noreferrer">
+                                Licencia MIT <i class="bi bi-box-arrow-up-right"></i></a> — <a
+                                href="https://github.com/Alplox/teles/blob/master/NOTICE.md"
+                                rel="nofollow noreferrer">Notice <i class="bi bi-box-arrow-up-right"></i></a>
+                        </p>
+                        <hr>
+                        <h5>Contribuciones</h5>
+                        <a href="https://github.com/Alplox/teles/graphs/contributors" rel="nofollow noreferrer">
+                            <img src="https://contrib.rocks/image?repo=Alplox/teles" class="w-25 h-25" />
+                        </a>
+                        <p>
+                            <i>[<a href="https://contrib.rocks" rel="noopener noreferrer">contrib.rocks</a>]</i>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
+                            <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Prensa -->
+        <div class="modal fade" id="modal-prensa" tabindex="-1" aria-labelledby="Modal Prensa Alternativa"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Medios de Prensa Alternativos <i class="pe-2 bi bi-newspaper"></i> <i
+                                class="bi bi-boombox"></i>:</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
+                        </button>
+                    </div>
+                    <div class="modal-body scrollbar-thin-gray">
+                        <p>
+                            <i>* No porque un sitio sea "alternativo" lo convierte en
+                                verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o
+                                cualquier medio de prensa venga el caso</i>
+                        </p>
+                        <ul>
+                            <li>
+                                <a href="https://www.abc.es/tecnologia/consultorio/abci-como-detectar-fake-news-internet-201809300342_noticia.html"
+                                    rel="nofollow noreferrer">¿Cómo detectar un Fake News? (ABC) <i
+                                        class="bi bi-box-arrow-up-right"></i></a>
+                            </li>
+                            <li><a href="https://www.bbc.com/mundo/noticias-45561204" rel="nofollow noreferrer">¿Cómo
+                                    detectar un Fake
+                                    News? (BBC) <i class="bi bi-box-arrow-up-right"></i></a>
+                            </li>
+                            <li><a href="https://web.archive.org/web/20200326172545/https://aam.cl/noticias-aam/social-media/como-detectar-un-fake-news/"
+                                    rel="nofollow noreferrer">¿Cómo detectar un Fake News? (AMM) <i
+                                        class="bi bi-box-arrow-up-right"></i></a>
+                            </li>
+                        </ul>
+                        <hr>
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Enlace/Nombre</th>
+                                    <th scope="col">X/Twitter</th>
+                                    <th scope="col">Facebook</th>
+                                    <th scope="col">Instagram</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td scope="row"><a href="https://canal3lavictoria.cl/"
+                                            rel="nofollow noreferrer">Canal 3
+                                            La Victoria <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/tv_piola" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://ciperchile.cl/" rel="nofollow noreferrer">Ciper <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://twitter.com/ciper" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/ciperchile" rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/ciper_chile/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.elciudadano.com/" rel="nofollow noreferrer">El
+                                            Ciudadano <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/El_Ciudadano" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/PeriodicoElCiudadano"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/el.ciudadano/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.eldesconcierto.cl/"
+                                            rel="nofollow noreferrer">El
+                                            Desconcierto <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/eldesconcierto" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/eldesconciertocl/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/eldesconcierto/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.eldinamo.cl/" rel="nofollow noreferrer">El
+                                            Dínamo <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/el_dinamo" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/el.dinamo" rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/el_dinamo/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://ellibero.cl/" rel="nofollow noreferrer">El Líbero
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://twitter.com/elliberocl" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/ElLibero" rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/elliberocl/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.elobservatodo.cl/"
+                                            rel="nofollow noreferrer">ElObservatodo.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/elobservatodo" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/elobservatodo.cl/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/elobservatodo.cl/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.elperiscopio.cl/" rel="nofollow noreferrer">El
+                                            Periscopio.c <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/GrupoPeriscopio" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/periscopiochile/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/elperiscopionoticias/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://eluniversal.cl/" rel="nofollow noreferrer">El
+                                            Universal
+                                            Chile <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/ElUniversalCL" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/ElUniversalCL"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.fastcheck.cl/" rel="nofollow noreferrer">Fast
+                                            Check
+                                            CL <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/fastcheckcl" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/fastcheckcl/"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.instagram.com/fastcheckcl/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.gamba.cl/" rel="nofollow noreferrer">Gamba <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/gamba_cl" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/gambanoticias/"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.instagram.com/gamba.cl/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://interferencia.cl/"
+                                            rel="nofollow noreferrer">Interferencia.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/InterferenciaCL" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/InterferenciaChile"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/interferencia.cl/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.laizquierdadiario.cl/"
+                                            rel="nofollow noreferrer">La
+                                            Izquierda Diario Chile <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/lid_chile" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/Laizquierdadiariochile/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/laizquierdadiariocl/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.mapuexpress.org/"
+                                            rel="nofollow noreferrer">Mapuexpress <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/mapuexpress" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/Mapuexpress.org/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://instagram.com/mapuexpress/" rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://prensaopal.cl" rel="nofollow noreferrer">OPAL
+                                            prensa <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/prensaopal" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><a href="https://www.instagram.com/prensaopalchile/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://puranoticia.pnt.cl/"
+                                            rel="nofollow noreferrer">Puranoticia.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/puranoticia" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/puranoticiaweb/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/puranoticia_chile/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://resumen.cl/" rel="nofollow noreferrer">Resumen <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/rsumen" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/PeriodicoResumenConcepcion"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/resumen.cl/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.revistadefrente.cl/"
+                                            rel="nofollow noreferrer">Revista De Frente <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><a href="https://www.facebook.com/DeFrente.cl"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="http://viaconectados.cl/"
+                                            rel="nofollow noreferrer">Viaconectados <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/viaconectados" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/Viaconectados/"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.instagram.com/viaconectados/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.radiohumedales.org/"
+                                            rel="nofollow noreferrer">Radio Humedales – Concepción <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/radiohumedales" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/culturayexistencialesbica/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/radio_humedales/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://radiokurruf.org/" rel="nofollow noreferrer">Radio
+                                            Kurruf Concepción/Santiago <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/radiokurruf" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/radiokurruf/"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.instagram.com/radiokurruf/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="http://radiolabase.cl/" rel="nofollow noreferrer">Radio La
+                                            Base <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/radiolabase" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.facebook.com/radiolabase/"
+                                            rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://www.instagram.com/radiolabase/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://emisora.cl/placeres-valparaiso/"
+                                            rel="nofollow noreferrer">Radio Placeres – Valparaíso <i
+                                                class="bi bi-box-arrow-up-right"></i></a> / <a
+                                            href="https://onlineradiobox.com/cl/placeres/"
+                                            rel="nofollow noreferrer">Opción
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/radioplaceres" rel="nofollow noreferrer">Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/Radio-Placeres-a-la-Izquierda-del-Dial-257617057586511/"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/radio.placeres/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="http://www.radiovillafrancia.cl/"
+                                            rel="nofollow noreferrer">Radio Villa Francia <i
+                                                class="bi bi-box-arrow-up-right"></i></a> / <a
+                                            href="https://emisora.cl/villa-francia/" rel="nofollow noreferrer">Opción <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://twitter.com/rvfradiopopular" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.prensaescrita.com/america/chile.php"
+                                            rel="nofollow noreferrer">Periódicos Chile <i
+                                                class="bi bi-box-arrow-up-right"></i></a> / <a
+                                            href="https://sitios.cl/directorio/diarios.htm"
+                                            rel="nofollow noreferrer">Opción
+                                            <i class="bi bi-box-arrow-up-right"></i></a> / <a
+                                            href="http://kiosko.net/cl/" rel="nofollow noreferrer">Opción2 <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.soychile.cl/"
+                                            rel="nofollow noreferrer">soychile.cl
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.gob.cl/noticias/" rel="nofollow noreferrer">GOB
+                                            Noticias <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://twitter.com/gobiernodechile" rel="nofollow noreferrer">Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.facebook.com/gobiernodechile"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://www.instagram.com/gobiernodechile/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://news.google.com/" rel="nofollow noreferrer">Google
+                                            News <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://microsoftnews.msn.com/"
+                                            rel="nofollow noreferrer">Microsoft News <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://news.yahoo.com/" rel="nofollow noreferrer">Yahoo
+                                            News <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row"><a href="https://www.bing.com/news" rel="nofollow noreferrer">Bing
+                                            News <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                    <td><i class="bi bi-cloud-slash"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="modal-caption">
+                            Si quieres contribuir con algun sitio
+                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                                    class="bi bi-box-arrow-up-right"></i></a>.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Complementario -->
+        <div class="modal fade" id="modal-complementario" tabindex="-1" aria-labelledby="Modal Enlaces Complementarios"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Enlaces Complementarios <i class="bi bi-link-45deg"></i></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
+                        </button>
+                    </div>
+                    <div class="modal-body scrollbar-thin-gray">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Sitio</th>
+                                    <th scope="col">Mirror</th>
+                                    <th scope="col">RRSS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th class="table-primary"><b>Prevención y cuidado</b></th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.psiconecta.org/" rel="nofollow noreferrer"><i
+                                                class="pe-1 bi bi-heart-pulse"></i>Salud Mental
+                                            (psiconecta.org) <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td><a href="https://www.facebook.com/psiconectacl?_fb_noscript=1"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                        - <a href="https://twitter.com/psiconectacl" rel="nofollow noreferrer">X/Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                        - <a href="https://www.instagram.com/psiconecta_chile"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://linealibre.cl/" rel="nofollow noreferrer"><i
+                                                class="pe-1 bi bi-heart-pulse"></i>Salud Mental
+                                            (linealibre.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td><a href="https://www.instagram.com/lalinealibre"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.gob.cl/saludablemente/" rel="nofollow noreferrer"><i
+                                                class="pe-1 bi bi-heart-pulse"></i>Saludablemente
+                                            (gob.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://portalsaluddigital.minsal.cl/4141-linea-prevencion-del-suicidio/"
+                                            rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>*4141 Línea
+                                            Prevención del Suicidio
+                                            (portalsaluddigital.minsal.cl) <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/"
+                                            rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Líneas
+                                            gratuitas
+                                            de apoyo psicológico en Chile <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td><a href="https://kvak.io/?n=trf2pc71y2f3" rel="nofollow noreferrer">mirror <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://hablemosdetodo.injuv.gob.cl/" rel="nofollow noreferrer"><i
+                                                class="pe-1 bi bi-heart-pulse"></i>Hablemos
+                                            de Todo (INJUV) <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.reddit.com/r/chile/comments/du4hn0/gu%C3%ADa_para_cuidarse_los_ojos_en_estas/"
+                                            rel="nofollow noreferrer">Guía para cuidarse los ojos en
+                                            manifestaciones <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://kvak.io/?n=d1gd1i1j1l120" rel="nofollow noreferrer">mirror <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://old.reddit.com/r/chile/comments/dt4s2u/uso_de_tecnolog%C3%ADas_y_privacidad_en_internet/"
+                                            rel="nofollow noreferrer">Uso de Tecnologías y Privacidad en Internet <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td><a href="https://kvak.io/?n=s0gd1i1g2i1l5" rel="nofollow noreferrer">mirror <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://ssd.eff.org/es/module/asistir-una-protesta"
+                                            rel="nofollow noreferrer">Autoprotección Digital Contra La Vigilancia <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-primary"><b>Denunciar Violación a los derechos humanos</b></th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.indh.cl/" rel="nofollow noreferrer">Indh.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td><a href="https://www.facebook.com/indhchile" rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                        -
+                                        <a href="https://twitter.com/inddhh" rel="nofollow noreferrer">X/Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a> - <a
+                                            href="https://www.instagram.com/indhchile/"
+                                            rel="nofollow noreferrer">Instagram
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.testigoenlinea.cl/"
+                                            rel="nofollow noreferrer">Testigoenlinea.cl
+                                            <i class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td><a href="https://twitter.com/testigoenlinea" rel="nofollow noreferrer">X/Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                        - <a href="https://www.instagram.com/testigoenlinea/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://amnistia.cl/" rel="nofollow noreferrer">Amnistia.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a> - <a
+                                            href="https://amnistia.cl/noticia/donde-denunciar-si-sufro-una-violacion-de-derechos-humanos/"
+                                            rel="nofollow noreferrer">x <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td></td>
+                                    <td><a href="https://www.facebook.com/pages/Amnist%C3%ADa-Internacional-Chile/126170624336"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                        - <a href="https://twitter.com/amnistiachile/status/1186667715047624710"
+                                            rel="nofollow noreferrer">X/Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a> -
+                                        <a href="https://www.instagram.com/amnistiachile/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://observadoresddhh.org/"
+                                            rel="nofollow noreferrer">Observadoresddhh.org <i
+                                                class="bi bi-box-arrow-up-right"></i></a></td>
+                                    <td></td>
+                                    <td><a href="https://www.facebook.com/oddhchile/" rel="nofollow noreferrer">Facebook
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                        -
+                                        <a href="https://twitter.com/obsDDHHcl" rel="nofollow noreferrer">X/Twitter <i
+                                                class="bi bi-box-arrow-up-right"></i></a> -
+                                        <a href="https://www.instagram.com/observadoresddhhcasamemoria/"
+                                            rel="nofollow noreferrer">Instagram <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://www.hrw.org/es" rel="nofollow noreferrer">HumanRightsWatch.org
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <a href="http://www.facebook.com/humanrightswatchenespanol"
+                                            rel="nofollow noreferrer">Facebook <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                        - <a href="https://twitter.com/hrw_espanol" rel="nofollow noreferrer">X/Twitter
+                                            <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="table-primary"><b><i class="bi bi-piggy-bank-fill"></i> Ayuda/Donaciones
+                                            incendios</b></th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.ayudabomberos.cl/" rel="nofollow noreferrer">Donar a
+                                            Bomberos
+                                            (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a>
+                                        <ul>
+                                            <li>Bomberos de Chile</li>
+                                            <li>Cuenta corriente Banco Estado 13-2</li>
+                                            <li>RUT 70.073.800-0</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://hcstore.org/dona" rel="nofollow noreferrer">Donar a Hogar de
+                                            Cristo
+                                            (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a>
+                                        <ul>
+                                            <li>Hogar de Cristo</li>
+                                            <li>Cuenta corriente BancoEstado 1000-6</li>
+                                            <li>RUT 81.496.800-6</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.cruzroja.cl/" rel="nofollow noreferrer">Donar a Cruz Roja
+                                            chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a>
+                                        <ul>
+                                            <li>Cruz Roja chilena</li>
+                                            <li>Cuenta corriente BancoEstado 29222-2</li>
+                                            <li>RUT 70.512.100-1</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="table-primary"><b><i class="bi bi-exclamation-triangle"></i> Información
+                                            incendios</b></th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.gob.cl/noticias/siga-las-siguientes-recomendaciones-en-caso-de-tener-que-evacuar-por-un-incendio-forestal/"
+                                            rel="nofollow noreferrer">Recomendaciones en caso de tener que evacuar por
+                                            un
+                                            incendio forestal <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://senapred.cl/informate/alertas"
+                                            rel="nofollow noreferrer">Alertas
+                                            SENAPRED <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="table-primary"><b><i class="bi bi-geo-alt"></i> Mapas dirección
+                                            albergues</b>
+                                    </th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://www.geoportal.cl/emergencia/dashboard/57" target="_blank"
+                                            rel="noopener noreferrer">geoportal.cl <i
+                                                class="bi bi-box-arrow-up-right"></i></a> [<a
+                                            href="https://twitter.com/IDE_Chile/status/1753751278113489136"
+                                            target="_blank" rel="noopener noreferrer">Fuente <i
+                                                class="bi bi-box-arrow-up-right"></i></a>]
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://idechile.maps.arcgis.com/apps/dashboards/0e8889288d5548e6ad73c6ab17db8b3a"
+                                            target="_blank" rel="noopener noreferrer">idechile.maps.arcgis.com <i
+                                                class="bi bi-box-arrow-up-right"></i></a> [<a
+                                            href="https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/"
+                                            target="_blank" rel="noopener noreferrer">Fuente <i
+                                                class="bi bi-box-arrow-up-right"></i></a>]
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th class="table-primary"><b><i class="bi bi-fire"></i> Mapas focos incendiarios</b>
+                                    </th>
+                                    <td class="table-primary"></td>
+                                    <td class="table-primary"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://storymaps.arcgis.com/stories/c3abb6aeb9fe443cbb4bff3efc6b0d08"
+                                            target="_blank" rel="noopener noreferrer">storymaps.arcgis.com <i
+                                                class="bi bi-box-arrow-up-right"></i></a> [<a
+                                            href="https://twitter.com/reddeemergencia/status/1752693887531880893"
+                                            target="_blank" rel="noopener noreferrer">Fuente <i
+                                                class="bi bi-box-arrow-up-right"></i></a>]
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://idechile.maps.arcgis.com/apps/instant/nearby/index.html?appid=b08c5745c4c74242a4dd72ec24c7bbaa"
+                                            target="_blank" rel="noopener noreferrer">idechile.maps.arcgis.com <i
+                                                class="bi bi-box-arrow-up-right"></i></a> [<a
+                                            href="https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/"
+                                            target="_blank" rel="noopener noreferrer">Fuente <i
+                                                class="bi bi-box-arrow-up-right"></i></a>]
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://www.geamap.com/es/incendios#zoom=11&lat=-33.0789&lon=-71.3569&layer=2&overlays=TFFFFFFFFFFFFFFF"
+                                            target="_blank" rel="noopener noreferrer">geamap.com <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@-71.24,-33.13,10.50z"
+                                            target="_blank" rel="noopener noreferrer">firms.modaps.eosdis.nasa.gov <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://www.google.com/maps/@-33.0993464,-71.4870313,12z/data=!3m1!4b1!4m2!21m1!1s%2Fg%2F11y2ty3bn9!5m1!1e8?hl=es-419&entry=ttu"
+                                            target="_blank" rel="noopener noreferrer">google.com/maps <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G16&sector=ssa"
+                                            target="_blank" rel="noopener noreferrer">star.nesdis.noaa.gov <i
+                                                class="bi bi-box-arrow-up-right"></i></a>
+                                    </td>
+                                    </td>
+                                    <td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="modal-caption"> Si quieres contribuir con algún sitio
+                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                                    class="bi bi-box-arrow-up-right"></i></a>.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- btns flotantes -->
+        <div class="btn-group position-fixed bottom-0 end-0 z-2" role="group" aria-label="grupo botones flotantes">
+            <button type="button" class="focus-outline-blue btn btn-sm bg-light-subtle  rounded-start-5 mb-3 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales" aria-controls="offcanvasCanales">
+                <i class="bi bi-chevron-right"></i> Canales
+            </button>
+            <button class="focus-outline-blue btn btn-sm bg-dark-subtle  rounded-end-5 me-4 mb-3 shadow-sm" aria-label="Acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
+                <i class="bi bi-gear" ></i> Personalización
+            </button>
+        </div>
+
+        <!-- sidepanel/personalizaciones -->
+        <div class="offcanvas bg-dark bg-opacity-75 offcanvas-end border border-5 border-dark-subtle rounded-3 overflow-auto"
+            tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
+            <div class="offcanvas-header d-flex justify-content-center p-0">
+                <p class=" bg-dark-subtle rounded-bottom text-center px-5 fs-5 pb-1">Personalización</p>
+                <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body scrollbar-thin-gray">
+                <ul class="d-flex flex-column justify-content-start  align-items-center w-100 gap-3 list-unstyled">
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar navbar">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-navbar">
+                                <label class="form-check-label" for="switch-navbar" id="status-navbar">Navbar
+                                    <span></span></label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar overlay">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-overlay">
+                                <label class="form-check-label" for="switch-overlay" id="status-overlay">Overlay
+                                    canales <span></span></label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch" title="ocultar fondo">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
+                                <label class="form-check-label" for="switch-fondo" id="status-fondo">Branding fondo
+                                    <span></span></label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
+                            <div class="form-check form-switch pull-right d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" id="darkMode">
+                                <label id="darkModeLabel" for="darkMode"
+                                    class="d-flex justify-content-between align-items-center w-100">Tema [Claro] <i
+                                        class="bi bi-sun bg-white px-2 py-1 rounded-circle"></i></label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4">
+                            <label for="tamaño-streams" class="slider-label form-label">Tamaño
+                                [<span>100</span>%]</label>
+                            <input type="range" value="100" min="50" max="100" class="form-range" id="tamaño-streams">
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4">
+                            <p class="mb-1">Número de canales por fila</p>
+                            <div id="transmision-por-fila" class="btn-group w-100 gap-1" role="group"
+                                aria-label="grupo botones número transmisiones por fila">
+                                <button value="12" type="button" class="btn bg-light-subtle w-100">1</button>
+                                <button value="6" type="button" class="btn bg-light-subtle w-100">2</button>
+                                <button value="4" type="button" class="btn btn-primary w-100">3</button>
+                                <button value="3" type="button" class="btn bg-light-subtle w-100">4</button>
+                                <button value="2" type="button" class="btn bg-light-subtle w-100">6</button>
+                                <button value="1" type="button" class="btn bg-light-subtle w-100"
+                                    data-bs-toggle="tooltip" data-bs-title="12 a lo enfermo">12</button>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-3">
+                            <button type="button" class="btn bg-light-subtle w-100" id="fullscreen">
+                                <i class="bi bi-arrows-fullscreen me-auto"></i> Entrar pantalla completa
                             </button>
                         </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-3">
+                            <p class="mb-1">Compartir</p>
+                            <button type="button" class='d-none btn bg-light-subtle w-100 btn-compartir'>
+                                <i class="pe-1 bi bi-share-fill"></i> Compartir
+                            </button>
+                            <div class="d-flex justify-content-evenly flex-wrap gap-1"
+                                id="contenedor-botones-compartir">
+                                <!-- Boton Facebook -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"
+                                    rel="nofollow noreferrer" title="Facebook" data-bs-toggle="tooltip"
+                                    data-bs-title="Facebook">
+                                    <i class="bi bi-facebook"></i>
+                                </a>
+                                <!-- Boton X/Twitter -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://twitter.com/intent/tweet/?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                                    rel="nofollow noreferrer" title="X/Twitter" data-bs-toggle="tooltip"
+                                    data-bs-title="X/Twitter">
+                                    <i class="bi bi-twitter-x"></i>
+                                </a>
+                                <!-- Boton WhatsApp -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://web.whatsapp.com/send?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).%20https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                                    rel="nofollow noreferrer" title="WhatsApp" data-bs-toggle="tooltip"
+                                    data-bs-title="WhatsApp">
+                                    <i class="bi bi-whatsapp"></i>
+                                </a>
+                                <!-- Boton Telegram -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://telegram.me/share/url?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                                    rel="nofollow noreferrer" title="Telegram" data-bs-toggle="tooltip"
+                                    data-bs-title="Telegram">
+                                    <i class="bi bi-telegram"></i>
+                                </a>
+                                <!-- Boton Pinterest -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;media=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;description=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
+                                    rel="nofollow noreferrer" title="Pinterest" data-bs-toggle="tooltip"
+                                    data-bs-title="Pinterest">
+                                    <i class="bi bi-pinterest"></i>
+                                </a>
+                                <!-- Boton LinkedIn -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;summary=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;source=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                                    rel="nofollow noreferrer" title="LinkedIn" data-bs-toggle="tooltip"
+                                    data-bs-title="LinkedIn">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                                <!-- Boton Reddit -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="https://reddit.com/submit/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;resubmit=true&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
+                                    rel="nofollow noreferrer" title="Reddit" data-bs-toggle="tooltip"
+                                    data-bs-title="Reddit">
+                                    <i class="bi bi-reddit"></i>
+                                </a>
+                                <!-- Boton Correo -->
+                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                    href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
+                                    target="_self" rel="nofollow noreferrer noopener" title="Correo"
+                                    data-bs-toggle="tooltip" data-bs-title="Correo">
+                                    <i class="bi bi-envelope-at"></i>
+                                </a>
+                            </div>
+                            <div class="input-group mt-3">
+                                <input class="form-control fs-small" type="text" value="https://alplox.github.io/teles/"
+                                    aria-label="enlace sitio" readonly id="enlace-compartir">
+                                <button type="button" class="btn btn-primary " id="btn-enlace">Copiar
+                                    enlace <i class="bi bi-clipboard"></i></button>
+                            </div>
                         </div>
+                    </li>
+                    <li class="w-100 d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#modal-reset">Reiniciar personalizaciones</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex p-3 bg-dark bg-opacity-75 gap-2">
+                <!-- <button type="button" class="btn btn-outline-light " data-bs-toggle="modal"
+                    data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button> -->
+                <a class="btn btn-outline-secondary" role="button" href="https://github.com/Alplox/teles"
+                    rel="nofollow noreferrer">
+                    <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                <button class="btn btn-secondary ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- alerta previa borrado localstorage -->
+        <div class="modal modal-alert py-5" tabindex="-1" role="dialog" id="modal-reset">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content rounded-4 shadow">
+                    <div class="modal-body p-4 text-center">
+                        <h5>¿Seguro que quieres reiniciar todas tus personalizaciones?</h5>
+                        <p class="m-0">Esto borrara todas las entradas que hayan sido creadas, por este sitio, en tu
+                            navegador a través de localStorage.</p>
+                        <p>(Es como volver a cargar todo de cero)</p>
+                        <p class="mb-0 mt-2">(<a
+                                href="https://developer.mozilla.org/es/docs/Web/API/Window/localStorage"
+                                rel="nofollow noreferrer">¿Qué es localStorage? <i
+                                    class="bi bi-box-arrow-up-right"></i></a>)</p>
                     </div>
-                    <div class="modal-body-canales" id="por-filtrar"></div>
-                </div>
-                <div class="modal-footer">
-                    <div class="form-floating">
-                        <input type="search" class="form-control" id="filtro" placeholder="Buscar por país o canal">
-                        <label for="filtro">Buscar por país o canal</label>
+                    <div class="modal-footer flex-nowrap p-0">
+                        <button type="button" class="btn btn-lg btn-danger fs-6 col-6 m-0 rounded-0" id="btn-reset"
+                            data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong>Si (borrarlas) <i
+                                    class="bi bi-trash3"></i></strong></button>
+                        <button type="button" class="btn btn-lg btn-secondary fs-6 col-6 m-0 rounded-0"
+                            data-bs-dismiss="modal">No (mantenerlas)</button>
                     </div>
-                    <button class="btn btn-danger" id="limpiar">
-                        Desactivar todo canal activo
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+
                 </div>
             </div>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+
+        <script src="assets/js/traduccionVideoJS.js"></script>
+
+        <script src="assets/js/darkMode.js"></script>
+        <script src="assets/js/filtroCanales.js"></script>
+        <script src="assets/js/F_checkMovil.js"></script>
+        <script src="assets/js/F_ocultarBotonesDeQuitarTodaSeñal.js"></script>
+        <script src="assets/js/F_enableTooltipBS.js"></script>
+
+        <script src="assets/js/main.js"></script>
+
+        <script src="assets/js/ordenBotones.js"></script>
+        
+        <script src="assets/js/botonesQuitarTodo.js"></script>
+        <script src="assets/js/botonesCompartir.js"></script>
+        <script src="assets/js/botonPantallaCompleta.js"></script>
+        <script src="assets/js/botonCopiarEnlace.js"></script>
+        <script src="assets/js/resetLocalStorage.js"></script>
     </div>
-
-    <!-- Modal bienvenida/Descargo de responsabilidad -->
-    <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Modal de Bienvenida" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Descargo de responsabilidad</h5>
-                </div>
-                <div class="modal-body">
-                    <ul class="ps-3">
-                        <li tabindex="0">"teles" es un proyecto de código abierto gratuito que permite gestionar canales de televisión
-                            de libre acceso por Internet.</li>
-                        <li tabindex="0">"teles" no decodifica transmisiones. Los enlaces que figuran en este proyecto son procesados
-                            desde diferentes sitios públicos con libre distribución/acceso.</li>
-                        <li tabindex="0">"teles" no posee ningún tipo de monetización, en consecuencia, no se lucra de ninguna forma o
-                            medio.</li>
-                        <li tabindex="0">El proyecto cuenta con reproductores multimedia, los que no corresponden a una retransmisión
-                            de los canales ni implica la decodificación de éstos.</li>
-                        <li tabindex="0">No se es propietario, ni responsable de ninguno de los contenidos emitidos por parte de cada
-                            canal.</li>
-                        <li tabindex="0">"teles" no ofrece canales de pago bajo ninguna modalidad.</li>
-                        <li tabindex="0">En este proyecto no se almacena ninguna transmisión.</li>
-                        <li tabindex="0">El proyecto tanto como sus mantenedores no asumen responsabilidad alguna respecto a los
-                            derechos de propiedad
-                            intelectual que se puedan ver infringidos por terceros o cualquier usuario.</li>
-                        <li tabindex="0">El usuario por defecto tiene la capacidad de dirigirse al sitio oficial de cada transmisión
-                            en todo
-                            momento.</li>
-                        <li tabindex="0">Si posees los derechos de algún canal y deseas que sea retirado, <a
-                                href="https://github.com/Alplox/teles/issues" rel="nofollow noreferrer"> contáctame <i class="bi bi-box-arrow-up-right"></i></a>.
-                        </li>
-                    </ul>
-                    <hr>
-                    <p>— Si quieres conocer el origen de cada livestream visita el <a
-                            href="https://github.com/Alplox/teles" rel="nofollow noreferrer">repositorio
-                            GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a> de la página.
-                    </p>
-                </div>
-                <div class="modal-footer d-flex align-items-center justify-content-center">
-                    <button type="button" class="btn btn-lg btn-success pulsate-3" id="btn-entendido" data-bs-dismiss="modal"
-                        data-bs-target="#modal-bienvenida">Entendido <p class="texto-chikito m-0 p-0">(No volver a mostrar)</p></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Créditos -->
-    <div class="modal fade" id="modal-creditos" tabindex="-1" aria-labelledby="Modal Créditos" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Créditos</h5>
-                </div>
-                <div class="modal-body">
-                    <p>— Desarrollado por <a href="https://github.com/Alplox"
-                            rel="nofollow noreferrer">Alplox <i class="bi bi-box-arrow-up-right"></i></a>. [<a
-                            href="https://github.com/Alplox/teles/blob/master/LICENSE" rel="nofollow noreferrer">MIT
-                            License <i class="bi bi-box-arrow-up-right"></i></a> - <a href="https://github.com/Alplox/teles/blob/master/NOTICE.md"
-                            rel="nofollow noreferrer">Notice <i class="bi bi-box-arrow-up-right"></i></a>]</p>
-                    <hr>
-                    <h5>Contribuyentes</h5>
-                    <p>- <a href="https://github.com/mave007/tele/commit/5aa529cae36e77ccba8541154dbe48c488fa8417"
-                            rel="nofollow noreferrer">Primer Favicon <i class="bi bi-box-arrow-up-right"></i></a> por <a href="https://github.com/mave007"
-                            rel="nofollow noreferrer">mave007 <i class="bi bi-box-arrow-up-right"></i></a>.</p>
-                </div>
-                <div class="modal-footer">
-                    <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
-                        <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Prensa -->
-    <div class="modal fade" id="modal-prensa" tabindex="-1" aria-labelledby="Modal Prensa Alternativa" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Medios de Prensa Alternativos <i class="pe-2 bi bi-newspaper"></i> <i class="bi bi-boombox"></i>:</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        <i>* No porque un sitio sea "alternativo" lo convierte en
-                            verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o
-                            cualquier medio de prensa venga el caso</i>
-                    </p>
-                    <ul>
-                        <li>
-                            <a href="https://www.abc.es/tecnologia/consultorio/abci-como-detectar-fake-news-internet-201809300342_noticia.html"
-                                rel="nofollow noreferrer">¿Cómo detectar un Fake News? (ABC) <i class="bi bi-box-arrow-up-right"></i></a>
-                        </li>
-                        <li><a href="https://www.bbc.com/mundo/noticias-45561204" rel="nofollow noreferrer">¿Cómo
-                                detectar un Fake
-                                News? (BBC) <i class="bi bi-box-arrow-up-right"></i></a>
-                        </li>
-                        <li><a href="https://web.archive.org/web/20200326172545/https://aam.cl/noticias-aam/social-media/como-detectar-un-fake-news/"
-                                rel="nofollow noreferrer">¿Cómo detectar un Fake News? (AMM) <i class="bi bi-box-arrow-up-right"></i></a>
-                        </li>
-                    </ul>
-                    <hr>
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th scope="col">Enlace/Nombre</th>
-                                <th scope="col">Twitter</th>
-                                <th scope="col">Facebook</th>
-                                <th scope="col">Instagram</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="row"><a href="https://canal3lavictoria.cl/" rel="nofollow noreferrer">Canal 3
-                                        La Victoria <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/tv_piola" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://ciperchile.cl/" rel="nofollow noreferrer">Ciper <i class="bi bi-box-arrow-up-right"></i></a>
-                                    </td>
-                                <td><a href="https://twitter.com/ciper" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/ciperchile" rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.instagram.com/ciper_chile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.elciudadano.com/" rel="nofollow noreferrer">El
-                                        Ciudadano <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/El_Ciudadano" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/PeriodicoElCiudadano"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/el.ciudadano/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.eldesconcierto.cl/" rel="nofollow noreferrer">El
-                                        Desconcierto <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/eldesconcierto" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/eldesconciertocl/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/eldesconcierto/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.eldinamo.cl/" rel="nofollow noreferrer">El
-                                        Dínamo <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/el_dinamo" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/el.dinamo" rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.instagram.com/el_dinamo/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://ellibero.cl/" rel="nofollow noreferrer">El Líbero <i class="bi bi-box-arrow-up-right"></i></a>
-                                    </td>
-                                <td><a href="https://twitter.com/elliberocl" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/ElLibero" rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.instagram.com/elliberocl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.elobservatodo.cl/"
-                                        rel="nofollow noreferrer">ElObservatodo.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/elobservatodo" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/elobservatodo.cl/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/elobservatodo.cl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.elperiscopio.cl/" rel="nofollow noreferrer">El
-                                        Periscopio.c <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/GrupoPeriscopio" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/periscopiochile/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/elperiscopionoticias/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://eluniversal.cl/" rel="nofollow noreferrer">El Universal
-                                        Chile <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/ElUniversalCL" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/ElUniversalCL"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.fastcheck.cl/" rel="nofollow noreferrer">Fast Check
-                                        CL <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/fastcheckcl" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/fastcheckcl/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/fastcheckcl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.gamba.cl/" rel="nofollow noreferrer">Gamba <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/gamba_cl" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/gambanoticias/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/gamba.cl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://interferencia.cl/"
-                                        rel="nofollow noreferrer">Interferencia.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/InterferenciaCL" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/InterferenciaChile"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/interferencia.cl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.laizquierdadiario.cl/" rel="nofollow noreferrer">La
-                                        Izquierda Diario Chile <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/lid_chile" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/Laizquierdadiariochile/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/laizquierdadiariocl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.mapuexpress.org/"
-                                        rel="nofollow noreferrer">Mapuexpress <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/mapuexpress" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/Mapuexpress.org/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://instagram.com/mapuexpress/" rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://prensaopal.cl" rel="nofollow noreferrer">OPAL
-                                        prensa <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/prensaopal" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><a href="https://www.instagram.com/prensaopalchile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://puranoticia.pnt.cl/"
-                                        rel="nofollow noreferrer">Puranoticia.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/puranoticia" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/puranoticiaweb/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/puranoticia_chile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://resumen.cl/" rel="nofollow noreferrer">Resumen <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/rsumen" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/PeriodicoResumenConcepcion"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/resumen.cl/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.revistadefrente.cl/"
-                                        rel="nofollow noreferrer">Revista De Frente <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><a href="https://www.facebook.com/DeFrente.cl"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="http://viaconectados.cl/"
-                                        rel="nofollow noreferrer">Viaconectados <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/viaconectados" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/Viaconectados/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/viaconectados/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.radiohumedales.org/"
-                                        rel="nofollow noreferrer">Radio Humedales – Concepción <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/radiohumedales" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/culturayexistencialesbica/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/radio_humedales/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://radiokurruf.org/" rel="nofollow noreferrer">Radio
-                                        Kurruf Concepción/Santiago <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/radiokurruf" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/radiokurruf/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/radiokurruf/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="http://radiolabase.cl/" rel="nofollow noreferrer">Radio La
-                                        Base <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/radiolabase" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.facebook.com/radiolabase/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/radiolabase/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://emisora.cl/placeres-valparaiso/"
-                                        rel="nofollow noreferrer">Radio Placeres – Valparaíso <i class="bi bi-box-arrow-up-right"></i></a> / <a
-                                        href="https://onlineradiobox.com/cl/placeres/"
-                                        rel="nofollow noreferrer">Opción <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/radioplaceres" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/Radio-Placeres-a-la-Izquierda-del-Dial-257617057586511/"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/radio.placeres/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="http://www.radiovillafrancia.cl/"
-                                        rel="nofollow noreferrer">Radio Villa Francia <i class="bi bi-box-arrow-up-right"></i></a> / <a
-                                        href="https://emisora.cl/villa-francia/" rel="nofollow noreferrer">Opción <i class="bi bi-box-arrow-up-right"></i></a>
-                                    </td>
-                                <td><a href="https://twitter.com/rvfradiopopular" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.prensaescrita.com/america/chile.php"
-                                        rel="nofollow noreferrer">Periódicos Chile <i class="bi bi-box-arrow-up-right"></i></a> / <a
-                                        href="https://sitios.cl/directorio/diarios.htm"
-                                        rel="nofollow noreferrer">Opción <i class="bi bi-box-arrow-up-right"></i></a> / <a href="http://kiosko.net/cl/"
-                                        rel="nofollow noreferrer">Opción2 <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.soychile.cl/"
-                                        rel="nofollow noreferrer">soychile.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.gob.cl/noticias/" rel="nofollow noreferrer">GOB
-                                        Noticias <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://twitter.com/gobiernodechile" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://www.facebook.com/gobiernodechile"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://www.instagram.com/gobiernodechile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://news.google.com/" rel="nofollow noreferrer">Google
-                                        News <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://microsoftnews.msn.com/"
-                                        rel="nofollow noreferrer">Microsoft News <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://news.yahoo.com/" rel="nofollow noreferrer">Yahoo
-                                        News <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                            <tr>
-                                <td scope="row"><a href="https://www.bing.com/news" rel="nofollow noreferrer">Bing
-                                        News <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><i class="bi bi-cloud-slash"></i></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="modal-caption">
-                        Si quieres contribuir con algun sitio
-                        puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Complementario -->
-    <div class="modal fade" id="modal-complementario" tabindex="-1" aria-labelledby="Modal Enlaces Complementarios"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Enlaces Complementarios <i class="bi bi-link-45deg"></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th scope="col">Sitio</th>
-                                <th scope="col">Mirror</th>
-                                <th scope="col">RRSS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th class="table-primary"><b>Prevención y cuidado</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.psiconecta.org/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Salud Mental
-                                        (psiconecta.org) <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://www.facebook.com/psiconectacl?_fb_noscript=1"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://twitter.com/psiconectacl" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                    - <a href="https://www.instagram.com/psiconecta_chile"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://linealibre.cl/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Salud Mental
-                                        (linealibre.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://www.instagram.com/lalinealibre"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.gob.cl/saludablemente/"
-                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Saludablemente
-                                        (gob.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/"
-                                        rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Líneas gratuitas de apoyo psicológico en Chile <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td><a href="https://kvak.io/?n=trf2pc71y2f3" rel="nofollow noreferrer">mirror <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://hablemosdetodo.injuv.gob.cl/" rel="nofollow noreferrer"><i class="pe-1 bi bi-heart-pulse"></i>Hablemos
-                                        de Todo (INJUV) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.reddit.com/r/chile/comments/du4hn0/gu%C3%ADa_para_cuidarse_los_ojos_en_estas/"
-                                        rel="nofollow noreferrer">Guía para cuidarse los ojos en
-                                        manifestaciones <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://kvak.io/?n=d1gd1i1j1l120" rel="nofollow noreferrer">mirror <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://old.reddit.com/r/chile/comments/dt4s2u/uso_de_tecnolog%C3%ADas_y_privacidad_en_internet/"
-                                        rel="nofollow noreferrer">Uso de Tecnologías y Privacidad en Internet <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td><a href="https://kvak.io/?n=s0gd1i1g2i1l5" rel="nofollow noreferrer">mirror <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://ssd.eff.org/es/module/asistir-una-protesta"
-                                        rel="nofollow noreferrer">Autoprotección Digital Contra La Vigilancia <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary"><b>Denunciar Violación a los derechos humanos</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.indh.cl/" rel="nofollow noreferrer">Indh.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://www.facebook.com/indhchile" rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a>
-                                    -
-                                    <a href="https://twitter.com/inddhh" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://www.instagram.com/indhchile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.testigoenlinea.cl/"
-                                        rel="nofollow noreferrer">Testigoenlinea.cl <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://twitter.com/testigoenlinea" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                    - <a href="https://www.instagram.com/testigoenlinea/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://amnistia.cl/" rel="nofollow noreferrer">Amnistia.cl <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://amnistia.cl/noticia/donde-denunciar-si-sufro-una-violacion-de-derechos-humanos/"
-                                        rel="nofollow noreferrer">x <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://www.facebook.com/pages/Amnist%C3%ADa-Internacional-Chile/126170624336"
-                                rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://twitter.com/amnistiachile/status/1186667715047624710"
-                                        rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://www.instagram.com/amnistiachile/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://observadoresddhh.org/"
-                                        rel="nofollow noreferrer">Observadoresddhh.org <i class="bi bi-box-arrow-up-right"></i></a></td>
-                                <td></td>
-                                <td><a href="https://www.facebook.com/oddhchile/" rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a>
-                                    -
-                                    <a href="https://twitter.com/obsDDHHcl" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a> -
-                                    <a href="https://www.instagram.com/observadoresddhhcasamemoria/"
-                                        rel="nofollow noreferrer">Instagram <i class="bi bi-box-arrow-up-right"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://www.hrw.org/es" rel="nofollow noreferrer">HumanRightsWatch.org <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td></td>
-                                <td>
-                                    <a href="http://www.facebook.com/humanrightswatchenespanol"
-                                        rel="nofollow noreferrer">Facebook <i class="bi bi-box-arrow-up-right"></i></a> - <a
-                                        href="https://twitter.com/hrw_espanol" rel="nofollow noreferrer">Twitter <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary"><b><i class="bi bi-piggy-bank-fill"></i> Ayuda/Donaciones incendios</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.ayudabomberos.cl/" rel="nofollow noreferrer">Donar a Bomberos (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                    <ul>
-                                        <li>Bomberos de Chile</li>
-                                        <li>Cuenta corriente Banco Estado 13-2</li>
-                                        <li>RUT 70.073.800-0</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://hcstore.org/dona" rel="nofollow noreferrer">Donar a Hogar de Cristo (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a>
-                                    <ul>
-                                        <li>Hogar de Cristo</li>
-                                        <li>Cuenta corriente BancoEstado 1000-6</li>
-                                        <li>RUT 81.496.800-6</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.cruzroja.cl/" rel="nofollow noreferrer">Donar a Cruz Roja chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                    <ul>
-                                        <li>Cruz Roja chilena</li>
-                                        <li>Cuenta corriente BancoEstado 29222-2</li>
-                                        <li>RUT 70.512.100-1</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary"><b><i class="bi bi-exclamation-triangle"></i> Información incendios</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://www.gob.cl/noticias/siga-las-siguientes-recomendaciones-en-caso-de-tener-que-evacuar-por-un-incendio-forestal/" rel="nofollow noreferrer">Recomendaciones en caso de tener que evacuar por un incendio forestal <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="https://senapred.cl/informate/alertas" rel="nofollow noreferrer">Alertas SENAPRED <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary"><b><i class="bi bi-geo-alt"></i> Mapas dirección albergues</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://www.geoportal.cl/emergencia/dashboard/57" target="_blank" rel="noopener noreferrer">geoportal.cl <i class="bi bi-box-arrow-up-right"></i></a> [<a href="https://twitter.com/IDE_Chile/status/1753751278113489136" target="_blank" rel="noopener noreferrer">Fuente <i class="bi bi-box-arrow-up-right"></i></a>]
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://idechile.maps.arcgis.com/apps/dashboards/0e8889288d5548e6ad73c6ab17db8b3a" target="_blank" rel="noopener noreferrer">idechile.maps.arcgis.com <i class="bi bi-box-arrow-up-right"></i></a> [<a href="https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/" target="_blank" rel="noopener noreferrer">Fuente <i class="bi bi-box-arrow-up-right"></i></a>]
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th class="table-primary"><b><i class="bi bi-fire"></i> Mapas focos incendiarios</b></th>
-                                <td class="table-primary"></td>
-                                <td class="table-primary"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://storymaps.arcgis.com/stories/c3abb6aeb9fe443cbb4bff3efc6b0d08" target="_blank" rel="noopener noreferrer">storymaps.arcgis.com <i class="bi bi-box-arrow-up-right"></i></a> [<a href="https://twitter.com/reddeemergencia/status/1752693887531880893" target="_blank" rel="noopener noreferrer">Fuente <i class="bi bi-box-arrow-up-right"></i></a>]
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://idechile.maps.arcgis.com/apps/instant/nearby/index.html?appid=b08c5745c4c74242a4dd72ec24c7bbaa" target="_blank" rel="noopener noreferrer">idechile.maps.arcgis.com <i class="bi bi-box-arrow-up-right"></i></a> [<a href="https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/" target="_blank" rel="noopener noreferrer">Fuente <i class="bi bi-box-arrow-up-right"></i></a>]
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://www.geamap.com/es/incendios#zoom=11&lat=-33.0789&lon=-71.3569&layer=2&overlays=TFFFFFFFFFFFFFFF" target="_blank" rel="noopener noreferrer">geamap.com <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@-71.24,-33.13,10.50z" target="_blank" rel="noopener noreferrer">firms.modaps.eosdis.nasa.gov <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://www.google.com/maps/@-33.0993464,-71.4870313,12z/data=!3m1!4b1!4m2!21m1!1s%2Fg%2F11y2ty3bn9!5m1!1e8?hl=es-419&entry=ttu" target="_blank" rel="noopener noreferrer">google.com/maps <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G16&sector=ssa" target="_blank" rel="noopener noreferrer">star.nesdis.noaa.gov <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
-                                </td>
-                                <td>
-                                <td>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="modal-caption"> Si quieres contribuir con algún sitio
-                        puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                            rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a>.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Compartir -->
-    <div class="modal fade" id="modal-compartir" tabindex="-1" aria-labelledby="Modal Compartir" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Compartir <i class="text-warning bi bi-share-fill"></i></h5>
-                </div>
-                <div class="modal-body share-btns">
-                    <!-- Boton Facebook -->
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"
-                        rel="nofollow noreferrer" title="Facebook">
-                        <img class="share-item" src="assets/svg/socials/facebook-logo.svg" alt="Facebook logo">
-                    </a>
-                    <!-- Boton Twitter -->
-                    <a href="https://twitter.com/intent/tweet/?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Twitter">
-                        <img class="share-item" src="assets/svg/socials/twitter-logo.svg" alt="Twitter logo">
-                    </a>
-                    <!-- Boton WSP app -->
-                    <a href="whatsapp://send?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).%20https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Whatsapp">
-                        <img class="share-item" src="assets/svg/socials/whatsapp-logo.svg" alt="Whatsapp logo">
-                    </a>
-                    <!-- Boton Telegram -->
-                    <a href="https://telegram.me/share/url?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="Telegram">
-                        <img class="share-item" src="assets/svg/socials/telegram-logo.svg" alt="Telegram logo">
-                    </a>
-                    <!-- Boton Tumblr -->
-                    <a href="https://www.tumblr.com/widgets/share/tool?posttype=link&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;caption=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;content=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;canonicalUrl=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;shareSource=tumblr_share_button"
-                        rel="nofollow noreferrer" title="Tumblr">
-                        <img class="share-item" src="assets/svg/socials/tumblr-logo.svg" alt="Tumblr logo">
-                    </a>
-                    <!-- Boton Pinterest -->
-                    <a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;media=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;description=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
-                        rel="nofollow noreferrer" title="Pinterest">
-                        <img class="share-item" src="assets/svg/socials/pinterest-logo.svg" alt="Pinterest logo">
-                    </a>
-                    <!-- Boton LinkedIn -->
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;summary=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;source=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        rel="nofollow noreferrer" title="LinkedIn">
-                        <img class="share-item" src="assets/svg/socials/linkedin-logo.svg" alt="LinkedIn logo">
-                    </a>
-                    <!-- Boton Reddit -->
-                    <a href="https://reddit.com/submit/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;resubmit=true&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
-                        rel="nofollow noreferrer" title="Reddit">
-                        <img class="share-item" src="assets/svg/socials/reddit-logo.svg" alt="Reddit logo">
-                    </a>
-                    <!-- Boton MAIL -->
-                    <a href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
-                        target="_self" rel="nofollow noreferrer noopener" title="Mail">
-                        <img class="share-item" src="assets/svg/socials/mail.svg" alt="Mail logo">
-                    </a>
-                    <hr>
-                    <div class="input-group">
-                        <input class="form-control" type="text" value="https://alplox.github.io/teles/" aria-label="enlace sitio" readonly id="enlace-compartir">
-                        <button type="button" class="btn btn-primary" id="btn-enlace">Copiar
-                            enlace</button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
-                        <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-        <!---->
-        <div class="notify"><span class="notify-span text-white"></span></div>
-    </div>
-
-    <!-- btn flotante sidepanel -->
-    <button class="floating-btn border border-2 border-dark rounded-5 text-light btn btn-dark" aria-label="acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
-        <i class="text-light bi bi-gear"></i> Personalizaciones
-    </button>
-
-    <!-- sidepanel/personalizaciones -->
-    <div class="offcanvas offcanvas-end border border-5 border-dark rounded-3 text-white" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
-        <div class="offcanvas-header">
-            <p>Personalización</p>
-            <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="m-0 p-0">
-                <li>
-                    <div class="form-check form-switch" title="ocultar navbar">
-                        <input class="form-check-input" type="checkbox" role="switch" id="switch-navbar">
-                        <label class="form-check-label" for="switch-navbar" id="status-navbar">Navbar
-                            <span></span></label>
-                    </div>
-                </li>
-                <li>
-                    <div class="form-check form-switch" title="ocultar overlay">
-                        <input class="form-check-input" type="checkbox" role="switch" id="switch-overlay">
-                        <label class="form-check-label" for="switch-overlay" id="status-overlay">Overlay
-                            canales <span></span></label>
-                    </div>
-                </li>
-                <li>
-                    <div class="form-check form-switch" title="ocultar fondo">
-                        <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
-                        <label class="form-check-label" for="switch-fondo" id="status-fondo">Branding fondo <span></span></label>
-                    </div>
-                </li>
-                <li>
-                    <label for="tamaño-streams" class="slider-label form-label">Tamaño (<span>100</span>%)</label>
-                    <input type="range" value="100" min="50" max="100" class="form-range" id="tamaño-streams">
-                </li>
-                <li>
-                    <select class="form-select border border-secondary bg-primary rounded-3 text-white" id="transmision-por-fila" aria-label="ajustar número transmisiones por fila">
-                        <option disabled selected>Nº Transmisiones por fila</option>
-                        <option value="12">1 transmisión por fila</option>
-                        <option value="6">2 transmisiones por fila</option>
-                        <option value="4">3 transmisiones por fila</option>
-                        <option value="3">4 transmisiones por fila</option>
-                        <option value="2">6 transmisiones por fila</option>
-                        <option value="1">12 transmisiones por fila a lo enfermo</option>
-                    </select>
-                </li>
-                <li>
-                    <button type="button" class="btn btn-primary w-100" id="fullscreen"><i class="bi bi-arrows-fullscreen"></i> Entrar pantalla completa</button>
-                </li>
-                <li>
-                    <button type="button" class="btn btn-outline-light col" data-bs-toggle="modal"
-                        data-bs-target="#modal-canales">Señales <i class="bi bi-display"></i></button>
-                    <button type="button" class="btn btn-sidepanel-compartir btn-outline-warning col"
-                        title="Compartir">Compartir
-                        <i class="text-warning bi bi-share-fill"></i>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-reset">Reiniciar personalizaciones</button>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- alerta previa borrado localstorage -->
-    <div class="modal modal-alert py-5" tabindex="-1" role="dialog" id="modal-reset">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content rounded-4 shadow">
-            <div class="modal-body p-4">
-                <h5 class="text-center">¿Seguro que quieres reiniciar todas tus personalizaciones?</h5>
-                <p class="m-0">Esto borrara todas las entradas que hayan sido creadas, por este sitio, en tu navegador a través de localStorage.</p>
-                <p class="mb-0 mt-2 text-center">(<a href="https://developer.mozilla.org/es/docs/Web/API/Window/localStorage" rel="nofollow noreferrer">¿Qué es localStorage? <i class="bi bi-box-arrow-up-right"></i></a>)</p>
-            </div>
-            <div class="modal-footer flex-nowrap p-0">
-                <button type="button" class="btn btn-lg btn-danger fs-6 col-6 m-0 rounded-0" id="btn-reset" data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong>Si (borrarlas)</strong></button>
-                <button type="button" class="btn btn-lg btn-secondary fs-6 col-6 m-0 rounded-0" data-bs-dismiss="modal">No (manterlas)</button>
-            </div>
-          
-        </div>
-      </div>
-    </div>
-
-<script src="assets/js/main.js"></script>
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 
@@ -1076,5 +1620,5 @@
 ██║███╗██║██╔══╝  ██║╚██╗██║██╔══██║    ██║███╗██║██╔══╝  ██║╚██╗██║██╔══██║
 ╚███╔███╔╝███████╗██║ ╚████║██║  ██║    ╚███╔███╔╝███████╗██║ ╚████║██║  ██║
  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚══╝╚══╝ ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝
- -->
+-->
 </html>

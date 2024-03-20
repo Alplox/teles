@@ -2,6 +2,73 @@
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.16]
+### Changed
+- CSS: <a>:focus y <a>:hover 
+- manifesto PWA
+- CSS: .barra-overlay debido a que no estaba bien centrado su contenido
+- .barra-overlay se añade tabindex=0 para poder hacer focus con tecla TAB
+- Texto: de "Desactivar" a "Quitar" en modal canales (para que sea igual a botón quitar que tienen las señales)
+- Separados botones share de barra copiar enlace (para que modal muestre copiar enlace a personas con bloqueadores de publicidad)
+- Reescrito archivo "NOTICE.md"
+- Alerta tras borrado localStorage
+- SVG's logos redes sociales por iconos Bootstrap
+- Imágenes ejemplo sitio en README.md, index.html y site.webmanifest acorde a version nueva
+
+#### 📺 Canales
+Chile
+
+- [Canal 13](https://www.13.cl/en-vivo)
+
+### Added
+- Icono a enlaces externos dentro de señal activa <iframe> para mejor comunicación de que al pulsar abandonará el sitio <i class="bi bi-box-arrow-up-right"></i>
+- Sección agradecimientos contribuciones en "README.md"
+- Capacidad de reordenar canales con plugin desde grid [SortableJS](https://github.com/SortableJS/Sortable)
+- Icono para contribuciones en modal créditos y README.md con [contributors-img](https://github.com/lacolaco/contributors-img)
+- Efectos de sonido para alerta de copiado enlace en modal compartir: [button-pressed por Pixabay](https://pixabay.com/sound-effects/button-pressed-38129/), [Cancel/miss chime por Raclure](https://freesound.org/people/Raclure/sounds/405548/)
+- Efecto de sonido a botones de quitar todos los canales activos [TV, Shutdown.wav por MATRIXXX_](https://freesound.org/people/MATRIXXX_/sounds/523553/)
+- Efecto sonido de fondo a alerta tras borrado localStorage [DefectLineTransformer por blaukreuz](https://freesound.org/people/blaukreuz/sounds/440128/)
+- Efecto de sonido a botones de quitar canal [User Interface Clicks and Buttons 1 por original_sound](https://freesound.org/people/original_sound/sounds/493551/)
+- Variación rancia https://alienxproject.github.io/X/
+- "Variación" https://navezjt.github.io/JCN-TV/
+- Enlace complementario Línea Prevención del Suicidio
+- Efecto flicker para fondo tras borrado localStorage https://codepen.io/frbarbre/pen/BaObOXL
+- Efecto flicker para texto tras borrado localStorage https://codepen.io/patrickhlauke/pen/YaoBop
+- Tema oscuro/claro, fondos SVG temas generados con https://wickedbackgrounds.com/app transformados a css con https://yoksel.github.io/url-encoder/
+- Opción cambiar/reemplazar canal desde grid
+- Habilidad recordar selección de número de canales por fila con localStorage
+- Alerta en caso de que búsqueda canales no arroje resultados
+- Opción para reordenar botones canales de forma ascendente o descendente
+- screenshots para PWA, hechas con Progressier https://progressier.com
+
+#### 📺 Canales
+Chile
+
+- [Meganoticias 3](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Meganoticias 4](https://www.meganoticias.cl/senal-en-vivo/meganoticias/) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Canal 13](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [Canal 13 3](https://www.13.cl/en-vivo) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+- [La Red 2](https://www.lared.cl/senal-online) - [x](https://github.com/HERBERTM3/iptv/blob/f55200534fdab9a503f04b0482ce7307c2767469/hd.m3u)
+
+#### Radios 📻
+Chile
+
+- [Radio El Conquistador FM](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
+- [Radio El Conquistador FM 2](https://www.elconquistadorfm.net/) - [x](https://github.com/Alplox/teles/pull/3)
+- [Radio El Conquistador FM 3](https://www.twitch.tv/elconquistadortv)
+
+### Removed
+- Archivo bloquean.txt
+- Archivo emergencia.html
+- Archivo archivo.html
+- SVG's logos redes sociales
+- Imágenes ejemplo sitio v0.07
+
+#### 📺 Canales
+Chile
+
+- [CHV 2](https://www.chilevision.cl/senal-online)
+
 
 ## [v0.15]
 ### Changed
@@ -34,16 +101,16 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modal Registros Manifestaciones desarrolladas en Chile
 - Modal Denunciar violación DDHH
 - Enlaces relacionados COVID-19 junto a "pacomap.live" de Modal Enlaces Complementario
-- Seccion Proyectos GitHub de Modal Enlaces Complementario
+- Sección Proyectos GitHub de Modal Enlaces Complementario
 - Sitios: 
     Capucha Informativa (no carga)
     ChileOkulto (borro contenido)
-    En Punto (última actualizacion 2021)
-    Megafono Popular (no carga)
+    En Punto (última actualización 2021)
+    Megáfono Popular (no carga)
     Piensa Prensa (sitio redirige a publicidad)
-    Primera Línea Revolucionaria Chile (última actualizacion 2022)
+    Primera Línea Revolucionaria Chile (última actualización 2022)
     Revista ChileLibre (no carga)
-    Verdad Ahora (última actualizacion 2023)
+    Verdad Ahora (última actualización 2023)
     Radio 19 de abril Cobertura colectiva  (no carga)
     Radio Manque (no carga)
     RadioTV-Liberación (no carga)
@@ -306,7 +373,7 @@ Chile
 ## [v0.12]
 ### Changed
 - Cambio versión Bootstrap Icons de 1.9.0 a 1.10.4
-- Rediseño leve, enfoque en usar iconos externos librería Boostrap Icons y no emojis para mejor compatibilidad
+- Rediseño leve, enfoque en usar iconos externos librería Bootstrap Icons y no emojis para mejor compatibilidad
 
 #### 📺 Canales
 Chile
