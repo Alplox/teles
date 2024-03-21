@@ -14,11 +14,11 @@ function sortButtonsAsc(containerBotones) {
   let buttonsContainer = document.getElementById(containerBotones);
   let buttons = Array.from(buttonsContainer.getElementsByTagName('button'));
 
-  buttons.sort(function(a, b) {
+  buttons.sort((a, b) => {
       return a.textContent.trim().localeCompare(b.textContent.trim());
   });
 
-  buttons.forEach(function(button) {
+  buttons.forEach((button) => {
       buttonsContainer.appendChild(button);
   });
 }
@@ -28,11 +28,11 @@ function sortButtonsDesc(containerBotones) {
   let buttonsContainer = document.getElementById(containerBotones);
   let buttons = Array.from(buttonsContainer.getElementsByTagName('button'));
 
-  buttons.sort(function(a, b) {
+  buttons.sort((a, b) => {
       return b.textContent.trim().localeCompare(a.textContent.trim());
   });
 
-  buttons.forEach(function(button) {
+  buttons.forEach((button) => {
       buttonsContainer.appendChild(button);
   });
 }
@@ -43,23 +43,22 @@ function restoreOriginalOrder(containerBotones) {
   buttonsContainer.innerHTML = ''; // Limpiar el contenedor de botones
 
     if (containerBotones.startsWith('modal')) {
-        ordenOriginalEnModal.forEach(function(button) {
+        ordenOriginalEnModal.forEach((button) => {
             buttonsContainer.appendChild(button);
         });
     } else if (containerBotones.startsWith('offcanvas')) {
-        ordenOriginalEnOffcanvas.forEach(function(button) {
+        ordenOriginalEnOffcanvas.forEach((button) => {
             buttonsContainer.appendChild(button);
         });
     }
 }
 
-
-
-// Función para abrir el modal
-let modalCanales = document.getElementById('modal-canales');
-modalCanales.addEventListener('shown.bs.modal', () => {
+// Función para guardar "orden original" botones en opción de ordenado, una vez que ya existen en el DOM
+document.addEventListener('DOMContentLoaded', () => {
     guardarOrdenOriginal('modal-body-botones-canales');
+    guardarOrdenOriginal('offcanvas-body-botones-canales');
 });
+
 
 let modalBotonOrdenAscendente = document.getElementById('modal-boton-orden-ascendente');
 modalBotonOrdenAscendente.addEventListener('click', () => {
@@ -76,13 +75,6 @@ modalBotonOrdenOriginal.addEventListener('click', () => {
     restoreOriginalOrder('modal-body-botones-canales');
 });
 
-
-
-// Función para abrir el offcanvas
-let offcanvasCanales = document.getElementById('offcanvasCanales');
-offcanvasCanales.addEventListener('shown.bs.offcanvas', () => {
-    guardarOrdenOriginal('offcanvas-body-botones-canales');
-});
 
 let offcanvasBotonOrdenAscendente = document.getElementById('offcanvas-boton-orden-ascendente');
 offcanvasBotonOrdenAscendente.addEventListener('click', () => {

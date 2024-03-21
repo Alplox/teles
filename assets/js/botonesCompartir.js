@@ -9,7 +9,9 @@ const datosCompartir = {
   const btnCompartir = document.querySelector('button.btn-compartir');
   const contenedorBtnsCompartirExistentes = document.querySelector('#contenedor-botones-compartir');
   
-  if (checkMovil()){
+console.log(isMobile.any)
+
+  if (isMobile.any){
     btnCompartir.classList.remove('d-none');
     btnCompartir.addEventListener('click', async () => {
       try {

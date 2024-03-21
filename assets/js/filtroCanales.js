@@ -6,7 +6,7 @@ const filtroCanalesModal = document.querySelector('#modal-input-filtro');
 const filtroCanalesOffcanvas = document.querySelector('#offcanvas-input-filtro');
 
 document.querySelector('#modal-canales').addEventListener('shown.bs.modal', () => {
-  !checkMovil() && filtroCanalesModal.focus();
+  !isMobile.any && filtroCanalesModal.focus();
 });
 
 // ----- filtro de canales https://css-tricks.com/in-page-filtered-search-with-vanilla-javascript/

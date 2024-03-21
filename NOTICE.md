@@ -22,6 +22,8 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * Fondos SVG generados con https://wickedbackgrounds.com/app - (No licencia) y transformados a CSS con https://yoksel.github.io/url-encoder/ - (No licencia)
 
+* Screenshots PWA hechas con Progressier https://progressier.com - [(Terms)](https://progressier.com/terms)
+
 # Este software utiliza los siguientes paquetes de código abierto:
 
 * Biblioteca CSS https://getbootstrap.com/ - [(MIT)](https://github.com/twbs/bootstrap/blob/main/LICENSE)
@@ -54,4 +56,4 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * [Audio] User Interface Clicks and Buttons 1 por original_sound https://freesound.org/people/original_sound/sounds/493551/ - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)
 
-* Screenshots PWA hechas con Progressier https://progressier.com - [(Terms)](https://progressier.com/terms)
+* isMobile https://github.com/kaimallea/isMobile - [(MIT)](https://github.com/kaimallea/isMobile/blob/main/LICENSE)

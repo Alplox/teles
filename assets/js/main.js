@@ -127,7 +127,7 @@ if (lsTransmisionesFila !== null) {
   botonDejarActivo.classList.replace('bg-light-subtle', 'btn-primary')
 }
 // si se carga desde telefono por primera vez ajusta cantidad y botón seleccionado en numero de canales por fila
-if (checkMovil() && lsTransmisionesFila === null) {
+if (isMobile.any && lsTransmisionesFila === null) {
   let botonDejarActivo = document.querySelector(`#transmision-por-fila button[value='${sizeMovil}']`)
   transmisionesFila.forEach(btn => {
     btn.classList.replace('btn-primary', 'bg-light-subtle')
@@ -659,7 +659,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     modalHeader.classList.add('modal-header', 'bg-transparent', 'border-0');
     
     let modalBody = document.createElement('div');
-    modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray', 'pt-0');
+    modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray', 'px-2', 'modal-blur', 'rounded-3');
     
     let formFloating = document.createElement('div');
     formFloating.classList.add('form-floating');
@@ -720,7 +720,7 @@ function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
     // Activar el modal, darle focus al input si esta en PC y mostrar listado sugerencias canales
     let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
     modal.addEventListener('shown.bs.modal', () => {
-      !checkMovil() && inputCambioCanal.focus();
+      !isMobile.any && inputCambioCanal.focus();
     });
     myModal.show();
     let listaBotones = document.querySelectorAll(`#modal-canales button[data-canal]`);
@@ -868,7 +868,7 @@ let tele = {
         canalesStorage[canal] = nombre;
         localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
         let divTransmision = document.createElement('div');
-        divTransmision.classList.add('position-relative', `col-${checkMovil() ? sizeMovil : size}`, 'shadow');
+        divTransmision.classList.add('position-relative', `col-${isMobile.any ? sizeMovil : size}`, 'shadow');
         divTransmision.setAttribute('data-canal', canal);
         /// esto estaba
         if (typeof iframe_url !== 'undefined') {
@@ -1119,7 +1119,7 @@ let tele = {
     const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4'];
     const canalesExtras = ['chv-noticias-3', 'galeria-cima', 'lofi-girl'];
 
-    const canalesAgregar = checkMovil() ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
+    const canalesAgregar = isMobile.any ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
 
     if (localStorageCanales === null) {
       canalesAgregar.forEach(canal => tele.add(canal));

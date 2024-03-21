@@ -40,6 +40,7 @@ Chile
 - Alerta en caso de que búsqueda canales no arroje resultados
 - Opción para reordenar botones canales de forma ascendente o descendente
 - screenshots para PWA, hechas con Progressier https://progressier.com
+- Librería isMobile https://github.com/kaimallea/isMobile
 
 #### 📺 Canales
 Chile
