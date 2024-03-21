@@ -5,8 +5,14 @@ let ordenOriginalEnOffcanvas = [];
 
 // Función para almacenar el orden original de los botones
 function guardarOrdenOriginal(containerBotones) {
-  let buttonsContainer = document.getElementById(containerBotones);
-  containerBotones.startsWith('modal') ? ordenOriginalEnModal = Array.from(buttonsContainer.children) : ordenOriginalEnOffcanvas = Array.from(buttonsContainer.children);
+    const buttonsContainer = document.getElementById(containerBotones);
+    const buttons = buttonsContainer.querySelectorAll('button');
+
+    if (containerBotones.startsWith('modal')) {
+        ordenOriginalEnModal = Array.from(buttons);
+    } else if (containerBotones.startsWith('offcanvas')) {
+        ordenOriginalEnOffcanvas = Array.from(buttons);
+    }
 }
 
 // Función para ordenar los botones en orden ascendente
@@ -41,7 +47,6 @@ function sortButtonsDesc(containerBotones) {
 function restoreOriginalOrder(containerBotones) {
   let buttonsContainer = document.getElementById(containerBotones);
   buttonsContainer.innerHTML = ''; // Limpiar el contenedor de botones
-
     if (containerBotones.startsWith('modal')) {
         ordenOriginalEnModal.forEach((button) => {
             buttonsContainer.appendChild(button);
@@ -52,12 +57,6 @@ function restoreOriginalOrder(containerBotones) {
         });
     }
 }
-
-// Función para guardar "orden original" botones en opción de ordenado, una vez que ya existen en el DOM
-document.addEventListener('DOMContentLoaded', () => {
-    guardarOrdenOriginal('modal-body-botones-canales');
-    guardarOrdenOriginal('offcanvas-body-botones-canales');
-});
 
 
 let modalBotonOrdenAscendente = document.getElementById('modal-boton-orden-ascendente');

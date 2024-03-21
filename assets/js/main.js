@@ -1078,8 +1078,6 @@ let tele = {
 
     document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button:not(#modal-btn-mostrar-todo-pais)').forEach(btn => {
       btn.addEventListener('click', () => {
-        console.log("El clic se originó dentro del contenedor containerModalBody")
-        // El clic se originó dentro del contenedor containerBtnBanderas
         let todoBtn = document.querySelector('#modal-collapse-botones-listado-filtro-paises').querySelectorAll('button');
         todoBtn.forEach(btn => {
           btn.classList.replace('btn-primary', 'btn-outline-secondary');
@@ -1094,7 +1092,6 @@ let tele = {
 
     document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button:not(#offcanvas-btn-mostrar-todo-pais)').forEach(btn => {
       btn.addEventListener('click', () => {
-        console.log("El clic se originó dentro del contenedor containerOffcanvasBody")
         let todoBtn = document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').querySelectorAll('button');
         todoBtn.forEach(btn => {
           btn.classList.replace('btn-primary', 'btn-outline-secondary');
@@ -1107,7 +1104,8 @@ let tele = {
       });
     });
 
-
+    guardarOrdenOriginal('modal-body-botones-canales');
+    guardarOrdenOriginal('offcanvas-body-botones-canales');
   },
   init: async () => {
     

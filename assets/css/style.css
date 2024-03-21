@@ -33,7 +33,6 @@ html[data-bs-theme='light'] body {
   -webkit-backdrop-filter: blur(10px);
 }
 
-
 .fondo-global{
   overflow-y: auto;
   height: 100dvh;

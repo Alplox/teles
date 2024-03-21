@@ -46,8 +46,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
-    
-    <!-- isMobileJS -->
+    <!-- isMobile -->
     <script src="https://cdn.jsdelivr.net/npm/ismobilejs@1.1.1/dist/isMobile.min.js"></script>
     <!-- Service worker -->
     <meta name="theme-color" content="#212529" />
@@ -303,7 +302,7 @@
                             </div>
                        </div>
                             
-                        <div class="modal-body-canales" id="modal-body-botones-canales">
+                        <div>
                             <!-- Mensaje alerta sin resultados modal -->
                             <div class="modal-mensaje-alerta d-none shadow" tabindex="0">
                                 <div
@@ -324,6 +323,8 @@
                                 </div>
                             </div>
                             <!-- /Mensaje alerta sin resultados -->
+                            <div class="modal-body-canales" id="modal-body-botones-canales">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -406,10 +407,7 @@
             </div>
 
             <div class="offcanvas-body mb-2 scrollbar-thin-gray">
-
-                
-
-                <div class="offcanvas-body-canales h-100" id="offcanvas-body-botones-canales">
+                <div class="h-100">
                     <!-- Mensaje alerta sin resultados offcanvas -->
                     <div class="offcanvas-mensaje-alerta d-none shadow" tabindex="0">
                         <div
@@ -429,6 +427,8 @@
                         </div>
                     </div>
                     <!-- /Mensaje alerta sin resultados -->
+                    <div class="offcanvas-body-canales h-100" id="offcanvas-body-botones-canales">
+                    </div>
                 </div>
             </div>
 
@@ -1604,9 +1604,9 @@
         <script src="assets/js/F_ocultarBotonesDeQuitarTodaSeñal.js"></script>
         <script src="assets/js/F_enableTooltipBS.js"></script>
 
+        <script src="assets/js/ordenBotones.js"></script>
         <script src="assets/js/main.js"></script>
 
-        <script src="assets/js/ordenBotones.js"></script>
         <script src="assets/js/botonesQuitarTodo.js"></script>
         <script src="assets/js/botonesCompartir.js"></script>
         <script src="assets/js/botonPantallaCompleta.js"></script>
