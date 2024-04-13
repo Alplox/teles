@@ -1,6 +1,34 @@
 # Changelog
 Todos los cambios notables de este proyecto se documentarán en este archivo.
+
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [v0.17]
+### Changed
+- filtroCanales reescrito para tomar en cuenta si se pulsa filtro por país de modo de que el input usuario sea dentro de dicho país activo.
+- F_ordenBotones reescrito para abarcar modal dinámico de opción cambiar señal activa, guardando orden original de botones previo a ordenar de forma ascendente/descendente
+- div contenedor canales activos utiliza ahora el 100vh
+- Rediseño global
+- Imágenes manifesto PWA y Preview repositorio (gracias a https://shots.so/, https://pixlr.com/es/express/ y https://progressier.com/pwa-screenshots-generator)
+- Estructura JS por módulos
+
+### Added
+- Botón instalar PWA usando https://github.com/khmyznikov/pwa-install
+- Alerta ante perdida de conexión internet
+- Ocultar texto botones overlay acorde a tamaño div general para evitar overflow en tamaños pequeños
+- Botones para carga canales predeterminados
+- Efecto de sonido a botones de carga canales predeterminados [CRT turn on notification por Coolshows101sound](https://freesound.org/people/Coolshows101sound/sounds/709461/)
+- Iconos a botones de quitar todo canal activo, item navbar créditos y descargo de responsabilidad
+- Habilidad de mover botones flotantes
+- Habilidad ocultar individualmente botones de overlay canales
+- Observer para casos donde solo existan 2 o 1 canal activo se ajuste tamaño columna acorde para abarcar todo el width
+
+### Removed
+- archivo js/json con canales (se creo https://github.com/Alplox/json-teles para hacer fetch, dejando como respaldo ultimo archivo que existió en repositorio)
+
+### Fixed
+- Opción de entrar a pantalla completa (bug https://github.com/Alplox/teles/issues/1 de si se ingresa con icono ampliar desde algún navegador permanece, pero problema no es único a sitio por lo que se deja ya que globalmente (por lo que vi) no tiene solución) con tecla F11 funcionamiento acorde al esperado.
+
 
 ## [v0.16]
 ### Changed
@@ -665,6 +693,7 @@ Ucrania
 - Habemus filtro! (gg jQuery)
 - Botón nombre transmisiones on/off funciona de pana ahora
 - Imágenes previews actualizadas
+- CSS reescrito bajo uso de nesting y separado (un poco mejor) por secciones
 
 ### Deprecated
 - Librería Popper (viene incorporado dentro de librería Bootstrap)
@@ -682,7 +711,7 @@ Ucrania
 - [Puranoticia TV](https://puranoticia.pnt.cl/)
 - [Ñublevision](https://nublevision.cl/)
 
-####  📰 📻 Medios de prensa alternativos
+####  📰 📻 Prensa alternativa
 | Enlace/Nombre                                                                                                                                               | Twitter                                        | Facebook                                                                                     | Instagram                                                          | Fuente                                                                                                         |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
 | [Canal 3 La Victoria](https://canal3lavictoria.cl/)                                                                                                         | [Twitter](https://twitter.com/tv_piola)        | ❌                                                                                            | [Instagram](https://www.instagram.com/canal3lavictoria/)           | [X](https://15mpedia.org/wiki/Lista_de_medios_de_comunicaci%C3%B3n_alternativos_de_Chile)                      |

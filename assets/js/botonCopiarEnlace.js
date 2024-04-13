@@ -7,24 +7,24 @@ btnEnlace.onclick = () => {
   let e = document.querySelector('#enlace-compartir');
   e.select();
   e.setSelectionRange(0, 99999);
-  
+
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(e.value)
       .then(() => {
         audioCopiadoExitoso.play();
-        btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
+        btnEnlace.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>'
         btnEnlace.classList.add('bg-success');
         setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.innerHTML = 'Copiar enlace <i class="bi bi-clipboard"></i>'
           btnEnlace.classList.remove('bg-success');
         }, 2000);
       })
       .catch(error => {
         audioCopiadoFallido.play();
-        btnEnlace.innerHTML ='Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
+        btnEnlace.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>'
         btnEnlace.classList.add('bg-danger');
         setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
+          btnEnlace.innerHTML = 'Copiar enlace <i class="bi bi-clipboard"></i>'
           btnEnlace.classList.remove('bg-danger');
         }, 2000);
         console.error('Error al copiar el enlace: ', error);
@@ -35,21 +35,20 @@ btnEnlace.onclick = () => {
       // Intenta copiar el texto de respaldo
       audioCopiadoExitoso.play();
       document.execCommand('copy', false, e.value);
-      btnEnlace.innerHTML = 'Copiado Exitoso! <i class="bi bi-clipboard-check"></i>'
-        btnEnlace.classList.add('bg-success');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-success');
-        }, 2000);
-      console.log('Texto copiado al portapapeles con éxito.');
+      btnEnlace.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>'
+      btnEnlace.classList.add('bg-success');
+      setTimeout(() => {
+        btnEnlace.innerHTML = 'Copiar enlace <i class="bi bi-clipboard"></i>'
+        btnEnlace.classList.remove('bg-success');
+      }, 2000);
     } catch (error) {
       audioCopiadoFallido.play();
-      btnEnlace.innerHTML = 'Copiado Fallido! <i class="bi bi-clipboard-x"></i>'
-        btnEnlace.classList.add('bg-danger');
-        setTimeout(() => {
-          btnEnlace.innerHTML = 'Copiar Enlace <i class="bi bi-clipboard"></i>'
-          btnEnlace.classList.remove('bg-danger');
-        }, 2000);
+      btnEnlace.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>'
+      btnEnlace.classList.add('bg-danger');
+      setTimeout(() => {
+        btnEnlace.innerHTML = 'Copiar enlace <i class="bi bi-clipboard"></i>'
+        btnEnlace.classList.remove('bg-danger');
+      }, 2000);
       console.error('Error al copiar el texto al portapapeles: ', error);
     }
   }

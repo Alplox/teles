@@ -8,17 +8,21 @@ Enlace: https://alplox.github.io/teles/
 # Tabla de contenido
 - [Canales disponibles junto a su origen 📺](#canales-disponibles-junto-a-su-origen)
 - [Variaciones creadas por terceros](#variaciones-creadas-por-terceros)
-- [Medios de prensa alternativos 📰 📻](#medios-de-prensa-alternativos)
+- [Prensa alternativa 📰 📻](#prensa-alternativa)
 - [Enlaces complementarios](#enlaces-complementarios)
 - [Descargo de responsabilidad](#descargo-de-responsabilidad)
 - [Licencia](#licencia)
 
-[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-vacio-temas.jpg)](https://alplox.github.io/teles/)
-[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg)](https://alplox.github.io/teles/)
-[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-personalizar.gif)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_temas.png)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_personalizar.png)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_offcanvas_canales.png)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_dark_canales.png)](https://alplox.github.io/teles/)
+[![](https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17.png)](https://alplox.github.io/teles/)
 
 # Canales disponibles junto a su origen: 
 [↑ Volver arriba ↑](#tabla-de-contenido)
+
+https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junto-a-su-origen
 
 (clic encima de cada título para expandir categorías)
 <details>
@@ -398,7 +402,7 @@ Enlace: https://alplox.github.io/teles/
 
 ___
 
-# Medios de Prensa Alternativos:
+# Prensa Alternativa:
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
@@ -547,7 +551,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 🤝 Gracias por todas las contribuciones
+# Contribuciones
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.16
+    teles v0.17
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -14,8 +14,8 @@
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
     <!-- bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- bootstrap icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- video-js -->
@@ -23,7 +23,6 @@
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
-    <script src="assets/data/canalesRespaldo.js"></script>
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="teles">
@@ -31,7 +30,7 @@
     <meta property="og:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta property="og:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_dark_canales.png">
     <!-- Twitter Card-->
     <meta name="twitter:card"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
@@ -41,7 +40,7 @@
     <meta name="twitter:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta name="twitter:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/teles-v0-16-canales-por-defecto.jpg">
+        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-17_dark_canales.png">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
@@ -68,10 +67,38 @@
     </script>
     <!-- Sortable -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- pwa-install -->
+    <script src="https://unpkg.com/@khmyznikov/pwa-install@0.3.5/dist/pwa-install.bundle.js"></script>
 </head>
 
 <body>
-    <div class="fondo-global">
+        <!-- Alerta error carga canales -->
+        <div class="bg-dark-subtle z-9999 position-fixed overflow-hidden d-flex flex-column align-items-center justify-content-center vw-100 vh-100 p-5 d-none" id="alerta-error-carga-canales">
+            <h1>(╥﹏╥)</h1>
+            <h1>Error al cargar el archivo JSON que contiene los canales</h1>
+            <button type="button" class="btn btn-light" onclick="location.reload()">
+                Pulsa para recargar <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <span class="text-secondary fs-6 mt-5"></span>
+        </div>
+
+        <!-- imagen y logo del fondo -->
+        <div class="fondo-global">
+            <section id="container-tarjeta-logo-fondo"> <!-- tarjeta logo -->
+                <div class="position-absolute top-50 start-50 translate-middle border border-light-subtle rounded-5 shadow cursor-default-en-hover user-select-none overflow-hidden">
+                    <div class="card-fondo bg-transparent bg-blur px-5 pb-4 pt-5 d-flex flex-column justify-content-center align-items-center">
+                        <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
+                            <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
+                                <i class="badge bg-secondary">v0.17</i>
+                            </span>
+                        </div>
+                        <p class="display-1 gradient-text">teles</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
         <!-- Alerta noscript -->
         <noscript>
             <div
@@ -81,7 +108,10 @@
                 <div class="wave"></div>
             </div>
         </noscript>
-    
+
+        <!-- pwa-install -->
+        <pwa-install id="pwa-install" manifest-url="site.webmanifest"></pwa-install>
+
         <!-- Alerta tras borrado localstorage -->
         <div id="alert-reset" class="d-none bg-flicker z-9999 position-fixed overflow-hidden vw-100 vh-100">
             <div class="d-flex flex-column align-items-center justify-content-center bg-dark-subtle p-5 vw-100 vh-100">
@@ -97,26 +127,26 @@
             </div>
         </div>
 
-        <nav class='navbar navbar-expand-lg bg-dark-subtle shadow-sm'>
+        <!-- Navbar -->
+        <nav class='navbar navbar-expand-lg bg-dark-subtle shadow-sm p-1'>
             <div class="container-fluid">
-
                 <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
                     <button type="button"
-                        class="focus-outline-blue btn btn-sm bg-light-subtle border border-success-subtle"
+                        class="btn btn-sm btn-indigo rounded-start-pill"
                         data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales"
                         aria-controls="offcanvasCanales"><i class="bi bi-chevron-right" title="Sidepanel Canales"></i>
                     </button>
                     <button type="button"
-                        class="focus-outline-blue btn btn-sm bg-light-subtle border border-success-subtle"
-                        data-bs-toggle="modal" data-bs-target="#modal-canales">Canales <i
-                            class="ps-1 bi bi-display"></i>
+                        class="btn btn-sm btn-outline-indigo rounded-end-pill"
+                        data-bs-toggle="modal" data-bs-target="#modal-canales">
+                        <i class="bi bi-collection-play"></i> Canales
                     </button>
                 </div>
-                <span class="reloj px-4" title="Hora Santiago, Chile"  data-bs-toggle="tooltip" data-bs-title="Hora Santiago, Chile">
+                <span class="reloj px-4" title="Hora Santiago, Chile" data-bs-toggle="tooltip" data-bs-title="Hora Santiago, Chile">
                     <span id="Santiago_z179" tabindex="-1">
                         <span onclick="location='http://time.is/'" title="http://time.is/" tabindex="-1"></span>
                     </span>
-                    <a href="https://time.is/Santiago" id="time_is_link" rel="nofollow noreferrer" tabindex="0">Time.is
+                    <a href="https://time.is/Santiago" id="time_is_link" rel="nofollow noreferrer" tabindex="0" class="fs-x-small">Time.is
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                 </span>
@@ -130,7 +160,7 @@
                             <button type="button" class='nav-link' data-bs-toggle="modal"
                                 data-bs-target="#modal-prensa"><i class="pe-2 bi bi-newspaper"></i><i
                                     class="bi bi-boombox"></i>
-                                Medios de prensa alternativos</button>
+                                Prensa alternativa</button>
                         </li>
                         <li class='nav-item'>
                             <button type="button" class='nav-link' data-bs-toggle="modal"
@@ -152,13 +182,13 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class='dropdown-item' href='#' data-bs-toggle="modal"
-                                        data-bs-target="#modal-bienvenida">Descargo de responsabilidad</a>
+                                    <a class='dropdown-item' href="#" data-bs-toggle="modal"
+                                        data-bs-target="#modal-creditos"><i class="bi bi-c-circle"></i> Créditos
+                                    </a>
                                 </li>
                                 <li>
-                                    <a class='dropdown-item' href="#" data-bs-toggle="modal"
-                                        data-bs-target="#modal-creditos">Créditos
-                                    </a>
+                                    <a class='dropdown-item' href='#' data-bs-toggle="modal"
+                                        data-bs-target="#modal-bienvenida"><i class="bi bi-info-circle"></i> Descargo de responsabilidad</a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href="https://github.com/Alplox/teles"
@@ -175,36 +205,36 @@
                                 <li>
                                     <a class='dropdown-item' href='https://www.viendotele.cl/'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" class="svg-bandera"/>
                                         Variación por @pottersys <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item'
-                                        href='https://ainmcl.github.io/MonitorTV/Monitores/Home.html'
+                                        href='https://monitortv.vercel.app/Monitores/Home'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" class="svg-bandera"/>
                                         Variación por AINMcl <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='https://tele.martinsantibanez.com/monitor'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" class="svg-bandera"/>
                                         Variación por martinsantibanez <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='https://sanguinet.github.io/tele/'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/pe.svg" alt="bandera Perú" title="Perú" /> Variación
+                                        <img src="https://flagcdn.com/pe.svg" alt="bandera Perú" title="Perú" class="svg-bandera"/> Variación
                                         por SanguiNET <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
                                 <li>
                                     <a class='dropdown-item' href='https://alplox.github.io/la-tele/'
                                         rel="nofollow noreferrer">
-                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" />
+                                        <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile" class="svg-bandera"/>
                                         Variación por Alplox <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </li>
@@ -215,23 +245,15 @@
             </div>
         </nav>
 
-        <!-- Grid canales -->
-        <main>
-            <section
-                class="fondo z-n1 position-fixed d-flex flex-column justify-content-center align-items-center  w-100 vh-100">
-                <div
-                    class="bg-dark-subtle d-flex flex-column justify-content-center align-items-center px-5 pb-4 pt-5 rounded-5 shadow">
-                    <div class="position-relative bg-light-subtle p-3 rounded-4" tabindex="-1">
-                        <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles" class="img-fondo">
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.16</i>
-                        </span>
-                    </div>
-                    <p class="display-1">teles</p>
-                </div>
-            </section>
-            <div class="row g-0" id="canales-grid">
+        <!-- Alerta sin conexión a internet -->
+        <div class="alert alert-danger alert-dismissible fade show d-none mb-0" role="alert" id="alert-internet-status">
+            <i class="bi bi-cloud-slash bg-danger-subtle rounded-3 p-1"></i> Sin conexión a internet
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
+        <!-- Grid canales -->
+        <main class='vh-100'>
+            <div class="row g-0 h-100" id="canales-grid">
             </div>
         </main>
 
@@ -239,44 +261,45 @@
         <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="Modal con Listado de Canales"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-                <div class="modal-content text-center">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Selecciona tus canales</h5>
+                <div class="modal-content text-center bg-transparent bg-blur border-0 shadow">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-light">Selecciona tus canales</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         </button>
                     </div>
-                    <div class="modal-body scrollbar-thin-gray">
-                        <p class="modal-caption fs-smaller">
-                            Si quieres contribuir con algun canal o ver las fuentes de estos
-                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                    <div class="modal-body vh-100 py-0 scrollbar-thin-gray ">
+                        <!-- <p>
+                            <em>   
+                                Si quieres contribuir con algun canal o ver las fuentes de estos
+                                puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio GitHub <i
                                     class="bi bi-box-arrow-up-right"></i></a>.
-                        </p>
-                        <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">
-                            
+                            <em>
+                        </p> -->
+                        <div class="w-100 bg-dark-subtle p-2 rounded-4 mb-2 d-flex flex-column">
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-dark w-100" type="button" data-bs-toggle="collapse"
+                                <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#modal-collapse-btn-group" aria-expanded="false"
                                     aria-controls="modal-collapse-btn-group">
-                                    Mostrar filtro por país <i class="bi bi-funnel"></i>
+                                    <i class="bi bi-funnel"></i> Filtrar por país
                                 </button>
                                 <div class="ms-auto">
-                                    <div class="btn-group " role="group">
-                                        <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Orden <i class="bi bi-sort-down"></i>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-sort-down"></i> Orden
                                         </button>
-                                        <ul class="dropdown-menu p-2">
+                                        <ul class="dropdown-menu p-2 rounded-4">
                                             <li class="mb-1">
                                                 <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-ascendente" autocomplete="off">
-                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
+                                                <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="modal-boton-orden-ascendente"><i class="bi bi-sort-alpha-down"></i> Ascendente</label>
                                             </li>
                                             <li class="my-1">
                                                 <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-descendente" autocomplete="off">
-                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
+                                                <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="modal-boton-orden-descendente"><i class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
                                             </li>
                                             <li>
                                                 <input type="radio" class="btn-check" name="btnradio" id="modal-boton-orden-original" autocomplete="off" checked>
-                                                <label class="btn btn-sm btn-outline-primary w-100" for="modal-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
+                                                <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="modal-boton-orden-original"><i class="bi bi-arrow-clockwise"></i> Predeterminado</label>
                                             </li>
                                         </ul>
                                     </div>
@@ -285,11 +308,11 @@
                             </div>
 
                             <div class="collapse py-2" id="modal-collapse-btn-group">
-                                <div class="card card-body">
+                                <div class="card card-body rounded-4">
                                     <div class="btn-group btn-group-sm container-btn-group" role="group"
                                         aria-label="Toggle radio para grupo botones"
                                         id='modal-collapse-botones-listado-filtro-paises'>
-                                        <button id="modal-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
+                                        <button id="modal-btn-mostrar-todo-pais" class='btn btn-indigo rounded-3' type='button'
                                             data-country='all'>
                                             <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100"> 
                                                 Todos
@@ -318,6 +341,7 @@
                                             <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
                                             <li>Prueba diferentes palabras clave.</li>
                                             <li>Prueba palabras en español.</li>
+                                            <li>Desactiva los filtros por país.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -327,17 +351,20 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <div class="form-floating">
-                            <input type="search" class="form-control" id="modal-input-filtro"
+                    <div class="modal-footer border-0">
+                        <div class="form-floating w-100">
+                            <input type="search" class="form-control rounded-4" id="modal-input-filtro"
                                 placeholder="Buscar por país o canal">
                             <label for="filtro">Buscar por país o canal</label>
                         </div>
                         <div class="d-flex justify-content-between w-100">
-                            <button class="btn btn-danger d-none" id="btn-modal-quitar-todo-canal-activo">
-                                Quitar todo canal activo
+                            <button class="btn btn-danger rounded-pill d-none" id="btn-modal-quitar-todo-canal-activo">
+                                <i class="bi bi-power"></i> Quitar todo canal activo
                             </button>
-                            <button type="button" class="btn btn-secondary ms-auto"
+                            <button class="btn btn-light rounded-pill d-none" id="btn-modal-cargar-canales-por-defecto" data-bs-dismiss="modal">
+                                <i class="bi bi-arrow-clockwise"></i> Cargar canales predeterminados
+                            </button>
+                            <button type="button" class="btn btn-secondary ms-auto rounded-pill"
                                 data-bs-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
@@ -346,67 +373,67 @@
         </div>
 
         <!-- offcanvas canales -->
-        <div class="offcanvas offcanvas-canales offcanvas-start" data-bs-scroll="true" tabindex="-1"
-            id="offcanvasCanales" aria-labelledby="offcanvasCanalesLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasCanalesLabel">Selecciona tus canales</h5>
+        <div class="offcanvas offcanvas-start bg-transparent bg-blur border border-start-0 border-2 border-light-subtle rounded-end-5" id="offcanvasCanales" tabindex="-1" data-bs-scroll="true" aria-labelledby="offcanvasCanalesLabel">
+            <header class="offcanvas-header bg-transparent">
+                <h5 class="offcanvas-title text-light" id="offcanvasCanalesLabel">Selecciona tus canales</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="d-flex flex-column">
-                <p class="modal-caption text-break text-wrap mx-2 fs-smaller">
-                    Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
-                        rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
-                            class="bi bi-box-arrow-up-right"></i></a>.
-                </p>
-                <div class="w-100 bg-dark-subtle p-2 rounded-3 mb-2 d-flex flex-column">     
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-dark w-100" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
-                            aria-controls="offcanvas-collapse-btn-group">
-                            Mostrar filtro por país <i class="bi bi-funnel"></i>
-                        </button>
-                        <div class="ms-auto">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Orden <i class="bi bi-sort-down"></i>
-                                </button>
-                                <ul class="dropdown-menu p-2">
-                                    <li class="mb-1">
-                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-ascendente" autocomplete="off">
-                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-ascendente">Ascendente <i class="bi bi-sort-alpha-down"></i></label>
-                                    </li>
-                                    <li class="my-1">
-                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-descendente" autocomplete="off">
-                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-descendente">Descendente <i class="bi bi-sort-alpha-up-alt"></i></label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-original" autocomplete="off" checked>
-                                        <label class="btn btn-sm btn-outline-primary w-100" for="offcanvas-boton-orden-original">Orden original <i class="bi bi-arrow-clockwise"></i></label>
-                                    </li>
-                                </ul>
+            </header>
+           
+            <div class="offcanvas-body scrollbar-thin-gray bg-transparent px-3 py-0">
+                <div class="d-flex flex-column bg-transparent">
+                    <!-- <p>
+                        Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
+                            rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio GitHub <i
+                                class="bi bi-box-arrow-up-right"></i></a>.
+                    </p> -->
+                    <div class="bg-dark-subtle p-2 mb-2 rounded-4 d-flex flex-column">     
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
+                                aria-controls="offcanvas-collapse-btn-group">
+                                <i class="bi bi-funnel"></i> Filtrar por país
+                            </button>
+                            <div class="ms-auto">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-dark dropdown-toggle rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-sort-down"></i> Orden
+                                    </button>
+                                    <ul class="dropdown-menu p-2 rounded-4">
+                                        <li class="mb-1">
+                                            <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-ascendente" autocomplete="off">
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="offcanvas-boton-orden-ascendente"><i class="bi bi-sort-alpha-down"></i> Ascendente</label>
+                                        </li>
+                                        <li class="my-1">
+                                            <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-descendente" autocomplete="off">
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="offcanvas-boton-orden-descendente"><i class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" class="btn-check" name="btnradio2" id="offcanvas-boton-orden-original" autocomplete="off" checked>
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3" for="offcanvas-boton-orden-original"><i class="bi bi-arrow-clockwise"></i> Predeterminado</label>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="collapse py-2" id="offcanvas-collapse-btn-group">
-                        <div class="card card-body">
-                            <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray" role="group"
-                                aria-label="Toggle radio para grupo botones"
-                                id='offcanvas-collapse-botones-listado-filtro-paises'>
-                                <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-primary' type='button'
-                                    data-country='all'>
-                                    <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100">
-                                        Todos
-                                        <span class="badge bg-secondary rounded-pill"
-                                        id='offcanvas-span-con-numero-total-canales'></span>
-                                    </p>
-                                </button>
+                        <div class="collapse py-2" id="offcanvas-collapse-btn-group">
+                            <div class="card card-body rounded-4">
+                                <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray" role="group"
+                                    aria-label="Toggle radio para grupo botones"
+                                    id='offcanvas-collapse-botones-listado-filtro-paises'>
+                                    <button id="offcanvas-btn-mostrar-todo-pais" class='btn btn-indigo rounded-3' type='button'
+                                        data-country='all'>
+                                        <p class="m-0 d-flex justify-content-between align-items-center text-start gap-2 w-100">
+                                            Todos
+                                            <span class="badge bg-secondary rounded-pill"
+                                            id='offcanvas-span-con-numero-total-canales'></span>
+                                        </p>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="offcanvas-body mb-2 scrollbar-thin-gray">
                 <div class="h-100">
                     <!-- Mensaje alerta sin resultados offcanvas -->
                     <div class="offcanvas-mensaje-alerta d-none shadow" tabindex="0">
@@ -422,6 +449,7 @@
                                     <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
                                     <li>Prueba diferentes palabras clave.</li>
                                     <li>Prueba palabras en español.</li>
+                                    <li>Desactiva los filtros por país.</li>
                                 </ul>
                             </div>
                         </div>
@@ -432,31 +460,34 @@
                 </div>
             </div>
 
-            <div class="p-2 d-flex flex-column bg-dark">
-                <div class="form-floating">
-                    <input type="search" class="form-control" id="offcanvas-input-filtro"
+            <footer class="p-2 d-flex flex-column bg-transparent">
+                <div class="form-floating w-100">
+                    <input type="search" class="form-control rounded-4" id="offcanvas-input-filtro"
                         placeholder="Buscar por país o canal">
                     <label for="filtro">Buscar por país o canal</label>
                 </div>
                 <div class="d-flex justify-content-between mt-2">
-                    <button class="btn btn-sm btn-danger d-none" id="btn-offcanvas-quitar-todo-canal-activo">
-                        Quitar todo canal activo
+                    <button class="btn btn-danger rounded-pill d-none" id="btn-offcanvas-quitar-todo-canal-activo">
+                        <i class="bi bi-power"></i> Quitar todo canal activo
                     </button>
-                    <button type="button" class="btn btn-sm btn-secondary ms-auto"
+                    <button class="btn btn-light rounded-pill d-none" id="btn-offcanvas-cargar-canales-por-defecto">
+                        <i class="bi bi-arrow-clockwise"></i> Cargar canales predeterminados
+                    </button>
+                    <button type="button" class="btn btn-secondary ms-auto rounded-pill"
                         data-bs-dismiss="offcanvas">Cerrar</button>
                 </div>
-            </div>
+            </footer>
         </div>
 
         <!-- Modal bienvenida/Descargo de responsabilidad -->
         <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
             aria-labelledby="Modal de Bienvenida" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down">
-                <div class="modal-content">
-                    <div class="modal-header">
+                <div class="modal-content bg-transparent border-0 shadow">
+                    <div class="modal-header bg-body">
                         <h5 class="modal-title">Descargo de responsabilidad</h5>
                     </div>
-                    <div class="modal-body scrollbar-thin-gray">
+                    <div class="modal-body bg-body scrollbar-thin-gray">
                         <ul class="ps-3">
                             <li tabindex="0">"teles" es un proyecto de código abierto gratuito que permite gestionar
                                 canales
@@ -490,18 +521,18 @@
                                 en todo
                                 momento.</li>
                             <li tabindex="0">Si posees los derechos de algún canal y deseas que sea retirado, <a
-                                    href="https://github.com/Alplox/teles/issues" rel="nofollow noreferrer"> contáctame
+                                    href="https://github.com/Alplox/json-teles/issues" rel="nofollow noreferrer"> contáctame
                                     <i class="bi bi-box-arrow-up-right"></i></a>.
                             </li>
                         </ul>
                         <hr>
                         <p>— Si quieres conocer el origen de cada livestream visita el <a
-                                href="https://github.com/Alplox/teles" rel="nofollow noreferrer">repositorio
-                                GitHub <i class="bi bi-github"></i> <i class="bi bi-box-arrow-up-right"></i></a> de la
+                                href="https://github.com/Alplox/teles" rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio
+                                GitHub <i class="bi bi-box-arrow-up-right"></i></a> de la
                             página.
                         </p>
                     </div>
-                    <div class="modal-footer d-flex align-items-center justify-content-center">
+                    <div class="modal-footer d-flex align-items-center justify-content-center bg-blur">
                         <button type="button" class="btn btn-lg btn-success pulsate-3" id="btn-entendido"
                             data-bs-dismiss="modal" data-bs-target="#modal-bienvenida">Entendido <p
                                 class="fs-x-small m-0 p-0">(No volver a mostrar)</p></button>
@@ -513,12 +544,12 @@
         <!-- Modal Créditos -->
         <div class="modal fade" id="modal-creditos" tabindex="-1" aria-labelledby="Modal Créditos" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
+                <div class="modal-content bg-transparent border-0 shadow">
+                    <div class="modal-header bg-body">
                         <h5 class="modal-title">Créditos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body scrollbar-thin-gray">
+                    <div class="modal-body bg-body">
                         <p>
                             — Desarrollado por <a href="https://github.com/Alplox" rel="nofollow noreferrer">
                                 Alplox <i class="bi bi-box-arrow-up-right"></i></a>.
@@ -534,14 +565,11 @@
                         <a href="https://github.com/Alplox/teles/graphs/contributors" rel="nofollow noreferrer">
                             <img src="https://contrib.rocks/image?repo=Alplox/teles" class="w-25 h-25" />
                         </a>
-                        <p>
-                            <i>[<a href="https://contrib.rocks" rel="noopener noreferrer">contrib.rocks</a>]</i>
-                        </p>
                     </div>
-                    <div class="modal-footer">
-                        <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light">
+                    <div class="modal-footer bg-blur">
+                        <a href="https://github.com/Alplox/teles" rel="nofollow noreferrer" class="btn btn-light rounded-pill">
                             <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -550,15 +578,15 @@
         <!-- Modal Prensa -->
         <div class="modal fade" id="modal-prensa" tabindex="-1" aria-labelledby="Modal Prensa Alternativa"
             aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Medios de Prensa Alternativos <i class="pe-2 bi bi-newspaper"></i> <i
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-md-down" role="document">
+                <div class="modal-content bg-transparent border-0 shadow">
+                    <div class="modal-header bg-body">
+                        <h5 class="modal-title">Prensa Alternativa <i class="pe-2 bi bi-newspaper"></i> <i
                                 class="bi bi-boombox"></i>:</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
                         </button>
                     </div>
-                    <div class="modal-body scrollbar-thin-gray">
+                    <div class="modal-body bg-body scrollbar-thin-gray">
                         <p>
                             <i>* No porque un sitio sea "alternativo" lo convierte en
                                 verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o
@@ -985,15 +1013,17 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p class="modal-caption">
-                            Si quieres contribuir con algun sitio
-                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                        <p class="text-center text-secondary">
+                            <em>
+                                Si quieres contribuir con algún sitio
+                                puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio GitHub <i
                                     class="bi bi-box-arrow-up-right"></i></a>.
+                            </em>
                         </p>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <div class="modal-footer bg-blur">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -1002,14 +1032,14 @@
         <!-- Modal Complementario -->
         <div class="modal fade" id="modal-complementario" tabindex="-1" aria-labelledby="Modal Enlaces Complementarios"
             aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down" role="document">
+                <div class="modal-content bg-transparent border-0 shadow">
+                    <div class="modal-header bg-body">
                         <h5 class="modal-title">Enlaces Complementarios <i class="bi bi-link-45deg"></i></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close">
                         </button>
                     </div>
-                    <div class="modal-body scrollbar-thin-gray">
+                    <div class="modal-body bg-body scrollbar-thin-gray">
                         <table class="table table-bordered">
                             <thead class="table-dark">
                                 <tr>
@@ -1377,165 +1407,243 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p class="modal-caption"> Si quieres contribuir con algún sitio
-                            puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
-                                rel="nofollow noreferrer">repositorio GitHub <i class="bi bi-github"></i> <i
+                        <p class="text-center text-secondary">
+                            <em>
+                                Si quieres contribuir con algún sitio
+                                puedes hacerlo mediante el <a href="https://github.com/Alplox/teles"
+                                rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio GitHub <i
                                     class="bi bi-box-arrow-up-right"></i></a>.
+                            </em>
                         </p>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <div class="modal-footer bg-blur">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- btns flotantes -->
-        <div class="btn-group position-fixed bottom-0 end-0 z-2" role="group" aria-label="grupo botones flotantes">
-            <button type="button" class="focus-outline-blue btn btn-sm bg-light-subtle  rounded-start-5 mb-3 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales" aria-controls="offcanvasCanales">
-                <i class="bi bi-chevron-right"></i> Canales
+        <!-- botones flotantes -->
+        <div class="btn-group position-fixed bottom-0 end-0 z-2 mb-3" role="group" aria-label="grupo botones flotantes" id="grupo-botones-flotantes">
+            <button type="button" class="focus-outline-blue btn btn-sm btn-indigo rounded-start-5 shadow-sm d-flex gap-1 border-0" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCanales" aria-controls="offcanvasCanales">
+                <i class="bi bi-chevron-right"></i> <span>Canales</span>
             </button>
-            <button class="focus-outline-blue btn btn-sm bg-dark-subtle  rounded-end-5 me-4 mb-3 shadow-sm" aria-label="Acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
-                <i class="bi bi-gear" ></i> Personalización
+            <div class="bg-light-subtle">
+                <button type="button" class="focus-outline-blue btn btn-sm btn-outline-indigo rounded-0 shadow-sm border-0 h-100" data-bs-toggle="modal" data-bs-target="#modal-canales">
+                    <i class="bi bi-collection-play"></i>
+                </button>
+            </div>
+            <button type="button" class="focus-outline-blue btn btn-sm btn-dark rounded-end-5 shadow-sm d-flex gap-1 border-0" aria-label="Acceso a personalizaciones" data-bs-toggle="offcanvas" data-bs-target="#sidepanel" aria-controls="sidepanel" tabindex="0">
+                <i class="bi bi-gear"></i> <span>Personalización</span>
             </button>
         </div>
 
-        <!-- sidepanel/personalizaciones -->
-        <div class="offcanvas bg-dark bg-opacity-75 offcanvas-end border border-5 border-dark-subtle rounded-3 overflow-auto"
-            tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
+        <!-- sidepanel/personalizaciones bg-dark bg-opacity-75 border border-2 border-light-subtle rounded-4 overflow-auto -->
+        <div class="offcanvas offcanvas-end bg-transparent bg-blur border border-end-0 border-2 border-light-subtle rounded-start-5" data-bs-scroll="true" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
             <div class="offcanvas-header d-flex justify-content-center p-0">
                 <p class=" bg-dark-subtle rounded-bottom text-center px-5 fs-5 pb-1">Personalización</p>
                 <button type="button" class="btn-close close-sidepanel" data-bs-dismiss="offcanvas"
                     aria-label="Close"></button>
             </div>
             <div class="offcanvas-body scrollbar-thin-gray">
-                <ul class="d-flex flex-column justify-content-start  align-items-center w-100 gap-3 list-unstyled">
+                <ul class="d-flex flex-column justify-content-start align-items-center w-100 gap-3 list-unstyled">
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
-                            <div class="form-check form-switch" title="ocultar navbar">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                            <div class="form-check form-switch d-flex align-items-center gap-2" title="ocultar navbar">
                                 <input class="form-check-input" type="checkbox" role="switch" id="switch-navbar">
-                                <label class="form-check-label" for="switch-navbar" id="status-navbar">Navbar
-                                    <span></span></label>
+                                <label class="form-check-label w-100 d-flex justify-content-between align-items-center" for="switch-navbar" id="status-navbar">
+                                    Navbar
+                                    <span class="ps-1 fs-smaller text-secondary"></span>
+                                    <i class="bi bi-border-top ms-auto bg-light-subtle px-2 py-1 rounded-circle"></i>
+                                </label>
                             </div>
                         </div>
                     </li>
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
-                            <div class="form-check form-switch" title="ocultar overlay">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
+                            <div class="form-check form-switch d-flex align-items-center gap-2" title="ocultar overlay">
                                 <input class="form-check-input" type="checkbox" role="switch" id="switch-overlay">
-                                <label class="form-check-label" for="switch-overlay" id="status-overlay">Overlay
-                                    canales <span></span></label>
+                                <label class="form-check-label w-100 d-flex justify-content-start align-items-center" for="switch-overlay" id="status-overlay">
+                                    Overlay canales 
+                                    <span class="ps-1 fs-smaller text-secondary"></span>
+                                    <i class="bi bi-window-fullscreen flip-icon ms-auto bg-light-subtle px-2 py-1 rounded-circle"></i>
+                                </label>
+                            </div>
+                            <div class="w-100 btn-group d-flex flex-column justify-content-center align-items-center 
+                                py-2 px-3 bg-dark-subtle border border-light-subtle rounded-4 shadow mt-2" role="group" aria-label="button group botones dentro overlay" id="grupo-botones-personalizar-botones-dentro-overlay">
+                                <p class="align-self-start">Botones en overlay</p>
+                                <div class="d-flex gap-3">
+                                    <div class="d-flex flex-column containerPersonalizarBoton" id="containerPersonalizarBotonMoverOverlay">
+                                        <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay" id="btnMover" autocomplete="off" checked data-botonOverlay="overlay-boton-mover">
+                                        <label class="btn btn-outline-indigo rounded-4" for="btnMover"><i class="bi bi-arrows-move"></i></label>
+                                        <span class="fs-smaller text-secondary"></span>
+                                    </div>
+                                    <div class="d-flex flex-column containerPersonalizarBoton" id="containerPersonalizarBotonCambiarOverlay">
+                                        <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay" id="btnCambiar" autocomplete="off" checked data-botonOverlay="overlay-boton-cambiar">
+                                        <label class="btn btn-outline-indigo rounded-4" for="btnCambiar"><i class="bi bi-arrow-repeat"></i></label>
+                                        <span class="fs-smaller text-secondary"></span>
+                                    </div>
+                                    <div class="d-flex flex-column containerPersonalizarBoton" id="containerPersonalizarBotonPaginaOficialOverlay">
+                                        <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay" id="btnFuente" autocomplete="off" checked data-botonOverlay="overlay-boton-pagina-oficial">
+                                        <label class="btn btn-outline-indigo rounded-4" for="btnFuente"><i class="bi bi-box-arrow-up-right"></i></label>
+                                        <span class="fs-smaller text-secondary"></span>
+                                    </div>
+                                    <div class="d-flex flex-column containerPersonalizarBoton" id="containerPersonalizarBotonQuitarOverlay">
+                                        <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay" id="btnQuitar" autocomplete="off" checked data-botonOverlay="overlay-boton-quitar">
+                                        <label class="btn btn-outline-indigo rounded-4" for="btnQuitar"><i class="bi bi-x-circle"></i></label>
+                                        <span class="fs-smaller text-secondary"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </li>
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
-                            <div class="form-check form-switch" title="ocultar fondo">
-                                <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
-                                <label class="form-check-label" for="switch-fondo" id="status-fondo">Branding fondo
-                                    <span></span></label>
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                            <div class="form-check form-switch d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" id="switch-theme">
+                                <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1" for="switch-theme" id="status-theme" >
+                                    Tema <span class="fs-smaller text-secondary">[Claro]</span> <i class="bi bi-sun bg-light-subtle px-2 py-1 rounded-circle ms-auto"></i>
+                                </label>
                             </div>
                         </div>
                     </li>
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-pill">
-                            <div class="form-check form-switch pull-right d-flex align-items-center gap-2">
-                                <input class="form-check-input" type="checkbox" id="darkMode">
-                                <label id="darkModeLabel" for="darkMode"
-                                    class="d-flex justify-content-between align-items-center w-100">Tema [Claro] <i
-                                        class="bi bi-sun bg-white px-2 py-1 rounded-circle"></i></label>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-4">
-                            <label for="tamaño-streams" class="slider-label form-label">Tamaño
-                                [<span>100</span>%]</label>
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
+                            <label for="tamaño-streams" class="slider-label form-label d-flex align-items-center gap-1">Tamaño
+                                <div class="fs-smaller text-secondary">
+                                    [<span>100</span>%]
+                                </div>
+                            </label>
                             <input type="range" value="100" min="50" max="100" class="form-range" id="tamaño-streams">
                         </div>
                     </li>
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-4">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                             <p class="mb-1">Número de canales por fila</p>
                             <div id="transmision-por-fila" class="btn-group w-100 gap-1" role="group"
                                 aria-label="grupo botones número transmisiones por fila">
-                                <button value="12" type="button" class="btn bg-light-subtle w-100">1</button>
-                                <button value="6" type="button" class="btn bg-light-subtle w-100">2</button>
-                                <button value="4" type="button" class="btn btn-primary w-100">3</button>
-                                <button value="3" type="button" class="btn bg-light-subtle w-100">4</button>
-                                <button value="2" type="button" class="btn bg-light-subtle w-100">6</button>
-                                <button value="1" type="button" class="btn bg-light-subtle w-100"
+                                <button value="12" type="button" class="btn btn-light-subtle rounded-4 w-100">1</button>
+                                <button value="6" type="button" class="btn btn-light-subtle rounded-4 w-100">2</button>
+                                <button value="4" type="button" class="btn btn-indigo rounded-4 w-100">3</button>
+                                <button value="3" type="button" class="btn btn-light-subtle rounded-4 w-100">4</button>
+                                <button value="2" type="button" class="btn btn-light-subtle rounded-4 w-100">6</button>
+                                <button value="1" type="button" class="btn btn-light-subtle rounded-4 w-100"
                                     data-bs-toggle="tooltip" data-bs-title="12 a lo enfermo">12</button>
                             </div>
                         </div>
                     </li>
-
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-3">
-                            <button type="button" class="btn bg-light-subtle w-100" id="fullscreen">
-                                <i class="bi bi-arrows-fullscreen me-auto"></i> Entrar pantalla completa
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                            <button type="button" class="btn btn-light-subtle rounded-pill d-flex align-items-center justify-content-center w-100 " id="fullscreen">
+                                Entrar pantalla completa <i class="bi bi-arrows-fullscreen ms-auto"></i>
                             </button>
                         </div>
                     </li>
                     <li class="w-100">
-                        <div class="py-2 px-3 bg-dark-subtle rounded-3">
+                        <div class="w-100 btn-group d-flex flex-column justify-content-center align-items-center 
+                        py-2 px-3 bg-dark-subtle border border-light-subtle rounded-4 shadow gap-1" role="group" aria-label="button group posicion botones flotantes" id="grupo-botones-posicion-botones-flotantes">
+                            <p class="my-2 align-self-start">Botones flotantes</p>
+                            <div class="d-flex gap-1">
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante1" autocomplete="off" data-position="top-0 start-0 mt-3">
+                                <label class="btn btn-outline-indigo rounded-4 rounded-bottom-0 rounded-end-0" for="btnradioflotante1"><i class="bi bi-arrow-up-left-square"></i></label>
+
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante2" autocomplete="off" data-position="top-0 start-50 mt-3 translate-middle-x">
+                                <label class="btn btn-outline-indigo rounded-0" for="btnradioflotante2"><i class="bi bi-arrow-up-square"></i></label>
+
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante3" autocomplete="off" data-position="top-0 end-0 mt-3">
+                                <label class="btn btn-outline-indigo rounded-4 rounded-bottom-0 rounded-start-0" for="btnradioflotante3"><i class="bi bi-arrow-up-right-square"></i></label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante4" autocomplete="off" data-position="top-50 start-0 translate-middle-y">
+                                <label class="btn btn-outline-indigo rounded-0" for="btnradioflotante4"><i class="bi bi-arrow-left-square"></i></label>
+                            
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante5" autocomplete="off" data-position="top-50 start-50 translate-middle">
+                                <label class="btn btn-outline-indigo rounded-0" for="btnradioflotante5"><i class="bi bi-c-square"></i></label>
+                            
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante6" autocomplete="off" data-position="top-50 end-0 translate-middle-y">
+                                <label class="btn btn-outline-indigo rounded-0" for="btnradioflotante6"><i class="bi bi-arrow-right-square"></i></label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante7" autocomplete="off" data-position="bottom-0 start-0 mb-3">
+                                <label class="btn btn-outline-indigo rounded-4 rounded-top-0 rounded-end-0" for="btnradioflotante7"><i class="bi bi-arrow-down-left-square"></i></label>
+                            
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante8" autocomplete="off" data-position="bottom-0 start-50 mb-3 translate-middle-x">
+                                <label class="btn btn-outline-indigo rounded-0" for="btnradioflotante8"><i class="bi bi-arrow-down-square"></i></label>
+                            
+                                <input type="radio" class="btn-check" name="btnradioflotante" id="btnradioflotante9" autocomplete="off" data-position="bottom-0 end-0 mb-3" checked>
+                                <label class="btn btn-outline-indigo rounded-4 rounded-top-0 rounded-start-0" for="btnradioflotante9"><i class="bi bi-arrow-down-right-square"></i></label>
+                            </div>
+                            <div class="w-100 py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow mt-2">
+                                <div class="form-check form-switch d-flex align-items-center gap-2" title="ocultar texto botones flotante">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switch-texto-botones-flotantes">
+                                    <label class="form-check-label w-100 d-flex justify-content-start align-items-center" for="switch-texto-botones-flotantes" id="status-texto-botones-flotantes">
+                                        Texto botones
+                                        <span class="ps-1 fs-smaller text-secondary"></span>
+                                        <i class="bi bi-info-square ms-auto bg-light-subtle px-2 py-1 rounded-circle"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                             <p class="mb-1">Compartir</p>
-                            <button type="button" class='d-none btn bg-light-subtle w-100 btn-compartir'>
+                            <button type="button" class='d-none btn btn-light-subtle w-100 btn-compartir'>
                                 <i class="pe-1 bi bi-share-fill"></i> Compartir
                             </button>
                             <div class="d-flex justify-content-evenly flex-wrap gap-1"
                                 id="contenedor-botones-compartir">
                                 <!-- Boton Facebook -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"
                                     rel="nofollow noreferrer" title="Facebook" data-bs-toggle="tooltip"
                                     data-bs-title="Facebook">
                                     <i class="bi bi-facebook"></i>
                                 </a>
                                 <!-- Boton X/Twitter -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://twitter.com/intent/tweet/?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
                                     rel="nofollow noreferrer" title="X/Twitter" data-bs-toggle="tooltip"
                                     data-bs-title="X/Twitter">
                                     <i class="bi bi-twitter-x"></i>
                                 </a>
                                 <!-- Boton WhatsApp -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://web.whatsapp.com/send?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).%20https%3A%2F%2Falplox.github.io%2Fteles%2F"
                                     rel="nofollow noreferrer" title="WhatsApp" data-bs-toggle="tooltip"
                                     data-bs-title="WhatsApp">
                                     <i class="bi bi-whatsapp"></i>
                                 </a>
                                 <!-- Boton Telegram -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://telegram.me/share/url?text=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F"
                                     rel="nofollow noreferrer" title="Telegram" data-bs-toggle="tooltip"
                                     data-bs-title="Telegram">
                                     <i class="bi bi-telegram"></i>
                                 </a>
                                 <!-- Boton Pinterest -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;media=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;description=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
                                     rel="nofollow noreferrer" title="Pinterest" data-bs-toggle="tooltip"
                                     data-bs-title="Pinterest">
                                     <i class="bi bi-pinterest"></i>
                                 </a>
                                 <!-- Boton LinkedIn -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;summary=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;source=https%3A%2F%2Falplox.github.io%2Fteles%2F"
                                     rel="nofollow noreferrer" title="LinkedIn" data-bs-toggle="tooltip"
                                     data-bs-title="LinkedIn">
                                     <i class="bi bi-linkedin"></i>
                                 </a>
                                 <!-- Boton Reddit -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="https://reddit.com/submit/?url=https%3A%2F%2Falplox.github.io%2Fteles%2F&amp;resubmit=true&amp;title=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo)."
                                     rel="nofollow noreferrer" title="Reddit" data-bs-toggle="tooltip"
                                     data-bs-title="Reddit">
                                     <i class="bi bi-reddit"></i>
                                 </a>
                                 <!-- Boton Correo -->
-                                <a class="btn bg-light-subtle btn-lg" role="button"
+                                <a class="btn btn-light-subtle btn-lg" role="button"
                                     href="mailto:?subject=PWA%20C%C3%B3digo%20Abierto%20para%20ver%2Fcomparar%20preseleccionadas%20transmisiones%20de%20canales%20de%20noticias%20provenientes%20de%20Chile%20(y%20el%20mundo).&amp;body=https%3A%2F%2Falplox.github.io%2Fteles%2F"
                                     target="_self" rel="nofollow noreferrer noopener" title="Correo"
                                     data-bs-toggle="tooltip" data-bs-title="Correo">
@@ -1545,25 +1653,48 @@
                             <div class="input-group mt-3">
                                 <input class="form-control fs-small" type="text" value="https://alplox.github.io/teles/"
                                     aria-label="enlace sitio" readonly id="enlace-compartir">
-                                <button type="button" class="btn btn-primary " id="btn-enlace">Copiar
+                                <button type="button" class="btn btn-outline-indigo" id="btn-enlace">Copiar
                                     enlace <i class="bi bi-clipboard"></i></button>
                             </div>
                         </div>
                     </li>
-                    <li class="w-100 d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#modal-reset">Reiniciar personalizaciones</button>
+                    <li class="w-100">
+                        <div class="bg-dark-subtle rounded-4 w-100 py-2 px-3 border border-light-subtle shadow d-flex flex-column">
+                            <p>Información</p>
+                            <p>
+                                <i class="bi bi-clock-history rounded-3 p-1 me-1"></i><a href="https://github.com/Alplox/teles/blob/main/changelog.md" rel="noopener noreferrer">Changelog <i class="bi bi-box-arrow-up-right"></i></a>
+                            </p>
+                            <p>
+                                <i class="bi bi-github rounded-3 p-1 me-1"></i><a href="https://github.com/Alplox/teles" rel="nofollow noreferrer">Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
+                            </p>
+                        </a>
+                        </div>
+                    </li>
+                    <li class="w-100">
+                        <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                            <div class="form-check form-switch d-flex align-items-center gap-2" title="ocultar fondo">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switch-fondo">
+                                <label class="form-check-label w-100 d-flex justify-content-start align-items-center" for="switch-fondo" id="status-fondo">
+                                    Logo en fondo
+                                    <span class="ps-1 fs-smaller text-secondary"></span>
+                                    <i class="bi bi-eye ms-auto bg-light-subtle px-2 py-1 rounded-circle"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="w-100 d-flex bg-dark-subtle rounded-pill py-2 px-3 border border-light-subtle shadow">
+                        <button type="button" class="btn btn-danger rounded-pill btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#modal-reset">Reiniciar personalizaciones
+                        </button>
                     </li>
                 </ul>
             </div>
-            <div class="d-flex p-3 bg-dark bg-opacity-75 gap-2">
-                <!-- <button type="button" class="btn btn-outline-light " data-bs-toggle="modal"
-                    data-bs-target="#modal-canales">Canales <i class="bi bi-display"></i></button> -->
-                <a class="btn btn-outline-secondary" role="button" href="https://github.com/Alplox/teles"
-                    rel="nofollow noreferrer">
-                    <i class="bi bi-github"></i> Repositorio <i class="bi bi-box-arrow-up-right"></i>
-                </a>
-                <button class="btn btn-secondary ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
+            <div class="d-flex p-3 bg-dark bg-opacity-75 gap-2 rounded-bottom-5">
+                <button type="button" class="btn btn-success rounded-pill" id="boton-pwa-install">
+                    <i class="bi bi-plus-circle-dotted"></i> Instalar
+                </button>
+                
+                <button class="btn btn-secondary ms-auto rounded-pill" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
             </div>
         </div>
 
@@ -1581,38 +1712,36 @@
                                 rel="nofollow noreferrer">¿Qué es localStorage? <i
                                     class="bi bi-box-arrow-up-right"></i></a>)</p>
                     </div>
-                    <div class="modal-footer flex-nowrap p-0">
-                        <button type="button" class="btn btn-lg btn-danger fs-6 col-6 m-0 rounded-0" id="btn-reset"
-                            data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong>Si (borrarlas) <i
-                                    class="bi bi-trash3"></i></strong></button>
-                        <button type="button" class="btn btn-lg btn-secondary fs-6 col-6 m-0 rounded-0"
-                            data-bs-dismiss="modal">No (mantenerlas)</button>
+                    <div class="modal-footer flex-nowrap p-0 bg-transparent bg-blur overflow-hidden">
+                        <button type="button" class="btn btn-lg btn-danger col-6 m-0 rounded-0" id="btn-reset"
+                            data-bs-dismiss="modal" data-bs-toggle="offcanvas"><strong><i
+                                class="bi bi-trash3"></i> Reiniciar</strong></button>
+                        <button type="button" class="btn btn-lg btn-secondary col-6 m-0 rounded-0"
+                            data-bs-dismiss="modal">Cerrar</button>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
         <script src="assets/js/traduccionVideoJS.js"></script>
 
         <script src="assets/js/darkMode.js"></script>
-        <script src="assets/js/filtroCanales.js"></script>
-        <script src="assets/js/F_ocultarBotonesDeQuitarTodaSeñal.js"></script>
-        <script src="assets/js/F_enableTooltipBS.js"></script>
-
-        <script src="assets/js/ordenBotones.js"></script>
-        <script src="assets/js/main.js"></script>
-
-        <script src="assets/js/botonesQuitarTodo.js"></script>
+       
+        <script src="assets/js/main.js" type="module"></script>
+        
+        <script src="assets/js/botonesQuitarTodo.js" type="module"></script>
         <script src="assets/js/botonesCompartir.js"></script>
         <script src="assets/js/botonPantallaCompleta.js"></script>
         <script src="assets/js/botonCopiarEnlace.js"></script>
-        <script src="assets/js/resetLocalStorage.js"></script>
-    </div>
+        <script src="assets/js/botonesCargarCanalesPredeterminados.js" type="module"></script>
+        <script src="assets/js/botonResetLocalStorage.js" type="module"></script>
+       
+        <script src="assets/js/observer.js" type="module"></script>
+        <script src="assets/js/botonPWA-install.js"></script>
+        <script src="assets/js/efectoGlow.js"></script>
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 

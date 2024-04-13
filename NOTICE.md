@@ -24,6 +24,12 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * Screenshots PWA hechas con Progressier https://progressier.com - [(Terms)](https://progressier.com/terms)
 
+* Screenshots README hechas con https://shots.so/ - (No licencia)
+
+* Canales https://github.com/Alplox/json-teles - (No licencia)
+
+* Efecto glow sobre tarjeta logo de fondo https://codepen.io/Hyperplexed/pen/MWQeYLW - [(MIT)](https://codepen.io/Hyperplexed/pen/MWQeYLW)
+
 # Este software utiliza los siguientes paquetes de código abierto:
 
 * Biblioteca CSS https://getbootstrap.com/ - [(MIT)](https://github.com/twbs/bootstrap/blob/main/LICENSE)
@@ -57,3 +63,7 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * [Audio] User Interface Clicks and Buttons 1 por original_sound https://freesound.org/people/original_sound/sounds/493551/ - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)
 
 * isMobile https://github.com/kaimallea/isMobile - [(MIT)](https://github.com/kaimallea/isMobile/blob/main/LICENSE)
+
+* pwa-install https://github.com/khmyznikov/pwa-install - [(MIT)](https://github.com/khmyznikov/pwa-install/blob/main/LICENSE)
+
+* [Audio] CRT turn on notification por Coolshows101sound https://freesound.org/people/Coolshows101sound/sounds/709461/ - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)

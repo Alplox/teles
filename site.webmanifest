@@ -110,19 +110,6 @@
             "src": "./assets/img/PWA/6.jpg",
             "type": "image/jpeg",
             "sizes": "1080x1920"
-        },
-        {
-            "src": "./assets/img/previews/teles-v0-16-canales-por-defecto.jpg",
-            "sizes": "1920x1080",
-            "type": "image/jpg",
-            "form_factor": "wide",
-            "label": "Sitio con canales por defecto"
-        },
-        {
-            "src": "./assets/img/previews/teles-v0-16-personalizar.gif",
-            "sizes": "1865x947",
-            "type": "image/gif",
-            "label": "Personalización disponible"
         }
     ]
 

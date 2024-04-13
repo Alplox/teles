@@ -51,17 +51,11 @@
     - [ ] `QUIZAS` Tema oled
     - [X] Recordar con localStorage
   - [X] Interruptor pantalla completa
-  - [ ] Interruptor listado canales en modal/sidebar
-    - [ ] Recordar con localStorage
+  - [X] Interruptor listado canales en modal/sidebar
   - [ ] `QUIZAS` Cambiar posición navbar
     - [ ] Recordar con localStorage
-  - [ ] `QUIZAS` Slider opacidad modal canales
-    - [ ] Recordar con localStorage
 - [X] Formato
-  - [X] Reducir código canales.js
-  - [X] Quitar SVG's in-line de HTML
   - [X] `IMPROBABLE` Canales en formato JSON
   - [ ] `IMPROBABLE` Unificar múltiples canales en 1 objeto
   - [ ] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
 - [X] Licencia
-- [X] Vanilla JS
