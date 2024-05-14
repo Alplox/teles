@@ -1,7 +1,6 @@
 
 export function alternarPosicionBotonesFlotantes(topClass, startClass, marginClass, translateClass) {
     let divBotonesFlotantes = document.querySelector('#grupo-botones-flotantes')
-
     divBotonesFlotantes.classList.remove(
         'top-0', 'top-50', 'bottom-0',
         'start-0', 'start-50', 'end-0',
@@ -17,11 +16,11 @@ export function alternarPosicionBotonesFlotantes(topClass, startClass, marginCla
 
 export function clicBotonPosicionBotonesFlotantes(topClass, startClass, margin = '', translateClass = '') {
     alternarPosicionBotonesFlotantes(topClass, startClass, margin, translateClass);
-    const posicion = {
+    let posicionElegida = {
         top: topClass,
         start: startClass,
         margin: margin,
         translate: translateClass
     };
-    localStorage.setItem('posicion_botones_flotante', JSON.stringify(posicion));
+    localStorage.setItem('posicion-botones-flotante', JSON.stringify(posicionElegida));
 }

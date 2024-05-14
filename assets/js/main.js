@@ -1,371 +1,251 @@
 /* 
-  main v0.17
+  main v0.18
   by Alplox 
   https://github.com/Alplox/teles
 */
 
 // MARK: import
-import { activarTooltipsBootstrap, removerTooltipsBootstrap } from './F_enableTooltipBS.js';
-import { ocultarTextoBotonesOverlay } from './F_ocultarTextoBotonesOverlay.js';
+import { activarTooltipsBootstrap, removerTooltipsBootstrap } from './controlTooltips.js';
+import { hideTextoBotonesOverlay } from './hideTextoBotonesOverlay.js';
 import {
-  guardarOrdenOriginal,
-  sortButtonsAsc,
-  sortButtonsDesc,
-  restoreOriginalOrder,
-  ordenOriginalEnModal
-} from './F_ordenBotones.js';
-import { codigosBanderas } from './codigosBanderas.js';
-import { filtrarCanalesPorInput } from './F_filtroCanales.js';
-import { alternarPosicionBotonesFlotantes, clicBotonPosicionBotonesFlotantes } from './F_moverBotonesFlotantes.js';
-import { revisarConexion } from './F_revisarConexion.js';
-import { activarBotonTransmisionesPorFila, ajustarClaseColTransmisionesPorFila } from './F_ajustarClasesCanalesActivos.js';
+    guardarOrdenOriginal,
+    ordenarBotonesCanalesAscendente,
+    ordenarBotonesCanalesDescendente,
+    restaurarOrdenOriginalBotonesCanales
+} from './ordenarBotones.js';
+import { CODIGOS_PAISES } from './nombrePaises.js';
+import { filtrarCanalesPorInput } from './filtroCanales.js';
+import { alternarPosicionBotonesFlotantes, clicBotonPosicionBotonesFlotantes } from './moverBotonesFlotantes.js';
+import { ajustarNumeroDivisionesClaseCol, ajustarClaseColTransmisionesPorFila } from './ajustarClasesCanalesActivos.js';
+import { detectarTemaSistema } from './detectarTemaSistema.js';
+import { ajustarVisibilidadBotonesQuitarTodaSeñal } from './ajustarVisibilidadBotonesQuitarTodaSeñal.js';
 
-// MARK: Variables botones CSS
-export let claseBotonPrimaria = 'btn-indigo';
-export let claseBotonPrimariaOutline = 'btn-outline-indigo';
-export let claseBotonSecundaria = 'btn-dark-subtle'
+// MARK: Config
+const URL_JSON_CANALES_PRINCIPAL = 'https://raw.githubusercontent.com/Alplox/json-teles/main/canales.json';
+const URL_M3U_CANALES_IPTV = 'https://iptv-org.github.io/iptv/categories/news.m3u'; // revisar https://github.com/iptv-org/api
+export const CLASE_CSS_BOTON_PRIMARIO = 'btn-indigo';
+export const CLASE_CSS_BOTON_SECUNDARIO = 'btn-dark-subtle'
+export const PREFIJOS_ID_CONTENEDORES_CANALES = ['modal-canales', 'offcanvas-canales', 'modal-cambiar-canal', 'vision-unica'];
+const TWITCH_PARENT = 'alplox.github.io'
+const ARRAY_CANALES_PREDETERMINADOS = ['24-horas', 'meganoticias', 't13'];
+const ARRAY_CANALES_PREDETERMINADOS_EXTRAS = ['chv-noticias', 'galeria-cima', 'lofi-girl'];
+const ICONOS_PARA_CATEGORIAS = {
+    'news': '<i class="bi bi-newspaper" title="Icono noticias"></i>',
+    'general': '<i class="bi bi-tv" title="Icono general"></i>',
+    'radio': '<i class="bi bi-boombox" title="Icono radio"></i>',
+    'music': '<i class="bi bi-music-note-beamed" title="Icono música"></i>',
+    'camera': '<i class="bi bi-camera" title="Icono cámara"></i>',
+    'space': '<i class="bi bi-rocket-takeoff" title="Icono espacio"></i>',
+    'animation': '<i class="bi bi-emoji-laughing-fill" title="Icono dibujos animados"></i>'
+};
+const VALOR_COL_FIJO_ESCRITORIO = 4;
+const VALOR_COL_FIJO_TELEFONO = 12;
 
-// MARK: LocalStorage
-/* 
- _    ___   ___   _   _    ___ _____ ___  ___    _   ___ ___ 
-| |  / _ \ / __| /_\ | |  / __|_   _/ _ \| _ \  /_\ / __| __|
-| |_| (_) | (__ / _ \| |__\__ \ | || (_) |   / / _ \ (_ | _| 
-|____\___/ \___/_/ \_\____|___/ |_| \___/|_|_\/_/ \_\___|___|
-*/
-// ----- RECORDAR CANALES ACTIVOS CON LOCALSTORAGE
-// https://www.javascripttutorial.net/web-apis/javascript-localstorage/
-// https://stackoverflow.com/a/23728844
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete
+// MARK: Audio
+export const AUDIO_ESTATICA = new Audio('assets/sounds/DefectLineTransformer-por-blaukreuz.wav');
+export const AUDIO_FAIL = new Audio('assets/sounds/Cancel-miss-chime-by-Raclure.wav');
+export const AUDIO_SUCCESS = new Audio('assets/sounds/button-pressed-by-Pixabay.mp3');
+const AUDIO_TV_SHUTDOWN = new Audio('assets/sounds/TV-Shutdown-por-MATRIXXX_.mp3');
+export const AUDIO_TURN_ON = new Audio('assets/sounds/CRT-turn-on-notification-por-Coolshows101sound.mp3');
+const AUDIO_POP = new Audio('assets/sounds/User-Interface-Clicks-and-Buttons-1-por-original_sound.mp3');
 
-// pasar item [STRING] de localstorage a una variable (aunque no exista aún)
-let lsCanales = localStorage.getItem('canales_storage');
-// variable vacía, obtiene valor si localstorage posee el item 'canales_storage'
-let lsCanalesJson;
-// variable que almacena string/json durante intercambio para localstorage
-let canalesStorage = {};
+// MARK: querySelector Globales
+const MAIN_NAVBAR = document.querySelector('#navbar');
 
-if (lsCanales !== null) {
-  // pasa string de localstorage a una variable objeto [JSON]
-  lsCanalesJson = JSON.parse(window.localStorage.getItem('canales_storage'));
-  // solo para info rápida desde la consola (opcional dejarlo)
-  console.log(`Tienes [${Object.entries(lsCanalesJson).length}] canales en tú localStorage = ${JSON.stringify(Object.values(lsCanalesJson).join(' - '))}`);
+export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
+const CONTAINER_VISION_UNICA = document.querySelector('#container-vision-unica');
+const CONTAINER_VIDEO_VISION_UNICA = document.querySelector('#container-video-vision-unica');
+const ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA = document.querySelector('#icono-sin-señal-vision-unica');
+
+const BOTON_ACTIVAR_VISION_UNICA = document.querySelector('#boton-activar-diseño-vision-unica');
+const BOTON_ACTIVAR_VISION_GRID = document.querySelector('#boton-activar-diseño-vision-grid');
+
+const MODAL_CAMBIAR_CANAL = document.querySelector('#modal-cambiar-canal');
+const LABEL_MODAL_CAMBIAR_CANAL = document.querySelector('#label-para-nombre-canal-cambiar');
+
+// MARK: Traducción videojs
+if (videojs) {
+    videojs.addLanguage("es", {
+        "Play": "Reproducir",
+        "Play Video": "Reproducir Vídeo",
+        "Pause": "Pausa",
+        "Current Time": "Tiempo reproducido",
+        "Duration": "Duración total",
+        "Remaining Time": "Tiempo restante",
+        "Stream Type": "Tipo de secuencia",
+        "LIVE": "DIRECTO",
+        "Loaded": "Cargado",
+        "Progress": "Progreso",
+        "Fullscreen": "Pantalla completa",
+        "Non-Fullscreen": "Pantalla no completa",
+        "Mute": "Silenciar",
+        "Unmute": "No silenciado",
+        "Playback Rate": "Velocidad de reproducción",
+        "Subtitles": "Subtítulos",
+        "subtitles off": "Subtítulos desactivados",
+        "Captions": "Subtítulos especiales",
+        "captions off": "Subtítulos especiales desactivados",
+        "Chapters": "Capítulos",
+        "You aborted the media playback": "Ha interrumpido la reproducción del vídeo.",
+        "A network error caused the media download to fail part-way.": "Un error de red ha interrumpido la descarga del vídeo.",
+        "The media could not be loaded, either because the server or network failed or because the format is not supported.": "No se ha podido cargar el vídeo debido a un fallo de red o porque la transmisión dejo de estar disponible.",
+        "The media playback was aborted due to a corruption problem or because the media used features your browser did not support.": "La reproducción de vídeo se ha interrumpido por un problema de corrupción de datos o porque el vídeo precisa funciones que su navegador no ofrece.",
+        "No compatible source was found for this media.": "No se ha encontrado ninguna fuente compatible con este vídeo.",
+        "Audio Player": "Reproductor de audio",
+        "Video Player": "Reproductor de video",
+        "Replay": "Volver a reproducir",
+        "Seek to live, currently behind live": "Buscar en vivo, actualmente demorado con respecto a la transmisión en vivo",
+        "Seek to live, currently playing live": "Buscar en vivo, actualmente reproduciendo en vivo",
+        "Progress Bar": "Barra de progreso",
+        "progress bar timing: currentTime={1} duration={2}": "{1} de {2}",
+        "Descriptions": "Descripciones",
+        "descriptions off": "descripciones desactivadas",
+        "Audio Track": "Pista de audio",
+        "Volume Level": "Nivel de volumen",
+        "The media is encrypted and we do not have the keys to decrypt it.": "El material audiovisual está cifrado y no tenemos las claves para descifrarlo.",
+        "Close": "Cerrar",
+        "Modal Window": "Ventana modal",
+        "This is a modal window": "Esta es una ventana modal",
+        "This modal can be closed by pressing the Escape key or activating the close button.": "Esta ventana modal puede cerrarse presionando la tecla Escape o activando el botón de cierre.",
+        ", opens captions settings dialog": ", abre el diálogo de configuración de leyendas",
+        ", opens subtitles settings dialog": ", abre el diálogo de configuración de subtítulos",
+        ", selected": ", seleccionado",
+        "Close Modal Dialog": "Cierra cuadro de diálogo modal",
+        ", opens descriptions settings dialog": ", abre el diálogo de configuración de las descripciones",
+        "captions settings": "configuración de leyendas",
+        "subtitles settings": "configuración de subtítulos",
+        "descriptions settings": "configuración de descripciones",
+        "Text": "Texto",
+        "White": "Blanco",
+        "Black": "Negro",
+        "Red": "Rojo",
+        "Green": "Verde",
+        "Blue": "Azul",
+        "Yellow": "Amarillo",
+        "Magenta": "Magenta",
+        "Cyan": "Cian",
+        "Background": "Fondo",
+        "Window": "Ventana",
+        "Transparent": "Transparente",
+        "Semi-Transparent": "Semitransparente",
+        "Opaque": "Opaca",
+        "Font Size": "Tamaño de fuente",
+        "Text Edge Style": "Estilo de borde del texto",
+        "None": "Ninguno",
+        "Raised": "En relieve",
+        "Depressed": "Hundido",
+        "Uniform": "Uniforme",
+        "Dropshadow": "Sombra paralela",
+        "Font Family": "Familia de fuente",
+        "Proportional Sans-Serif": "Sans-Serif proporcional",
+        "Monospace Sans-Serif": "Sans-Serif monoespacio",
+        "Proportional Serif": "Serif proporcional",
+        "Monospace Serif": "Serif monoespacio",
+        "Casual": "Informal",
+        "Script": "Cursiva",
+        "Small Caps": "Minúsculas",
+        "Reset": "Restablecer",
+        "restore all settings to the default values": "restablece todas las configuraciones a los valores predeterminados",
+        "Done": "Listo",
+        "Caption Settings Dialog": "Diálogo de configuración de leyendas",
+        "Beginning of dialog window. Escape will cancel and close the window.": "Comienzo de la ventana de diálogo. La tecla Escape cancelará la operación y cerrará la ventana.",
+        "End of dialog window.": "Final de la ventana de diálogo.",
+        "{1} is loading.": "{1} se está cargando."
+    });
 }
 
-// ----- MODAL BIENVENIDA CON LOCALSTORAGE PARA QUE NO VUELVA A APARECER AL HACER CLIC EN BOTÓN
-const modalBienvenida = new bootstrap.Modal(document.querySelector('#modal-bienvenida'), {});
-const btnEntendido = document.querySelector('#btn-entendido');
-btnEntendido.addEventListener('click', () => {
-  modalBienvenida.hide();
-  localStorage.setItem('modal_status', 'hide');
+// MARK: LocalStorage
+let lsModal = localStorage.getItem('modal-status') ?? 'show';
+let lsNavbar = localStorage.getItem('navbar-display');
+let lsEstiloVision = localStorage.getItem('diseño-seleccionado');
+
+let lsPosicionBotonesFlotantes = localStorage.getItem('posicion-botones-flotante');
+let lsTextoBotonesFlotantes = localStorage.getItem('texto-botones-flotantes');
+let lsFondo = localStorage.getItem('tarjeta-fondo-display');
+
+// MARK: PERSONALIZACIONES 
+// Navbar
+const CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
+const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#span-valor-visualizacion-navbar');
+
+CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.addEventListener('click', () => {
+    MAIN_NAVBAR.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
+    (CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked ? checkboxOn : checkboxOff)(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display');
 });
 
-// ----- mostrar/ocultar utilizados en overlays/navbar/texto botones flotantes/tarjeta fondo
-function checkboxOn(checkbox, status, item) {
-  checkbox.checked = true;
-  status.textContent = '[Visible]';
-  localStorage.setItem(item, 'show');
-};
-
-function checkboxOff(checkbox, status, item) {
-  checkbox.checked = false;
-  status.textContent = '[Oculto]';
-  localStorage.setItem(item, 'hide');
-};
-
-
-// ocultar navbar
-const navbarCheckbox = document.querySelector('#switch-navbar');
-const navbarStatus = document.querySelector('#status-navbar > span');
-const navbar = document.querySelector('nav');
-
-navbarCheckbox.addEventListener('click', () => {
-  navbar.classList.toggle('d-none', !navbarCheckbox.checked);
-  (navbarCheckbox.checked ? checkboxOn : checkboxOff)(navbarCheckbox, navbarStatus, 'navbar');
+// Overlay
+const CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
+const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#span-valor-visualizacion-overlay');
+CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.addEventListener('click', () => {
+    document.body.classList.toggle('d-none__barras-overlay', !CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked);
+    (CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked ? checkboxOn : checkboxOff)(CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, 'overlay-display');
+    actualizarBotonesPersonalizarOverlay();
 });
 
-// ocultar overlay
-const overlayCheckbox = document.querySelector('#switch-overlay');
-const overlayStatus = document.querySelector('#status-overlay > span');
-
-const botonesIndividualesPersonalizarDentroOverlay = document.querySelectorAll('#grupo-botones-personalizar-botones-dentro-overlay .btn-check');
-const spanBotonesIndividualesPersonalizarDentroOverlay = document.querySelectorAll('#grupo-botones-personalizar-botones-dentro-overlay span');
-
-overlayCheckbox.addEventListener('click', () => {
-  document.body.classList.toggle('d-none__barras-overlay', !overlayCheckbox.checked);
-  (overlayCheckbox.checked ? checkboxOn : checkboxOff)(overlayCheckbox, overlayStatus, 'overlay');
-
-  botonesIndividualesPersonalizarDentroOverlay.forEach(btn => {
-    overlayCheckbox.checked
-      ? (btn.checked = true, btn.disabled = false, document.body.classList.remove('d-none__barras-overlay__overlay-boton-mover', 'd-none__barras-overlay__overlay-boton-cambiar', 'd-none__barras-overlay__overlay-boton-pagina-oficial', 'd-none__barras-overlay__overlay-boton-quitar'))
-      : (btn.checked = false, btn.disabled = true)
-  })
-
-  spanBotonesIndividualesPersonalizarDentroOverlay.forEach(span => {
-    overlayCheckbox.checked ? span.innerHTML = "[visible]" : span.innerHTML = "[oculto]"
-  })
-
-  if (overlayCheckbox.checked) {
-    localStorage.setItem('overlay-boton-mover', 'show');
-    localStorage.setItem('overlay-boton-cambiar', 'show');
-    localStorage.setItem('overlay-boton-pagina-oficial', 'show');
-    localStorage.setItem('overlay-boton-quitar', 'show');
-  }
-
-  ocultarTextoBotonesOverlay() // siempre al final. Evalúa si botones overlay están haciendo desbordamiento
+const BOTONES_PERSONALIZAR_OVERLAY = document.querySelectorAll('.div-boton-personalizar-overlay');
+BOTONES_PERSONALIZAR_OVERLAY.forEach(contenedorBoton => {
+    let botonIndividual = contenedorBoton.querySelector('.btn-check');
+    let datasetBoton = botonIndividual.dataset.botonoverlay
+    botonIndividual.addEventListener('click', () => {
+        localStorage.setItem(`${datasetBoton}`, botonIndividual.checked ? 'show' : 'hide');
+        actualizarBotonesPersonalizarOverlay();
+    });
 });
 
-let contenedoresBotonesIndividualesPersonalizarDentroOverlay = document.querySelectorAll('#grupo-botones-personalizar-botones-dentro-overlay .containerPersonalizarBoton')
+// Tamaño
+const INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
+const SPAN_VALOR_INPUT_RANGE = document.querySelector('#span-valor-input-range');
 
-contenedoresBotonesIndividualesPersonalizarDentroOverlay.forEach(btn => {
-  btn.addEventListener('click', () => {
-    let idMasClaseBoton = btn.querySelector('.btn-check').dataset.botonoverlay;
-    document.body.classList.toggle(`d-none__barras-overlay__${idMasClaseBoton}`, !btn.querySelector('.btn-check').checked);
-    btn.querySelector('.btn-check').checked ? btn.querySelector('span').innerHTML = "[visible]" : btn.querySelector('span').innerHTML = "[oculto]"
-
-    ocultarTextoBotonesOverlay() // siempre al final. Evalúa si botones overlay están haciendo desbordamiento
-    //queda guardar en localstorage y luego cargarlo a la primera carga
-
-    localStorage.setItem(idMasClaseBoton, btn.querySelector('.btn-check').checked ? 'show' : 'hide');
-  })
-})
-
-
-
-// ----- slider tamaño
-const slider = document.querySelector('#tamaño-streams');
-const sliderValue = document.querySelector('.slider-label div > span');
-const canalesGrid = document.querySelector('#canales-grid');
-
-slider.addEventListener('input', (event) => {
-  sliderValue.innerHTML = event.target.value;
-  canalesGrid.style.maxWidth = `${event.target.value}%`;
-  localStorage.setItem('slider_value', event.target.value);
-  ocultarTextoBotonesOverlay();
+INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', (event) => {
+    SPAN_VALOR_INPUT_RANGE.innerHTML = `${event.target.value}%`;
+    CONTAINER_VISION_CUADRICULA.style.maxWidth = `${event.target.value}%`;
+    localStorage.setItem('valor-input-range', event.target.value);
+    hideTextoBotonesOverlay();
 });
 
-// ----- selector numero canales por fila
-let valorColumnaParaEscritorio = 4;
-let valorColumnaParaTelefono = 12;
-let botonesPersonalizarTransmisionesPorFila = document.querySelectorAll('#transmision-por-fila button');
+// Canales por fila
+const SPAN_VALOR_TRANSMISIONES_POR_FILA = document.querySelector('#span-valor-transmisiones-por-fila')
+export const BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
 
-botonesPersonalizarTransmisionesPorFila.forEach(btn => {
-  btn.addEventListener('click', (event) => {
-    activarBotonTransmisionesPorFila(btn.value)
-    // guarda valores de value
-    valorColumnaParaEscritorio = event.target.value;
-    valorColumnaParaTelefono = event.target.value;
-    localStorage.setItem('numero_canales_por_fila', event.target.value);
-    ajustarClaseColTransmisionesPorFila(event.target.value)
-    ocultarTextoBotonesOverlay()
-  })
-})
+BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => {
+    boton.addEventListener('click', () => {
+        ajustarClaseColTransmisionesPorFila(boton.value)
+        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
+        hideTextoBotonesOverlay()
+    })
+});
 
-// ocultar texto botones flotantes
-const textoBotonesFlotantesCheckbox = document.querySelector('#switch-texto-botones-flotantes');
-const textoBotonesFlotantesCheckboxStatus = document.querySelector('#status-texto-botones-flotantes > span');
-const spansTextoBotonesFlotantesCheckbox = document.querySelectorAll('#grupo-botones-flotantes button>span');
-const textoBotonesFlotantesStatusIcon = document.querySelector('#status-texto-botones-flotantes i');
+// Texto botones flotantes
+const CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#checkbox-personalizar-texto-botones-flotantes');
+const SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#span-valor-texto-en-botones-flotante');
+const ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#icono-personalizar-texto-botones-flotantes');
 
-textoBotonesFlotantesCheckbox.addEventListener('click', () => {
-  spansTextoBotonesFlotantesCheckbox.forEach((button) => {
-    button.classList.toggle('d-none', !textoBotonesFlotantesCheckbox.checked);
-  });
+const SPAN_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-flotantes button>span');
 
-  (textoBotonesFlotantesCheckbox.checked ? checkboxOn : checkboxOff)(textoBotonesFlotantesCheckbox, textoBotonesFlotantesCheckboxStatus, 'texto_botones_flotantes');
+CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.addEventListener('click', () => {
+    SPAN_BOTONES_FLOTANTES.forEach(button => {
+        button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+    });
+    (CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked ? checkboxOn : checkboxOff)(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes');
 
-  if (textoBotonesFlotantesCheckbox.checked) {
-    textoBotonesFlotantesStatusIcon.classList.remove('bi-square')
-    textoBotonesFlotantesStatusIcon.classList.add('bi-info-square')
-  } else {
-    textoBotonesFlotantesStatusIcon.classList.remove('bi-info-square')
-    textoBotonesFlotantesStatusIcon.classList.add('bi-square')
-  }
+    CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
+        ? ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square')
+        : ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
 });
 
 // ocultar fondo
-const fondoCheckbox = document.querySelector('#switch-fondo');
-const fondoStatus = document.querySelector('#status-fondo > span');
-const fondoStatusIcon = document.querySelector('#status-fondo i');
-const fondoTarjetaLogo = document.querySelector('#container-tarjeta-logo-fondo');
+const CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#checkbox-tarjeta-logo-background');
+const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#span-valor-visualizacion-tarjeta-logo-background');
+const ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#icono-personalizar-visualizacion-tarjeta-logo-background');
+const CONTAINER_TARJETA_LOGO_BACKGROUND = document.querySelector('#container-tarjeta-logo-background');
 
-fondoCheckbox.addEventListener('click', () => {
-  fondoTarjetaLogo.classList.toggle('d-none', !fondoCheckbox.checked);
-  (fondoCheckbox.checked ? checkboxOn : checkboxOff)(fondoCheckbox, fondoStatus, 'fondo');
-
-  if (fondoCheckbox.checked) {
-    fondoStatusIcon.classList.remove('bi-eye-slash')
-    fondoStatusIcon.classList.add('bi-eye')
-  } else {
-    fondoStatusIcon.classList.remove('bi-eye')
-    fondoStatusIcon.classList.add('bi-eye-slash')
-  }
+CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.addEventListener('click', () => {
+    CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
+    (CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? checkboxOn : checkboxOff)(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display');
+    CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye') : ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
 });
 
-// revisa si usuario ya modifico este valor y aplica ajustes para mostrarlo en sidepanel personalizaciones de forma acorde
-function cargarTransmisionesPorFila() {
-  let lsTransmisionesFila = localStorage.getItem('numero_canales_por_fila')
-  if (lsTransmisionesFila !== null) {
-    valorColumnaParaEscritorio = lsTransmisionesFila;
-    valorColumnaParaTelefono = lsTransmisionesFila;
-    activarBotonTransmisionesPorFila(lsTransmisionesFila);
-    if (isMobile.any) {
-      let transmisionesEnGrid = document.querySelectorAll('div[data-canal]');
-      for (let v of transmisionesEnGrid) {
-        v.classList.remove('col-12', 'col-6', 'col-4', 'col-3', 'col-2', 'vh-100', 'overflow-hidden');
-        v.classList.add(`col-${valorColumnaParaTelefono}`);
-      }
-    } else {
-      ajustarClaseColTransmisionesPorFila(lsTransmisionesFila)
-    }
-  } else { // si es primera carga === localStorage aun no creado
-    if (isMobile.any) {
-      activarBotonTransmisionesPorFila(valorColumnaParaTelefono);
-      let transmisionesEnGrid = document.querySelectorAll('div[data-canal]');
-      for (let v of transmisionesEnGrid) {
-        v.classList.remove('col-12', 'col-6', 'col-4', 'col-3', 'col-2', 'vh-100', 'overflow-hidden');
-        v.classList.add(`col-${valorColumnaParaTelefono}`);
-      }
-      localStorage.setItem('numero_canales_por_fila', valorColumnaParaTelefono);
-    } else {
-      activarBotonTransmisionesPorFila(valorColumnaParaEscritorio);
-      ajustarClaseColTransmisionesPorFila(valorColumnaParaEscritorio)
-      localStorage.setItem('numero_canales_por_fila', valorColumnaParaEscritorio);
-    }
-  }
-}
-
-// MARK: DOMContentLoaded
-// ----- cargar desde localstorage
-let lsSlider = localStorage.getItem('slider_value');
-let lsFondo = localStorage.getItem('fondo');
-let lsNavbar = localStorage.getItem('navbar');
-let lsOverlay = localStorage.getItem('overlay');
-let lsTextoBotonesFlotantes = localStorage.getItem('texto_botones_flotantes');
-let lsModal = localStorage.getItem('modal_status');
-let lsPosicionBotonesFlotantes = localStorage.getItem('posicion_botones_flotante');
-
-let lsOverlayBotonMover = localStorage.getItem('overlay-boton-mover');
-let lsOverlayBotonCambiar = localStorage.getItem('overlay-boton-cambiar');
-let lsOverlayBotonPaginaOficial = localStorage.getItem('overlay-boton-pagina-oficial');
-let lsOverlayBotonQuitar = localStorage.getItem('overlay-boton-quitar');
-
-
-window.addEventListener('DOMContentLoaded', () => {
-  // slider tamaño
-  if (lsSlider !== null) {
-    const sliderValueValue = parseInt(lsSlider) ?? 0;
-    slider.setAttribute('value', sliderValueValue);
-    sliderValue.innerHTML = sliderValueValue;
-    canalesGrid.style.maxWidth = `${sliderValueValue}%`;
-  };
-
-  // tarjeta fondo
-  if (lsFondo !== 'hide') {
-    fondoStatusIcon.classList.remove('bi-eye-slash')
-    fondoStatusIcon.classList.add('bi-eye')
-    fondoTarjetaLogo.classList.remove('d-none')
-    checkboxOn(fondoCheckbox, fondoStatus, 'fondo')
-  } else {
-    fondoStatusIcon.classList.remove('bi-eye')
-    fondoStatusIcon.classList.add('bi-eye-slash')
-    fondoTarjetaLogo.classList.add('d-none')
-    checkboxOff(fondoCheckbox, fondoStatus, 'fondo')
-  }
-
-  // navbar
-  lsNavbar !== 'hide'
-    ? (navbar.classList.remove('d-none'), checkboxOn(navbarCheckbox, navbarStatus, 'navbar'))
-    : (navbar.classList.add('d-none'), checkboxOff(navbarCheckbox, navbarStatus, 'navbar'));
-
-  // overlay
-  lsOverlay !== 'hide'
-    ? (document.body.classList.remove('d-none__barras-overlay'), checkboxOn(overlayCheckbox, overlayStatus, 'overlay'))
-    : (document.body.classList.add('d-none__barras-overlay'), checkboxOff(overlayCheckbox, overlayStatus, 'overlay'));
-
-  botonesIndividualesPersonalizarDentroOverlay.forEach(btn => {
-    lsOverlay !== 'hide' ? (btn.checked = true, btn.disabled = false) : (btn.checked = false, btn.disabled = true)
-  })
-
-  spanBotonesIndividualesPersonalizarDentroOverlay.forEach(span => {
-    lsOverlay !== 'hide' ? span.innerHTML = "[visible]" : span.innerHTML = "[oculto]"
-  })
-
-  // cargar valores de cada boton individual de overlay
-  const opcionesConfiguracion = [
-    { clave: 'overlay-boton-mover', variable: lsOverlayBotonMover },
-    { clave: 'overlay-boton-cambiar', variable: lsOverlayBotonCambiar },
-    { clave: 'overlay-boton-pagina-oficial', variable: lsOverlayBotonPaginaOficial },
-    { clave: 'overlay-boton-quitar', variable: lsOverlayBotonQuitar }
-  ];
-
-  contenedoresBotonesIndividualesPersonalizarDentroOverlay.forEach(btn => {
-    const idMasClaseBoton = btn.querySelector('.btn-check').dataset.botonoverlay;
-    const opcion = opcionesConfiguracion.find(opcion => opcion.clave === idMasClaseBoton);
-
-    if (opcion && opcion.variable === 'hide') {
-      btn.querySelector('.btn-check').checked = false;
-      document.body.classList.toggle(`d-none__barras-overlay__${idMasClaseBoton}`);
-
-      btn.querySelector('.btn-check').checked
-        ? btn.querySelector('span').innerHTML = "[visible]"
-        : btn.querySelector('span').innerHTML = "[oculto]";
-    }
-  });
-
-  // posición botones flotantes
-  const botones = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
-  if (lsPosicionBotonesFlotantes) {
-    const { top, start, margin, translate } = JSON.parse(lsPosicionBotonesFlotantes);
-    alternarPosicionBotonesFlotantes(top, start, margin, translate);
-
-    botones.forEach((boton) => {
-      boton.checked = false;
-      const botonPosition = boton.dataset.position.split(' '); // Separar la posición del botón
-
-      if (botonPosition[0] === top &&
-        botonPosition[1] === start &&
-        (botonPosition[2] || '') === (margin || '') &&   // para estos valores dejamos espacio en blanco como respaldo ya que son los valores que varian su uso entre posiciones
-        (botonPosition[3] || '') === (translate || '')
-      ) {
-        boton.checked = true;
-      }
-    });
-  } else { // carga botones flotantes en el centro-bajo por defecto
-    alternarPosicionBotonesFlotantes('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
-    botones.forEach((boton) => {
-      boton.checked = false;
-      if (boton.dataset.position === 'bottom-0 start-50 mb-3 translate-middle-x') {
-        boton.checked = true;
-      }
-    });
-  }
-
-  // texto botones flotantes
-  if (lsTextoBotonesFlotantes !== 'hide') {
-    checkboxOn(textoBotonesFlotantesCheckbox, textoBotonesFlotantesCheckboxStatus, 'texto_botones_flotantes');
-    textoBotonesFlotantesStatusIcon.classList.remove('bi-square')
-    textoBotonesFlotantesStatusIcon.classList.add('bi-info-square')
-  } else {
-    spansTextoBotonesFlotantesCheckbox.forEach((button) => {
-      button.classList.toggle('d-none', !textoBotonesFlotantesCheckbox.checked);
-    });
-    checkboxOff(textoBotonesFlotantesCheckbox, textoBotonesFlotantesCheckboxStatus, 'texto_botones_flotantes');
-    textoBotonesFlotantesStatusIcon.classList.remove('bi-info-square')
-    textoBotonesFlotantesStatusIcon.classList.add('bi-square')
-  }
-
-  if (lsModal !== 'hide') {
-    modalBienvenida.show();
-    localStorage.setItem('modal_status', 'show');
-  }
-
-  ocultarTextoBotonesOverlay()
-  activarTooltipsBootstrap()
-
-  cargarTransmisionesPorFila()
-});
-
-// MARK: Canales
+// MARK: FETCH CANALES
 /*
    _____          _   _          _      ______  _____ 
   / ____|   /\   | \ | |   /\   | |    |  ____|/ ____|
@@ -374,971 +254,1398 @@ window.addEventListener('DOMContentLoaded', () => {
  | |____ / ____ \| |\  |/ ____ \| |____| |____ ____) |
   \_____/_/    \_\_| \_/_/    \_\______|______ _____/ 
 */
-// Variable global para almacenar listado canales
-let listaCanales
+export let listaCanales;
+/* let listaCanalesRespaldo; */
 
-// Función para cargar el archivo JSON y almacenarlo en una variable
 async function fetchCargarCanales() {
-  try {
-    console.log('Probando carga archivo principal con canales');
-    const response = await fetch('https://raw.githubusercontent.com/Alplox/json-teles/main/canales.json');
-    listaCanales = await response.json();
-  } catch (error) {
-    console.error('Error al cargar el archivo principal canales:', error);
     try {
-      // Intenta cargar desde otro enlace como respaldo
-      console.log('Probando carga archivo respaldo con canales');
-      const responseFallback = await fetch('https://raw.githubusercontent.com/Alplox/teles/92d8b002d10933c6d54631acffaf6d53034f04e8/assets/data/canales.json');
-      listaCanales = await responseFallback.json();
-    } catch (errorFallback) {
-      // Si también falla, muestra el error
-      console.error('Error al cargar el archivo canales desde el enlace de respaldo:', errorFallback);
-      document.querySelector('main').classList.toggle('d-none');
-      document.querySelector('#alerta-error-carga-canales').classList.toggle('d-none');
-      document.querySelector('#alerta-error-carga-canales span').innerHTML = `Error: ${errorFallback}`;
+        console.info('Probando carga archivo principal con canales');
+        const response = await fetch(URL_JSON_CANALES_PRINCIPAL);
+        listaCanales = await response.json();
+        /* listaCanalesRespaldo = { ...listaCanales }; // Hacer una copia del objeto listaCanales */
+    } catch (error) {
+        console.error(`Error al cargar el archivo principal con canales. Error: ${error}`);
+
+        document.querySelector('.fondo-global').classList.add('d-none');
+        document.querySelector('main').classList.add('d-none');
+        document.querySelector('#alerta-error-carga-canales').classList.remove('d-none');
+        document.querySelector('#span-contenedor-error').innerHTML = `Mensaje error: ${error}`;
+
+        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+            document.querySelector(`#${PREFIJO}-body-botones-canales`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
+        }
+
+        document.querySelector('#boton-borrar-localstorage-no-carga-canales').addEventListener('click', () => {
+            try {
+                quitarTodoCanalActivo();
+                localStorage.clear();
+                AUDIO_ESTATICA.volume = 0.8;
+                AUDIO_ESTATICA.loop = true;
+                AUDIO_ESTATICA.play();
+                document.querySelector('#alerta-borrado-localstorage').classList.remove('d-none');
+            } catch (error) {
+                console.error('Error al intentar eliminar almacenamiento local sitio: ', error);
+                mostrarToast(`
+                <span class="fw-bold">Ha ocurrido un error al intentar eliminar el almacenamiento local del sitio.</span>
+                <hr>
+                <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+                <hr>
+                Si error persiste tras recargar, prueba borrar la caché del navegador.
+                <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>
+                `, 'danger', false);
+                return
+            }
+        })
+        return
+    };
+}
+
+async function fetchCargarCanalesIPTV() {
+    console.info('Probando carga archivo m3u');
+    const m3uResponse = await fetch(URL_M3U_CANALES_IPTV);
+    const m3uData = await m3uResponse.text();
+    const parseM3u = await M3U_A_JSON(m3uData);
+
+    // Crear un mapa para indexar los canales por nombre
+    const mapCanales = {};
+    if (listaCanales) {
+        for (const canal in listaCanales) {
+            const nombreLista = listaCanales[canal].nombre ?? 'Canal sin nombre';
+            mapCanales[nombreLista] = listaCanales[canal];
+        }
+
+        // Combinar los canales de parseM3u con los de listaCanales
+        for (const nombreCanal in parseM3u) {
+            const nombreParseM3u = parseM3u[nombreCanal].nombre ?? 'Canal sin nombre';
+            const existingChannel = mapCanales[nombreParseM3u];
+
+            if (existingChannel && sonNombresSimilares(existingChannel.nombre, nombreParseM3u)) {
+                const newUrls = parseM3u[nombreCanal].señales.m3u8_url.filter(url => !existingChannel.señales.m3u8_url.includes(url));
+                existingChannel.señales.m3u8_url.push(...newUrls);
+            } else {
+                listaCanales[nombreCanal] = parseM3u[nombreCanal];
+            }
+        }
     }
-  }
 }
 
 // MARK: Funciones
-// matchingData = listado botones rescatado desde el modal
-function displayAutocompleteCanales(matchingData, inputForm) {
-  const autocompleteContainer = document.createElement('div');
-  autocompleteContainer.classList.add('autocomplete-container', 'shadow', 'd-flex', 'flex-column', 'gap-2');
-  let inputId = inputForm.getAttribute('id');
-  inputId = inputId.replace('input-de-', 'autocomplete-de-');
-  autocompleteContainer.setAttribute('id', inputId);
-
-  // genera boton abajo del input de cada canal para el cambio
-  matchingData.forEach(btn => {
-    let btnAtr = btn.getAttribute('data-canal');
-    let btnAtrDataCountry = btn.getAttribute('data-country');
-    let btnP = btn.querySelector('p');
-    let btnClass = btn.getAttribute('class'); // rescatar clases boton de modal para mostrar los activos
-    let btnPClass = btnP.getAttribute('class'); // rescatar clases párrafo para estilo de titulo a la izquierda e iconos a la derecha
-    // almacena item internos del boton del modal si es que existen
-    let btnSpan = btnP.querySelector('span') ? btnP.querySelector('span').cloneNode(true) : null;
-    let btnImg = btnP.querySelector('img') ? btnP.querySelector('img').cloneNode(true) : null;
-    let btnDiv = btnP.querySelector('div') ? btnP.querySelector('div').cloneNode(true) : null;
-    // crear boton listado sugerencias a mostrar cuando se haga input
-    let sugerencia = document.createElement('button');
-    sugerencia.classList.add('sugerencia', 'fs-smaller', 'border-0', 'p-2', 'w-100', ...btnClass.split(' ').filter(className => className !== 'd-none'), ...btnPClass.split(' '))
-    sugerencia.setAttribute('data-canal-sugerencia', btnAtr);
-    sugerencia.setAttribute('data-country', btnAtrDataCountry);
-    sugerencia.setAttribute('data-bs-dismiss', 'modal');
-    sugerencia.innerHTML = btnSpan.outerHTML + (btnDiv ? btnDiv.outerHTML : '') + (btnImg ? btnImg.outerHTML : '');
-
-    // que hacer cuando se hace clic en algún canal del listado sugerencias
-    sugerencia.addEventListener('click', () => {
-      // Obtiene valor de que canal debería ser enviado a "tele.add()", el div donde se debería cargar el canal nuevo
-      let idDivPadreSugerencia = sugerencia.closest(".autocomplete-container").id;
-      idDivPadreSugerencia = idDivPadreSugerencia.replace('autocomplete-de-', '');
-      // Obtiene valor del div donde se va a realizar cambio
-      let canalSugerenciaPulsada = sugerencia.getAttribute('data-canal-sugerencia');
-      // toma barra activa y la borra
-      let barraOverlayDeCanalActivo = document.querySelector(`#overlay-de-canal-${idDivPadreSugerencia}`)
-      barraOverlayDeCanalActivo.remove()
-      // envía a crear canal con que se va a reemplazar (esto vuelve a generar barra overlay)
-      tele.add(canalSugerenciaPulsada, idDivPadreSugerencia)
-      // borra div con canales de sugerencia
-      autocompleteContainer.remove();
-    });
-    autocompleteContainer.append(sugerencia);
-  });
-
-  let modalBody = document.querySelector(`#Modal-cambiar-${inputId.replace('autocomplete-de-', '')} div.modal-body`)
-  modalBody.append(autocompleteContainer);
-}
-
-function crearIframe(source, titleIframe, canalId) {
-  const fragmentIFRAME = document.createDocumentFragment();
-  /* div general canal */
-  const div = document.createElement('div');
-  div.classList.add('ratio', 'ratio-16x9', 'h-100');
-  div.setAttribute('data-canal-cambio', canalId);
-
-  /* div iframe videos */
-  const divIFRAME = document.createElement('iframe');
-  divIFRAME.src = source;
-  divIFRAME.classList.add('pe-auto');
-  divIFRAME.setAttribute('contenedor-canal-cambio', canalId);
-  divIFRAME.allowFullscreen = true;
-  divIFRAME.title = titleIframe
-  divIFRAME.referrerPolicy = 'no-referrer';  // para stream 24-horas iframe
-
-  div.append(divIFRAME);
-  fragmentIFRAME.append(div);
-  return fragmentIFRAME;
-};
-
-let clonedFragmentBtnFiltrosBanderasParaAutocomplete
-function crearOverlay(nombre, fuente, pais, altIcon, canalId) {
-  const fragmentOVERLAY = document.createDocumentFragment();
-  let contenido;
-  if (!pais && !altIcon) {
-    contenido = `<span>${nombre}</span>`;
-  } else if (!pais && altIcon) {
-    contenido = `<span>${nombre} ${altIcon}</span>`;
-  } else {
-    contenido = `<span>${nombre} <img src="https://flagcdn.com/${pais.toLowerCase()}.svg" alt="bandera ${codigosBanderas[pais]}" title="${codigosBanderas[pais]}" class="svg-bandera"></span>`;
-  }
-
-  let btnMoverEnGrid = document.createElement('button');
-  btnMoverEnGrid.classList.add('btn', 'btn-sm', 'btn-secondary', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'handle', 'mt-1', 'rounded-3');
-  btnMoverEnGrid.setAttribute('type', 'button');
-  btnMoverEnGrid.setAttribute('title', 'Arrastrar y mover este canal');
-  btnMoverEnGrid.setAttribute('data-bs-toggle', 'tooltip');
-  btnMoverEnGrid.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
-  btnMoverEnGrid.id = "overlay-boton-mover"
-  btnMoverEnGrid.innerHTML = '<span>Mover</span><i class="bi bi-arrows-move"></i>'
-
-  let btnCambiarSeñal = document.createElement('button');
-  btnCambiarSeñal.classList.add('btn', 'btn-sm', 'btn-light', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
-  btnCambiarSeñal.setAttribute('type', 'button');
-  btnCambiarSeñal.setAttribute('title', 'Cambiar este canal');
-  btnCambiarSeñal.setAttribute('data-bs-toggle', 'tooltip');
-  btnCambiarSeñal.setAttribute('data-bs-title', 'Cambiar este canal');
-  btnCambiarSeñal.id = "overlay-boton-cambiar"
-  btnCambiarSeñal.innerHTML = '<span>Cambiar</span><i class="bi bi-arrow-repeat"></i>';
-  btnCambiarSeñal.setAttribute('data-button-cambio', canalId);
-  btnCambiarSeñal.addEventListener('click', () => {
-    let fragmentModal = document.createDocumentFragment();
-    let modal = document.createElement('div');
-    modal.classList.add('modal', 'fade');
-    modal.id = `Modal-cambiar-${canalId}`;
-    modal.setAttribute('tabindex', '-1');
-    modal.setAttribute('aria-labelledby', `Modal-cambiar-${canalId}-label`);
-    modal.setAttribute('aria-hidden', 'true');
-
-    let modalDialog = document.createElement('div');
-    modalDialog.classList.add('modal-dialog', 'modal-fullscreen-sm-down', 'modal-dialog-scrollable');
-
-    let modalContent = document.createElement('div');
-    modalContent.classList.add('modal-content', 'bg-blur', 'border-0');
-
-    let modalHeader = document.createElement('div');
-    modalHeader.classList.add('modal-header', 'bg-transparent', 'border-0', 'd-flex', 'flex-column');
-
-    let modalBody = document.createElement('div');
-    modalBody.classList.add('modal-body', 'vh-100', 'scrollbar-thin-gray', 'bg-transparent', 'rounded-bottom-3');
-    modalBody.setAttribute('id', `autocomplete-modal-body-cambiar-${canalId}`)
-
-    const modalBodyDivInterno = document.createElement('div');
-
-    // Crear el elemento div principal
-    const modalMensajeAlertaBusquedaSinCoincidencias = document.createElement('div');
-    modalMensajeAlertaBusquedaSinCoincidencias.classList.add('modal-cambiar-mensaje-alerta', 'shadow', 'd-none');
-    modalMensajeAlertaBusquedaSinCoincidencias.setAttribute('tabindex', '0');
-
-    // Crear el elemento div interno
-    const divInterno = document.createElement('div');
-    divInterno.classList.add('d-flex', 'flex-column', 'rounded-3', 'justify-content-center', 'align-items-center', 'text-wrap', 'h-100', 'bg-danger-subtle', 'p-3');
-
-    // Crear el párrafo con el mensaje de alerta
-    const mensajeAlerta = document.createElement('p');
-    mensajeAlerta.classList.add('fs-4', 'bg-danger', 'p-3', 'rounded-3', 'overflow-auto');
-    mensajeAlerta.style.maxHeight = '150px';
-    mensajeAlerta.innerHTML = `
-          <i class="bi bi-backspace-reverse"></i> 
-          No se han encontrado resultados para tu búsqueda (<span class="text-break fst-italic"></span>).
-      `;
-
-    // Crear el div para las sugerencias
-    const divSugerencias = document.createElement('div');
-    divSugerencias.classList.add('bg-danger', 'bg-opacity-10', 'p-3', 'rounded-3', 'text-start');
-
-    // Crear la lista de sugerencias
-    const listaSugerencias = document.createElement('ul');
-    const sugerencias = ['Asegúrate de que todas las palabras estén escritas correctamente.', 'Prueba diferentes palabras clave.', 'Prueba palabras en español.', 'Desactiva los filtros por país.'];
-    sugerencias.forEach(sugerencia => {
-      const itemLista = document.createElement('li');
-      itemLista.textContent = sugerencia;
-      listaSugerencias.appendChild(itemLista);
-    });
-
-    // Agregar la lista de sugerencias al div de sugerencias
-    divSugerencias.appendChild(listaSugerencias);
-
-    // Agregar el párrafo y el div de sugerencias al div interno
-    divInterno.appendChild(mensajeAlerta);
-    divInterno.appendChild(divSugerencias);
-
-    // Agregar el div interno al div principal
-    modalMensajeAlertaBusquedaSinCoincidencias.appendChild(divInterno);
-    modalBodyDivInterno.appendChild(modalMensajeAlertaBusquedaSinCoincidencias);
-
-
-    let formFloating = document.createElement('div');
-    formFloating.classList.add('form-floating', 'w-100');
-
-    let inputCambioCanal = document.createElement('input');
-    inputCambioCanal.classList.add('form-control', 'rounded-4');
-    inputCambioCanal.type = 'search';
-    inputCambioCanal.id = `input-de-${canalId}`;
-    inputCambioCanal.placeholder = 'Escribe para buscar...';
-    inputCambioCanal.addEventListener('input', (e) => {
-      filtrarCanalesPorInput(e.target.value, document.querySelector(`#autocomplete-de-${canalId}`));
-    });
-
-    let label = document.createElement('label');
-    label.htmlFor = `input-de-${canalId}`;
-    label.innerHTML = `Cambiar [${nombre}] por:`;
-
-
-    // Crear el elemento div
-    let divPadreFiltrosModalCambiar = document.createElement('div');
-    divPadreFiltrosModalCambiar.classList.add('w-100', 'bg-dark-subtle', 'p-2', 'rounded-3', 'd-flex', 'flex-column', 'mt-2', 'rounded-4');
-
-    let divHijoFiltrosModalCambiar = document.createElement("div");
-    divHijoFiltrosModalCambiar.classList.add("d-flex", "gap-2");
-
-    // Crear el botón principal
-    let mainButton = document.createElement("button");
-    mainButton.classList.add("btn", "btn-sm", "btn-dark", "w-100", "rounded-pill");
-    mainButton.setAttribute("type", "button");
-    mainButton.setAttribute("data-bs-toggle", "collapse");
-    mainButton.setAttribute("data-bs-target", "#autocomplete-collapse-btn-group");
-    mainButton.setAttribute("aria-expanded", "false");
-    mainButton.setAttribute("aria-controls", "autocomplete-collapse-btn-group");
-    mainButton.innerHTML = '<i class="bi bi-funnel"></i> Filtrar por país';
-
-    // Crear el div secundario
-    let secondaryDiv = document.createElement("div");
-    secondaryDiv.classList.add("ms-auto");
-
-    // Crear el grupo de botones desplegables
-    let buttonGroup = document.createElement("div");
-    buttonGroup.classList.add("btn-group");
-
-    // Crear el botón desplegable
-    let dropdownButton = document.createElement("button");
-    dropdownButton.setAttribute("type", "button");
-    dropdownButton.classList.add("btn", "btn-sm", "btn-dark", "dropdown-toggle", "h-100", "rounded-pill");
-    dropdownButton.setAttribute("data-bs-toggle", "dropdown");
-    dropdownButton.setAttribute("aria-expanded", "false");
-    dropdownButton.innerHTML = '<i class="bi bi-sort-down"></i> Orden';
-
-    // Crear la lista desplegable
-    let dropdownMenu = document.createElement("ul");
-    dropdownMenu.classList.add("dropdown-menu", "p-2", "rounded-4");
-
-    // Crear los elementos de la lista desplegable
-    let options = [
-      { id: "modal-cambiar-boton-orden-ascendente", label: "Ascendente", icon: "bi-sort-alpha-down", funcionUtilizar: sortButtonsAsc },
-      { id: "modal-cambiar-boton-orden-descendente", label: "Descendente", icon: "bi-sort-alpha-up-alt", funcionUtilizar: sortButtonsDesc },
-      { id: "modal-cambiar-boton-orden-original", label: "Predeterminado", icon: "bi-arrow-clockwise", funcionUtilizar: restoreOriginalOrder, checked: true }
-    ];
-
-    options.forEach(function (option) {
-      let listItem = document.createElement("li");
-      listItem.classList.add("my-1");
-      let input = document.createElement("input");
-      input.setAttribute("type", "radio");
-      input.classList.add("btn-check");
-      input.setAttribute("name", "btnRadioAutocomplete");
-      input.setAttribute("id", option.id);
-      input.setAttribute("autocomplete", "off");
-      if (option.checked) {
-        input.setAttribute("checked", "checked");
-      }
-      let label = document.createElement("label");
-      label.classList.add("btn", "btn-sm", claseBotonPrimariaOutline, "w-100", "d-flex", "gap-1", "rounded-3");
-      label.setAttribute("for", option.id);
-      label.innerHTML = `<i class="bi ${option.icon}"></i> ${option.label}`
-
-      label.addEventListener('click', () => {
-        option.funcionUtilizar(`autocomplete-de-${canalId}`);
-      });
-
-      listItem.append(input);
-      listItem.append(label);
-      dropdownMenu.append(listItem);
-    });
-
-    buttonGroup.append(dropdownButton);
-    buttonGroup.append(dropdownMenu);
-    secondaryDiv.append(buttonGroup);
-    divHijoFiltrosModalCambiar.append(mainButton);
-    divHijoFiltrosModalCambiar.append(secondaryDiv);
-
-    // Crear el elemento div
-    let collapseDiv = document.createElement('div');
-    collapseDiv.classList.add('collapse', 'py-2');
-    collapseDiv.id = 'autocomplete-collapse-btn-group';
-
-    // Crear el elemento div con clase "card card-body"
-    let cardDiv = document.createElement('div');
-    cardDiv.classList.add('card', 'card-body', 'rounded-4');
-
-    // Crear el elemento div con clase "btn-group btn-group-sm container-btn-group"
-    let btnGroupDiv = document.createElement('div');
-    btnGroupDiv.classList.add('btn-group', 'btn-group-sm', 'container-btn-group');
-    btnGroupDiv.setAttribute('role', 'group');
-    btnGroupDiv.setAttribute('aria-label', 'Toggle radio para grupo botones');
-    btnGroupDiv.id = 'autocomplete-collapse-botones-listado-filtro-paises';
-
-    // Crear el botón dentro del grupo de botones
-    let btnMostrarTodoPaisAutocomplete = document.createElement('button');
-    btnMostrarTodoPaisAutocomplete.id = 'autocomplete-btn-mostrar-todo-pais';
-    btnMostrarTodoPaisAutocomplete.classList.add('btn', claseBotonPrimaria, 'rounded-3');
-    btnMostrarTodoPaisAutocomplete.setAttribute('type', 'button');
-    btnMostrarTodoPaisAutocomplete.setAttribute('data-country', 'all');
-
-    // Crear el elemento p dentro del botón
-    let paragraph = document.createElement('p');
-    paragraph.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100');
-
-    // Crear el texto dentro del párrafo
-    let textNode = document.createTextNode('Todos');
-
-    // Crear el elemento span dentro del párrafo
-    let span = document.createElement('span');
-    span.classList.add('badge', 'bg-secondary', 'rounded-pill');
-    span.id = 'autocomplete-span-con-numero-total-canales';
-    span.textContent = Object.keys(listaCanales).length
-    // Añadir el elemento span al párrafo
-    paragraph.append(textNode);
-    paragraph.append(span);
-
-    btnMostrarTodoPaisAutocomplete.append(paragraph);
-
-    btnGroupDiv.append(btnMostrarTodoPaisAutocomplete);
-    cardDiv.append(btnGroupDiv);
-    collapseDiv.append(cardDiv);
-
-    let fragmentoClonado = clonedFragmentBtnFiltrosBanderasParaAutocomplete.cloneNode(true)
-    btnGroupDiv.append(fragmentoClonado);
-
-    divPadreFiltrosModalCambiar.append(divHijoFiltrosModalCambiar);
-    divPadreFiltrosModalCambiar.append(collapseDiv);
-
-    formFloating.append(inputCambioCanal);
-    formFloating.append(label);
-    modalHeader.append(formFloating);
-    modalHeader.append(divPadreFiltrosModalCambiar);
-
-    let modalFooter = document.createElement('div');
-    modalFooter.classList.add('modal-footer', 'bg-transparent', 'border-0', 'd-flex', 'align-items-center', 'justify-content-center');
-
-    let closeButton = document.createElement('button');
-    closeButton.type = 'button';
-    closeButton.classList.add('btn', 'btn-secondary', 'rounded-pill', 'd-flex', 'justify-content-center', 'align-items-center');
-    closeButton.style.height = '2.5rem';  //  https://stackoverflow.com/a/73306474
-    closeButton.style.width = '2.5rem';
-    closeButton.setAttribute('data-bs-dismiss', 'modal');
-    closeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
-
-    modalFooter.append(closeButton);
-    modalContent.append(modalHeader)
-    modalBody.append(modalBodyDivInterno)
-    modalContent.append(modalBody);
-    modalContent.append(modalFooter);
-    modalDialog.append(modalContent);
-    modal.append(modalDialog);
-
-    fragmentModal.append(modal);
-
-    document.body.append(fragmentModal);
-
-    // Activar el modal, darle focus al input si esta en PC y mostrar listado sugerencias canales
-    let myModal = new bootstrap.Modal(document.getElementById(`Modal-cambiar-${canalId}`));
-    modal.addEventListener('shown.bs.modal', () => {
-      !isMobile.any && inputCambioCanal.focus();
-      removerTooltipsBootstrap();
-      guardarOrdenOriginal(`autocomplete-de-${canalId}`);
-    });
-    myModal.show();
-    displayAutocompleteCanales(ordenOriginalEnModal, inputCambioCanal);
-
-    // seleccionamos los botones insertados del filtro por pais y les añadimos el eventListener (estos debido a que cloneNode NO copia esto si se añadiese durante creación botones)
-    document.querySelectorAll('#autocomplete-collapse-botones-listado-filtro-paises button').forEach(btnPaisEnDom => {
-      btnPaisEnDom.addEventListener('click', (event) => {
-        let botonPulsado = event.currentTarget; // Obtiene una referencia al botón al que se adjuntó el event listener
-        encontrarContenedor(botonPulsado, botonPulsado); // Llama a una función para encontrar el contenedor del botón
-      });
-    });
-
-    // Agregar evento para eliminar el modal del DOM cuando se cierre
-    modal.addEventListener('hidden.bs.modal', () => {
-      modal.remove();
-      activarTooltipsBootstrap();
-    });
-  });
-
-  const a = document.createElement('a');
-  a.innerHTML = contenido + `<i class="bi bi-box-arrow-up-right"></i>`;
-  a.title = 'Ir a la página oficial de esta transmisión';
-  a.href = fuente;
-  a.setAttribute('tabindex', 0);
-  a.setAttribute('data-bs-toggle', 'tooltip');
-  a.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
-  a.rel = 'noopener nofollow noreferrer';
-  a.classList.add('d-flex', 'text-nowrap', 'gap-1', 'btn', 'btn-sm', 'btn-dark', 'p-0', 'px-1', 'pe-auto', 'mt-1', 'rounded-3');
-  a.id = "overlay-boton-pagina-oficial"
-
-  const btnRemove = document.createElement('button');
-  btnRemove.classList.add('btn', 'btn-sm', 'btn-danger', 'top-0', 'end-0', 'p-0', 'px-1', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
-  btnRemove.setAttribute('aria-label', 'Close');
-  btnRemove.setAttribute('type', 'button');
-  btnRemove.setAttribute('title', 'Quitar canal');
-  btnRemove.setAttribute('data-bs-toggle', 'tooltip');
-  btnRemove.setAttribute('data-bs-title', 'Quitar canal');
-  btnRemove.id = "overlay-boton-quitar"
-  btnRemove.innerHTML = '<span>Quitar</span><i class="bi bi-x-circle"></i>';
-  const audioQuitarCanal = new Audio('assets/sounds/User-Interface-Clicks-and-Buttons-1-por-original_sound.mp3');
-  btnRemove.addEventListener('click', () => {
-    tele.remove(canalId)
-    audioQuitarCanal.play()
-  });
-
-  const divOVERLAY = document.createElement('div');
-  divOVERLAY.setAttribute('id', `overlay-de-canal-${canalId}`)
-  divOVERLAY.classList.add(
-    'position-absolute', 'w-100', 'h-100',
-    'bg-transparent', 'pe-none', 'me-1',
-    'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap',
-    'top-0', 'end-0', 'barra-overlay');
-  /* divOVERLAY.classList.toggle('d-none', !(overlayCheckbox.checked === true || divOVERLAY.classList.contains('d-none'))); */
-  divOVERLAY.append(btnMoverEnGrid);
-  divOVERLAY.append(btnCambiarSeñal);
-  divOVERLAY.append(a);
-  divOVERLAY.append(btnRemove);
-
-  fragmentOVERLAY.append(divOVERLAY);
-  return fragmentOVERLAY;
-};
-
-function encontrarContenedor(elemento, botonPulsado) {
-  // Itera hacia arriba en la jerarquía del DOM hasta encontrar el contenedor
-  while (elemento.parentNode) {
-    elemento = elemento.parentNode;
-    let idElemento = elemento.id;
-    // vemos si boton tiene valor "data-country" valido para ser usado como "filtro"
-    let filtro;
-    const country = botonPulsado.dataset.country;
-    if (codigosBanderas[country]) {
-      filtro = codigosBanderas[country];
-    } else if (country === 'Desconocido') {
-      filtro = 'Desconocido';
-    } else if (country === 'all') {
-      filtro = '';
-    }
-    // revisamos donde filtrar
-    if (idElemento.startsWith('modal')) {
-      document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button').forEach(btn => {
-        btn.classList.replace(claseBotonPrimaria, 'btn-outline-secondary');
-      });
-      botonPulsado.classList.replace('btn-outline-secondary', claseBotonPrimaria);
-      filtrarCanalesPorInput(filtro, document.querySelector('#modal-body-botones-canales'));
-      break;
-    }
-    else if (idElemento.startsWith('offcanvas')) {
-      document.querySelectorAll('#offcanvas-collapse-botones-listado-filtro-paises button').forEach(btn => {
-        btn.classList.replace(claseBotonPrimaria, 'btn-outline-secondary');
-      });
-      botonPulsado.classList.replace('btn-outline-secondary', claseBotonPrimaria);
-      filtrarCanalesPorInput(filtro, document.querySelector('#offcanvas-body-botones-canales'));
-      break;
-    }
-    else if (idElemento.startsWith('autocomplete')) {
-      let idElementoAutocomplete
-      while (elemento.parentNode) {
-        elemento = elemento.parentNode;
-        idElementoAutocomplete = elemento.id;
-        if (idElementoAutocomplete.startsWith('Modal-cambiar-')) {
-          idElementoAutocomplete = idElementoAutocomplete.replace('Modal-cambiar-', 'autocomplete-modal-body-cambiar-')
-          break;
+// Hacen una sola tarea
+async function M3U_A_JSON(m3u) {
+    const channels = {};
+    const lines = m3u.split('\n').filter(line => line.trim() !== '');
+
+    for (let i = 1; i < lines.length; i++) {
+        const channelInfo = lines[i].match(/([^\s]+)="([^"]+)"/g);
+        if (channelInfo) {
+            const attributes = channelInfo.reduce((acc, attr) => {
+                const [key, value] = attr.split('=');
+                acc[key.replace(/"/g, '')] = value.replace(/"/g, '');
+                return acc;
+            }, {});
+
+            //  const NOMBRE_CANAL = lines[i].match(/,([^,]+)$/)[1] ?? 'Nombre canal no encontrado'; //añade lo de (1080p) [24//7]
+            const NOMBRE_CANAL = lines[i].match(/,([^,(]+)/)[1]?.trim() ?? 'Nombre canal no encontrado'; // no añade lo que este luego del primer "("
+
+            const LOGO_IMG = attributes['tvg-logo'] ?? '';
+            const GROUP_TITLE_ID = attributes['group-title']?.toLowerCase() ?? '';
+
+            const TVG_ID = attributes['tvg-id'] ?? `canal-m3u8-${i}.`;
+            const [NOMBRE_CANAL_PARA_ID, COUNTRY_ID = ""] = TVG_ID.toLowerCase().split('.');
+
+            channels[NOMBRE_CANAL_PARA_ID] = {
+                "nombre": NOMBRE_CANAL,
+                "logo": LOGO_IMG,
+                "señales": {
+                    "iframe_url": [],
+                    "m3u8_url": [lines[i + 1]],
+                    "yt_id": "",
+                    "yt_embed": "",
+                    "yt_playlist": "",
+                    "twitch_id": ""
+                },
+                "sitio_oficial": "",
+                "categoría": GROUP_TITLE_ID,
+                "país": COUNTRY_ID,
+            };
         }
-      }
-      document.querySelectorAll('#autocomplete-collapse-botones-listado-filtro-paises button').forEach(btn => {
-        btn.classList.replace(claseBotonPrimaria, 'btn-outline-secondary');
-      });
-      botonPulsado.classList.replace('btn-outline-secondary', claseBotonPrimaria);
-      filtrarCanalesPorInput(filtro, document.querySelector(`#${idElementoAutocomplete}`));
-      break;
     }
-  }
-  // Si no se encuentra el contenedor deseado, se puede devolver null o realizar otra acción según tus necesidades
-  return null;
+    return channels;
 }
 
-// MARK: tele
+function sonNombresSimilares(nombre1, nombre2) {
+    const nombre1Lower = nombre1.toLowerCase();
+    const nombre2Lower = nombre2.toLowerCase();
+    return nombre1Lower.includes(nombre2Lower) || nombre2Lower.includes(nombre1Lower);
+}
+
+export function obtenerCanalesPredeterminados(isMobile) {
+    return isMobile ? ARRAY_CANALES_PREDETERMINADOS : ARRAY_CANALES_PREDETERMINADOS.concat(ARRAY_CANALES_PREDETERMINADOS_EXTRAS);
+}
+
+export function playAudioSinDelay(audio) {
+    audio.pause();  // https://stackoverflow.com/a/51573799
+    audio.currentTime = 0;
+    audio.play();
+}
+
+export function guardarCanalesEnLocalStorage() {
+    try {
+        const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
+        localStorage.removeItem('canales-vision-cuadricula');
+        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
+        CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
+            lsCanales[divCanal.dataset.canal] = listaCanales[divCanal.dataset.canal].nombre;
+        });
+        localStorage.setItem('canales-vision-cuadricula', JSON.stringify(lsCanales));
+
+        document.querySelector('#alerta-guardado-canales').classList.remove('d-none');
+        setTimeout(() => {
+            document.querySelector('#alerta-guardado-canales').classList.add('d-none');
+        }, 420);
+    } catch (error) {
+        console.error('Error al intentar guardar canales en el almacenamiento local: ', error);
+        mostrarToast(`
+        <span class="fw-bold">Error al intentar guardar canales en el almacenamiento local.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    }
+}
+
+export function quitarTodoCanalActivo() {
+    try {
+        playAudioSinDelay(AUDIO_TV_SHUTDOWN)
+
+        document.querySelectorAll('div[data-canal]').forEach(canalActivo => {
+            const CANAL_A_REMOVER = canalActivo.dataset.canal;
+            if (CANAL_A_REMOVER) {
+                tele.remove(CANAL_A_REMOVER);
+            }
+        });
+    } catch (error) {
+        console.error(`Error al intentar quitar todos los canales. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error al intentar quitar todos los canales.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    }
+};
+
+export function mostrarToast(mensaje = '', tipo = 'secondary', autohideValue = true, delayValue = 3500) {
+    const TOAST_CONTAINER = document.querySelector('#toast-container');
+    const TOAST_DIV = document.createElement('div');
+    TOAST_DIV.setAttribute('role', 'alert');
+    TOAST_DIV.setAttribute('aria-live', 'assertive');
+    TOAST_DIV.setAttribute('aria-atomic', 'true');
+    TOAST_DIV.classList.add('toast', 'd-flex', 'align-items-center', 'border-0');
+
+    let toastIcono = '<i class="bi bi-info-circle-fill"></i>';
+    if (tipo === 'success') {
+        TOAST_DIV.classList.add('bg-success', 'text-white');
+        toastIcono = '<i class="bi bi-check-circle"></i>';
+    } else if (tipo === 'warning') {
+        TOAST_DIV.classList.add('bg-warning', 'text-dark');
+        toastIcono = '<i class="bi bi-exclamation-circle"></i>';
+    } else if (tipo === 'danger') {
+        TOAST_DIV.classList.add('bg-danger', 'text-white');
+        toastIcono = '<i class="bi bi-x-circle"></i>';
+    } else if (tipo === 'info') {
+        TOAST_DIV.classList.add('bg-info', 'text-dark');
+        toastIcono = '<i class="bi bi-info-circle"></i>';
+    } else if (tipo === 'primary') {
+        TOAST_DIV.classList.add('bg-primary', 'text-white');
+    } else if (tipo === 'secondary') {
+        TOAST_DIV.classList.add('bg-secondary', 'text-white');
+    } else {
+        TOAST_DIV.classList.add('bg-secondary', 'text-white');
+    }
+
+    const TOAST_BODY = document.createElement('div');
+    TOAST_BODY.innerHTML = `${toastIcono} ${mensaje}`;
+    TOAST_BODY.classList.add('toast-body');
+
+    const TOAST_BOTON_CERRAR = document.createElement('button');
+    TOAST_BOTON_CERRAR.setAttribute('type', 'button');
+    TOAST_BOTON_CERRAR.setAttribute('data-bs-dismiss', 'toast');
+    TOAST_BOTON_CERRAR.setAttribute('aria-label', 'Close');
+    TOAST_BOTON_CERRAR.classList.add('btn-close', 'btn-close-white', 'me-2', 'm-auto');
+    TOAST_BOTON_CERRAR.addEventListener('click', () => {
+        TOAST_DIV.remove();
+    });
+
+    TOAST_DIV.append(TOAST_BODY);
+    TOAST_DIV.append(TOAST_BOTON_CERRAR);
+    TOAST_CONTAINER.append(TOAST_DIV);
+
+    const BOOTSTRAP_TOAST = new bootstrap.Toast(TOAST_DIV, { delay: Number(delayValue), autohide: autohideValue });
+    BOOTSTRAP_TOAST.show();
+}
+
+export function obtenerNumeroCanalesFila() { // el numero, no el valor clase 'col-'
+    let lsTransmisionesFila = localStorage.getItem('numero-class-columnas-por-fila');
+    let seleccionTransmisionesFila;
+    if (lsTransmisionesFila === '12') {
+        seleccionTransmisionesFila = 1;
+    } else if (lsTransmisionesFila === '6') {
+        seleccionTransmisionesFila = 2;
+    } else if (lsTransmisionesFila === '4') {
+        seleccionTransmisionesFila = 3;
+    } else if (lsTransmisionesFila === '3') {
+        seleccionTransmisionesFila = 4;
+    } else if (lsTransmisionesFila === '2') {
+        seleccionTransmisionesFila = 6;
+    } else if (lsTransmisionesFila === '1') {
+        seleccionTransmisionesFila = 12;
+    };
+    return seleccionTransmisionesFila
+}
+
+function checkboxOn(checkbox, status, item) {
+    checkbox.checked = true;
+    status.textContent = '[Visible]';
+    localStorage.setItem(item, 'show');
+};
+
+function checkboxOff(checkbox, status, item) {
+    checkbox.checked = false;
+    status.textContent = '[Oculto]';
+    localStorage.setItem(item, 'hide');
+};
+
+function actualizarValorSlider() {
+    let valorInputRange = parseInt(localStorage.getItem('valor-input-range') ?? 100);
+    INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.setAttribute('value', valorInputRange);
+    SPAN_VALOR_INPUT_RANGE.textContent = `${valorInputRange}%`;
+    CONTAINER_VISION_CUADRICULA.style.maxWidth = `${valorInputRange}%`;
+}
+
+function actualizarBotonesPersonalizarOverlay() {
+    try {
+        BOTONES_PERSONALIZAR_OVERLAY.forEach(contenedorBoton => {
+            let botonIndividual = contenedorBoton.querySelector('.btn-check');
+            let datasetBoton = botonIndividual.dataset.botonoverlay;
+            let spanValorBoton = contenedorBoton.querySelector('span');
+    
+            if (localStorage.getItem('overlay-display') !== 'hide') {
+                botonIndividual.disabled = false;
+                document.body.classList.remove('d-none__barras-overlay');
+                checkboxOn(CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, 'overlay-display');
+                if (localStorage.getItem(`${datasetBoton}`) === 'hide') {
+                    botonIndividual.checked = false;
+                    spanValorBoton.innerHTML = "[oculto]";
+                    document.body.classList.add(`d-none__barras-overlay__${datasetBoton}`);
+                } else {
+                    botonIndividual.checked = true;
+                    spanValorBoton.innerHTML = "[visible]";
+                    document.body.classList.remove(`d-none__barras-overlay__${datasetBoton}`);
+                };
+            } else {
+                botonIndividual.checked = false;
+                botonIndividual.disabled = true;
+                spanValorBoton.innerHTML = "[oculto]";
+                document.body.classList.add('d-none__barras-overlay');
+                checkboxOff(CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, 'overlay-display');
+            };
+    
+            hideTextoBotonesOverlay(); // siempre al final. Evalúa si botones overlay están haciendo desbordamiento
+        });
+    } catch (error) {
+        console.error(`Error durante actualización estado botones personalizar overlay. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la actualización del estado botones personalizar overlay.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    } 
+}
+
+// hacen varias tareas
+function ajustarClaseBotonCanal(canal, esActivo) {
+    let botones = document.querySelectorAll(`button[data-canal="${canal}"]`);
+    botones.forEach(boton => {
+        esActivo ? boton.classList.replace(CLASE_CSS_BOTON_SECUNDARIO, CLASE_CSS_BOTON_PRIMARIO) : boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO);
+    });
+}
+
+function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
+    valorIndex = Number(valorIndex)
+    const DIV_ELEMENT = document.createElement('div');
+    DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+    DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
+    const { nombre, señales } = listaCanales[canalId];
+
+    const URL_POR_TIPO_SEÑAL = {
+        'iframe_url': señales.iframe_url && señales.iframe_url[valorIndex],
+        'yt_id': señales.yt_id && `https://www.youtube-nocookie.com/embed/live_stream?channel=${señales.yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`,
+        'yt_embed': señales.yt_embed && `https://www.youtube-nocookie.com/embed/${señales.yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`,
+        'yt_playlist': señales.yt_playlist && `https://www.youtube-nocookie.com/embed/videoseries?list=${señales.yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`,
+        'twitch_id': señales.twitch_id && `https://player.twitch.tv/?channel=${señales.twitch_id}&parent=${TWITCH_PARENT}`
+    };
+
+    const IFRAME_ELEMENT = document.createElement('iframe');
+    IFRAME_ELEMENT.src = URL_POR_TIPO_SEÑAL[tipoSeñalParaIframe];
+    IFRAME_ELEMENT.classList.add('pe-auto');
+    IFRAME_ELEMENT.setAttribute('contenedor-canal-cambio', canalId);
+    IFRAME_ELEMENT.allowFullscreen = true;
+    IFRAME_ELEMENT.title = nombre;
+    IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
+
+    DIV_ELEMENT.append(IFRAME_ELEMENT);
+    return DIV_ELEMENT;
+}
+
+function crearVideoJs(canalId, urlCarga) {
+    const DIV_ELEMENT = document.createElement('div');
+    DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
+    DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+    const videoElement = document.createElement('video');
+    videoElement.setAttribute('contenedor-canal-cambio', canalId);
+    videoElement.classList.add('position-absolute', 'p-0', 'video-js', 'vjs-16-9', 'vjs-fill', 'overflow-hidden');
+    videoElement.toggleAttribute('controls');
+    DIV_ELEMENT.append(videoElement);
+    videojs(videoElement).src({
+        src: urlCarga,
+        controls: true,
+    });
+    videojs(videoElement).autoplay('muted');
+    return DIV_ELEMENT;
+}
+
+function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
+    try {
+        let { nombre = 'Nombre Canal', señales, sitio_oficial, país, categoría } = listaCanales[canalId];
+
+        valorIndex = Number(valorIndex);
+        let iconoCategoria = categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
+
+        const FRAGMENT_OVERLAY = document.createDocumentFragment();
+        const DIV_ELEMENT = document.createElement('div');
+        DIV_ELEMENT.id = `overlay-de-canal-${canalId}`;
+        DIV_ELEMENT.classList.add('position-absolute', 'w-100', 'h-100', 'bg-transparent', 'pe-none', 'me-1', 'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap', 'top-0', 'end-0', 'barra-overlay');
+
+        const BOTON_SELECCIONAR_SEÑAL_CANAL = document.createElement("button");
+        BOTON_SELECCIONAR_SEÑAL_CANAL.id = 'overlay-boton-selecionar-señal'
+        BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('type', 'button');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('title', 'Seleccionar diferente señal');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('data-bs-toggle', 'dropdown');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('aria-expanded', 'false');
+
+        BOTON_SELECCIONAR_SEÑAL_CANAL.innerHTML = '<span>Seleccionar señal</span><i class="bi bi-collection" data-bs-toggle="tooltip" data-bs-title="Seleccionar diferente señal"></i>';
+        BOTON_SELECCIONAR_SEÑAL_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'dropdown-toggle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'p-0', 'px-1', 'pe-auto', 'mt-1', 'rounded-3');
+
+        const DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL = document.createElement("ul");
+        DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.classList.add('dropdown-menu');
+
+        for (const key in señales) {
+            let iconoSeñal = '<i class="bi bi-globe"></i>'
+            if (key.startsWith('iframe_')) {
+                iconoSeñal = '<i class="bi bi-globe"></i>'
+            } else if (key.startsWith('m3u8_')) {
+                iconoSeñal = '<i class="bi bi-play-btn"></i>'
+            } else if (key.startsWith('yt_')) {
+                iconoSeñal = '<i class="bi bi-youtube"></i>'
+            } else if (key.startsWith('twitch_')) {
+                iconoSeñal = '<i class="bi bi-twitch"></i>'
+            }
+
+            const value = señales[key];
+            if (Array.isArray(value) && value.length > 0) {
+                value.forEach((url, index) => {
+                    const listItem = document.createElement("li");
+                    listItem.classList.add('dropdown-item', 'pe-auto', 'py-2', 'user-select-none');
+                    if (tipoSeñalCargada === key && valorIndex === index) listItem.classList.add('bg-indigo', 'fw-bold');
+                    listItem.innerHTML = value.length === 1 ? `${iconoSeñal} ${key.split('_')[0]}` : `${iconoSeñal} ${key.split('_')[0]} <span class="fst-italic">${index}</span>`;
+                    listItem.addEventListener("click", () => {
+                        DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.querySelectorAll('.dropdown-item').forEach(item => {
+                            item.classList.remove('bg-indigo', 'fw-bold');
+                        });
+                        listItem.classList.add('bg-indigo', 'fw-bold');
+                        guardarSeñalPreferida(canalId, key.toString(), Number(index));
+                        cambiarSoloSeñalActiva(canalId);
+                    });
+                    DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.append(listItem);
+                });
+            } else if (typeof value === "string" && value !== "") {
+                const listItem = document.createElement("li");
+                listItem.classList.add('dropdown-item', 'pe-auto', 'py-2', 'user-select-none');
+                if (tipoSeñalCargada === key) listItem.classList.add('bg-indigo', 'fw-bold');
+                listItem.innerHTML = `${iconoSeñal} ${key.replace('_', ' ')}`;
+                listItem.addEventListener("click", () => {
+                    DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.querySelectorAll('.dropdown-item').forEach(item => {
+                        item.classList.remove('bg-indigo', 'fw-bold');
+                    });
+                    listItem.classList.add('bg-indigo', 'fw-bold');
+                    guardarSeñalPreferida(canalId, key.toString());
+                    cambiarSoloSeñalActiva(canalId);
+                });
+                DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.append(listItem);
+            }
+        }
+
+        const BOTON_MOVER_CANAL = document.createElement('button');
+        BOTON_MOVER_CANAL.id = 'overlay-boton-mover';
+        BOTON_MOVER_CANAL.setAttribute('type', 'button');
+        BOTON_MOVER_CANAL.setAttribute('title', 'Arrastrar y mover este canal');
+        BOTON_MOVER_CANAL.setAttribute('data-bs-toggle', 'tooltip');
+        BOTON_MOVER_CANAL.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
+        BOTON_MOVER_CANAL.innerHTML = '<span>Mover</span><i class="bi bi-arrows-move"></i>';
+        BOTON_MOVER_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'clase-para-mover');
+
+        const BOTON_CAMBIAR_CANAL = document.createElement('button');
+        BOTON_CAMBIAR_CANAL.id = 'overlay-boton-cambiar';
+        BOTON_CAMBIAR_CANAL.setAttribute('type', 'button');
+        BOTON_CAMBIAR_CANAL.setAttribute('title', 'Cambiar este canal');
+        BOTON_CAMBIAR_CANAL.setAttribute('data-bs-toggle', 'tooltip');
+        BOTON_CAMBIAR_CANAL.setAttribute('data-bs-title', 'Cambiar este canal');
+        BOTON_CAMBIAR_CANAL.setAttribute('data-button-cambio', canalId);
+        BOTON_CAMBIAR_CANAL.innerHTML = '<span>Cambiar</span><i class="bi bi-arrow-repeat"></i>';
+        BOTON_CAMBIAR_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
+        BOTON_CAMBIAR_CANAL.addEventListener('click', () => {
+            LABEL_MODAL_CAMBIAR_CANAL.textContent = nombre;
+            LABEL_MODAL_CAMBIAR_CANAL.setAttribute('id-canal-cambio', canalId);
+            new bootstrap.Modal(MODAL_CAMBIAR_CANAL).show();
+        });
+
+        const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
+        BOTON_SITIO_OFICIAL_CANAL.id = 'overlay-boton-pagina-oficial';
+        BOTON_SITIO_OFICIAL_CANAL.title = 'Ir a la página oficial de esta transmisión';
+        if (tipoSeñalCargada === 'yt_id') sitio_oficial = `https://www.youtube.com/channel/${señales.yt_id}`;
+        if (tipoSeñalCargada === 'twitch_id') sitio_oficial = `https://www.twitch.tv/${señales.twitch_id}`;
+        BOTON_SITIO_OFICIAL_CANAL.href = sitio_oficial !== '' ? sitio_oficial : `https://www.qwant.com/?q=${nombre}+en+vivo`;
+        BOTON_SITIO_OFICIAL_CANAL.setAttribute('role', 'button');
+        BOTON_SITIO_OFICIAL_CANAL.setAttribute('data-bs-toggle', 'tooltip');
+        BOTON_SITIO_OFICIAL_CANAL.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
+        BOTON_SITIO_OFICIAL_CANAL.rel = 'noopener nofollow noreferrer';
+        BOTON_SITIO_OFICIAL_CANAL.innerHTML = `<span>
+                ${nombre}
+                ${país
+                ? ` <img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${CODIGOS_PAISES[país]}" title="${CODIGOS_PAISES[país]}" class="svg-bandera">`
+                : ''}
+                ${iconoCategoria
+                ? ` ${iconoCategoria}`
+                : ''}
+                </span> <i class="bi bi-box-arrow-up-right"></i>`;
+        BOTON_SITIO_OFICIAL_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'text-nowrap');
+
+        const BOTON_QUITAR_CANAL = document.createElement('button');
+        BOTON_QUITAR_CANAL.id = 'overlay-boton-quitar';
+        BOTON_QUITAR_CANAL.setAttribute('aria-label', 'Close');
+        BOTON_QUITAR_CANAL.setAttribute('type', 'button');
+        BOTON_QUITAR_CANAL.setAttribute('title', 'Quitar canal');
+        BOTON_QUITAR_CANAL.setAttribute('data-bs-toggle', 'tooltip');
+        BOTON_QUITAR_CANAL.setAttribute('data-bs-title', 'Quitar canal');
+        BOTON_QUITAR_CANAL.innerHTML = '<span>Quitar</span><i class="bi bi-x-circle"></i>';
+        BOTON_QUITAR_CANAL.classList.add('btn', 'btn-sm', 'btn-danger', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
+        BOTON_QUITAR_CANAL.addEventListener('click', () => {
+            tele.remove(canalId);
+            playAudioSinDelay(AUDIO_POP);
+        });
+
+        DIV_ELEMENT.append(BOTON_SELECCIONAR_SEÑAL_CANAL);
+        DIV_ELEMENT.append(DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL);
+        DIV_ELEMENT.append(BOTON_MOVER_CANAL);
+        DIV_ELEMENT.append(BOTON_CAMBIAR_CANAL);
+        DIV_ELEMENT.append(BOTON_SITIO_OFICIAL_CANAL);
+        DIV_ELEMENT.append(BOTON_QUITAR_CANAL);
+        FRAGMENT_OVERLAY.append(DIV_ELEMENT);
+        return FRAGMENT_OVERLAY;
+    } catch (error) {
+        console.error(`Error durante creación overlay para canal con id: ${canalId}. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la creación del overlay para el canal con id: ${canalId}.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
+        return
+    } 
+};
+
+function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
+    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
+    localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+}
+
+function clickCambioCanal(canalIdBotonPulsadoEnModal, canalIdExistente) {
+    try {
+        let divPadreACambiar = document.querySelector(`div[data-canal="${canalIdExistente}"]`)
+        if (divPadreACambiar) {
+            let divExistenteACambiar = document.querySelector(`div[data-canal-cambio="${canalIdExistente}"]`)
+            let barraOverlayDeCanalACambiar = document.querySelector(`#overlay-de-canal-${canalIdExistente}`)
+            // evitar duplicados si canal que va a quedar de reemplazo ya existe en grid
+            if (document.querySelector(`div[data-canal="${canalIdBotonPulsadoEnModal}"]`) && divPadreACambiar !== document.querySelector(`div[data-canal="${canalIdBotonPulsadoEnModal}"]`)) {
+                tele.remove(canalIdBotonPulsadoEnModal);
+            };
+    
+            divExistenteACambiar.remove();
+            barraOverlayDeCanalACambiar.remove();
+    
+            divPadreACambiar.append(crearFragmentCanal(canalIdBotonPulsadoEnModal));
+            divPadreACambiar.setAttribute('data-canal', canalIdBotonPulsadoEnModal); // deja atributo con el canal que se deja activo tras cambio
+            ajustarClaseBotonCanal(canalIdExistente, false);
+            ajustarClaseBotonCanal(canalIdBotonPulsadoEnModal, true);
+            if (localStorage.getItem('diseño-seleccionado') !== 'vision-unica') guardarCanalesEnLocalStorage();
+        }
+    } catch (error) {
+        console.error(`Error intentar cambiar canal con id: ${canalIdExistente} por canal: ${canalIdBotonPulsadoEnModal}. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error al intentar cambiar canal con id: ${canalIdExistente} por canal: ${canalIdBotonPulsadoEnModal}.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
+        return
+    }
+}
+
+function cambiarSoloSeñalActiva(canalId) {
+    try {
+        if (!canalId) return console.error(`El canal "${canalId}" proporcionado no es válido para cambio señal.`);
+
+        let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
+        let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
+        let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
+
+        divExistenteACambiar.remove();
+        barraOverlayDeCanalACambiar.remove();
+
+        divPadreACambiar.append(crearFragmentCanal(canalId));
+
+        activarTooltipsBootstrap();
+        hideTextoBotonesOverlay();
+    } catch (error) {
+        console.error(`Error al intentar cambiar señal para canal con id: ${canalId}. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error al intentar cambiar señal para canal con id: ${canalId}.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
+        return
+    } 
+}
+
+function revisarSeñalesVacias(canalId) {
+    const señales = listaCanales?.[canalId]?.señales;
+    if (señales) {
+        const todasLasSeñalesVacias = Object.values(señales).every(señal => {
+            if (typeof señal === 'undefined' || señal === null) {
+                return true;
+            } else if (Array.isArray(señal)) {
+                return señal.length < 1;
+            } else if (typeof señal === 'string') {
+                return señal.trim() === '';
+            }
+        });
+        if (todasLasSeñalesVacias) console.error(`${canalId} tiene todas sus señales vacías`);
+        return todasLasSeñalesVacias;
+    }
+    return true; // Si no esta atributo señales, se considera que todas están vacías
+}
+
+function borraPreferenciaSeñalInvalida() {
+    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    if (Object.keys(lsPreferenciasSeñalCanales).length !== 0) {
+        for (const idCanalGuardado in lsPreferenciasSeñalCanales) {
+            let tipoSeñalGuardada = Object.keys(lsPreferenciasSeñalCanales[idCanalGuardado])[0].toString();
+            let valorIndexArraySeñal = Number(Object.values(lsPreferenciasSeñalCanales[idCanalGuardado]));
+
+            if (!revisarSeñalesVacias(idCanalGuardado)) { // si no estan vacias
+                if (tipoSeñalGuardada === 'iframe_url' || tipoSeñalGuardada === 'm3u8_url') {
+                    if (listaCanales?.[idCanalGuardado]?.señales?.[tipoSeñalGuardada][valorIndexArraySeñal] === undefined) {
+                        mostrarToast(`
+                            Tú señal preferida para <span class="fw-bold">${idCanalGuardado}</span> (${tipoSeñalGuardada}[${valorIndexArraySeñal}]) 
+                            dejo de estar disponible.<br><span class="fw-bold">Utilizará siguiente señal disponible</span>.`, 'warning', false);
+                        delete lsPreferenciasSeñalCanales[idCanalGuardado];
+                        localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                    }
+                } else {
+                    if (listaCanales?.[idCanalGuardado]?.señales?.[tipoSeñalGuardada] === '') {
+                        mostrarToast(`
+                        Tú señal preferida para <span class="fw-bold">${idCanalGuardado}</span> (${tipoSeñalGuardada}[${valorIndexArraySeñal}]) 
+                        dejo de estar disponible.<br><span class="fw-bold">Utilizará siguiente señal disponible</span>.`, 'warning', false);
+                        delete lsPreferenciasSeñalCanales[idCanalGuardado];
+                        localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                    }
+                }
+            };
+        }
+    }
+}
+
+function crearFragmentCanal(canalId) {
+    if (listaCanales[canalId]?.señales) {
+        let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = listaCanales[canalId].señales;
+        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+
+        let señalUtilizar;
+        let valorIndexArraySeñal = 0;
+
+        if (Array.isArray(iframe_url) && iframe_url.length > 0) {
+            señalUtilizar = 'iframe_url';
+        } else if (Array.isArray(m3u8_url) && m3u8_url.length > 0) {
+            señalUtilizar = 'm3u8_url';
+        } else if (yt_id !== '') {
+            señalUtilizar = 'yt_id';
+        } else if (yt_embed !== '') {
+            señalUtilizar = 'yt_embed';
+        } else if (yt_playlist !== '') {
+            señalUtilizar = 'yt_playlist';
+        } else if (twitch_id !== '') {
+            señalUtilizar = 'twitch_id';
+        }
+
+        if (lsPreferenciasSeñalCanales[canalId]) {
+            señalUtilizar = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString()
+            valorIndexArraySeñal = Number(Object.values(lsPreferenciasSeñalCanales[canalId]))
+        }
+
+        const FRAGMENT_CANAL = document.createDocumentFragment();
+        if (señalUtilizar === 'm3u8_url') {
+            FRAGMENT_CANAL.append(
+                crearVideoJs(canalId, m3u8_url[valorIndexArraySeñal]),
+                crearOverlay(canalId, 'm3u8_url', valorIndexArraySeñal)
+            );
+            return FRAGMENT_CANAL;
+        } else {
+            FRAGMENT_CANAL.append(
+                crearIframe(canalId, señalUtilizar, valorIndexArraySeñal),
+                crearOverlay(canalId, señalUtilizar, valorIndexArraySeñal)
+            );
+            return FRAGMENT_CANAL;
+        }
+    } else {
+        console.error(`${canalId} no tiene señales definidas.`);
+        mostrarToast(`
+        <span class="fw-bold">${canalId}</span> no tiene señales definidas. 
+        <br>Prueba recargando o borrar la caché del navegador.
+        <button type="button" class="btn btn-danger rounded-pill btn-sm w-100 border-light mt-2" data-bs-toggle="modal"
+            data-bs-target="#modal-reset">Probar reiniciar almacenamiento local</button>`, 'danger', false);
+    }
+}
+
+function insertarDivError(mensajeError, mensajeExplicactivo) {
+    let divError = document.createElement('div');
+    divError.classList.add('bg-danger', 'p-3', 'rounded-3', 'shadow');
+    divError.innerHTML = `<p>${mensajeExplicactivo}</p>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: <em>${mensajeError}</em></span>
+        <hr>
+        <p>Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.</p>
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`;
+    return divError
+}
+
+function crearBotonesPaises() {
+    try {
+        const NUMERO_CANALES_CON_PAIS = Object.values(listaCanales).map(canal => {
+            if (canal?.país !== '') {
+                return canal.país.toLowerCase();
+            } else {
+                return 'Desconocido';
+            }
+        });
+
+        const PAISES_SIN_REPETIRSE = [...new Set(NUMERO_CANALES_CON_PAIS)]
+
+        const CONTEO_NUMERO_CANALES_POR_PAIS = NUMERO_CANALES_CON_PAIS.reduce((conteo, pais) => {
+            conteo[CODIGOS_PAISES[pais] ?? 'Desconocido'] = (conteo[CODIGOS_PAISES[pais] ?? 'Desconocido'] || 0) + 1;
+            return conteo;
+        }, {});
+
+        const PAISES_ORDENADOS = PAISES_SIN_REPETIRSE.filter(pais => CODIGOS_PAISES[pais]).sort((a, b) => {
+            const codigoA = CODIGOS_PAISES[a].toLowerCase();
+            const codigoB = CODIGOS_PAISES[b].toLowerCase();
+            return codigoA.localeCompare(codigoB);
+        });
+
+        const FRAGMENT_BOTONES_PAISES = document.createDocumentFragment();
+        for (const PAIS of PAISES_ORDENADOS) {
+            if (CODIGOS_PAISES[PAIS]) {
+                let nombrePais = CODIGOS_PAISES[PAIS];
+                let cantidadCanales = CONTEO_NUMERO_CANALES_POR_PAIS[nombrePais] || 0;
+                let botonPais = document.createElement('button');
+                botonPais.setAttribute('type', 'button');
+                botonPais.setAttribute('data-country', PAIS);
+                botonPais.classList.add(
+                    'btn', 'btn-outline-secondary',
+                    'd-flex', 'justify-content-between', 'align-items-center',
+                    'text-start', 'gap-2', 'w-100', 'm-0', 'rounded-3');
+                botonPais.innerHTML =
+                    `<span class="flex-grow-1">${nombrePais}</span>
+                    <img src="https://flagcdn.com/${PAIS}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">
+                    <span class="badge bg-secondary">${cantidadCanales}</span>`;
+                FRAGMENT_BOTONES_PAISES.append(botonPais);
+            }
+        }
+
+        if (!PAISES_ORDENADOS.includes('Desconocido')) {
+            let cantidadDesconocido = CONTEO_NUMERO_CANALES_POR_PAIS['Desconocido'] || 0;
+            let botonDesconocido = document.createElement('button');
+            botonDesconocido.setAttribute('type', 'button');
+            botonDesconocido.setAttribute('data-country', 'Desconocido');
+            botonDesconocido.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100', 'm-0', 'rounded-3');
+            botonDesconocido.innerHTML =
+                `<span class="flex-grow-1">Desconocido</span><span class="badge bg-secondary">${cantidadDesconocido}</span>`;
+            FRAGMENT_BOTONES_PAISES.prepend(botonDesconocido);
+        }
+
+        const BOTON_MOSTRAR_TODO_PAIS = document.createElement('button');
+            BOTON_MOSTRAR_TODO_PAIS.setAttribute('type', 'button');
+            BOTON_MOSTRAR_TODO_PAIS.dataset.country = 'all'
+            BOTON_MOSTRAR_TODO_PAIS.classList.add('btn', 'btn-indigo', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100', 'm-0', 'rounded-3')
+            BOTON_MOSTRAR_TODO_PAIS.innerHTML =
+                `<span class="flex-grow-1">Todos</span><span class="badge bg-secondary">${Object.keys(listaCanales).length}</span>`;
+            FRAGMENT_BOTONES_PAISES.prepend(BOTON_MOSTRAR_TODO_PAIS)
+
+        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+            const contenedorBotonesFiltroPaises = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`);
+            contenedorBotonesFiltroPaises.append(FRAGMENT_BOTONES_PAISES.cloneNode(true));
+            contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(botonPaisEnDom => {
+                botonPaisEnDom.addEventListener('click', () => {
+                    try {
+                        let country = botonPaisEnDom.dataset.country;
+                        let filtro = CODIGOS_PAISES[country] || (country === 'Desconocido' ? 'Desconocido' : country === 'all' ? '' : '');
+
+                        contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(boton => {
+                            boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, 'btn-outline-secondary');
+                        });
+                        botonPaisEnDom.classList.replace('btn-outline-secondary', CLASE_CSS_BOTON_PRIMARIO);
+                        filtrarCanalesPorInput(filtro, document.querySelector(`#${PREFIJO}-body-botones-canales`));
+                    } catch (error) {
+                        contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(boton => {
+                            boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, 'btn-outline-secondary');
+                        });
+                        contenedorBotonesFiltroPaises.querySelector('button[data-country="all"]').classList.replace('btn-outline-secondary', CLASE_CSS_BOTON_PRIMARIO);
+                        console.error(`Error al intentar activar filtro país. ${error}`);
+                        mostrarToast(`
+                        <span class="fw-bold">Ha ocurrido un error al intentar activar filtro país..</span>
+                        <hr>
+                        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+                        <hr>
+                        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+                        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+                        return
+                    }
+                    
+                });
+            }); 
+        }
+    } catch (error) {
+        console.error(`Error durante creación botones para filtros paises. ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la creación de botones para filtrado por país.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+        
+        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+            document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para filtro paises'));
+        }
+        return
+    }
+}
+
+function crearBotonesParaCanales() {
+    try {
+        const FRAGMENT_BOTONES_CANALES = document.createDocumentFragment();
+        for (const canal in listaCanales) {
+            let { nombre, /* logo, */ país, categoría } = listaCanales[canal];
+            let iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
+            let nombrePais = país && CODIGOS_PAISES[país.toLowerCase()] ? CODIGOS_PAISES[país.toLowerCase()] : 'Desconocido';
+
+            let botonCanal = document.createElement('button');
+            botonCanal.setAttribute('data-canal', canal);
+            botonCanal.setAttribute('data-country', `${nombrePais}`);
+            botonCanal.classList.add('btn', CLASE_CSS_BOTON_SECUNDARIO, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
+            if (revisarSeñalesVacias(canal)) botonCanal.classList.add('d-none');
+            botonCanal.innerHTML =
+                `<span class="flex-grow-1">${nombre}</span>
+                    ${país ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">` : ''}
+                    ${iconoCategoria ? `${iconoCategoria}` : ''}`;
+            // ${logo ? `<img src="${logo}" alt="logo ${nombre}" title="logo ${nombre}" class="img-logos rounded-1">` : ''} 
+            FRAGMENT_BOTONES_CANALES.append(botonCanal);
+        }
+
+        document.querySelector('#modal-canales-body-botones-canales').append(FRAGMENT_BOTONES_CANALES.cloneNode(true));
+        document.querySelector('#offcanvas-canales-body-botones-canales').append(FRAGMENT_BOTONES_CANALES.cloneNode(true));
+        document.querySelector('#modal-cambiar-canal-body-botones-canales').append(FRAGMENT_BOTONES_CANALES.cloneNode(true));
+        document.querySelector('#vision-unica-body-botones-canales').append(FRAGMENT_BOTONES_CANALES.cloneNode(true));
+
+        // Asignar eventos después de que los botones estén en el DOM
+        document.querySelectorAll('#modal-canales-body-botones-canales button, #offcanvas-canales-body-botones-canales button').forEach(botonCanalEnDOM => {
+            botonCanalEnDOM.addEventListener('click', () => {
+                let accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
+                tele[accionBoton](botonCanalEnDOM.dataset.canal);
+            });
+        });
+
+        document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(botonCanalEnDOM => {
+            botonCanalEnDOM.setAttribute('data-bs-dismiss', 'modal');
+        });
+
+        document.querySelectorAll('#vision-unica-body-botones-canales button').forEach(botonCanalEnDOM => {
+            botonCanalEnDOM.addEventListener('click', () => {
+                if (CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]')) {
+                    tele.remove(CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]').dataset.canal)
+                }
+
+                let accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
+                tele[accionBoton](botonCanalEnDOM.dataset.canal);
+            });
+        });
+
+        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+            guardarOrdenOriginal(`${PREFIJO}-body-botones-canales`);
+        };
+
+    } catch (error) {
+        console.error(`Error durante creación botones para canales. Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la creación de botones para los canales.</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+
+        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+            document.querySelector(`#${PREFIJO}-body-botones-canales`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
+        }
+    }
+}
+
+// MARK: Manejo canales
 export let tele = {
-  add: (canal, divExistenteEnCasoDeCambio) => {
-    // listaCanales = canales.json
-    if (typeof canal !== 'undefined' && typeof listaCanales[canal] !== 'undefined') {
-      let { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, nombre, fuente, pais, alt_icon } = listaCanales[canal];
+    add: (canal) => {
+        try {
+            if (!canal || !listaCanales?.[canal]) return console.error(`El canal "${canal}" proporcionado no es válido para ser añadido.`);
+            const DIV_CANAL = document.createElement('div');
+            DIV_CANAL.setAttribute('data-canal', canal);
 
-      let fragmentTransmision = document.createDocumentFragment();
+            if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+                DIV_CANAL.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
+                DIV_CANAL.append(crearFragmentCanal(canal));
+                CONTAINER_VIDEO_VISION_UNICA.append(DIV_CANAL);
+                ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.add('d-none');
+            } else {
+                DIV_CANAL.classList.add('position-relative', 'shadow');
+                DIV_CANAL.append(crearFragmentCanal(canal));
+                CONTAINER_VISION_CUADRICULA.append(DIV_CANAL);
+                guardarCanalesEnLocalStorage();
+            }
 
-      if (divExistenteEnCasoDeCambio) {
-        let divPadreACambiar = document.querySelector(`div[data-canal="${divExistenteEnCasoDeCambio}"]`)
-        let divExistenteACambiar = document.querySelector(`div[data-canal-cambio="${divExistenteEnCasoDeCambio}"]`)
-
-        // evitar duplicados si canal que va a quedar de reemplazo ya existe en grid
-        if (document.querySelector(`div[data-canal="${canal}"]`) && divPadreACambiar !== document.querySelector(`div[data-canal="${canal}"]`)) {
-          tele.remove(canal)
+            ajustarClaseBotonCanal(canal, true);
+            activarTooltipsBootstrap();
+            hideTextoBotonesOverlay();
+        } catch (error) {
+            console.error(`Error durante creación div de canal con id: ${canal}. Error: ${error}`);
+            mostrarToast(`
+            <span class="fw-bold">Ha ocurrido un error durante la creación canal para ser insertado - id: ${canal}.</span>
+            <hr>
+            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+            <hr>
+            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+            return
         }
+    },
+    remove: (canal) => {
+        try {
+            if (!canal) return console.error(`El canal "${canal}" proporcionado no es válido para su eliminación.`);
+            let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+            removerTooltipsBootstrap();
+            transmisionPorRemover.remove();
 
-        if (typeof iframe_url !== 'undefined') {
-          fragmentTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
-        } else if (typeof m3u8_url !== 'undefined') {
-          const divM3u8 = document.createElement('div');
-          divM3u8.classList.add('m3u-stream', 'ratio', 'ratio-16x9', 'h-100');
-          divM3u8.setAttribute('data-canal-cambio', canal);
-          const videoM3u8 = document.createElement('video');
-          videoM3u8.setAttribute('data-canal-m3u', canal);
-          videoM3u8.classList.add('m3u-player', 'position-absolute', 'p-0', 'h-100', 'video-js', 'vjs-16-9', 'vjs-fluid');
-          videoM3u8.setAttribute('contenedor-canal-cambio', canal);
-          videoM3u8.toggleAttribute('controls');
-          divM3u8.append(videoM3u8);
-
-          fragmentTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
-          divPadreACambiar.append(fragmentTransmision);
-
-          let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
-          playerM3u8.src({
-            src: m3u8_url,
-            controls: true,
-          });
-          playerM3u8.autoplay('muted');
-
-          divExistenteACambiar.remove()
-        } else if (typeof yt_id !== 'undefined') {
-          fragmentTransmision.append(
-            crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
-          );
-        } else if (typeof yt_embed !== 'undefined') {
-          fragmentTransmision.append(
-            crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, fuente, pais, alt_icon, canal)
-          );
-        } else if (typeof yt_playlist !== 'undefined') {
-          fragmentTransmision.append(
-            crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, fuente, pais, alt_icon, canal)
-          );
+            if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
+            
+            ajustarClaseBotonCanal(canal, false);
+            activarTooltipsBootstrap();
+        } catch (error) {
+            console.error(`Error durante eliminación div de canal con id: ${canal}. Error: ${error}`);
+            mostrarToast(`
+            <span class="fw-bold">Ha ocurrido un error durante la eliminación canal con id: ${canal}.</span>
+            <hr>
+            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+            <hr>
+            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+            return
+        }
+    },
+    cargaCanalesPredeterminados: () => {
+        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
+        if (Object.keys(lsCanales).length === 0 && lsModal !== 'hide') {
+            obtenerCanalesPredeterminados(isMobile.any).forEach(canal => tele.add(canal));
         } else {
-          console.log(`${canal} - Canal Inválido`);
-        }
-
-        // aplica clases a botones para demostrar que canal ya no esta activo tras reemplazo
-        let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${divExistenteEnCasoDeCambio}"]`);
-        btnTransmisionOff.forEach(btn => {
-          btn.classList.replace(claseBotonPrimaria, claseBotonSecundaria);
-        });
-
-        // deja atributo con el canal que se deja activo tras cambio
-        divPadreACambiar.setAttribute('data-canal', canal)
-
-        if (typeof m3u8_url === 'undefined') {
-          divPadreACambiar.append(fragmentTransmision);
-          // quita canal cargado previamente tras cambio
-          divExistenteACambiar.remove()
-        }
-
-        // capturamos valores de los div para que se pase a borrar el listado canales de localStorage y reemplazado por el orden nuevo, de forma de recordar orden a la siguiente carga 
-        const elementsLS = canalesGrid.querySelectorAll('div[data-canal]');
-        localStorage.removeItem('canales_storage');
-        let canalesStorage = JSON.parse(localStorage.getItem('canales_storage')) || {};
-
-        elementsLS.forEach(element => {
-          let divEnGrid = element.querySelector('div[data-canal-cambio]');
-
-          let canal = divEnGrid.getAttribute('data-canal-cambio');
-          let nombre = element.querySelector('a span').textContent.trim();
-
-          canalesStorage[canal] = nombre;
-        });
-
-        // Guardar el objeto en el almacenamiento local después de completar todas las iteraciones
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-
-      } else {
-        canalesStorage[canal] = nombre;
-        localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-        let divTransmision = document.createElement('div');
-        divTransmision.classList.add('position-relative', `col-${isMobile.any ? valorColumnaParaTelefono : valorColumnaParaEscritorio}`, 'shadow');
-        divTransmision.setAttribute('data-canal', canal);
-        if (typeof iframe_url !== 'undefined') {
-          divTransmision.append(crearIframe(iframe_url, nombre, canal), crearOverlay(nombre, fuente, pais, alt_icon, canal));
-        } else if (typeof m3u8_url !== 'undefined') {
-          const divM3u8 = document.createElement('div');
-          divM3u8.classList.add('m3u-stream', 'ratio', 'ratio-16x9', 'h-100');
-          divM3u8.setAttribute('data-canal-cambio', canal);
-          const videoM3u8 = document.createElement('video');
-          videoM3u8.setAttribute('contenedor-canal-cambio', canal);
-          videoM3u8.setAttribute('data-canal-m3u', canal);
-          videoM3u8.classList.add('m3u-player', 'position-absolute', 'p-0', 'h-100', 'video-js', 'vjs-16-9', 'vjs-fluid');
-          videoM3u8.toggleAttribute('controls');
-          divM3u8.append(videoM3u8);
-
-          divTransmision.append(divM3u8, crearOverlay(nombre, fuente, pais, alt_icon, canal));
-          fragmentTransmision.append(divTransmision);
-          canalesGrid.append(fragmentTransmision);
-
-          let playerM3u8 = videojs(document.querySelector(`video[data-canal-m3u="${canal}"]`));
-          playerM3u8.src({
-            src: m3u8_url,
-            controls: true,
-          });
-          playerM3u8.autoplay('muted');
-        } else if (typeof yt_id !== 'undefined') {
-          divTransmision.append(
-            crearIframe(`https://www.youtube.com/embed/live_stream?channel=${yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, `https://www.youtube.com/channel/${yt_id}`, pais, alt_icon, canal)
-          );
-        } else if (typeof yt_embed !== 'undefined') {
-          divTransmision.append(
-            crearIframe(`https://www.youtube-nocookie.com/embed/${yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, fuente, pais, alt_icon, canal)
-          );
-        } else if (typeof yt_playlist !== 'undefined') {
-          divTransmision.append(
-            crearIframe(`https://www.youtube-nocookie.com/embed/videoseries?list=${yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`, nombre, canal),
-            crearOverlay(nombre, fuente, pais, alt_icon, canal)
-          );
-        } else {
-          console.log(`${canal} - Canal Inválido`);
-        }
-
-        if (typeof m3u8_url === 'undefined') {
-          fragmentTransmision.append(divTransmision);
-          canalesGrid.append(fragmentTransmision);
-        }
-      }
-
-      let btnTransmisionOn = document.querySelectorAll(`button[data-canal="${canal}"]`);
-      btnTransmisionOn.forEach(btn => {
-        btn.classList.replace(claseBotonSecundaria, claseBotonPrimaria);
-      });
-
-      activarTooltipsBootstrap();
-      ocultarTextoBotonesOverlay()
-    } else {
-      console.log(`${canal} no es válido como canal, revisa si se borró y/o reinicia tu localStorage`);
+            try {
+                Object.keys(lsCanales).forEach(canal => {
+                    if (revisarSeñalesVacias(canal)) {
+                        document.querySelectorAll(`button[data-canal="${canal}"]`).forEach(boton => {
+                            boton.classList.add('d-none');
+                        });
+                    } else {
+                        tele.add(canal);
+                    }
+                });
+            } catch (error) {
+                console.error(`Error durante carga canales predeterminados. Error: ${error}`);
+                mostrarToast(`
+                <span class="fw-bold">Ha ocurrido un error durante la carga de canales predeterminados.</span>
+                <hr>
+                <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+                <hr>
+                Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+                <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+                return
+            }
+        };
     }
-  },
-  remove: (canal) => {
-    let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
-
-    if (transmisionPorRemover) {
-      removerTooltipsBootstrap();
-      canalesGrid.removeChild(transmisionPorRemover);
-      // cambia clase a botones canal que se encuentran en modal y offcanvas
-      let btnTransmisionOff = document.querySelectorAll(`button[data-canal="${canal}"]`);
-      btnTransmisionOff.forEach(btn => {
-        btn.classList.replace(claseBotonPrimaria, claseBotonSecundaria);
-      });
-      // remueve de localstorage
-      delete canalesStorage[canal];
-      localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-      activarTooltipsBootstrap();
-    }
-  },
-  crearBotonesParaCanales: () => {
-    let numeroCanalesConPais = [];
-
-    const fragmentBtn = document.createDocumentFragment();
-
-    for (const canal in listaCanales) {
-      let { nombre, pais, alt_icon } = listaCanales[canal];
-      let btnTransmision = document.createElement('button');
-      btnTransmision.classList.add('btn', claseBotonSecundaria, 'rounded-3');
-      btnTransmision.setAttribute('data-canal', canal);
-
-      const pNombreCanalDentroBoton = document.createElement('p');
-      pNombreCanalDentroBoton.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2');
-
-      const spanNombreCanal = document.createElement('span');
-      spanNombreCanal.classList.add('flex-grow-1');
-      spanNombreCanal.textContent = nombre;
-      pNombreCanalDentroBoton.append(spanNombreCanal)
-
-      if (pais && !alt_icon) {
-        let img = document.createElement('img');
-        let nombrePais = codigosBanderas[pais.toLowerCase()];
-        img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
-        img.setAttribute('alt', `bandera ${nombrePais}`);
-        img.setAttribute('title', nombrePais);
-        img.classList.add('h-100', 'm-0', 'svg-bandera');
-        btnTransmision.setAttribute('data-country', `${nombrePais}`);
-        pNombreCanalDentroBoton.append(img);
-        numeroCanalesConPais.push(pais);
-      } else if (pais && alt_icon) {
-        let iconoAlternativo = document.createElement('div');
-        iconoAlternativo.innerHTML = alt_icon;
-        pNombreCanalDentroBoton.append(iconoAlternativo)
-        let img = document.createElement('img');
-        let nombrePais = codigosBanderas[pais.toLowerCase()];
-        img.setAttribute('src', `https://flagcdn.com/${pais.toLowerCase()}.svg`);
-        img.setAttribute('alt', `bandera ${nombrePais}`);
-        img.setAttribute('title', nombrePais);
-        img.classList.add('h-100', 'm-0', 'svg-bandera');
-        btnTransmision.setAttribute('data-country', `${nombrePais}`);
-        pNombreCanalDentroBoton.append(img);
-        numeroCanalesConPais.push(pais);
-      } else if (!pais && alt_icon) {
-        let iconoAlternativo = document.createElement('div');
-        iconoAlternativo.innerHTML = alt_icon;
-        pNombreCanalDentroBoton.append(iconoAlternativo)
-        btnTransmision.setAttribute('data-country', 'Desconocido');
-        numeroCanalesConPais.push('Desconocido');
-      } else {
-        btnTransmision.setAttribute('data-country', 'Desconocido');
-        numeroCanalesConPais.push('Desconocido');
-      }
-      btnTransmision.append(pNombreCanalDentroBoton);
-      fragmentBtn.append(btnTransmision);
-    }
-
-    // Agregar fragmentos al DOM después de completar el bucle
-    document.querySelector('#modal-body-botones-canales').append(fragmentBtn.cloneNode(true));
-    document.querySelector('#offcanvas-body-botones-canales').append(fragmentBtn.cloneNode(true));
-
-    // Asignar eventos después de que los botones estén en el DOM
-    document.querySelectorAll('#modal-body-botones-canales button, #offcanvas-body-botones-canales button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.classList.contains(claseBotonSecundaria) ? 'add' : 'remove';
-        tele[action](btn.getAttribute('data-canal'));
-      });
-    });
-
-    // https://www.javascripttutorial.net/array/javascript-remove-duplicates-from-array/
-    let paisesSinRepetir = [...new Set(numeroCanalesConPais)];
-    // https://stackoverflow.com/a/19395302
-    const conteoNumeroCanalesConPais = {};
-    numeroCanalesConPais.forEach((x) => { conteoNumeroCanalesConPais[x] = (conteoNumeroCanalesConPais[x] || 0) + 1; });
-    // crea fragmento y lo llena con banderas para ser insertadas en modal
-    let fragmentBtnsFiltroBanderas = document.createDocumentFragment();
-    for (const bandera of paisesSinRepetir) {
-      let nombrePais = codigosBanderas[bandera];
-      let btnPais = document.createElement('button');
-      btnPais.classList.add('btn', 'btn-outline-secondary', 'd-flex', 'justify-content-between', 'align-items-center', 'w-100', 'rounded-3');
-      btnPais.setAttribute('type', 'button');
-      btnPais.setAttribute('data-country', bandera);
-
-      const pNombreCanalDentroBoton = document.createElement('p');
-      pNombreCanalDentroBoton.classList.add('m-0', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100');
-
-      const spanBtnNombrePais = document.createElement('span');
-      spanBtnNombrePais.classList.add('flex-grow-1');
-      spanBtnNombrePais.textContent = nombrePais;
-      pNombreCanalDentroBoton.append(spanBtnNombrePais)
-
-      let spanBadge = document.createElement('span');
-      spanBadge.classList.add('badge', 'bg-secondary'/* , 'rounded-pill' */);
-      spanBadge.innerHTML = conteoNumeroCanalesConPais[bandera] || 0;
-      if (codigosBanderas[bandera]) {
-        let img = document.createElement('img');
-        img.setAttribute('src', `https://flagcdn.com/${bandera}.svg`);
-        img.setAttribute('alt', `bandera ${nombrePais}`);
-        img.setAttribute('title', nombrePais);
-        img.classList.add('h-100', 'm-0', 'svg-bandera');
-        pNombreCanalDentroBoton.append(img);
-        pNombreCanalDentroBoton.append(spanBadge);
-        btnPais.append(pNombreCanalDentroBoton)
-      } else {
-        btnPais.textContent = bandera
-        btnPais.append(spanBadge);
-      }
-      fragmentBtnsFiltroBanderas.append(btnPais);
-    }
-    // Clona el fragmento para poder agregarlo a modal dinámico de overlay en opción cambiar
-    clonedFragmentBtnFiltrosBanderasParaAutocomplete = fragmentBtnsFiltroBanderas.cloneNode(true);
-
-    // Agrega los fragmentos con los botones y sus eventos a los contenedores en el DOM
-    document.querySelector('#modal-collapse-botones-listado-filtro-paises').append(fragmentBtnsFiltroBanderas.cloneNode(true));
-    document.querySelector('#offcanvas-collapse-botones-listado-filtro-paises').append(fragmentBtnsFiltroBanderas.cloneNode(true));
-
-    // seleccionamos los botones insertados y les añadimos el eventListener (estos debido a que cloneNode NO copia esto si se añadiese durante creación botones)
-    // https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode#:~:text=It%20does%20not%20copy%20event%20listeners%20added%20using%20addEventListener()
-    document.querySelectorAll('#modal-collapse-botones-listado-filtro-paises button, #offcanvas-collapse-botones-listado-filtro-paises button').forEach(btnPaisEnDom => {
-      btnPaisEnDom.addEventListener('click', (event) => {
-        let botonPulsado = event.currentTarget; // Obtiene una referencia al botón al que se adjuntó el event listener
-        encontrarContenedor(botonPulsado, botonPulsado); // Llama a una función para encontrar el contenedor del botón
-      });
-    });
-
-
-  },
-  cargaCanalesPredeterminados: (valor) => {
-    const localStorageCanales = localStorage.getItem('canales_storage');
-    const canalesPredeterminados = ['24-horas-2', 'meganoticias-3', 't13-4'];
-    const canalesExtras = ['chv-noticias-3', 'galeria-cima', 'lofi-girl'];
-
-    const canalesAgregar = isMobile.any ? canalesPredeterminados : canalesPredeterminados.concat(canalesExtras);
-
-    if (localStorageCanales === null) {
-      canalesAgregar.forEach(canal => tele.add(canal));
-    } else if (valor === "resetPorUsuario") {
-      const audioResetCanales = new Audio('assets/sounds/CRT-turn-on-notification-por-Coolshows101sound.mp3');
-      audioResetCanales.play();
-      canalesAgregar.forEach(canal => {
-        /* cargarTransmisionesPorFila() */ // para que en caso usuario elimine señales una por una, pasar por alto ultimo cambio que realiza observer y asi insertar señales con orden / cantidad desde localStorage
-        tele.add(canal);
-      })
-    } else {
-      Object.keys(lsCanalesJson).forEach(canal => tele.add(canal));
-    }
-  },
-  init: async () => {
-
-    await fetchCargarCanales();  // Llamar a la función para realizar el fetch de lista canales
-
-    tele.crearBotonesParaCanales();
-    guardarOrdenOriginal('modal-body-botones-canales');
-    guardarOrdenOriginal('offcanvas-body-botones-canales');
-    tele.cargaCanalesPredeterminados();
-
-    // añaden número total de canales a botones "todos" de los filtros por pais 
-    document.querySelector('#modal-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
-    document.querySelector('#offcanvas-span-con-numero-total-canales').textContent = Object.keys(listaCanales).length
-
-  }
 };
 
-tele.init();
+
+// MARK: Vision Unica
+function activarVisionUnica() {
+    try {
+        localStorage.setItem('diseño-seleccionado', 'vision-unica');
+        BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-light-subtle', 'btn-indigo');
+        BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-indigo', 'btn-light-subtle');
+
+        document.querySelectorAll('#vision-unica-body-botones-canales button, #modal-cambiar-canal-body-botones-canales button').forEach(botonCanalEnDOM => {
+            botonCanalEnDOM.classList.replace(CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO);
+        });
+
+        const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
+        if (CANALES_ACTIVOS_EN_DOM.length > 0) {
+            CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
+                divCanal.innerHTML = ''; // limpia html en vez de remover para evitar activar observer
+                divCanal.dataset.respaldo = divCanal.dataset.canal;
+                divCanal.dataset.canal = `no-${divCanal.dataset.canal}`;
+            });
+        };
+
+        CONTAINER_VISION_CUADRICULA.classList.add('d-none');
+        CONTAINER_VISION_UNICA.classList.remove('d-none');
+        document.querySelector('nav .btn-group').classList.add('d-none');
+        document.querySelector('nav a.gradient-text').classList.remove('d-none');
+
+        let divBotonesFlotantes = document.querySelector('#grupo-botones-flotantes');
+        divBotonesFlotantes.querySelector('.btn-indigo').classList.add('d-none');
+        divBotonesFlotantes.querySelector('div.bg-light-subtle').classList.add('d-none');
+        divBotonesFlotantes.querySelector('.btn-dark').classList.replace('rounded-end-5', 'rounded-pill');
+
+        actualizarBotonesPersonalizarOverlay();
+
+        INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = true;
+        SPAN_VALOR_INPUT_RANGE.textContent = 'Deshabilitado';
+
+        BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = true });
+        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `Deshabilitado`;
+
+        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
+
+        if (CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]')) tele.remove(CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]').dataset.canal);
+
+        if (Object.keys(lsCanales).length > 0) {
+            try {
+                if (listaCanales[Object.keys(lsCanales)[0]]) {
+                    tele.add(Object.keys(lsCanales)[0]);
+                }
+            } catch (error) {
+                return console.error(`Error durante carga canales para modo vision unica. Error: ${error}`);
+            }
+        };
+
+        document.querySelector('#boton-personalizar-boton-mover-overlay').classList.add('clase-vacia'); // esto es solo para mediaquery en css
+    } catch (error) {
+        console.error(`Error durante la activación del modo "Visión Única". Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la activación del modo "Visión Única".</span>
+        <hr> 
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    }
+}
+
+function desactivarVisionUnica() {
+    try {
+        localStorage.setItem('diseño-seleccionado', 'vision-cuadricula');
+        BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-indigo', 'btn-light-subtle');
+        BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-light-subtle', 'btn-indigo');
+
+        if (CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]')) tele.remove(CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]').dataset.canal);
+
+        ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
+
+        const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
+
+        if (CANALES_ACTIVOS_EN_DOM.length > 0) {
+            CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
+                divCanal.dataset.canal = divCanal.dataset.respaldo;
+                divCanal.append(crearFragmentCanal(divCanal.dataset.canal));
+                ajustarClaseBotonCanal(divCanal.dataset.canal, true);
+                activarTooltipsBootstrap();
+                hideTextoBotonesOverlay();
+                divCanal.removeAttribute('data-respaldo');
+            });
+        } else {
+            tele.cargaCanalesPredeterminados();
+        }
+
+        CONTAINER_VISION_CUADRICULA.classList.remove('d-none');
+        CONTAINER_VISION_UNICA.classList.add('d-none');
+        document.querySelector('nav .btn-group').classList.remove('d-none');
+        document.querySelector('nav a.gradient-text').classList.add('d-none');
+
+        let divBotonesFlotantes = document.querySelector('#grupo-botones-flotantes');
+        divBotonesFlotantes.querySelector('.btn-indigo').classList.remove('d-none');
+        divBotonesFlotantes.querySelector('div.bg-light-subtle').classList.remove('d-none');
+        divBotonesFlotantes.querySelector('.btn-dark').classList.replace('rounded-pill', 'rounded-end-5',);
+
+        actualizarBotonesPersonalizarOverlay();
+
+        INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = false;
+        actualizarValorSlider();
+
+        BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = false });
+        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`;
+
+        ajustarNumeroDivisionesClaseCol();
+
+        document.querySelector('#boton-personalizar-boton-mover-overlay').classList.remove('clase-vacia');
+    } catch (error) {
+        console.error(`Error durante la desactivación del modo "Visión Única". Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la desactivación del modo "Visión Única".</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    }
+
+    
+}
+
+BOTON_ACTIVAR_VISION_UNICA.addEventListener('click', () => {
+    if (localStorage.getItem('diseño-seleccionado') !== 'vision-unica') {
+        activarVisionUnica();
+    } else {
+        playAudioSinDelay(AUDIO_FAIL);
+        mostrarToast('Ya estas en modo visión única', 'info');
+    }
+})
+
+BOTON_ACTIVAR_VISION_GRID.addEventListener('click', () => {
+    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+        desactivarVisionUnica();
+    } else {
+        playAudioSinDelay(AUDIO_FAIL);
+        mostrarToast('Ya estas en modo visión cuadrícula', 'info');
+    }
+})
 
 // MARK: otros
-/* 
-   ___ _____ ___  ___  ___          _ 
-  / _ \_   _| _ \/ _ \/ __| __ ____| |
- | (_) || | |   / (_) \__ \ \ \ / _` |
-  \___/ |_| |_|_\\___/|___/ /_\_\__,_|
-*/
 // plugin para mover canales en grid
-new Sortable(canalesGrid, {
-  animation: 550,
-  handle: '.handle',
-  swapThreshold: 1,
-  ghostClass: 'marca-al-mover',
+new Sortable(CONTAINER_VISION_CUADRICULA, {
+    animation: 350,
+    handle: '.clase-para-mover',
+    easing: "cubic-bezier(.17,.67,.83,.67)",
+    ghostClass: 'marca-al-mover',
+    onStart: () => {
+        const DIVS_SOBRE_SEÑALES = CONTAINER_VISION_CUADRICULA.querySelectorAll('.bg-transparent');
+        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
+            divSobrepuesto.classList.toggle('pe-none'); // quita clase "pe-none" para poder abarcar todo el tamaño del div del canal para el threshold https://sortablejs.github.io/Sortable/#thresholds
+        });
+        removerTooltipsBootstrap(); // removemos ya que como el propio boton de mover tiene uno, de no quitarlo queda flotando tras mover div canal
+    },
+    onEnd: () => {
+        activarTooltipsBootstrap();
+        const DIVS_SOBRE_SEÑALES = CONTAINER_VISION_CUADRICULA.querySelectorAll('.bg-transparent');
+        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
+            divSobrepuesto.classList.toggle('pe-none'); // para poder hacer clic en iframes o videojs
+        });
+        guardarCanalesEnLocalStorage()
+    }
 });
 
-// Permitir mover divs
-canalesGrid.addEventListener("dragstart", () => {
-  // busca el div antepuesto en cada canal y le quita clase "pe-none" para poder abarcar todo el tamaño del div del canal para el threshold https://sortablejs.github.io/Sortable/#thresholds
-  const elements = canalesGrid.querySelectorAll('.bg-transparent');
-  elements.forEach(element => {
-    element.classList.toggle('pe-none');
-  });
-  // removemos tooltips ya que como el propio boton de mover tiene uno, de no quitarlo queda flotando
-  removerTooltipsBootstrap();
+const CONTAINER_INTERNO_VISION_UNICA = document.querySelector('.vision-unica-grid');
+const ID_EN_ORDEN_ORIGINAL = ['panel-canales-vision-unica', 'container-video-vision-unica'];
+
+function guardarOrdenPanelesVisionUnica() {
+    let ordenActual = Array.from(CONTAINER_INTERNO_VISION_UNICA.children).map(item => item.id);
+    localStorage.setItem('orden-grid-vision-unica', JSON.stringify(ordenActual));
+}
+
+// Función para cargar el orden desde localStorage y aplicarlo a los elementos
+function cargarOrdenVisionUnica() {
+    try {
+        let ordenGuardado = localStorage.getItem('orden-grid-vision-unica');
+        if (ordenGuardado) {
+            let elementosOrdenados = JSON.parse(ordenGuardado);
+            elementosOrdenados.forEach(id => {
+                let elemento = document.getElementById(id);
+                CONTAINER_INTERNO_VISION_UNICA.append(elemento);
+            });
+            let esOrdenOriginal = JSON.stringify(ID_EN_ORDEN_ORIGINAL) === JSON.stringify(elementosOrdenados);
+            CONTAINER_INTERNO_VISION_UNICA.classList.toggle('vision-unica-grid-reordenado', !esOrdenOriginal);
+        } 
+    } catch (error) {
+        console.error(`Error durante la carga orden paneles para modo "Visión Única". Error: ${error}`);
+        mostrarToast(`
+        <span class="fw-bold">Ha ocurrido un error durante la carga orden paneles para modo "Visión Única".</span>
+        <hr>
+        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+        <hr>
+        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        return
+    } 
+}
+
+new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
+    animation: 350,
+    handle: '.clase-para-mover',
+    easing: "cubic-bezier(.17,.67,.83,.67)",
+    ghostClass: 'marca-al-mover',
+    swapThreshold: 0.30,
+    onStart: () => {
+        const DIVS_SOBRE_SEÑALES = CONTAINER_VIDEO_VISION_UNICA.querySelectorAll('.bg-transparent');
+        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
+            divSobrepuesto.classList.remove('pe-none');
+        });
+        removerTooltipsBootstrap();
+    },
+    onChange: () => {
+        let ordenActual = Array.from(CONTAINER_INTERNO_VISION_UNICA.children).map(item => item.id);
+        let esOrdenOriginal = JSON.stringify(ID_EN_ORDEN_ORIGINAL) === JSON.stringify(ordenActual);
+        CONTAINER_INTERNO_VISION_UNICA.classList.toggle('vision-unica-grid-reordenado', !esOrdenOriginal);
+    },
+    onEnd: () => {
+        guardarOrdenPanelesVisionUnica();
+        activarTooltipsBootstrap();
+        const DIVS_SOBRE_SEÑALES = CONTAINER_VIDEO_VISION_UNICA.querySelectorAll('.bg-transparent');
+        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
+            divSobrepuesto.classList.add('pe-none');
+        });
+
+        let ordenActual = Array.from(CONTAINER_INTERNO_VISION_UNICA.children).map(item => item.id);
+        let esOrdenOriginal = JSON.stringify(ID_EN_ORDEN_ORIGINAL) === JSON.stringify(ordenActual);
+        CONTAINER_INTERNO_VISION_UNICA.classList.toggle('vision-unica-grid-reordenado', !esOrdenOriginal);
+    }
 });
-
-canalesGrid.addEventListener("dragend", () => {
-  // Volvemos a activar tooltips para su funcionamiento normal
-  activarTooltipsBootstrap();
-  // busca el div antepuesto en cada canal y le regresa las clase de "pe-none" para poder hacer clic en iframes o videojs
-  const elements = canalesGrid.querySelectorAll('.bg-transparent');
-  elements.forEach(element => {
-    element.classList.toggle('pe-none');
-  });
-
-  // capturamos valores de los div para que se pase a borrar el listado canales de localStorage y reemplazado por el orden nuevo, de forma de recordar orden a la siguiente carga 
-  // no es la mejor forma de dar solución a este problema pero es la única que se me ocurrió xd
-  const elementsLS = canalesGrid.querySelectorAll('div[data-canal]');
-  localStorage.removeItem('canales_storage');
-  let canalesStorage = JSON.parse(localStorage.getItem('canales_storage')) || {};
-
-  elementsLS.forEach(element => {
-    let divEnGrid = element.querySelector('div[data-canal-cambio]');
-
-    let canal = divEnGrid.getAttribute('data-canal-cambio');
-    let nombre = element.querySelector('a span').textContent.trim();
-
-    canalesStorage[canal] = nombre;
-  });
-
-  // Guardar el objeto en el almacenamiento local después de completar todas las iteraciones
-  localStorage.setItem('canales_storage', JSON.stringify(canalesStorage));
-});
-
 
 // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
-window.addEventListener('resize', () => {
-  ocultarTextoBotonesOverlay()
-});
+window.addEventListener('resize', hideTextoBotonesOverlay);
 
+// Estado internet
+function revisarConexion() {
+    navigator.onLine
+        ? document.querySelector('#alerta-internet-status').classList.add('d-none')
+        : document.querySelector('#alerta-internet-status').classList.remove('d-none')
+}
 
-// Llama a revisarConexion cuando la página se carga por primera vez
 window.addEventListener('load', revisarConexion);
-// Escucha los cambios en el estado de la conexión
 window.addEventListener('online', revisarConexion);
 window.addEventListener('offline', revisarConexion);
 
+// MARK: DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+    detectarTemaSistema();
 
-/* Ordenar botones canales */
-let modalBotonOrdenAscendente = document.getElementById('modal-boton-orden-ascendente');
-modalBotonOrdenAscendente.addEventListener('click', () => {
-  sortButtonsAsc('modal-body-botones-canales');
-});
+    MODAL_CAMBIAR_CANAL.addEventListener('shown.bs.modal', () => {
+        document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(boton => {
+            boton.addEventListener('click', () => clickCambioCanal(boton.dataset.canal, LABEL_MODAL_CAMBIAR_CANAL.getAttribute('id-canal-cambio')));
+        });
+    });
 
-let modalBotonOrdenDescendente = document.getElementById('modal-boton-orden-descendente');
-modalBotonOrdenDescendente.addEventListener('click', () => {
-  sortButtonsDesc('modal-body-botones-canales');
-});
+    MODAL_CAMBIAR_CANAL.addEventListener('hidden.bs.modal', () => {
+        LABEL_MODAL_CAMBIAR_CANAL.setAttribute('id-canal-cambio', '')
+    });
 
-let modalBotonOrdenOriginal = document.getElementById('modal-boton-orden-original');
-modalBotonOrdenOriginal.addEventListener('click', () => {
-  restoreOriginalOrder('modal-body-botones-canales');
-});
+    screen.orientation.addEventListener('change', () => {
+        if (lsEstiloVision !== 'vision-unica') ajustarNumeroDivisionesClaseCol();
+    });
 
-let offcanvasBotonOrdenAscendente = document.getElementById('offcanvas-boton-orden-ascendente');
-offcanvasBotonOrdenAscendente.addEventListener('click', () => {
-  sortButtonsAsc('offcanvas-body-botones-canales');
-});
+    // Efecto glow en hover a logo del fondo
+    const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
+    TARJETA_LOGO_BACKGROUND.onmousemove = e => {
+        let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
+            x = e.clientX - rect.left,
+            y = e.clientY - rect.top;
+        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
+        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
+    };
 
-let offcanvasBotonOrdenDescendente = document.getElementById('offcanvas-boton-orden-descendente');
-offcanvasBotonOrdenDescendente.addEventListener('click', () => {
-  sortButtonsDesc('offcanvas-body-botones-canales');
-});
+    if (lsModal !== 'hide') new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
 
-let offcanvasBotonOrdenOriginal = document.getElementById('offcanvas-boton-orden-original');
-offcanvasBotonOrdenOriginal.addEventListener('click', () => {
-  restoreOriginalOrder('offcanvas-body-botones-canales');
-});
+    // Navbar
+    lsNavbar !== 'hide'
+        ? (MAIN_NAVBAR.classList.remove('d-none'), checkboxOn(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display'))
+        : (MAIN_NAVBAR.classList.add('d-none'), checkboxOff(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display'));
 
+    // Posición botones flotante
+    const BOTONES_REPOSICIONAR_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
+    BOTONES_REPOSICIONAR_BOTONES_FLOTANTES.forEach(boton => {
+        boton.addEventListener('click', () => {
+            const BOTON_DATASET_POSITION = boton.dataset.position.split(' ');
+            clicBotonPosicionBotonesFlotantes(...BOTON_DATASET_POSITION);
+        });
+    });
 
-// ----- autofocus para filtro canales en PC
-const modalBodyBotonesCanales = document.querySelector('#modal-body-botones-canales')
-const offcanvasBodyBotonesCanales = document.querySelector('#offcanvas-body-botones-canales')
+    if (lsPosicionBotonesFlotantes) {
+        const { top, start, margin, translate } = JSON.parse(lsPosicionBotonesFlotantes);
+        actualizarBotonesFlotantes(top, start, margin, translate);
+    } else {
+        actualizarBotonesFlotantes('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
+    }
 
-const filtroCanalesModal = document.querySelector('#modal-input-filtro');
-const filtroCanalesOffcanvas = document.querySelector('#offcanvas-input-filtro');
+    function actualizarBotonesFlotantes(top, start, margin, translate) {
+        alternarPosicionBotonesFlotantes(top, start, margin, translate);
+        BOTONES_REPOSICIONAR_BOTONES_FLOTANTES.forEach(boton => {
+            boton.checked = esBotonReposicionar(boton, top, start, margin, translate);
+        });
+    }
 
-document.querySelector('#modal-canales').addEventListener('shown.bs.modal', () => {
-  !isMobile.any && filtroCanalesModal.focus();
-});
+    function esBotonReposicionar(boton, top, start, margin, translate) {
+        const BOTON_DATASET_POSITION = boton.dataset.position.split(' ');
+        return BOTON_DATASET_POSITION[0] === top && BOTON_DATASET_POSITION[1] === start && (BOTON_DATASET_POSITION[2] || '') === (margin || '') && (BOTON_DATASET_POSITION[3] || '') === (translate || '');
+    }
 
+    // Texto botones flotantes
+    if (lsTextoBotonesFlotantes !== 'hide') {
+        checkboxOn(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes');
+        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square');
+    } else {
+        SPAN_BOTONES_FLOTANTES.forEach((button) => {
+            button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+        });
+        checkboxOff(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes');
+        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
+    }
 
-filtroCanalesModal.addEventListener('input', (e) => {
-  filtroCanalesModal.focus()
-  filtrarCanalesPorInput(e.target.value, modalBodyBotonesCanales);
-});
+    // Tamaño
+    actualizarValorSlider();
+    SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
 
-filtroCanalesOffcanvas.addEventListener('input', (e) => {
-  filtroCanalesOffcanvas.focus()
-  filtrarCanalesPorInput(e.target.value, offcanvasBodyBotonesCanales);
-});
+    // tarjeta fondo
+    if (lsFondo !== 'hide') {
+        checkboxOn(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display')
+        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
+        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye');
+    } else {
+        checkboxOff(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display')
+        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
+        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
+    }
 
-// ----- botones mostrar todos los canales
-const btnMostrarTodoPaisModal = document.querySelector('#modal-btn-mostrar-todo-pais');
-btnMostrarTodoPaisModal.addEventListener('click', () => {
-  filtrarCanalesPorInput('', document.querySelector('#modal-body-botones-canales'));
-});
+    async function cargaInicial() {
+        try {
+            await fetchCargarCanales();
 
-const btnMostrarTodoPaisOffcanvas = document.querySelector('#offcanvas-btn-mostrar-todo-pais');
-btnMostrarTodoPaisOffcanvas.addEventListener('click', () => {
-  filtrarCanalesPorInput('', document.querySelector('#offcanvas-body-botones-canales'));
-});
+            if (listaCanales) {
+                crearBotonesParaCanales();
+                crearBotonesPaises();
+                borraPreferenciaSeñalInvalida();
+                lsEstiloVision === 'vision-unica' ? activarVisionUnica() : tele.cargaCanalesPredeterminados();
+                actualizarBotonesPersonalizarOverlay()
+                ajustarClaseColTransmisionesPorFila(localStorage.getItem('numero-class-columnas-por-fila') ?? (isMobile.any ? VALOR_COL_FIJO_TELEFONO : VALOR_COL_FIJO_ESCRITORIO))
+                hideTextoBotonesOverlay()
+                activarTooltipsBootstrap();
+                ajustarVisibilidadBotonesQuitarTodaSeñal();
+            }
+            
+        } catch (error) {
+            console.error(`Error durante carga inicial. Error: ${error}`);
+            mostrarToast(`
+            <span class="fw-bold">Ha ocurrido un error durante la carga inicial.</span>
+            <hr>
+            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+            <hr>
+            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+            return
+        } 
+    }
+    cargaInicial();
+    cargarOrdenVisionUnica();
 
-// Cambiar posición botones flotante
-const btnsRadioFlotantes = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
-btnsRadioFlotantes.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const valoresPosicion = btn.getAttribute('data-position').split(' '); // Obtener los valores del atributo data-position
-    clicBotonPosicionBotonesFlotantes(...valoresPosicion);
-  });
+    // Ordenar botones canales
+    function addSortEventListener(buttonId, containerId, sortFunction) {
+        const BOTON_AÑADIR_EVENTO = document.querySelector(`#${buttonId}`);
+        BOTON_AÑADIR_EVENTO.addEventListener('click', () => sortFunction(containerId));
+    }
+
+    for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+        addSortEventListener(`${PREFIJO}-boton-orden-ascendente`, `${PREFIJO}-body-botones-canales`, ordenarBotonesCanalesAscendente);
+        addSortEventListener(`${PREFIJO}-boton-orden-descendente`, `${PREFIJO}-body-botones-canales`, ordenarBotonesCanalesDescendente);
+        addSortEventListener(`${PREFIJO}-boton-orden-original`, `${PREFIJO}-body-botones-canales`, restaurarOrdenOriginalBotonesCanales);
+
+        let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`)
+        document.querySelector(`#${PREFIJO}-input-filtro`).addEventListener('input', (e) => {
+            document.querySelector(`#${PREFIJO}-input-filtro`).focus()
+            filtrarCanalesPorInput(e.target.value, bodyBotonesCanales);
+        });
+    }
+
+    document.addEventListener('hidden.bs.toast', event => {
+        event.target.remove()
+    });
+
+    localStorage.setItem('modo-experimental', 'inactivo');
+    const BOTON_EXPERIMENTAL = document.querySelector('#boton-experimental');
+    BOTON_EXPERIMENTAL.addEventListener('click', async () => {
+        try {
+            if (localStorage.getItem('modo-experimental') !== 'activo') {
+                BOTON_EXPERIMENTAL.querySelector('span').textContent = 'Cargando...'
+                await fetchCargarCanalesIPTV();
+                localStorage.setItem('modo-experimental', 'activo');
+                for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+                    document.querySelector(`#${PREFIJO}-body-botones-canales`).classList.add('border', 'border-warning', 'rounded-3')
+                    document.querySelector(`#${PREFIJO}-body-botones-canales`).innerHTML = '';
+                    document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`).innerHTML = '';
+                };
+                quitarTodoCanalActivo()
+                crearBotonesParaCanales();
+                crearBotonesPaises();
+
+                mostrarToast('Modo experimental activado. Se han combinado listas de canales y sus señales m3u8.', 'warning')
+            } else {
+                playAudioSinDelay(AUDIO_FAIL);
+                mostrarToast('Ya estas en modo experimental. Revisa los canales que se cargaron. Para regresar al modo normal recarga la página. <br> <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>', 'info');
+            }
+        } catch (error) {
+            console.error(`Error al intentar activar modo experimental. Error: ${error}`);
+            mostrarToast(`
+            <span class="fw-bold">Ha ocurrido un error al intentar activar modo experimental.</span>
+            <hr>
+            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
+            <hr>
+            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
+            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+            return
+        } finally {
+            BOTON_EXPERIMENTAL.querySelector('span').textContent = 'Activar modo experimental canales IPTV'
+        }
+    });
 });

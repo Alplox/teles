@@ -11,7 +11,7 @@
         "news"
     ],
     
-    "theme_color": "#080808",
+    "theme_color": "#4b01c3",
     "background_color": "#212529",
     "display": "standalone",
     "orientation": "any",
@@ -111,7 +111,14 @@
             "type": "image/jpeg",
             "sizes": "1080x1920"
         }
+    ],
+    "edge_side_panel": {
+        "preferred_width": 508
+    },
+    "display_override": [
+        "standalone",
+        "browser",
+        "minimal-ui",
+        "window-controls-overlay"
     ]
-
 }
-

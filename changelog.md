@@ -3,6 +3,18 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.18]
+### Changed
+- Refactorizado código JS.
+- Combinan señales mismo canal en un solo botón.
+
+### Added
+- Opción de modificar señal de canal activo, junto a guardar en almacenamiento local opción seleccionada para futuras cargas.
+- Mayor número de comprobaciones para carga canales para evitar errores que dejen inutilizable sitio.
+- Opción experimental carga canales IPTV desde https://github.com/iptv-org/iptv (por problemas de rendimiento deja como activado manual en offcanvas personalizaciones).
+- Más canales, señales, logos a canales (opcional desde código).
+- Opción alternar entre vista "cuadricula" y "única", junto a recordar opción seleccionada.
+
 ## [v0.17]
 ### Changed
 - filtroCanales reescrito para tomar en cuenta si se pulsa filtro por país de modo de que el input usuario sea dentro de dicho país activo.

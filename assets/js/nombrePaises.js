@@ -1,7 +1,5 @@
-// MARK: Banderas
-// https://flagcdn.com/en/codes.json
-// Variable global para almacenar los códigos de bandera
-export let codigosBanderas = {
+// https://flagcdn.com/es/codes.json
+export const CODIGOS_PAISES = {
   "ad": "Andorra",
   "ae": "Emiratos Árabes Unidos",
   "af": "Afganistán",
