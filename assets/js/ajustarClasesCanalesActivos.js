@@ -16,33 +16,44 @@ export function ajustarNumeroDivisionesClaseCol() {
         let transmisionesEnGrid = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
         let lsTransmisionesFila = localStorage.getItem('numero-class-columnas-por-fila');
 
+        let claseCienViewHeight = localStorage.getItem('uso-100vh') === 'activo' ? ['vh-100', 'overflow-hidden'] : '';
+
+        localStorage.getItem('uso-100vh') === 'activo' 
+        ? document.querySelector('#container-vision-cuadricula').classList.add('h-100')
+        : document.querySelector('#container-vision-cuadricula').classList.remove('h-100')
+
         if (!isMobile.any) {
-            if (transmisionesEnGrid.length < obtenerNumeroCanalesFila()) {
+            if (transmisionesEnGrid.length < obtenerNumeroCanalesFila() && localStorage.getItem('uso-100vh') !== 'activo' ) {
                 for (let transmisionActiva of transmisionesEnGrid) {
-                    AsignarClaseColumna(transmisionActiva, ['col', 'vh-100', 'overflow-hidden']);
+                    AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`])
                 }
-            } else {
+            } else if (transmisionesEnGrid.length < obtenerNumeroCanalesFila()) {
+                for (let transmisionActiva of transmisionesEnGrid) {
+                    AsignarClaseColumna(transmisionActiva, ['col', ...claseCienViewHeight]);
+                }
+            }
+            else {
                 for (let transmisionActiva of transmisionesEnGrid) {
                     AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`]);
-                    if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add('vh-100', 'overflow-hidden');
+                    if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add(...claseCienViewHeight);
                 }
             }
         } else {
             if (screen.orientation.type === 'landscape-primary') {
                 if (transmisionesEnGrid.length < obtenerNumeroCanalesFila()) {
                     for (let transmisionActiva of transmisionesEnGrid) {
-                        AsignarClaseColumna(transmisionActiva, ['col', 'vh-100', 'overflow-hidden']);
+                        AsignarClaseColumna(transmisionActiva, ['col', ...claseCienViewHeight]);
                     }
                 } else {
                     for (let transmisionActiva of transmisionesEnGrid) {
                         AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`]);
-                        if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add('vh-100', 'overflow-hidden');
+                        if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add(...claseCienViewHeight);
                     }
                 }
             } else {
                 if (transmisionesEnGrid.length < obtenerNumeroCanalesFila()) {
                     for (let transmisionActiva of transmisionesEnGrid) {
-                        AsignarClaseColumna(transmisionActiva, ['col', 'vh-100', 'overflow-hidden']);
+                        AsignarClaseColumna(transmisionActiva, ['col', ...claseCienViewHeight]);
                     }
                 } else {
                     for (let transmisionActiva of transmisionesEnGrid) {

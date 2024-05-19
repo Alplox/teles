@@ -161,6 +161,7 @@ let lsEstiloVision = localStorage.getItem('diseño-seleccionado');
 
 let lsPosicionBotonesFlotantes = localStorage.getItem('posicion-botones-flotante');
 let lsTextoBotonesFlotantes = localStorage.getItem('texto-botones-flotantes');
+let lsAlturaCanales = localStorage.getItem('uso-100vh');
 let lsFondo = localStorage.getItem('tarjeta-fondo-display');
 
 // MARK: PERSONALIZACIONES 
@@ -201,6 +202,24 @@ INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', 
     CONTAINER_VISION_CUADRICULA.style.maxWidth = `${event.target.value}%`;
     localStorage.setItem('valor-input-range', event.target.value);
     hideTextoBotonesOverlay();
+});
+
+// alternar altura canales
+const CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#checkbox-personalizar-altura-canales');
+const SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#span-valor-altura-canales');
+const ICONO_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#icono-personalizar-altura-canales');
+
+CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.addEventListener('click', () => {
+    CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked 
+        ? (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'), 
+            localStorage.setItem('uso-100vh', 'activo'),
+            SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido'
+        )
+        : (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'), 
+            localStorage.setItem('uso-100vh', 'inactivo'),
+            SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Reducido'
+        );
+    ajustarNumeroDivisionesClaseCol()
 });
 
 // Canales por fila
@@ -1255,6 +1274,9 @@ function activarVisionUnica() {
         INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = true;
         SPAN_VALOR_INPUT_RANGE.textContent = 'Deshabilitado';
 
+        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.disabled = true;
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Deshabilitado';
+
         BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = true });
         SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `Deshabilitado`;
 
@@ -1326,6 +1348,9 @@ function desactivarVisionUnica() {
         INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = false;
         actualizarValorSlider();
 
+        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.disabled = false;
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = localStorage.getItem('uso-100vh') === 'activo' ? 'Expandido' : 'Reducido';
+
         BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = false });
         SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`;
 
@@ -1343,8 +1368,6 @@ function desactivarVisionUnica() {
         <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
         return
     }
-
-    
 }
 
 BOTON_ACTIVAR_VISION_UNICA.addEventListener('click', () => {
@@ -1547,6 +1570,18 @@ window.addEventListener('DOMContentLoaded', () => {
     // Tamaño
     actualizarValorSlider();
     SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
+
+    // Altura
+    if (lsAlturaCanales !== 'inactivo') {
+        localStorage.setItem('uso-100vh', 'activo'),
+        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = true;
+        ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido';
+    } else {
+        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = false;
+        ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse');
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Reducido';
+    }
 
     // tarjeta fondo
     if (lsFondo !== 'hide') {

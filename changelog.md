@@ -7,6 +7,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Refactorizado código JS.
 - Combinan señales mismo canal en un solo botón.
+- Imágenes previews
 
 ### Added
 - Opción de modificar señal de canal activo, junto a guardar en almacenamiento local opción seleccionada para futuras cargas.
@@ -14,6 +15,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Opción experimental carga canales IPTV desde https://github.com/iptv-org/iptv (por problemas de rendimiento deja como activado manual en offcanvas personalizaciones).
 - Más canales, señales, logos a canales (opcional desde código).
 - Opción alternar entre vista "cuadricula" y "única", junto a recordar opción seleccionada.
+- Opción alternar uso 100% de la altura pantalla en vista "cuadricula"
 
 ## [v0.17]
 ### Changed

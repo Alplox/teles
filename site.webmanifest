@@ -105,11 +105,6 @@
             "src": "./assets/img/PWA/5.jpg",
             "type": "image/jpeg",
             "sizes": "1080x1920"
-        },
-        {
-            "src": "./assets/img/PWA/6.jpg",
-            "type": "image/jpeg",
-            "sizes": "1080x1920"
         }
     ],
     "edge_side_panel": {
