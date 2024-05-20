@@ -30,13 +30,40 @@ const TWITCH_PARENT = 'alplox.github.io'
 const ARRAY_CANALES_PREDETERMINADOS = ['24-horas', 'meganoticias', 't13'];
 const ARRAY_CANALES_PREDETERMINADOS_EXTRAS = ['chv-noticias', 'galeria-cima', 'lofi-girl'];
 const ICONOS_PARA_CATEGORIAS = {
-    'news': '<i class="bi bi-newspaper" title="Icono noticias"></i>',
+    // Formato de https://github.com/iptv-org/iptv?tab=readme-ov-file#grouped-by-category
+    'animation': '<i class="bi bi-emoji-laughing-fill" title="Icono dibujos animados"></i>',
+    'auto': '<i class="bi bi-car-front" title="Icono auto"></i>',
+    'business': '<i class="bi bi-kanban" title="Icono negocios"></i>',
+    'classic': '<i class="bi bi-cassette" title="Icono clásico"></i>',
+    'comedy': '<i class="bi bi-emoji-grin-fill" title="Icono comedia"></i>',
+    'cooking': '<i class="bi bi-egg-fill" title="Icono huevo"></i>',
+    'culture': '<i class="bi bi-globe" title="Icono cultura"></i>',
+    'documentary': '<i class="bi bi-camera-reels" title="Icono documental"></i>',
+    'education': '<i class="bi bi-book" title="Icono educación"></i>',
+    'entertainment': '<i class="bi bi-hand-thumbs-up-fill" title="Icono entretenimiento"></i>',
+    'family': '<i class="bi bi-people-fill" title="Icono familia"></i>',
     'general': '<i class="bi bi-tv" title="Icono general"></i>',
-    'radio': '<i class="bi bi-boombox" title="Icono radio"></i>',
+    'kids': '<i class="bi bi-emoji-smile-fill" title="Icono niños"></i>',
+    'legislative': '<i class="bi bi-vector-pen" title="Icono legislativo"></i>',
+    'lifestyle': '<i class="bi bi-house" title="Icono estilo de vida"></i>',
+    'movies': '<i class="bi bi-camera-reels" title="Icono películas"></i>',
     'music': '<i class="bi bi-music-note-beamed" title="Icono música"></i>',
-    'camera': '<i class="bi bi-camera" title="Icono cámara"></i>',
-    'space': '<i class="bi bi-rocket-takeoff" title="Icono espacio"></i>',
-    'animation': '<i class="bi bi-emoji-laughing-fill" title="Icono dibujos animados"></i>'
+    'news': '<i class="bi bi-newspaper" title="Icono noticias"></i>',
+    'outdoor': '<i class="bi bi-bicycle" title="Icono al aire libre"></i>',
+    'relax': '<i class="bi bi-cup-hot" title="Icono relajado"></i>',
+    'religious': '<i class="bi bi-tree" title="Icono religion"></i>',
+    'science': '<i class="bi bi-rocket-takeoff" title="Icono ciencia"></i>',
+    'series': '<i class="bi bi-badge-hd" title="Icono series"></i>',
+    'shop': '<i class="bi bi-bag" title="Icono tienda"></i>',
+    'sports': '<i class="bi bi-trophy" title="Icono deportes"></i>',
+    'travel': '<i class="bi bi-airplane" title="Icono viaje"></i>',
+    'weather': '<i class="bi bi-cloud-sun" title="Icono clima"></i>',
+    'xxx': '<i class="bi bi-tv" title="Icono adultos"></i>',
+    'undefined': '<i class="bi bi-tv" title="Icono indefinido"></i>',
+
+    // Extras
+    'radio': '<i class="bi bi-boombox" title="Icono radio"></i>',
+    'camera': '<i class="bi bi-camera" title="Icono cámara"></i>'
 };
 const VALOR_COL_FIJO_ESCRITORIO = 4;
 const VALOR_COL_FIJO_TELEFONO = 12;
@@ -366,8 +393,8 @@ async function M3U_A_JSON(m3u) {
             //  const NOMBRE_CANAL = lines[i].match(/,([^,]+)$/)[1] ?? 'Nombre canal no encontrado'; //añade lo de (1080p) [24//7]
             const NOMBRE_CANAL = lines[i].match(/,([^,(]+)/)[1]?.trim() ?? 'Nombre canal no encontrado'; // no añade lo que este luego del primer "("
 
-            const LOGO_IMG = attributes['tvg-logo'] ?? '';
-            const GROUP_TITLE_ID = attributes['group-title']?.toLowerCase() ?? '';
+            const LOGO_IMG = attributes['tvg-logo'] ?? "";
+            const GROUP_TITLE_ID = attributes['group-title']?.toLowerCase() ?? "";
 
             const TVG_ID = attributes['tvg-id'] ?? `canal-m3u8-${i}.`;
             const [NOMBRE_CANAL_PARA_ID, COUNTRY_ID = ""] = TVG_ID.toLowerCase().split('.');
@@ -646,6 +673,7 @@ function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         let { nombre = 'Nombre Canal', señales, sitio_oficial, país, categoría } = listaCanales[canalId];
 
         valorIndex = Number(valorIndex);
+        categoría = categoría.toLowerCase();
         let iconoCategoria = categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
 
         const FRAGMENT_OVERLAY = document.createDocumentFragment();
@@ -1086,6 +1114,7 @@ function crearBotonesParaCanales() {
         const FRAGMENT_BOTONES_CANALES = document.createDocumentFragment();
         for (const canal in listaCanales) {
             let { nombre, /* logo, */ país, categoría } = listaCanales[canal];
+            categoría = categoría.toLowerCase();
             let iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
             let nombrePais = país && CODIGOS_PAISES[país.toLowerCase()] ? CODIGOS_PAISES[país.toLowerCase()] : 'Desconocido';
 
