@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <base target="_blank"> <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base -->
+    <base target="_blank">
     <title>Teles - Noticias de Chile (y el mundo)</title>
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
@@ -30,7 +30,7 @@
     <meta property="og:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta property="og:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-18_dark_canales.webp">
+        content="assets/img/previews/shots_teles_v0-18_dark_canales.webp">
     <!-- Twitter Card-->
     <meta name="twitter:card"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
@@ -40,7 +40,7 @@
     <meta name="twitter:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta name="twitter:image"
-        content="https://raw.githubusercontent.com/Alplox/teles/master/assets/img/previews/shots_teles_v0-18_dark_canales.webp">
+        content="assets/img/previews/shots_teles_v0-18_dark_canales.webp">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
@@ -72,7 +72,7 @@
 </head>
 
 <body>
-    <!-- Toast error carga señal guardada por usuario para canal -->
+    <!-- Toast container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
     </div>
 
@@ -95,10 +95,8 @@
     <!-- Imagen y logo del fondo -->
     <div class="fondo-global">
         <section id="container-tarjeta-logo-background"> <!-- tarjeta logo -->
-            <div
-                class="position-absolute top-50 start-50 translate-middle border border-light-subtle rounded-5 shadow cursor-default-en-hover user-select-none overflow-hidden">
-                <div
-                    class="tarjeta-logo-background bg-transparent bg-blur px-5 pb-4 pt-5 d-flex flex-column justify-content-center align-items-center">
+            <div class="position-absolute top-50 start-50 translate-middle border border-light-subtle rounded-5 shadow cursor-default-en-hover user-select-none overflow-hidden">
+                <div class="tarjeta-logo-background bg-transparent bg-blur px-5 pb-4 pt-5 d-flex flex-column justify-content-center align-items-center">
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
@@ -113,8 +111,7 @@
 
     <!-- Alerta noscript -->
     <noscript>
-        <div
-            class="bg-noscript z-9999 position-fixed overflow-hidden d-flex flex-column align-items-center justify-content-center vw-100 vh-100 p-5">
+        <div class="bg-noscript z-9999 position-fixed overflow-hidden d-flex flex-column align-items-center justify-content-center vw-100 vh-100 p-5">
             <h1>El sitio <strong>no</strong> funciona sin <strong>JavaScript</strong>.</h1>
             <h2>Si lo has deshabilitado, por favor <strong>vuelve a activarlo</strong>.</h2>
             <div class="wave"></div>
@@ -620,11 +617,6 @@
 
         <div class="offcanvas-body scrollbar-thin-gray bg-transparent px-3 py-0">
             <div class="d-flex flex-column bg-transparent">
-                <!-- <p>
-                    Contribuir al proyecto o ver las fuentes de las señales <a href="https://github.com/Alplox/teles"
-                        rel="nofollow noreferrer"><i class="bi bi-github"></i> repositorio GitHub <i
-                            class="bi bi-box-arrow-up-right"></i></a>.
-                </p> -->
                 <div class="bg-dark-subtle p-2 mb-2 rounded-4 d-flex flex-column">
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button" data-bs-toggle="collapse"
@@ -1622,7 +1614,7 @@
         <div class="bg-light-subtle">
             <button type="button"
                 class="focus-outline-blue btn btn-sm btn-outline-indigo rounded-0 shadow-sm border-0 h-100"
-                data-bs-toggle="modal" data-bs-target="#modal-canales">
+                data-bs-toggle="modal" data-bs-target="#modal-canales" title="boton modal canales flotante">
                 <i class="bi bi-collection-play"></i>
             </button>
         </div>
@@ -1634,7 +1626,7 @@
         </button>
     </div>
 
-    <!-- sidepanel/personalizaciones bg-dark bg-opacity-75 border border-2 border-light-subtle rounded-4 overflow-auto -->
+    <!-- sidepanel/personalizaciones -->
     <div class="offcanvas offcanvas-end bg-transparent bg-blur border border-end-0 border-2 border-light-subtle rounded-start-5"
         data-bs-scroll="true" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
         <div class="offcanvas-header d-flex justify-content-center p-0">
@@ -1888,10 +1880,10 @@
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <p class="mb-1">Compartir</p>
-                        <button type="button" class='d-none btn btn-light-subtle w-100' id="boton-compartir">
+                        <button type="button" class='btn btn-light-subtle w-100' id="boton-compartir">
                             <i class="pe-1 bi bi-share-fill"></i> Compartir
                         </button>
-                        <div class="d-flex justify-content-evenly flex-wrap gap-1" id="contenedor-botones-compartir">
+                        <div class="d-none justify-content-evenly flex-wrap gap-1" id="contenedor-botones-compartir">
                             <!-- Boton Facebook -->
                             <a class="btn btn-light-subtle btn-lg" role="button"
                                 href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Falplox.github.io%2Fteles%2F&quote=teles"

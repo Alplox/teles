@@ -43,8 +43,7 @@ const DATOS_NAVIGATOR_SHARE = {
 const BOTON_COMPARTIR = document.querySelector('#boton-compartir');
 const CONTENEDOR_BOTONES_COMPARTIR_RRSS = document.querySelector('#contenedor-botones-compartir');
 
-if (isMobile.any && navigator.share) {
-    BOTON_COMPARTIR.classList.remove('d-none');
+if (navigator.share) {
     BOTON_COMPARTIR.addEventListener('click', async () => {
         try {
             await navigator.share(DATOS_NAVIGATOR_SHARE);
@@ -52,7 +51,9 @@ if (isMobile.any && navigator.share) {
             console.error(`Error: ${err}`);
         }
     });
-    CONTENEDOR_BOTONES_COMPARTIR_RRSS.classList.add('d-none');
+} else {
+    BOTON_COMPARTIR.classList.add('d-none'); 
+    CONTENEDOR_BOTONES_COMPARTIR_RRSS.classList.replace('d-none', 'd-flex'); 
 };
 
 // MARK: Botones carga canales predeterminados

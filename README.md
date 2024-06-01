@@ -193,8 +193,8 @@ ___
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-[MIT License ⚖️](https://github.com/Alplox/teles/blob/main/LICENSE)
-[NOTICE](https://github.com/Alplox/teles/blob/main/NOTICE.md)
+[MIT License ⚖️](/LICENSE)
+[NOTICE](/NOTICE.md)
 
 ```
 MIT License

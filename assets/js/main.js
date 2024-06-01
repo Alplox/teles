@@ -355,7 +355,7 @@ async function fetchCargarCanalesIPTV() {
     // Crear un mapa para indexar los canales por nombre
     const mapCanales = {};
     if (listaCanales) {
-        for (const canal in listaCanales) {
+        for (const canal of Object.keys(listaCanales)) {
             const nombreLista = listaCanales[canal].nombre ?? 'Canal sin nombre';
             mapCanales[nombreLista] = listaCanales[canal];
         }
@@ -1112,7 +1112,7 @@ function crearBotonesPaises() {
 function crearBotonesParaCanales() {
     try {
         const FRAGMENT_BOTONES_CANALES = document.createDocumentFragment();
-        for (const canal in listaCanales) {
+        for (const canal of Object.keys(listaCanales)) {
             let { nombre, /* logo, */ país, categoría } = listaCanales[canal];
             categoría = categoría.toLowerCase();
             let iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
@@ -1127,7 +1127,7 @@ function crearBotonesParaCanales() {
                 `<span class="flex-grow-1">${nombre}</span>
                     ${país ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">` : ''}
                     ${iconoCategoria ? `${iconoCategoria}` : ''}`;
-            // ${logo ? `<img src="${logo}" alt="logo ${nombre}" title="logo ${nombre}" class="img-logos rounded-1">` : ''} 
+                    // ${logo ? `<img src="${logo}" alt="logo ${nombre}" title="logo ${nombre}" class="img-logos rounded-1">` : ''}
             FRAGMENT_BOTONES_CANALES.append(botonCanal);
         }
 
@@ -1266,7 +1266,6 @@ export let tele = {
         };
     }
 };
-
 
 // MARK: Vision Unica
 function activarVisionUnica() {
