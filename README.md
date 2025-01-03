@@ -34,7 +34,7 @@ https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junt
 | https://tele.0x00.cl/ (RIP)                            | [u/0x00cl](https://old.reddit.com/user/0x00cl)           | [Fuente](https://old.reddit.com/r/chile/comments/dx76yi/megathread_jornada_de_protestas_d%C3%ADa_30_70k_subs/f7p0vjn/) |
 | https://whywelove.news/love/country/chile/envivo (RIP) | [u/sebastianrw](https://old.reddit.com/user/sebastianrw) | [Fuente](https://old.reddit.com/r/chile/comments/dwba7u/monitorea_las_noticias_de_chile_en_tiempo_real/)               |
 | https://ainmcl.github.io/MonitorTV/Monitores/Home.html | [AINMcl](https://github.com/AINMcl)                      | [Fuente](https://github.com/AINMcl/MonitorTV)                                                                          |
-| https://tele.martinsantibanez.com/monitor              | [martinsantibanez](https://github.com/martinsantibanez)  | [Fuente](https://github.com/martinsantibanez/tele-react)                                                               |
+| https://ver-tele.vercel.app/monitor              | [martinsantibanez](https://github.com/martinsantibanez)  | [Fuente](https://github.com/martinsantibanez/tele-react)                                                               |
 | https://sanguinet.github.io/tele/                      | [SanguiNET](https://github.com/SanguiNET)                | [Fuente](https://github.com/SanguiNET/tele)                                                                            |
 | https://alplox.github.io/la-tele/                      | [Alplox](https://github.com/Alplox/)                     | [Fuente](https://github.com/Alplox/la-tele)                                                                            |
 
