@@ -3,15 +3,21 @@
 teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).
 
 # Enlace teles
-Enlace: https://alplox.github.io/teles/
+
+Enlace: <https://alplox.github.io/teles/>
 
 # Tabla de contenido
-- [Canales disponibles junto a su origen 📺](#canales-disponibles-junto-a-su-origen)
-- [Variaciones creadas por terceros](#variaciones-creadas-por-terceros)
-- [Prensa alternativa 📰 📻](#prensa-alternativa)
-- [Enlaces complementarios](#enlaces-complementarios)
+
+- [¿Qué es teles?](#qué-es-teles)
+- [Enlace teles](#enlace-teles)
+- [Tabla de contenido](#tabla-de-contenido)
+- [Canales disponibles junto a su origen](#canales-disponibles-junto-a-su-origen)
+- [Variaciones Creadas por Terceros](#variaciones-creadas-por-terceros)
+- [Prensa Alternativa](#prensa-alternativa)
+- [Enlaces Complementarios](#enlaces-complementarios)
 - [Descargo de responsabilidad](#descargo-de-responsabilidad)
 - [Licencia](#licencia)
+- [Contribuciones](#contribuciones)
 
 [![](/assets/img/previews/shots_teles_v0-18_temas.webp)](https://alplox.github.io/teles/)
 [![](/assets/img/previews/shots_teles_v0-18_personalizar.webp)](https://alplox.github.io/teles/)
@@ -19,61 +25,58 @@ Enlace: https://alplox.github.io/teles/
 [![](/assets/img/previews/shots_teles_v0-18_dark_canales.webp)](https://alplox.github.io/teles/)
 [![](/assets/img/previews/shots_teles_v0-18.webp)](https://alplox.github.io/teles/)
 
-# Canales disponibles junto a su origen: 
+# Canales disponibles junto a su origen
+
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junto-a-su-origen
+<https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junto-a-su-origen>
 
+# Variaciones Creadas por Terceros
 
-# Variaciones Creadas por Terceros: 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
 | Enlaces Variaciones                                    | Por:                                                     | Fuente                                                                                                                 |
 |--------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| https://www.viendotele.cl/                             | [@pottersys](https://twitter.com/pottersys)              | [Fuente](https://github.com/PotterSys/canales-tele) - [x](https://twitter.com/pottersys/status/1187710925182255104)    |
-| https://tele.0x00.cl/ (RIP)                            | [u/0x00cl](https://old.reddit.com/user/0x00cl)           | [Fuente](https://old.reddit.com/r/chile/comments/dx76yi/megathread_jornada_de_protestas_d%C3%ADa_30_70k_subs/f7p0vjn/) |
-| https://whywelove.news/love/country/chile/envivo (RIP) | [u/sebastianrw](https://old.reddit.com/user/sebastianrw) | [Fuente](https://old.reddit.com/r/chile/comments/dwba7u/monitorea_las_noticias_de_chile_en_tiempo_real/)               |
-| https://ainmcl.github.io/MonitorTV/Monitores/Home.html | [AINMcl](https://github.com/AINMcl)                      | [Fuente](https://github.com/AINMcl/MonitorTV)                                                                          |
-| https://ver-tele.vercel.app/monitor              | [martinsantibanez](https://github.com/martinsantibanez)  | [Fuente](https://github.com/martinsantibanez/tele-react)                                                               |
-| https://sanguinet.github.io/tele/                      | [SanguiNET](https://github.com/SanguiNET)                | [Fuente](https://github.com/SanguiNET/tele)                                                                            |
-| https://alplox.github.io/la-tele/                      | [Alplox](https://github.com/Alplox/)                     | [Fuente](https://github.com/Alplox/la-tele)                                                                            |
-
+| <https://www.viendotele.cl/>                             | [@pottersys](https://twitter.com/pottersys)              | [Fuente](https://github.com/PotterSys/canales-tele) - [x](https://twitter.com/pottersys/status/1187710925182255104)    |
+| <https://tele.0x00.cl/> (RIP)                            | [u/0x00cl](https://old.reddit.com/user/0x00cl)           | [Fuente](https://old.reddit.com/r/chile/comments/dx76yi/megathread_jornada_de_protestas_d%C3%ADa_30_70k_subs/f7p0vjn/) |
+| <https://whywelove.news/love/country/chile/envivo> (RIP) | [u/sebastianrw](https://old.reddit.com/user/sebastianrw) | [Fuente](https://old.reddit.com/r/chile/comments/dwba7u/monitorea_las_noticias_de_chile_en_tiempo_real/)               |
+| <https://ainmcl.github.io/MonitorTV/Monitores/Home.html> | [AINMcl](https://github.com/AINMcl)                      | [Fuente](https://github.com/AINMcl/MonitorTV)                                                                          |
+| <https://ver-tele.vercel.app/monitor>              | [martinsantibanez](https://github.com/martinsantibanez)  | [Fuente](https://github.com/martinsantibanez/tele-react)                                                               |
+| <https://sanguinet.github.io/tele/>                      | [SanguiNET](https://github.com/SanguiNET)                | [Fuente](https://github.com/SanguiNET/tele)                                                                            |
+| <https://alplox.github.io/la-tele/>                      | [Alplox](https://github.com/Alplox/)                     | [Fuente](https://github.com/Alplox/la-tele)                                                                            |
 
 <details>
 <summary>Visores distintos/ajenos proyecto</summary>
 
 | Enlaces visores distintos/ajenos proyecto          | Por:                                                                  | Fuente                                                                                     |
 |----------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| https://m3u.cl/lista-iptv-chile.php                | [Nicolás](https://whois.domaintools.com/m3u.cl)                       | ❌                                                                                          |
-| http://tv-online.cl/tv-chile-en-vivo.php           | ["Baidu, Inc"](https://whois.domaintools.com/tv-online.cl)            | ❌                                                                                          |
-| http://www.cxtvlive.com/tv/country/chile           | [Felipe](https://whois.domaintools.com/cxweb.com.br)                  | ❌                                                                                          |
-| https://vivotvhd.com/4/Chile.htm                   | ["nuevarena.com" Hernan](https://whois.domaintools.com/nuevarena.com) | ❌                                                                                          |
-| https://www.tdtchannels.com/television             | [LaQuay](https://github.com/LaQuay)                                   | [Fuente](https://github.com/LaQuay/TDTChannels/)                                           |
-| https://farina00.github.io/tele.donut/             | [farina00](https://github.com/farina00)                               | [Fuente](https://github.com/farina00/tele.donut)                                           |
-| https://donchelox.github.io/tv-viewer/             | [Donchelox](https://github.com/Donchelox)                             | [Fuente](https://github.com/Donchelox/tv-viewer)                                           |
-| https://asdlars.github.io/teveando/                | [asdlars](https://github.com/asdlars)                                 | [Fuente](https://github.com/asdlars/teveando/)                                             |
-| https://joelpurra.com/projects/multi-video-frames/ | [joelpurra](https://github.com/joelpurra)                             | [Fuente](https://github.com/joelpurra/multi-video-frames)                                  |
-| http://reloltv.com/                                | [Popelysh](https://whois.domaintools.com/reloltv.com)                 | ❌                                                                                          |
-| https://www.multi-stream.tv                        | ???                                                                   | ❌                                                                                          |
-| https://www.tvonlinechile.cl                       | [Arturo Infante](https://whois.domaintools.com/tvonlinechile.cl)      | ❌                                                                                          |
-| https://ar.teleringa.com/                          | ???                                                                   | ❌                                                                                          |
-| https://cablegratis.online/tv-chile-en-vivo/       | ???                                                                   | ❌                                                                                          |
-| https://vidgrid.tk.gg/                             | [MattieTK](https://twitter.com/MattieTK)                              | [Fuente](https://twitter.com/MattieTK/status/1496815557198315521?cxt=HHwWgoCs0bP04MUpAAAA) |
-| https://alienxproject.github.io/X/                 | [alienxproject](https://github.com/alienxproject)                     | [Fuente](https://github.com/alienxproject/X) |
-| https://navezjt.github.io/JCN-TV/                  | [Navezjt](https://github.com/Navezjt)                                 | [Fuente](https://github.com/Navezjt/JCN-TV) |
-
-
-
+| <https://m3u.cl/lista-iptv-chile.php>                | [Nicolás](https://whois.domaintools.com/m3u.cl)                       | ❌                                                                                          |
+| <http://tv-online.cl/tv-chile-en-vivo.php>           | ["Baidu, Inc"](https://whois.domaintools.com/tv-online.cl)            | ❌                                                                                          |
+| <http://www.cxtvlive.com/tv/country/chile>           | [Felipe](https://whois.domaintools.com/cxweb.com.br)                  | ❌                                                                                          |
+| <https://vivotvhd.com/4/Chile.htm>                   | ["nuevarena.com" Hernan](https://whois.domaintools.com/nuevarena.com) | ❌                                                                                          |
+| <https://www.tdtchannels.com/television>             | [LaQuay](https://github.com/LaQuay)                                   | [Fuente](https://github.com/LaQuay/TDTChannels/)                                           |
+| <https://farina00.github.io/tele.donut/>             | [farina00](https://github.com/farina00)                               | [Fuente](https://github.com/farina00/tele.donut)                                           |
+| <https://donchelox.github.io/tv-viewer/>             | [Donchelox](https://github.com/Donchelox)                             | [Fuente](https://github.com/Donchelox/tv-viewer)                                           |
+| <https://asdlars.github.io/teveando/>                | [asdlars](https://github.com/asdlars)                                 | [Fuente](https://github.com/asdlars/teveando/)                                             |
+| <https://joelpurra.com/projects/multi-video-frames/> | [joelpurra](https://github.com/joelpurra)                             | [Fuente](https://github.com/joelpurra/multi-video-frames)                                  |
+| <http://reloltv.com/>                                | [Popelysh](https://whois.domaintools.com/reloltv.com)                 | ❌                                                                                          |
+| <https://www.multi-stream.tv>                        | ???                                                                   | ❌                                                                                          |
+| <https://www.tvonlinechile.cl>                       | [Arturo Infante](https://whois.domaintools.com/tvonlinechile.cl)      | ❌                                                                                          |
+| <https://ar.teleringa.com/>                          | ???                                                                   | ❌                                                                                          |
+| <https://cablegratis.online/tv-chile-en-vivo/>       | ???                                                                   | ❌                                                                                          |
+| <https://vidgrid.tk.gg/>                             | [MattieTK](https://twitter.com/MattieTK)                              | [Fuente](https://twitter.com/MattieTK/status/1496815557198315521?cxt=HHwWgoCs0bP04MUpAAAA) |
+| <https://alienxproject.github.io/X/>                 | [alienxproject](https://github.com/alienxproject)                     | [Fuente](https://github.com/alienxproject/X) |
+| <https://navezjt.github.io/JCN-TV/>                  | [Navezjt](https://github.com/Navezjt)                                 | [Fuente](https://github.com/Navezjt/JCN-TV) |
 
 </details>
 
 ___
 
-# Prensa Alternativa:
+# Prensa Alternativa
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-*No porque un sitio sea "alternativo" lo convierte en verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o cualquier medio de prensa venga el caso 
+*No porque un sitio sea "alternativo" lo convierte en verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o cualquier medio de prensa venga el caso
 
 [(¿Cómo detectar un Fake News?)](https://aam.cl/noticias-aam/social-media/como-detectar-un-fake-news/).
 
@@ -115,10 +118,10 @@ ___
 | [Yahoo News](https://news.yahoo.com/)                                                                                                                       |                                                |                                                                                              |                                                              |
 | [Bing News](https://www.bing.com/news)                                                                                                                      |                                                |                                                                                              |                                                              |
 
-
 ___
 
-# Enlaces Complementarios: 
+# Enlaces Complementarios
+
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
 Sitios que poseen información útil en cuanto a diversos temas que no sabía dónde añadir para compartirlos:
@@ -168,11 +171,9 @@ Sitios que poseen información útil en cuanto a diversos temas que no sabía d�
 | [google.com/maps](https://www.google.com/maps/@-33.0993464,-71.4870313,12z/data=!3m1!4b1!4m2!21m1!1s%2Fg%2F11y2ty3bn9!5m1!1e8?hl=es-419&entry=ttu)                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
 | [star.nesdis.noaa.gov](https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G16&sector=ssa)                                                                                                                                            |                                            |                                                                                                                                                                                                                                                                           |
 
-                                                                                  
-
 ___
 
-# Descargo de responsabilidad 
+# Descargo de responsabilidad
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 

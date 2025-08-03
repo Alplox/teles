@@ -1,0 +1,36 @@
+export const ICONOS_PARA_CATEGORIAS = {
+    // Formato de https://github.com/iptv-org/iptv?tab=readme-ov-file#grouped-by-category
+    'animation': '<i class="bi bi-emoji-laughing-fill" title="Icono dibujos animados"></i>',
+    'auto': '<i class="bi bi-car-front" title="Icono auto"></i>',
+    'business': '<i class="bi bi-kanban" title="Icono negocios"></i>',
+    'classic': '<i class="bi bi-cassette" title="Icono clásico"></i>',
+    'comedy': '<i class="bi bi-emoji-grin-fill" title="Icono comedia"></i>',
+    'cooking': '<i class="bi bi-egg-fill" title="Icono huevo"></i>',
+    'culture': '<i class="bi bi-globe" title="Icono cultura"></i>',
+    'documentary': '<i class="bi bi-camera-reels" title="Icono documental"></i>',
+    'education': '<i class="bi bi-book" title="Icono educación"></i>',
+    'entertainment': '<i class="bi bi-hand-thumbs-up-fill" title="Icono entretenimiento"></i>',
+    'family': '<i class="bi bi-people-fill" title="Icono familia"></i>',
+    'general': '<i class="bi bi-tv" title="Icono general"></i>',
+    'kids': '<i class="bi bi-emoji-smile-fill" title="Icono niños"></i>',
+    'legislative': '<i class="bi bi-vector-pen" title="Icono legislativo"></i>',
+    'lifestyle': '<i class="bi bi-house" title="Icono estilo de vida"></i>',
+    'movies': '<i class="bi bi-camera-reels" title="Icono películas"></i>',
+    'music': '<i class="bi bi-music-note-beamed" title="Icono música"></i>',
+    'news': '<i class="bi bi-newspaper" title="Icono noticias"></i>',
+    'outdoor': '<i class="bi bi-bicycle" title="Icono al aire libre"></i>',
+    'relax': '<i class="bi bi-cup-hot" title="Icono relajado"></i>',
+    'religious': '<i class="bi bi-tree" title="Icono religion"></i>',
+    'science': '<i class="bi bi-rocket-takeoff" title="Icono ciencia"></i>',
+    'series': '<i class="bi bi-badge-hd" title="Icono series"></i>',
+    'shop': '<i class="bi bi-bag" title="Icono tienda"></i>',
+    'sports': '<i class="bi bi-trophy" title="Icono deportes"></i>',
+    'travel': '<i class="bi bi-airplane" title="Icono viaje"></i>',
+    'weather': '<i class="bi bi-cloud-sun" title="Icono clima"></i>',
+    'xxx': '<i class="bi bi-tv" title="Icono adultos"></i>',
+    'undefined': '<i class="bi bi-tv" title="Icono indefinido"></i>',
+
+    // Extras
+    'radio': '<i class="bi bi-boombox" title="Icono radio"></i>',
+    'camera': '<i class="bi bi-camera" title="Icono cámara"></i>'
+};

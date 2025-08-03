@@ -1,5 +1,5 @@
 /* 
-    style v0.18
+    style v0.19
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -465,7 +465,8 @@ pwa-update {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 #modal-collapse-btn-group .container-btn-group,
-#offcanvas-collapse-btn-group .container-btn-group {
+#offcanvas-collapse-btn-group .container-btn-group,
+#modal-cambiar-canal-collapse-btn-group .container-btn-group {
   max-height: 8rem;
   overflow: auto;
 }
