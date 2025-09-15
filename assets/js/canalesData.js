@@ -73,12 +73,20 @@ export async function fetchCargarCanalesIPTV() {
             mapCanales[nombreLista] = listaCanales[canal];
         }
 
-        // Combinar los canales de parseM3u con los de listaCanales
+        // Combinar los canales de parseM3u con los de listaCanales usando coincidencia aproximada
         for (const nombreCanal in parseM3u) {
             const nombreParseM3u = parseM3u[nombreCanal].nombre ?? 'Canal sin nombre';
-            const existingChannel = mapCanales[nombreParseM3u];
+            let existingChannel = null;
 
-            if (existingChannel && sonNombresSimilares(existingChannel.nombre, nombreParseM3u)) {
+            // Buscar coincidencia aproximada en los nombres
+            for (const nombreLista in mapCanales) {
+                if (sonNombresSimilares(nombreLista, nombreParseM3u)) {
+                    existingChannel = mapCanales[nombreLista];
+                    break;
+                }
+            }
+
+            if (existingChannel) {
                 const newUrls = parseM3u[nombreCanal].señales.m3u8_url.filter(url => !existingChannel.señales.m3u8_url.includes(url));
                 existingChannel.señales.m3u8_url.push(...newUrls);
             } else {
@@ -86,4 +94,5 @@ export async function fetchCargarCanalesIPTV() {
             }
         }
     }
+   /*  console.log('Canales después de combinar:', listaCanales); */
 }

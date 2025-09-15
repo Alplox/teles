@@ -58,10 +58,10 @@ const MAIN_NAVBAR = document.querySelector('#navbar');
 export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
 export const CONTAINER_VISION_UNICA = document.querySelector('#container-vision-unica');
 export const CONTAINER_VIDEO_VISION_UNICA = document.querySelector('#container-video-vision-unica');
-const ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA = document.querySelector('#icono-sin-señal-vision-unica');
+export const ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA = document.querySelector('#icono-sin-señal-vision-unica');
 
-const BOTON_ACTIVAR_VISION_UNICA = document.querySelector('#boton-activar-diseño-vision-unica');
-const BOTON_ACTIVAR_VISION_GRID = document.querySelector('#boton-activar-diseño-vision-grid');
+export const BOTON_ACTIVAR_VISION_UNICA = document.querySelector('#boton-activar-diseño-vision-unica');
+export const BOTON_ACTIVAR_VISION_GRID = document.querySelector('#boton-activar-diseño-vision-grid');
 
 export const MODAL_CAMBIAR_CANAL = document.querySelector('#modal-cambiar-canal');
 export const LABEL_MODAL_CAMBIAR_CANAL = document.querySelector('#label-para-nombre-canal-cambiar');
@@ -117,8 +117,8 @@ INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', 
 });
 
 // alternar altura canales
-const CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#checkbox-personalizar-altura-canales');
-const SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#span-valor-altura-canales');
+export const CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#checkbox-personalizar-altura-canales');
+export const SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#span-valor-altura-canales');
 const ICONO_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#icono-personalizar-altura-canales');
 
 CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.addEventListener('click', () => {
@@ -135,7 +135,7 @@ CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.addEventListener('click', () => {
 });
 
 // Canales por fila
-const SPAN_VALOR_TRANSMISIONES_POR_FILA = document.querySelector('#span-valor-transmisiones-por-fila')
+export const SPAN_VALOR_TRANSMISIONES_POR_FILA = document.querySelector('#span-valor-transmisiones-por-fila')
 export const BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
 
 BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => {

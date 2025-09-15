@@ -16,7 +16,6 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Agregaron comprobaciones de existencia de elementos y métodos antes de operar sobre ellos en múltiples archivos JS para evitar errores en tiempo de ejecución.
 - Se mejoró la compatibilidad y robustez en la manipulación del DOM, eventos y almacenamiento local.
-- lite-youtube-embed para carga YouTube para casos de yt_embed y yt_playlist.
 
 ### Fixed
 

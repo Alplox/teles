@@ -3,6 +3,15 @@ import { CLASE_CSS_BOTON_SECUNDARIO, CODIGOS_PAISES, ICONOS_PARA_CATEGORIAS, PRE
 import { CONTAINER_VIDEO_VISION_UNICA, tele } from "../main.js";
 import { mostrarToast, revisarSeñalesVacias, guardarOrdenOriginal } from "./index.js";
 
+// SVG bandera genérica para países desconocidos
+const SVG_BANDERA_DESCONOCIDO = `
+<svg width="24" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <rect width="16" height="16" rx="2" fill="#e0e0e0"/>
+    <rect x="2" y="2" width="12" height="12" rx="1" fill="#bdbdbd"/>
+    <text x="8" y="11" text-anchor="middle" font-size="8" fill="#757575">?</text>
+</svg>
+`;
+
 export function crearBotonesParaCanales() {
     try {
         const FRAGMENT_BOTONES_CANALES = document.createDocumentFragment();
@@ -19,7 +28,11 @@ export function crearBotonesParaCanales() {
             if (revisarSeñalesVacias(canal)) botonCanal.classList.add('d-none');
             botonCanal.innerHTML =
                 `<span class="flex-grow-1">${nombre}</span>
-                    ${país ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">` : ''}
+                    ${
+                        país && CODIGOS_PAISES[país.toLowerCase()]
+                        ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">`
+                        : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${nombrePais}]">${SVG_BANDERA_DESCONOCIDO}</span>`
+                    }
                     ${iconoCategoria ? `${iconoCategoria}` : ''}`;
                     // ${logo ? `<img src="${logo}" alt="logo ${nombre}" title="logo ${nombre}" class="img-logos rounded-1">` : ''}
             FRAGMENT_BOTONES_CANALES.append(botonCanal);
