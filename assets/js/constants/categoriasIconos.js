@@ -1,5 +1,5 @@
 export const ICONOS_PARA_CATEGORIAS = {
-    // Formato de https://github.com/iptv-org/iptv?tab=readme-ov-file#grouped-by-category
+    // Formato de https://iptv-org.github.io/api/categories.json
     'animation': '<i class="bi bi-emoji-laughing-fill" title="Icono dibujos animados"></i>',
     'auto': '<i class="bi bi-car-front" title="Icono auto"></i>',
     'business': '<i class="bi bi-kanban" title="Icono negocios"></i>',
@@ -28,9 +28,6 @@ export const ICONOS_PARA_CATEGORIAS = {
     'travel': '<i class="bi bi-airplane" title="Icono viaje"></i>',
     'weather': '<i class="bi bi-cloud-sun" title="Icono clima"></i>',
     'xxx': '<i class="bi bi-tv" title="Icono adultos"></i>',
-    'undefined': '<i class="bi bi-tv" title="Icono indefinido"></i>',
-
-    // Extras
-    'radio': '<i class="bi bi-boombox" title="Icono radio"></i>',
-    'camera': '<i class="bi bi-camera" title="Icono cámara"></i>'
+    // Fallback
+    'undefined': '<i class="bi bi-tv" title="Icono indefinido"></i>'
 };

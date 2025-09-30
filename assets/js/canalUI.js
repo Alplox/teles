@@ -36,9 +36,10 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     IFRAME_ELEMENT.classList.add('pe-auto');
     IFRAME_ELEMENT.setAttribute('contenedor-canal-cambio', canalId);
     IFRAME_ELEMENT.allowFullscreen = true;
+    IFRAME_ELEMENT.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
     IFRAME_ELEMENT.title = nombre;
     IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
-
+    /* IFRAME_ELEMENT.referrerPolicy="strict-origin-when-cross-origin" */  // Si error 153 persiste para yt_embed y yt_playlist. Rompe otras señales iframe_url
     DIV_ELEMENT.append(IFRAME_ELEMENT);
     return DIV_ELEMENT;
 }
