@@ -1,12 +1,13 @@
 /* 
-  main v0.19
+  main v0.20
   by Alplox 
   https://github.com/Alplox/teles
 */
 
 // MARK: import
 import { fetchCargarCanales, fetchCargarCanalesIPTV, listaCanales } from './canalesData.js';
-import { crearFragmentCanal } from './canalUI.js';
+import { crearFragmentCanal, cambiarSoloSeñalActiva } from './canalUI.js';
+
 import {
     PREFIJOS_ID_CONTENEDORES_CANALES,
     VALOR_COL_FIJO_ESCRITORIO,
@@ -53,6 +54,16 @@ import {
     reemplazarCanalActivo
 } from './helpers/index.js';
 
+const debounce = (fn, delay = 150) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
+
 // MARK: querySelector Globales
 const MAIN_NAVBAR = document.querySelector('#navbar');
 export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
@@ -75,6 +86,7 @@ let lsPosicionBotonesFlotantes = localStorage.getItem('posicion-botones-flotante
 let lsTextoBotonesFlotantes = localStorage.getItem('texto-botones-flotantes');
 let lsAlturaCanales = localStorage.getItem('uso-100vh');
 let lsFondo = localStorage.getItem('tarjeta-fondo-display');
+let lsReproductorM3u8 = localStorage.getItem('reproductor-m3u8') || 'videojs';
 
 // MARK: PERSONALIZACIONES
 // Navbar
@@ -105,6 +117,74 @@ BOTONES_PERSONALIZAR_OVERLAY.forEach(contenedorBoton => {
     });
 });
 
+const RADIOS_REPRODUCTOR_M3U8 = document.querySelectorAll('input[name="btnradio-reproductor-m3u8"]');
+const SPAN_VALOR_REPRODUCTOR_M3U8 = document.querySelector('#span-valor-reproductor-m3u8');
+
+if (!lsReproductorM3u8) {
+    lsReproductorM3u8 = 'videojs';
+    localStorage.setItem('reproductor-m3u8', lsReproductorM3u8);
+}
+
+RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
+    if (radio.value === lsReproductorM3u8) {
+        radio.checked = true;
+        if (SPAN_VALOR_REPRODUCTOR_M3U8) {
+            SPAN_VALOR_REPRODUCTOR_M3U8.textContent = radio.dataset.descripcion || radio.value;
+        }
+    }
+    radio.addEventListener('change', () => {
+        if (!radio.checked) return;
+        const valor = radio.value;
+        const descripcion = radio.dataset.descripcion || valor;
+        localStorage.setItem('reproductor-m3u8', valor);
+        if (SPAN_VALOR_REPRODUCTOR_M3U8) {
+            SPAN_VALOR_REPRODUCTOR_M3U8.textContent = descripcion;
+        }
+
+        try {
+            const transmisionesActivas = document.querySelectorAll('div[data-canal]');
+            const lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+
+            transmisionesActivas.forEach(transmision => {
+                const canalId = transmision.getAttribute('data-canal');
+                if (!canalId) return;
+
+                const datosCanal = listaCanales?.[canalId]?.señales;
+                if (!datosCanal) return;
+
+                let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = datosCanal;
+                let señalUtilizar;
+                let valorIndexArraySeñal = 0;
+
+                if (Array.isArray(iframe_url) && iframe_url.length > 0) {
+                    señalUtilizar = 'iframe_url';
+                } else if (Array.isArray(m3u8_url) && m3u8_url.length > 0) {
+                    señalUtilizar = 'm3u8_url';
+                } else if (yt_id !== '') {
+                    señalUtilizar = 'yt_id';
+                } else if (yt_embed !== '') {
+                    señalUtilizar = 'yt_embed';
+                } else if (yt_playlist !== '') {
+                    señalUtilizar = 'yt_playlist';
+                } else if (twitch_id !== '') {
+                    señalUtilizar = 'twitch_id';
+                }
+
+                if (lsPreferenciasSeñalCanales[canalId]) {
+                    señalUtilizar = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString();
+                    valorIndexArraySeñal = Number(Object.values(lsPreferenciasSeñalCanales[canalId]));
+                }
+
+                if (señalUtilizar === 'm3u8_url') {
+                    cambiarSoloSeñalActiva(canalId);
+                }
+            });
+        } catch (error) {
+            console.error('Error al intentar recargar canales tras cambiar reproductor m3u8:', error);
+        }
+    });
+});
+
 // Tamaño
 export const INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
 export const SPAN_VALOR_INPUT_RANGE = document.querySelector('#span-valor-input-range');
@@ -113,7 +193,7 @@ INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', 
     SPAN_VALOR_INPUT_RANGE.innerHTML = `${event.target.value}%`;
     CONTAINER_VISION_CUADRICULA.style.maxWidth = `${event.target.value}%`;
     localStorage.setItem('valor-input-range', event.target.value);
-    hideTextoBotonesOverlay();
+    hideTextoBotonesOverlayDebounced();
 });
 
 // alternar altura canales
@@ -213,6 +293,7 @@ export let tele = {
         }
     },
     remove: (canal) => {
+
         try {
             if (!canal) return console.error(`El canal "${canal}" proporcionado no es válido para su eliminación.`);
             let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
@@ -221,18 +302,34 @@ export let tele = {
             // Esto es necesario para obtener la instancia de Video.js y poder destruirla correctamente antes de eliminar el DOM.
             // Evita que queden referencias vivas en memoria o que el reproductor siga ejecutando peticiones de red tras su remoción.
             let videoElement = transmisionPorRemover.querySelector('video');
-            if (videoElement) {
-                let player = videojs(videoElement.id);
+            if (videoElement && videoElement.classList.contains('video-js')) {
+                let player = videojs(videoElement);
                 if (player) {
                     console.log(`Disposing player for canal "${canal}"...`);
                     player.dispose();
                 }
             }
 
+            const clapprContainer = transmisionPorRemover.querySelector('[contenedor-canal-cambio]');
+            if (clapprContainer && clapprContainer._clapprPlayer && typeof clapprContainer._clapprPlayer.destroy === 'function') {
+                try {
+                    console.log(`Destroying Clappr player for canal "${canal}"...`);
+                    clapprContainer._clapprPlayer.destroy();
+                } catch (errorClappr) {
+                    console.error(`Error al destruir Clappr para canal "${canal}":`, errorClappr);
+                }
+            }
+
             removerTooltipsBootstrap();
             transmisionPorRemover.remove();
 
-            if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
+            const esVisionUnica = CONTAINER_VIDEO_VISION_UNICA && CONTAINER_VIDEO_VISION_UNICA.contains(transmisionPorRemover);
+
+            if (esVisionUnica || localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+                ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
+            } else {
+                guardarCanalesEnLocalStorage();
+            }
 
             ajustarClaseBotonCanal(canal, false);
             activarTooltipsBootstrap();
@@ -304,19 +401,11 @@ new Sortable(CONTAINER_VISION_CUADRICULA, {
     easing: "cubic-bezier(.17,.67,.83,.67)",
     ghostClass: 'marca-al-mover',
     onStart: () => {
-        const DIVS_SOBRE_SEÑALES = CONTAINER_VISION_CUADRICULA.querySelectorAll('.bg-transparent');
-        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
-            divSobrepuesto.classList.toggle('pe-none'); // quita clase "pe-none" para poder abarcar todo el tamaño del div del canal para el threshold https://sortablejs.github.io/Sortable/#thresholds
-        });
-        removerTooltipsBootstrap(); // removemos ya que como el propio boton de mover tiene uno, de no quitarlo queda flotando tras mover div canal
+        removerTooltipsBootstrap(); // evitamos tooltips flotando al mover
     },
     onEnd: () => {
         activarTooltipsBootstrap();
-        const DIVS_SOBRE_SEÑALES = CONTAINER_VISION_CUADRICULA.querySelectorAll('.bg-transparent');
-        DIVS_SOBRE_SEÑALES.forEach(divSobrepuesto => {
-            divSobrepuesto.classList.toggle('pe-none'); // para poder hacer clic en iframes o videojs
-        });
-        guardarCanalesEnLocalStorage()
+        guardarCanalesEnLocalStorage();
     }
 });
 
@@ -328,12 +417,6 @@ new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
     swapThreshold: 0.30,
     onStart: () => {
         try {
-            if (CONTAINER_VIDEO_VISION_UNICA) {
-                const DIVS_SOBRE_SEÑALES = CONTAINER_VIDEO_VISION_UNICA.querySelectorAll('.bg-transparent');
-                for (const divSobrepuesto of DIVS_SOBRE_SEÑALES) {
-                    divSobrepuesto.classList.remove('pe-none');
-                }
-            }
             removerTooltipsBootstrap();
         } catch (e) {
             console.error('Error en onStart Sortable:', e);
@@ -350,12 +433,6 @@ new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
         try {
             guardarOrdenPanelesVisionUnica();
             activarTooltipsBootstrap();
-            if (CONTAINER_VIDEO_VISION_UNICA) {
-                const DIVS_SOBRE_SEÑALES = CONTAINER_VIDEO_VISION_UNICA.querySelectorAll('.bg-transparent');
-                for (const divSobrepuesto of DIVS_SOBRE_SEÑALES) {
-                    divSobrepuesto.classList.add('pe-none');
-                }
-            }
             toggleClaseOrdenado();
         } catch (e) {
             console.error('Error en onEnd Sortable:', e);
@@ -364,7 +441,7 @@ new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
 });
 
 // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
-window.addEventListener('resize', hideTextoBotonesOverlay);
+window.addEventListener('resize', hideTextoBotonesOverlayDebounced);
 
 // MARK: DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
@@ -492,9 +569,16 @@ window.addEventListener('DOMContentLoaded', () => {
         addSortEventListener(`${PREFIJO}-boton-orden-original`, `${PREFIJO}-body-botones-canales`, restaurarOrdenOriginalBotonesCanales);
 
         let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`)
-        document.querySelector(`#${PREFIJO}-input-filtro`).addEventListener('input', (e) => {
-            document.querySelector(`#${PREFIJO}-input-filtro`).focus()
-            filtrarCanalesPorInput(e.target.value, bodyBotonesCanales);
+        const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
+        if (!inputFiltro) continue;
+
+        const filtrarCanalesPorInputDebounced = debounce((valor) => {
+            inputFiltro.focus();
+            filtrarCanalesPorInput(valor, bodyBotonesCanales);
+        }, 200);
+
+        inputFiltro.addEventListener('input', (e) => {
+            filtrarCanalesPorInputDebounced(e.target.value);
         });
     }
 

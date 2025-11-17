@@ -4,6 +4,20 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.20]
+
+### Added
+
+- Clappr y OPlayer como alternativas a VideoJS para señales m3u8.
+- Opción para alternar entre uso de VideoJS, Clappr y OPlayer para señales m3u8.
+- Debounce para hideTextoBotonesOverlay (resize global y slider de ancho).
+- referrerPolicy = 'strict-origin-when-cross-origin' para señales yt_id, yt_embed y yt_playlist debido a Error 153 con Youtube.
+
+### Changed
+
+- Botón mover en vision única ahora permite mover con clic en cualquier parte de este (no solo icono).
+- Mejorado helperBSTooltips para que no intente crear tooltips que ya existen.
+
 ## [v0.19]
 
 ### Changed

@@ -67,3 +67,7 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * pwa-install <https://github.com/khmyznikov/pwa-install> - [(MIT)](https://github.com/khmyznikov/pwa-install/blob/main/LICENSE)
 
 * [Audio] CRT turn on notification por Coolshows101sound <https://freesound.org/people/Coolshows101sound/sounds/709461/> - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)
+
+* Clappr <https://github.com/clappr/clappr> - [(MIT)](https://github.com/clappr/clappr/blob/master/LICENSE)
+
+* OPlayer <https://github.com/shiyiya/oplayer> - [(MIT)](https://github.com/shiyiya/oplayer/blob/master/LICENSE)

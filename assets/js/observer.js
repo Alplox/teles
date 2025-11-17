@@ -1,23 +1,20 @@
-import { guardarCanalesEnLocalStorage, ajustarVisibilidadBotonesQuitarTodaSeñal, ajustarNumeroDivisionesClaseCol} from './helpers/index.js';
+import { ajustarVisibilidadBotonesQuitarTodaSeñal, ajustarNumeroDivisionesClaseCol} from './helpers/index.js';
 import { CONTAINER_VISION_CUADRICULA } from "./main.js";
 
+let observerScheduled = false;
+
 const OBSERVER = new MutationObserver(() => {
-    try {
-        ajustarNumeroDivisionesClaseCol?.();
-    } catch (e) {
-        console.error('Error en ajustarNumeroDivisionesClaseCol:', e);
-    }
-    try {
-        ajustarVisibilidadBotonesQuitarTodaSeñal?.();
-    } catch (e) {
-        console.error('Error en ajustarVisibilidadBotonesQuitarTodaSeñal:', e);
-    }
-    try {
-        guardarCanalesEnLocalStorage?.();
-    } catch (e) {
-        console.error('Error en guardarCanalesEnLocalStorage:', e);
-    }
-    console.info('observer ejecutado');
+    if (observerScheduled) return;
+    observerScheduled = true;
+    requestAnimationFrame(() => {
+        observerScheduled = false;
+        try {
+            ajustarNumeroDivisionesClaseCol?.();
+            ajustarVisibilidadBotonesQuitarTodaSeñal?.();
+        } catch (e) {
+            console.error('Error en ajustarNumeroDivisionesClaseCol o ajustarVisibilidadBotonesQuitarTodaSeñal:', e);
+        }
+    });
 });
 
 const OBSERVER_CONFIG = {

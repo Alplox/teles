@@ -2,7 +2,9 @@ export const activarTooltipsBootstrap = () => {
     if (typeof window.bootstrap === 'undefined' || !window.bootstrap.Tooltip) return;
     const tooltipExistentes = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipExistentes.forEach(tooltip => {
-        if (tooltip) new bootstrap.Tooltip(tooltip);
+        if (!tooltip) return;
+        const instance = bootstrap.Tooltip.getInstance(tooltip);
+        if (!instance) new bootstrap.Tooltip(tooltip);
     });
 }
 

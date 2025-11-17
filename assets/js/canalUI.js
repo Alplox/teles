@@ -38,14 +38,88 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     IFRAME_ELEMENT.allowFullscreen = true;
     IFRAME_ELEMENT.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
     IFRAME_ELEMENT.title = nombre;
-    IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
-    /* IFRAME_ELEMENT.referrerPolicy="strict-origin-when-cross-origin" */  // Si error 153 persiste para yt_embed y yt_playlist. Rompe otras señales iframe_url
+    if (tipoSeñalParaIframe === 'yt_id' || tipoSeñalParaIframe === 'yt_embed' || tipoSeñalParaIframe === 'yt_playlist') {
+        IFRAME_ELEMENT.referrerPolicy = 'strict-origin-when-cross-origin';  // Debido a Error 153 con Youtube. Rompe otras señales iframe_url por eso lo filtramos antes.
+    } else {
+        IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
+    }
     DIV_ELEMENT.append(IFRAME_ELEMENT);
     return DIV_ELEMENT;
 }
 
 
 export function crearVideoJs(canalId, urlCarga) {
+    const tipoReproductor = localStorage.getItem('reproductor-m3u8') || 'videojs';
+    if (tipoReproductor === 'clappr' && typeof Clappr !== 'undefined') {
+        const DIV_ELEMENT = document.createElement('div');
+        DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
+        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        const playerContainer = document.createElement('div');
+        playerContainer.setAttribute('contenedor-canal-cambio', canalId);
+        playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
+        DIV_ELEMENT.append(playerContainer);
+        // Diferimos la inicialización para asegurar que el contenedor exista en el DOM
+        setTimeout(() => {
+            try {
+                const clapprPlayer = new Clappr.Player({
+                    source: urlCarga,
+                    parent: playerContainer,
+                    autoPlay: true,
+                    mute: true,
+                    width: '100%',
+                    height: '100%'
+                });
+                // Almacenamos la instancia del reproductor para usarla en el futuro
+                playerContainer._clapprPlayer = clapprPlayer;
+            } catch (error) {
+                console.error(`Error al inicializar Clappr para canal con id: ${canalId}. Error: ${error}`);
+                mostrarToast(`Error al inicializar Clappr para canal ${canalId}. Se usará Video.js.`, 'danger');
+            }
+        }, 0);
+        return DIV_ELEMENT;
+    }
+    if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
+        const DIV_ELEMENT = document.createElement('div');
+        DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
+        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        const playerContainer = document.createElement('div');
+        const oplayerId = `oplayer-${canalId}-${Date.now()}`;
+        playerContainer.id = oplayerId;
+        playerContainer.setAttribute('contenedor-canal-cambio', canalId);
+        playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100', 'overflow-hidden');
+        DIV_ELEMENT.append(playerContainer);
+
+        // Diferimos la inicialización de OPlayer para asegurar que el contenedor exista en el DOM
+        setTimeout(() => {
+            try {
+                let instancia = OPlayer.make(`#${oplayerId}`, {
+                    source: {
+                        src: urlCarga,
+                        title: canalId
+                    },
+                    autoplay: true,
+                    muted: true
+                });
+                if (typeof OHls !== 'undefined') {
+                    instancia = instancia.use([
+                        OHls({
+                            library: 'https://cdn.jsdelivr.net/npm/hls.js@0.14.17/dist/hls.min.js',
+                            forceHLS: true
+                        })
+                    ]);
+                }
+                if (typeof OUI !== 'undefined') {
+                    instancia = instancia.use([OUI()]);
+                }
+                instancia.create();
+            } catch (error) {
+                console.error(`Error al inicializar OPlayer para canal con id: ${canalId}. Error: ${error}`);
+                mostrarToast(`Error al inicializar OPlayer para canal ${canalId}. Se usará Video.js.`, 'danger');
+            }
+        }, 0);
+
+        return DIV_ELEMENT;
+    }
     const DIV_ELEMENT = document.createElement('div');
     DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
     DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
@@ -54,11 +128,15 @@ export function crearVideoJs(canalId, urlCarga) {
     videoElement.classList.add('position-absolute', 'p-0', 'video-js', 'vjs-16-9', 'vjs-fill', 'overflow-hidden');
     videoElement.toggleAttribute('controls');
     DIV_ELEMENT.append(videoElement);
-    videojs(videoElement).src({
-        src: urlCarga,
-        controls: true,
-    });
-    videojs(videoElement).autoplay('muted');
+    try {
+        videojs(videoElement).src({
+            src: urlCarga,
+        });
+        videojs(videoElement).autoplay('muted');
+    } catch (error) {
+        console.error(`Error al inicializar Video.js para canal con id: ${canalId}. Error: ${error}`);
+        mostrarToast(`Error al inicializar Video.js para canal ${canalId}. Se usará el siguiente canal.`, 'danger');
+    }
     return DIV_ELEMENT;
 }
 
@@ -73,7 +151,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         const FRAGMENT_OVERLAY = document.createDocumentFragment();
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.id = `overlay-de-canal-${canalId}`;
-        DIV_ELEMENT.classList.add('position-absolute', 'w-100', 'h-100', 'bg-transparent', 'pe-none', 'me-1', 'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap', 'top-0', 'end-0', 'barra-overlay');
+        DIV_ELEMENT.classList.add('position-absolute', 'w-100', 'bg-transparent', 'me-1', 'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap', 'top-0', 'end-0', 'barra-overlay');
 
         const BOTON_SELECCIONAR_SEÑAL_CANAL = document.createElement("button");
         BOTON_SELECCIONAR_SEÑAL_CANAL.id = 'overlay-boton-selecionar-señal'

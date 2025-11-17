@@ -5,11 +5,17 @@ import { mostrarToast } from "../helpers/index.js";
 export function guardarCanalesEnLocalStorage() {
     try {
         const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
-        localStorage.removeItem('canales-vision-cuadricula');
-        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
+        const lsCanales = {};
+
         CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
-            lsCanales[divCanal.dataset.canal] = listaCanales[divCanal.dataset.canal].nombre;
+            const canalId = divCanal.dataset.canal;
+            const datosCanal = canalId && listaCanales[canalId];
+            if (!datosCanal || !datosCanal.nombre) {
+                return; // ignorar canales que no estén definidos en listaCanales
+            }
+            lsCanales[canalId] = datosCanal.nombre;
         });
+
         localStorage.setItem('canales-vision-cuadricula', JSON.stringify(lsCanales));
 
         document.querySelector('#alerta-guardado-canales').classList.remove('d-none');

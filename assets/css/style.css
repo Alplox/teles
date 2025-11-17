@@ -1,5 +1,5 @@
 /* 
-    style v0.19
+    style v0.20
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -191,7 +191,11 @@
 
 /* irse a la segura */
 .z-9999 {
-  z-index: 9999;
+  z-index: 9999 !important;
+}
+
+.z-1054 {
+  z-index: 1054 !important; /* 1055 es para modales [var(--bs-modal-zindex: 1055)] */
 }
 
 /* Fondo alerta de no javascript */
@@ -373,7 +377,7 @@ pwa-update {
 /* barra sobre canales */
 .barra-overlay {
   opacity: 0.5;
-  z-index: 2;
+  z-index: 10;
   /* index 2, para casos error carga videojs */
   display: flex !important;
 
