@@ -4,6 +4,11 @@ import { mostrarToast } from "../helpers/index.js";
 
 export function guardarCanalesEnLocalStorage() {
     try {
+        // si es vision unica no ejecutar
+        if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+            return;
+        }
+
         const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
         const lsCanales = {};
 
@@ -15,6 +20,11 @@ export function guardarCanalesEnLocalStorage() {
             }
             lsCanales[canalId] = datosCanal.nombre;
         });
+
+        // si no hay canales activos en DOM no guardar
+        if (CANALES_ACTIVOS_EN_DOM.length > 0 && Object.keys(lsCanales).length === 0) {
+            return;
+        }
 
         localStorage.setItem('canales-vision-cuadricula', JSON.stringify(lsCanales));
 
