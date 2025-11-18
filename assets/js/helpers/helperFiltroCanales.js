@@ -22,7 +22,8 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
     if (!containerBotonesDeCanales) return;
     const ID_CONTENEDOR_BOTONES_CANALES = containerBotonesDeCanales.id;
     const INPUT_NORMALIZADO = normalizarInput(valorInput);
-    const BOTONES_CANALES = containerBotonesDeCanales.querySelectorAll('button');
+    const BOTONES_CANALES = containerBotonesDeCanales.querySelectorAll('button[data-canal]');
+
     for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
       if (ID_CONTENEDOR_BOTONES_CANALES.startsWith(PREFIJO)) {
         let booleanCoincidencia = false;

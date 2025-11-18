@@ -4,6 +4,26 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.21]
+
+### Changed
+
+- La restauración de listas personalizadas fijadas ahora recompone los botones y el listado de canales tras recargar para preservar los canales añadidos por el usuario.
+
+### Added
+
+- Campo para pegar listas .m3u manualmente cuando no se puede acceder a la URL.
+- Posibilidad de compartir enlaces que incluyen la selección actual de canales activos mediante el parámetro `c` en la URL.
+ - Contenedores de botones de canales agrupados por origen ahora son secciones colapsables en el modal y el offcanvas de selección de canales, para facilitar la navegación.
+
+### Fixed
+
+- Definidas referencias a controles de modo experimental y listas personalizadas para evitar `ReferenceError` al iniciar.
+- Inicializada la preferencia de combinar listas personalizadas al cargar la interfaz para eliminar errores `ReferenceError` y mantener sincronizados switch, texto auxiliar y localStorage.
+- La restauración automática vuelve a aplicar las listas personalizadas fijadas antes de recrear la interfaz para que los canales añadidos reaparezcan tras recargar.
+- Eliminar listas personalizadas ya no falla cuando los canales asociados no están activos; la limpieza ignora transmisiones inexistentes.
+- Corregida la redeclaración de `guardarBackupCanales` y llaves desbalanceadas en `canalesData.js` al integrar la lógica de listas personalizadas e IPTV.
+
 ## [v0.20]
 
 ### Added

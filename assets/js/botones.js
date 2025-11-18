@@ -50,15 +50,72 @@ const DATOS_NAVIGATOR_SHARE = {
     url: 'https://alplox.github.io/teles/'
 };
 
+/**
+ * Genera una URL para compartir que incluye, cuando es posible, los canales activos
+ * codificados en el parámetro `c` de la query string.
+ * Se aplica un límite de seguridad tanto al número de canales como a la longitud total
+ * de la URL para evitar problemas con navegadores/servidores.
+ * @returns {string} URL lista para compartir.
+ */
+function obtenerUrlCompartirConCanalesActivos() {
+    try {
+        const urlBase = new URL(DATOS_NAVIGATOR_SHARE.url, window.location.href);
+
+        const payload = localStorage.getItem('canales-vision-cuadricula');
+        if (!payload) {
+            urlBase.searchParams.delete('c');
+            return urlBase.toString();
+        }
+
+        const datos = JSON.parse(payload);
+        const ids = Object.keys(datos || {});
+        if (!ids.length) {
+            urlBase.searchParams.delete('c');
+            return urlBase.toString();
+        }
+
+        const LIMITE_CANALES = 100;
+        const idsLimitados = ids.slice(0, LIMITE_CANALES);
+
+        urlBase.searchParams.set('c', idsLimitados.join(','));
+
+        const LIMITE_URL = 1800;
+        let urlFinal = urlBase.toString();
+        if (urlFinal.length > LIMITE_URL) {
+            // Si aun así se excede, vamos reduciendo canales hasta que la URL entre en el límite
+            let canalesReducidos = idsLimitados.length;
+            while (urlFinal.length > LIMITE_URL && canalesReducidos > 0) {
+                canalesReducidos -= 5;
+                const subset = idsLimitados.slice(0, Math.max(canalesReducidos, 1));
+                if (!subset.length) break;
+                urlBase.searchParams.set('c', subset.join(','));
+                urlFinal = urlBase.toString();
+            }
+        }
+
+        if (urlFinal.length > LIMITE_URL) {
+            // Como último recurso, eliminamos el parámetro y usamos la URL base
+            urlBase.searchParams.delete('c');
+            return urlBase.toString();
+        }
+
+        return urlFinal;
+    } catch (error) {
+        console.error('[teles] Error al generar URL para compartir con canales activos:', error);
+        return DATOS_NAVIGATOR_SHARE.url;
+    }
+}
+
 const BOTON_COMPARTIR = document.querySelector('#boton-compartir');
 const CONTENEDOR_BOTONES_COMPARTIR_RRSS = document.querySelector('#contenedor-botones-compartir');
 
+// Compartir sitio (sin configuración de canales)
 if (navigator.share && BOTON_COMPARTIR) {
     BOTON_COMPARTIR.addEventListener('click', async () => {
         try {
             await navigator.share(DATOS_NAVIGATOR_SHARE);
         } catch (err) {
-            console.error(`Error: ${err}`);
+            console.error(`[teles] Error al compartir usando navigator.share: ${err}`);
         }
     });
 } else {
@@ -226,13 +283,14 @@ document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 
 
-// MARK: Botón copiar enlace
+// MARK: Botón copiar enlace sitio
 const BOTON_COPIAR_ENLACE_COMPARTIR = document.querySelector('#boton-copiar-enlace-compartir');
 const INPUT_ENLACE_COMPARTIR = document.querySelector('#input-enlace-compartir');
 
 BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
     try {
         INPUT_ENLACE_COMPARTIR?.select?.();
+
         if (navigator.clipboard && INPUT_ENLACE_COMPARTIR) {
             await navigator.clipboard.writeText(INPUT_ENLACE_COMPARTIR.value);
             playAudioSinDelay(AUDIO_SUCCESS);
@@ -244,7 +302,7 @@ BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
     } catch (error) {
         console.error('Error al copiar el enlace usando navigator.clipboard: ', error);
         try {
-            document.execCommand('copy', false, INPUT_ENLACE_COMPARTIR?.value ?? '');
+            document.execCommand('copy', false, INPUT_ENLACE_COMPARTIR?.value ?? DATOS_NAVIGATOR_SHARE.url);
             playAudioSinDelay(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-success');
@@ -260,6 +318,64 @@ BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
             if (BOTON_COPIAR_ENLACE_COMPARTIR) {
                 BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiar enlace <i class="bi bi-clipboard"></i>';
                 BOTON_COPIAR_ENLACE_COMPARTIR.classList.remove('bg-success', 'bg-danger');
+            }
+        }, 2000);
+    }
+});
+
+// MARK: Botón copiar enlace configuración de canales
+const BOTON_COPIAR_ENLACE_COMPARTIR_SETUP = document.querySelector('#boton-copiar-enlace-compartir-setup');
+const INPUT_ENLACE_COMPARTIR_SETUP = document.querySelector('#input-enlace-compartir-setup');
+
+/**
+ * Actualiza el input de compartir configuración con la URL generada según
+ * los canales activos actuales, respetando los límites internos de
+ * obtenerUrlCompartirConCanalesActivos.
+ * @returns {void}
+ */
+function actualizarInputCompartirSetup() {
+    if (!INPUT_ENLACE_COMPARTIR_SETUP) return;
+    INPUT_ENLACE_COMPARTIR_SETUP.value = obtenerUrlCompartirConCanalesActivos();
+}
+
+const OFFCANVAS_PERSONALIZACION = document.querySelector('#sidepanel');
+OFFCANVAS_PERSONALIZACION?.addEventListener('shown.bs.offcanvas', () => {
+    actualizarInputCompartirSetup();
+});
+
+BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.addEventListener('click', async () => {
+    try {
+        actualizarInputCompartirSetup();
+        INPUT_ENLACE_COMPARTIR_SETUP?.select?.();
+
+        if (navigator.clipboard && INPUT_ENLACE_COMPARTIR_SETUP) {
+            await navigator.clipboard.writeText(INPUT_ENLACE_COMPARTIR_SETUP.value);
+            playAudioSinDelay(AUDIO_SUCCESS);
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-success');
+        } else {
+            throw new Error('Clipboard API no soportada o input no encontrado');
+        }
+    } catch (error) {
+        console.error('Error al copiar el enlace de configuración usando navigator.clipboard: ', error);
+        try {
+            const textoFallback = INPUT_ENLACE_COMPARTIR_SETUP?.value ?? obtenerUrlCompartirConCanalesActivos();
+            document.execCommand('copy', false, textoFallback);
+            playAudioSinDelay(AUDIO_SUCCESS);
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-success');
+        } catch (execError) {
+            console.error('Error al copiar el enlace de configuración usando execCommand: ', execError);
+            playAudioSinDelay(AUDIO_FAIL);
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>';
+            BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-danger');
+            return;
+        }
+    } finally {
+        setTimeout(() => {
+            if (BOTON_COPIAR_ENLACE_COMPARTIR_SETUP) {
+                BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiar setup <i class="bi bi-clipboard"></i>';
+                BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.remove('bg-success', 'bg-danger');
             }
         }, 2000);
     }
