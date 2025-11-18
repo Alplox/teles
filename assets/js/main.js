@@ -50,6 +50,7 @@ import {
     actualizarValorSlider,
     actualizarBotonesPersonalizarOverlay,
     crearBotonesParaCanales,
+    crearBotonesParaModalCambiarCanal,
     ajustarVisibilidadBotonesQuitarTodaSeñal,
     ajustarNumeroDivisionesClaseCol,
     filtrarCanalesPorInput,
@@ -58,6 +59,7 @@ import {
     ordenarBotonesCanalesDescendente,
     restaurarOrdenOriginalBotonesCanales,
     crearBotonesPaises,
+    crearBotonesCategorias,
     addSortEventListener,
     actualizarBotonesFlotantes,
     clicBotonPosicionBotonesFlotantes,
@@ -478,9 +480,10 @@ window.addEventListener('DOMContentLoaded', () => {
     detectarTemaSistema();
     iniciarRevisarConexion();
     MODAL_CAMBIAR_CANAL.addEventListener('shown.bs.modal', () => {
-        document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(boton => {
-            boton.addEventListener('click', () => reemplazarCanalActivo(boton.dataset.canal, LABEL_MODAL_CAMBIAR_CANAL.getAttribute('id-canal-cambio')));
-        });
+        const contenedorCambiar = document.querySelector('#modal-cambiar-canal-body-botones-canales');
+        if (contenedorCambiar && !contenedorCambiar.querySelector('button[data-canal]')) {
+            crearBotonesParaModalCambiarCanal();
+        }
     });
 
     MODAL_CAMBIAR_CANAL.addEventListener('hidden.bs.modal', () => {
@@ -627,6 +630,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 const listasRestauradas = restaurarListasPersonalizadas();
                 crearBotonesParaCanales();
                 crearBotonesPaises();
+                crearBotonesCategorias();
                 borraPreferenciaSeñalInvalida();
 
                 const urlActual = new URL(window.location.href);
@@ -716,6 +720,7 @@ window.addEventListener('DOMContentLoaded', () => {
         for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
             const contenedorBotones = document.querySelector(`#${PREFIJO}-body-botones-canales`);
             const contenedorPaises = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`);
+            const contenedorCategorias = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-categorias`);
             if (contenedorBotones) {
                 if (resaltarExperimental) {
                     contenedorBotones.classList.add('border', 'border-warning', 'rounded-3');
@@ -724,6 +729,9 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             if (contenedorPaises) {
                 contenedorPaises.innerHTML = '';
+            }
+            if (contenedorCategorias) {
+                contenedorCategorias.innerHTML = '';
             }
         }
     }
@@ -792,6 +800,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 limpiarContenedoresListadosCanales();
                 crearBotonesParaCanales();
                 crearBotonesPaises();
+                crearBotonesCategorias();
+
                 mostrarToast(`Lista "${etiqueta}" aplicada correctamente.`, 'success');
             } else {
                 mostrarToast('No fue posible aplicar la lista seleccionada.', 'danger');
@@ -809,6 +819,8 @@ window.addEventListener('DOMContentLoaded', () => {
             limpiarContenedoresListadosCanales();
             crearBotonesParaCanales();
             crearBotonesPaises();
+            crearBotonesCategorias();
+
             renderizarListasPersonalizadasUI();
             mostrarToast(`Lista eliminada. ${eliminados} canal(es) removidos.`, 'warning');
         });
@@ -857,6 +869,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     quitarTodoCanalActivo();
                     crearBotonesParaCanales();
                     crearBotonesPaises();
+                    crearBotonesCategorias();
+
                     mostrarToast('Modo experimental activado. Se han combinado listas de canales y sus señales m3u8.', 'warning');
                 } else {
                     playAudioSinDelay(AUDIO_FAIL);
@@ -903,6 +917,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 limpiarContenedoresListadosCanales();
                 crearBotonesParaCanales();
                 crearBotonesPaises();
+                crearBotonesCategorias();
+
                 renderizarListasPersonalizadasUI();
                 mostrarToast('Lista personalizada cargada correctamente. Los nuevos canales se añadieron al final.', 'success');
             } catch (error) {
@@ -942,6 +958,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 limpiarContenedoresListadosCanales();
                 crearBotonesParaCanales();
                 crearBotonesPaises();
+                crearBotonesCategorias();
+
                 renderizarListasPersonalizadasUI();
                 mostrarToast('Lista manual cargada correctamente. Los nuevos canales se añadieron al final.', 'success');
             } catch (error) {

@@ -28,28 +28,40 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
       if (ID_CONTENEDOR_BOTONES_CANALES.startsWith(PREFIJO)) {
         let booleanCoincidencia = false;
         let filtroPorPaisActivo = 'all';
+        let filtroPorCategoriaActiva = 'all';
+
         const botonesFiltroPorPais = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-paises button`);
         botonesFiltroPorPais.forEach(boton => {
           if (boton.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
             filtroPorPaisActivo = CODIGOS_PAISES[boton.dataset.country] ?? boton.dataset.country;
           }
         });
+
+        const botonesFiltroPorCategoria = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-categorias button`);
+        botonesFiltroPorCategoria.forEach(boton => {
+          if (boton.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
+            filtroPorCategoriaActiva = boton.dataset.category ?? 'all';
+          }
+        });
+
         BOTONES_CANALES.forEach(boton => {
           if (!boton) return;
           const contenidoBotonNormalizado = normalizarInput(`${boton.dataset.country} - ${boton.textContent}`);
-          const esCoincidencia = contenidoBotonNormalizado.includes(INPUT_NORMALIZADO);
-          if (filtroPorPaisActivo !== 'all') {
-            if (boton.dataset.country === filtroPorPaisActivo) {
-              boton.classList.toggle('d-none', !esCoincidencia);
-              if (esCoincidencia) booleanCoincidencia = true;
-            } else {
-              boton.classList.add('d-none');
-            }
-          } else {
-            boton.classList.toggle('d-none', !esCoincidencia);
-            if (esCoincidencia) booleanCoincidencia = true;
-          }
+          const categoriaCanal = (boton.dataset.category ?? 'undefined').toLowerCase();
+          const coincideTexto = contenidoBotonNormalizado.includes(INPUT_NORMALIZADO);
+
+          const pasaFiltroPais =
+            filtroPorPaisActivo === 'all' || boton.dataset.country === filtroPorPaisActivo;
+
+          const pasaFiltroCategoria =
+            filtroPorCategoriaActiva === 'all' || categoriaCanal === filtroPorCategoriaActiva;
+
+          const mostrar = coincideTexto && pasaFiltroPais && pasaFiltroCategoria;
+
+          boton.classList.toggle('d-none', !mostrar);
+          if (mostrar) booleanCoincidencia = true;
         });
+
         const alerta = document.querySelector(`#${PREFIJO}-mensaje-alerta`);
         alertaNoCoincidencias(alerta, booleanCoincidencia, INPUT_NORMALIZADO);
         break;

@@ -12,6 +12,7 @@ export * from './helperCheckboxState.js';
 export * from './helperCheckSeñalesVacias.js';
 export * from './helperClaseBoton.js';
 export * from './helperCrearBotonesPaises.js';
+export * from './helperCrearBotonesCategorias.js';
 export * from './helperEstadoConexion.js';
 export * from './helperFiltroCanales.js';
 export * from './helperGenerarBotonesCanales.js';

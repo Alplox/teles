@@ -9,12 +9,18 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - La restauración de listas personalizadas fijadas ahora recompone los botones y el listado de canales tras recargar para preservar los canales añadidos por el usuario.
+- Se redujo el peso del DOM de las listas de canales cargando bajo demanda las listas de "Visión única" y "Cambiar canal".
+- Se eliminaron fondos con `bg-blur` en modales/offcanvas de canales y panel de personalización para mejorar el rendimiento en scroll y clics.
+- Se migró el manejo de clics en botones de canales a delegación de eventos sobre los contenedores principales, reduciendo el número de listeners individuales.
+- Se simplificó el cálculo de ancho en las barras de overlay y se eliminó el enfoque automático en inputs de filtro para reducir trabajo de layout en interacciones frecuentes.
+- El filtro por país dejó de sobrescribir el texto del buscador y ahora se combina con la búsqueda por nombre y categoría.
 
 ### Added
 
 - Campo para pegar listas .m3u manualmente cuando no se puede acceder a la URL.
 - Posibilidad de compartir enlaces que incluyen la selección actual de canales activos mediante el parámetro `c` en la URL.
- - Contenedores de botones de canales agrupados por origen ahora son secciones colapsables en el modal y el offcanvas de selección de canales, para facilitar la navegación.
+- Contenedores de botones de canales agrupados por origen ahora son secciones colapsables en el modal y el offcanvas de selección de canales, para facilitar la navegación.
+- Filtro por categoría de canal en modal, offcanvas, visión única y modal "Cambiar canal", combinable con país y texto.
 
 ### Fixed
 

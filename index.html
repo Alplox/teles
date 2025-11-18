@@ -300,10 +300,15 @@
                         </div>
                         <div class="bg-dark-subtle my-2 rounded-4 d-flex flex-column">
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group"
-                                    aria-expanded="false" aria-controls="offcanvas-collapse-btn-group">
-                                    <i class="bi bi-funnel"></i> Filtrar por país
+                                <button class="btn btn-sm btn-dark rounded-pill" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#vision-unica-collapse-btn-group"
+                                    aria-expanded="false" aria-controls="vision-unica-collapse-btn-group">
+                                    <i class="bi bi-flag"></i> País
+                                </button>
+                                <button class="btn btn-sm btn-dark rounded-pill" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#vision-unica-collapse-btn-group-categorias"
+                                    aria-expanded="false" aria-controls="vision-unica-collapse-btn-group-categorias">
+                                    <i class="bi bi-grid-3x3-gap"></i> Categoría
                                 </button>
                                 <div class="ms-auto">
                                     <div class="btn-group" role="group">
@@ -343,11 +348,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="collapse py-2" id="offcanvas-collapse-btn-group">
+                            <div class="collapse py-2" id="vision-unica-collapse-btn-group">
                                 <div class="card card-body rounded-4">
                                     <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
                                         role="group" aria-label="Toggle radio para grupo botones"
                                         id='vision-unica-collapse-botones-listado-filtro-paises'>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse py-2" id="vision-unica-collapse-btn-group-categorias">
+                                <div class="card card-body rounded-4">
+                                    <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
+                                        role="group" aria-label="Toggle radio para grupo botones por categoría"
+                                        id='vision-unica-collapse-botones-listado-filtro-categorias'>
 
                                     </div>
                                 </div>
@@ -405,21 +419,28 @@
     <div class="modal fade" id="modal-cambiar-canal" tabindex="-1" aria-labelledby="modal exclusivo cambio"
         aria-hidden="true">
         <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable">
-            <div class="modal-content bg-blur border-0">
+            <div class="modal-content bg-transparent bg-blur border-0">
                 <div class="modal-header bg-transparent border-0 d-flex flex-column">
                     <div class="form-floating w-100">
                         <input class="form-control rounded-4" type="search" id="modal-cambiar-canal-input-filtro"
-                            placeholder="Escribe para buscar..." />
+                            placeholder="Escribe para buscar...">
                         <label for="modal-cambiar-canal-input-filtro">Cambiar [<span
                                 id="label-para-nombre-canal-cambiar"></span>] por:</label>
                     </div>
 
                     <div class="w-100 bg-dark-subtle p-2 rounded-3 d-flex flex-column mt-2 rounded-4">
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
+                            <button class="btn btn-sm btn-dark rounded-pill" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#modal-cambiar-canal-collapse-btn-group"
                                 aria-expanded="false" aria-controls="modal-cambiar-canal-collapse-btn-group">
-                                <i class="bi bi-funnel"></i> Filtrar por país
+                                <i class="bi bi-flag"></i> País
+                            </button>
+                            <button class="btn btn-sm btn-dark rounded-pill" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#modal-cambiar-canal-collapse-btn-group-categorias"
+                                aria-expanded="false"
+                                aria-controls="modal-cambiar-canal-collapse-btn-group-categorias">
+                                <i class="bi bi-grid-3x3-gap"></i> Categoría
                             </button>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
@@ -462,6 +483,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="collapse py-2" id="modal-cambiar-canal-collapse-btn-group-categorias">
+                            <div class="card card-body rounded-4">
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones por categoría"
+                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-categorias">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -471,10 +500,10 @@
                             id="modal-cambiar-canal-mensaje-alerta">
                             <div
                                 class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
-                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px">
+                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
                                     <i class="bi bi-backspace-reverse"></i>
-                                    No se han encontrado resultados para tu búsqueda (<span
-                                        class="text-break fst-italic"></span>).
+                                    No se han encontrado resultados para tu búsqueda
+                                    (<span class="text-break fst-italic"></span>).
                                 </p>
                                 <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
                                     <ul>
@@ -516,10 +545,15 @@
                 <div class="modal-body vh-100 py-0 scrollbar-thin-gray ">
                     <div class="w-100 bg-dark-subtle p-2 rounded-4 mb-2 d-flex flex-column">
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
+                            <button class="btn btn-sm btn-dark rounded-pill" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#modal-collapse-btn-group"
                                 aria-expanded="false" aria-controls="modal-collapse-btn-group">
-                                <i class="bi bi-funnel"></i> Filtrar por país
+                                <i class="bi bi-flag"></i> País
+                            </button>
+                            <button class="btn btn-sm btn-dark rounded-pill" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#modal-collapse-btn-group-categorias"
+                                aria-expanded="false" aria-controls="modal-collapse-btn-group-categorias">
+                                <i class="bi bi-grid-3x3-gap"></i> Categoría
                             </button>
                             <div class="ms-auto">
                                 <div class="btn-group" role="group">
@@ -565,6 +599,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="collapse py-2" id="modal-collapse-btn-group-categorias">
+                            <div class="card card-body rounded-4">
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones por categoría"
+                                    id="modal-canales-collapse-botones-listado-filtro-categorias">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -575,7 +617,8 @@
                                 class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
                                 <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
                                     <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
-                                    búsqueda (<span class="text-break fst-italic"></span>).
+                                    búsqueda
+                                    (<span class="text-break fst-italic"></span>).
                                 </p>
                                 <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
                                     <p>Sugerencias:</p>
@@ -628,10 +671,15 @@
             <div class="d-flex flex-column bg-transparent">
                 <div class="bg-dark-subtle p-2 mb-2 rounded-4 d-flex flex-column">
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button" data-bs-toggle="collapse"
+                        <button class="btn btn-sm btn-dark rounded-pill" type="button" data-bs-toggle="collapse"
                             data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
                             aria-controls="offcanvas-collapse-btn-group">
-                            <i class="bi bi-funnel"></i> Filtrar por país
+                            <i class="bi bi-flag"></i> País
+                        </button>
+                        <button class="btn btn-sm btn-dark rounded-pill" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#offcanvas-collapse-btn-group-categorias" aria-expanded="false"
+                            aria-controls="offcanvas-collapse-btn-group-categorias">
+                            <i class="bi bi-grid-3x3-gap"></i> Categoría
                         </button>
                         <div class="ms-auto">
                             <div class="btn-group" role="group">
@@ -670,6 +718,14 @@
                             <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
                                 role="group" aria-label="Toggle radio para grupo botones"
                                 id='offcanvas-canales-collapse-botones-listado-filtro-paises'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse py-2" id="offcanvas-collapse-btn-group-categorias">
+                        <div class="card card-body rounded-4">
+                            <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
+                                role="group" aria-label="Toggle radio para grupo botones por categoría"
+                                id='offcanvas-canales-collapse-botones-listado-filtro-categorias'>
                             </div>
                         </div>
                     </div>
@@ -1070,8 +1126,8 @@
                                         rel="nofollow noreferrer">Revista De Frente <i
                                             class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><a href="https://www.facebook.com/DeFrente.cl" rel="nofollow noreferrer">Facebook <i
-                                            class="bi bi-box-arrow-up-right"></i></a></td>
+                                <td><a href="https://www.facebook.com/DeFrente.cl" rel="nofollow noreferrer">Facebook
+                                        <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
@@ -1151,12 +1207,12 @@
                                 <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
-                                <td scope="row"><a href="https://www.prensaescrita.com/america/chile.php"
+                                <td scope="row"><a href="https://prensaescrita.com/america/chile.php"
                                         rel="nofollow noreferrer">Periódicos Chile <i
-                                            class="bi bi-box-arrow-up-right"></i></a> / <a
-                                        href="https://sitios.cl/directorio/diarios.htm" rel="nofollow noreferrer">Opción
-                                        <i class="bi bi-box-arrow-up-right"></i></a> / <a href="http://kiosko.net/cl/"
-                                        rel="nofollow noreferrer">Opción2 <i class="bi bi-box-arrow-up-right"></i></a>
+                                            class="bi bi-box-arrow-up-right"></i></a> / <a href="https://sitios.cl/directorio/diarios.htm"
+                                        rel="nofollow noreferrer">Opción <i class="bi bi-box-arrow-up-right"></i></a>
+                                    / <a href="http://kiosko.net/cl/" rel="nofollow noreferrer">Opción2 <i
+                                            class="bi bi-box-arrow-up-right"></i></a>
                                 </td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
@@ -1424,8 +1480,7 @@
                             <tr>
                                 <td><a href="https://www.ayudabomberos.cl/" rel="nofollow noreferrer">Donar a
                                         Bomberos
-                                        (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1434,8 +1489,7 @@
                             <tr>
                                 <td><a href="https://hcstore.org/dona" rel="nofollow noreferrer">Donar a Hogar de
                                         Cristo
-                                        (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1443,8 +1497,7 @@
                             </tr>
                             <tr>
                                 <td><a href="https://www.cruzroja.cl/" rel="nofollow noreferrer">Donar a Cruz Roja
-                                        chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1460,8 +1513,7 @@
                                 <td><a href="https://www.gob.cl/noticias/siga-las-siguientes-recomendaciones-en-caso-de-tener-que-evacuar-por-un-incendio-forestal/"
                                         rel="nofollow noreferrer">Recomendaciones en caso de tener que evacuar por
                                         un
-                                        incendio forestal <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        incendio forestal <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1469,8 +1521,7 @@
                             </tr>
                             <tr>
                                 <td><a href="https://senapred.cl/informate/alertas" rel="nofollow noreferrer">Alertas
-                                        SENAPRED <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        SENAPRED <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>

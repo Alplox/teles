@@ -61,12 +61,16 @@ export function crearBotonesPaises() {
         }
 
         const BOTON_MOSTRAR_TODO_PAIS = document.createElement('button');
-            BOTON_MOSTRAR_TODO_PAIS.setAttribute('type', 'button');
-            BOTON_MOSTRAR_TODO_PAIS.dataset.country = 'all'
-            BOTON_MOSTRAR_TODO_PAIS.classList.add('btn', 'btn-indigo', 'd-flex', 'justify-content-between', 'align-items-center', 'text-start', 'gap-2', 'w-100', 'm-0', 'rounded-3')
-            BOTON_MOSTRAR_TODO_PAIS.innerHTML =
-                `<span class="flex-grow-1">Todos</span><span class="badge bg-secondary">${Object.keys(listaCanales).length}</span>`;
-            FRAGMENT_BOTONES_PAISES.prepend(BOTON_MOSTRAR_TODO_PAIS)
+        BOTON_MOSTRAR_TODO_PAIS.setAttribute('type', 'button');
+        BOTON_MOSTRAR_TODO_PAIS.dataset.country = 'all';
+        BOTON_MOSTRAR_TODO_PAIS.classList.add(
+            'btn', 'btn-indigo',
+            'd-flex', 'justify-content-between', 'align-items-center',
+            'text-start', 'gap-2', 'w-100', 'm-0', 'rounded-3'
+        );
+        BOTON_MOSTRAR_TODO_PAIS.innerHTML =
+            `<span class="flex-grow-1">Todos</span><span class="badge bg-secondary">${Object.keys(listaCanales).length}</span>`;
+        FRAGMENT_BOTONES_PAISES.prepend(BOTON_MOSTRAR_TODO_PAIS);
 
         for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
             const contenedorBotonesFiltroPaises = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`);
@@ -74,15 +78,18 @@ export function crearBotonesPaises() {
             contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(botonPaisEnDom => {
                 botonPaisEnDom.addEventListener('click', () => {
                     try {
-                        let country = botonPaisEnDom.dataset.country;
-                        let filtro = CODIGOS_PAISES[country] || (country === 'Desconocido' ? 'Desconocido' : country === 'all' ? '' : '');
+                        const contenedorBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`);
+                        const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
+                        const valorBusqueda = inputFiltro?.value ?? '';
 
                         contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(boton => {
                             boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, 'btn-outline-secondary');
                         });
                         botonPaisEnDom.classList.replace('btn-outline-secondary', CLASE_CSS_BOTON_PRIMARIO);
-                        filtrarCanalesPorInput(filtro, document.querySelector(`#${PREFIJO}-body-botones-canales`));
+
+                        filtrarCanalesPorInput(valorBusqueda, contenedorBotonesCanales);
                     } catch (error) {
+
                         contenedorBotonesFiltroPaises.querySelectorAll('button').forEach(boton => {
                             boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, 'btn-outline-secondary');
                         });

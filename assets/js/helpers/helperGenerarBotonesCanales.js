@@ -1,7 +1,8 @@
 import { listaCanales, ORIGEN_PREDETERMINADO } from "../canalesData.js";
 import { CLASE_CSS_BOTON_SECUNDARIO, CODIGOS_PAISES, ICONOS_PARA_CATEGORIAS, PREFIJOS_ID_CONTENEDORES_CANALES } from "../constants/index.js";
-import { CONTAINER_VIDEO_VISION_UNICA, tele } from "../main.js";
+import { CONTAINER_VIDEO_VISION_UNICA, tele, LABEL_MODAL_CAMBIAR_CANAL } from "../main.js";
 import { mostrarToast, revisarSeñalesVacias, guardarOrdenOriginal } from "./index.js";
+import { reemplazarCanalActivo } from "./helperReemplazarCanalActivo.js";
 
 // SVG bandera genérica para países desconocidos
 const SVG_BANDERA_DESCONOCIDO = `
@@ -12,11 +13,10 @@ const SVG_BANDERA_DESCONOCIDO = `
 </svg>
 `;
 
+// Contenedores que se rellenan siempre durante la carga inicial
 const SELECTORES_CONTENEDORES = [
     '#modal-canales-body-botones-canales',
-    '#offcanvas-canales-body-botones-canales',
-    '#modal-cambiar-canal-body-botones-canales',
-    '#vision-unica-body-botones-canales'
+    '#offcanvas-canales-body-botones-canales'
 ];
 
 /**
@@ -25,14 +25,7 @@ const SELECTORES_CONTENEDORES = [
 export function crearBotonesParaCanales() {
     try {
         const gruposPorOrigen = agruparCanalesPorOrigen();
-        SELECTORES_CONTENEDORES.forEach(selector => {
-            const contenedor = document.querySelector(selector);
-            if (!contenedor) return;
-            contenedor.innerHTML = '';
-            const idBase = contenedor.id || selector.replace('#', '') || 'grupo-canales';
-            const fragmento = construirFragmentoCanales(gruposPorOrigen, { idBase });
-            contenedor.append(fragmento);
-        });
+        renderizarBotonesEnContenedores(gruposPorOrigen, SELECTORES_CONTENEDORES);
 
         asignarEventosBotones();
 
@@ -56,6 +49,36 @@ export function crearBotonesParaCanales() {
 }
 
 /**
+ * Renderiza los botones de canales en el contenedor del modal "Cambiar canal" bajo demanda.
+ * @returns {void}
+ */
+export function crearBotonesParaModalCambiarCanal() {
+    try {
+        const gruposPorOrigen = agruparCanalesPorOrigen();
+        renderizarBotonesEnContenedores(gruposPorOrigen, ['#modal-cambiar-canal-body-botones-canales']);
+        asignarEventosBotones();
+        guardarOrdenOriginal('modal-cambiar-canal-body-botones-canales');
+    } catch (error) {
+        console.error('[teles] Error al crear botones para el modal "Cambiar canal":', error);
+    }
+}
+
+/**
+ * Renderiza los botones de canales en el contenedor de selección de Visión Única bajo demanda.
+ * @returns {void}
+ */
+export function crearBotonesParaVisionUnica() {
+    try {
+        const gruposPorOrigen = agruparCanalesPorOrigen();
+        renderizarBotonesEnContenedores(gruposPorOrigen, ['#vision-unica-body-botones-canales']);
+        asignarEventosBotones();
+        guardarOrdenOriginal('vision-unica-body-botones-canales');
+    } catch (error) {
+        console.error('[teles] Error al crear botones para Visión Única:', error);
+    }
+}
+
+/**
  * Agrupa los canales por su origen para crear bloques visibles.
  * @returns {[string, { id: string, data: any }[]][]}
  */
@@ -68,6 +91,23 @@ function agruparCanalesPorOrigen() {
         grupos.get(origen).push({ id: canalId, data });
     }
     return Array.from(grupos.entries()).sort((a, b) => a[0].localeCompare(b[0], 'es', { sensitivity: 'base' }));
+}
+
+/**
+ * Inserta en uno o más contenedores los grupos de canales ya agrupados por origen.
+ * @param {[string, { id: string, data: any }[]][]} grupos
+ * @param {string[]} selectores
+ * @returns {void}
+ */
+function renderizarBotonesEnContenedores(grupos, selectores = []) {
+    selectores.forEach(selector => {
+        const contenedor = document.querySelector(selector);
+        if (!contenedor) return;
+        contenedor.innerHTML = '';
+        const idBase = contenedor.id || selector.replace('#', '') || 'grupo-canales';
+        const fragmento = construirFragmentoCanales(grupos, { idBase });
+        contenedor.append(fragmento);
+    });
 }
 
 /**
@@ -129,11 +169,14 @@ function crearBotonCanal(canalId, canalData) {
     let { nombre, país, categoría } = canalData;
     categoría = (categoría ?? '').toLowerCase();
     const iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
+
     const nombrePais = país && CODIGOS_PAISES[país.toLowerCase()] ? CODIGOS_PAISES[país.toLowerCase()] : 'Desconocido';
 
     const botonCanal = document.createElement('button');
     botonCanal.setAttribute('data-canal', canalId);
     botonCanal.setAttribute('data-country', `${nombrePais}`);
+    botonCanal.setAttribute('data-category', categoría || 'undefined');
+
     botonCanal.classList.add('btn', CLASE_CSS_BOTON_SECUNDARIO, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
     if (revisarSeñalesVacias(canalId)) botonCanal.classList.add('d-none');
     botonCanal.innerHTML = `
@@ -147,26 +190,66 @@ function crearBotonCanal(canalId, canalData) {
     return botonCanal;
 }
 
+/**
+ * Inicializa la delegación de eventos para los contenedores de botones de canales.
+ * Se asegura de no registrar múltiples listeners en el mismo contenedor.
+ * @returns {void}
+ */
 function asignarEventosBotones() {
-    document.querySelectorAll('#modal-canales-body-botones-canales button, #offcanvas-canales-body-botones-canales button').forEach(botonCanalEnDOM => {
-        botonCanalEnDOM.addEventListener('click', () => {
+    const SELECTORES_DELEGACION_PRINCIPALES = [
+        '#modal-canales-body-botones-canales',
+        '#offcanvas-canales-body-botones-canales'
+    ];
+
+    SELECTORES_DELEGACION_PRINCIPALES.forEach(selector => {
+        const contenedor = document.querySelector(selector);
+        if (!contenedor || contenedor.dataset.delegacionCanalesInicializada === 'true') return;
+
+        contenedor.dataset.delegacionCanalesInicializada = 'true';
+
+        contenedor.addEventListener('click', (event) => {
+            const botonCanalEnDOM = event.target.closest('button[data-canal]');
+            if (!botonCanalEnDOM || !contenedor.contains(botonCanalEnDOM)) return;
+
             const accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
             tele[accionBoton](botonCanalEnDOM.dataset.canal);
         });
     });
 
-    document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(botonCanalEnDOM => {
-        botonCanalEnDOM.setAttribute('data-bs-dismiss', 'modal');
-    });
+    const contenedorCambiar = document.querySelector('#modal-cambiar-canal-body-botones-canales');
+    if (contenedorCambiar && contenedorCambiar.dataset.delegacionCanalesInicializada !== 'true') {
+        contenedorCambiar.dataset.delegacionCanalesInicializada = 'true';
 
-    document.querySelectorAll('#vision-unica-body-botones-canales button').forEach(botonCanalEnDOM => {
-        botonCanalEnDOM.addEventListener('click', () => {
+        contenedorCambiar.querySelectorAll('button[data-canal]').forEach(boton => {
+            boton.setAttribute('data-bs-dismiss', 'modal');
+        });
+
+        contenedorCambiar.addEventListener('click', (event) => {
+            const botonCanalEnDOM = event.target.closest('button[data-canal]');
+            if (!botonCanalEnDOM || !contenedorCambiar.contains(botonCanalEnDOM)) return;
+
+            const idCanalCambio = LABEL_MODAL_CAMBIAR_CANAL?.getAttribute('id-canal-cambio');
+            if (!idCanalCambio) return;
+
+            reemplazarCanalActivo(botonCanalEnDOM.dataset.canal, idCanalCambio);
+        });
+    }
+
+    const contenedorVisionUnica = document.querySelector('#vision-unica-body-botones-canales');
+    if (contenedorVisionUnica && contenedorVisionUnica.dataset.delegacionCanalesInicializada !== 'true') {
+        contenedorVisionUnica.dataset.delegacionCanalesInicializada = 'true';
+
+        contenedorVisionUnica.addEventListener('click', (event) => {
+            const botonCanalEnDOM = event.target.closest('button[data-canal]');
+            if (!botonCanalEnDOM || !contenedorVisionUnica.contains(botonCanalEnDOM)) return;
+
             const canalEnUso = CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]');
             if (canalEnUso) {
                 tele.remove(canalEnUso.dataset.canal);
             }
+
             const accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
             tele[accionBoton](botonCanalEnDOM.dataset.canal);
         });
-    });
+    }
 }
