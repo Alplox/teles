@@ -20,7 +20,7 @@
     - [X] Overlay con nombre canal y enlace a sitio fuente
     - [X] `QUIZAS` Categorías (nav)
       - [X] Pais
-      - [ ] Tipo (Canal, Radio, Cámara, Música)
+      - [X] Tipo (Canal, Radio, Cámara, Música)
       - [ ] Activos/desactivados
     - [X] `QUIZAS` Botón ordenar canales a-z
       - [ ] Recordar con localStorage
@@ -30,7 +30,7 @@
       - [X] Recordar con localStorage
   - [X] Habilidad de borrar localStorage
   - [ ] `IMPROBABLE` Verificar si canal esta online
-  - [ ] `QUIZAS` Overlay en canales Youtube para alternar a instancia invidious
+  - [-] `NO SE PUEDE` Overlay en canales Youtube para alternar a instancia invidious (Ahora bloquean embed al ser API cerrada)
 - [X] Personalizaciones
   - [X] Interruptor navbar
     - [X] Recordar con localStorage
@@ -56,6 +56,6 @@
     - [ ] Recordar con localStorage
 - [X] Formato
   - [X] `IMPROBABLE` Canales en formato JSON
-  - [ ] `IMPROBABLE` Unificar múltiples canales en 1 objeto
-  - [ ] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
+  - [X] `IMPROBABLE` Unificar múltiples canales en 1 objeto
+  - [X] `IMPROBABLE` Carga canales desde lista m3u automáticamente (conflicto con descargo de responsabilidad)
 - [X] Licencia

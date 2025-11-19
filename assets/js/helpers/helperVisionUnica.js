@@ -1,4 +1,5 @@
 import { crearFragmentCanal } from "../canalUI.js";
+import { crearBotonesParaVisionUnica } from "./helperGenerarBotonesCanales.js";
 import {
     CONTAINER_VISION_CUADRICULA,
     CONTAINER_VISION_UNICA,
@@ -29,7 +30,12 @@ import { listaCanales } from "../canalesData.js";
 
 export function activarVisionUnica() {
     try {
+        const contenedorVision = document.querySelector('#vision-unica-body-botones-canales');
+        if (contenedorVision && !contenedorVision.querySelector('button[data-canal]')) {
+            crearBotonesParaVisionUnica();
+        }
         localStorage.setItem('diseño-seleccionado', 'vision-unica');
+
         BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-light-subtle', 'btn-indigo');
         BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-indigo', 'btn-light-subtle');
 

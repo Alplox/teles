@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.20
+    teles v0.21
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -14,8 +14,8 @@
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
     <!-- bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <!-- bootstrap icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- video-js -->
@@ -106,7 +106,7 @@
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.20</i>
+                            <i class="badge bg-secondary">v0.21</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -292,20 +292,69 @@
                         </div>
                     </button>
 
-                    <div class="d-flex flex-column">
-                        <div class="form-floating w-100">
-                            <input type="search" class="form-control rounded-3" id="vision-unica-input-filtro"
-                                placeholder="Buscar por país o canal">
-                            <label for="filtro">Buscar por país o canal</label>
+                    <div class="h-100 pt-0 bg-transparent scrollbar-thin-gray overflow-auto overflow-x-hidden ">
+                        <div class="vision-unica-body-canales" id="vision-unica-body-botones-canales">
                         </div>
-                        <div class="bg-dark-subtle my-2 rounded-4 d-flex flex-column">
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#offcanvas-collapse-btn-group"
-                                    aria-expanded="false" aria-controls="offcanvas-collapse-btn-group">
-                                    <i class="bi bi-funnel"></i> Filtrar por país
-                                </button>
-                                <div class="ms-auto">
+                        <!-- Mensaje alerta sin resultados offcanvas -->
+                        <div class="vision-unica-mensaje-alerta d-none shadow" tabindex="0"
+                            id="vision-unica-mensaje-alerta">
+                            <div
+                                class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
+                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
+                                    <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
+                                    búsqueda
+                                    (<span class="text-break fst-italic"></span>).
+                                </p>
+                                <div class="bg-danger bg-opacity-10 p-3 rounded-3">
+                                    <p>Sugerencias:</p>
+                                    <ul>
+                                        <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                                        <li>Prueba diferentes palabras clave.</li>
+                                        <li>Prueba palabras en español.</li>
+                                        <li>Desactiva los filtros por país y/o categorías.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /Mensaje alerta sin resultados -->
+                    </div>
+
+                     <div class="d-flex flex-column gap-2">
+                        <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2 d-flex flex-column gap-1">
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-sliders"></i>
+                                    <span>Filtros</span>
+                                </span>
+                            </div>
+                            <div class="d-flex flex-row flex-wrap gap-2 mt-1">
+                                <div class="d-flex flex-column">
+                                    <!-- <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-flag"></i>
+                                        <span>País</span>
+                                    </span> -->
+                                    <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
+                                        role="group" aria-label="Toggle radio para grupo botones"
+                                        id='vision-unica-collapse-botones-listado-filtro-paises'>
+
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-grid-3x3-gap"></i>
+                                        <span>Categoría</span>
+                                    </span> -->
+                                    <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
+                                        role="group" aria-label="Toggle radio para grupo botones por categoría"
+                                        id='vision-unica-collapse-botones-listado-filtro-categorias'>
+
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <!--   <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-funnel"></i>
+                                        <span>Orden</span>
+                                    </span> -->
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-dark dropdown-toggle rounded-pill"
                                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -343,43 +392,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="collapse py-2" id="offcanvas-collapse-btn-group">
-                                <div class="card card-body rounded-4">
-                                    <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
-                                        role="group" aria-label="Toggle radio para grupo botones"
-                                        id='vision-unica-collapse-botones-listado-filtro-paises'>
-
-                                    </div>
-                                </div>
+                            <div class="form-floating w-100">
+                                <input type="search" class="form-control rounded-3" id="vision-unica-input-filtro"
+                                    placeholder="Buscar por país o canal">
+                                <label for="filtro">Buscar por país o canal</label>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="h-100 pt-0 bg-transparent scrollbar-thin-gray overflow-auto overflow-x-hidden ">
-                        <div class="vision-unica-body-canales" id="vision-unica-body-botones-canales">
-                        </div>
-                        <!-- Mensaje alerta sin resultados offcanvas -->
-                        <div class="vision-unica-mensaje-alerta d-none shadow" tabindex="0"
-                            id="vision-unica-mensaje-alerta">
-                            <div
-                                class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
-                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
-                                    <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
-                                    búsqueda
-                                    (<span class="text-break fst-italic"></span>).
-                                </p>
-                                <div class="bg-danger bg-opacity-10 p-3 rounded-3">
-                                    <p>Sugerencias:</p>
-                                    <ul>
-                                        <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
-                                        <li>Prueba diferentes palabras clave.</li>
-                                        <li>Prueba palabras en español.</li>
-                                        <li>Desactiva los filtros por país.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /Mensaje alerta sin resultados -->
                     </div>
                 </div>
 
@@ -405,64 +424,10 @@
     <div class="modal fade" id="modal-cambiar-canal" tabindex="-1" aria-labelledby="modal exclusivo cambio"
         aria-hidden="true">
         <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable">
-            <div class="modal-content bg-blur border-0">
-                <div class="modal-header bg-transparent border-0 d-flex flex-column">
-                    <div class="form-floating w-100">
-                        <input class="form-control rounded-4" type="search" id="modal-cambiar-canal-input-filtro"
-                            placeholder="Escribe para buscar..." />
-                        <label for="modal-cambiar-canal-input-filtro">Cambiar [<span
-                                id="label-para-nombre-canal-cambiar"></span>] por:</label>
-                    </div>
-
-                    <div class="w-100 bg-dark-subtle p-2 rounded-3 d-flex flex-column mt-2 rounded-4">
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#modal-cambiar-canal-collapse-btn-group"
-                                aria-expanded="false" aria-controls="modal-cambiar-canal-collapse-btn-group">
-                                <i class="bi bi-funnel"></i> Filtrar por país
-                            </button>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-sort-down"></i>
-                                    Orden
-                                </button>
-                                <ul class="dropdown-menu p-2 rounded-4">
-                                    <li class="my-1">
-                                        <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                            id="modal-cambiar-canal-boton-orden-ascendente" autocomplete="off" />
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="modal-cambiar-canal-boton-orden-ascendente"><i
-                                                class="bi bi-sort-alpha-down"></i> Ascendente</label>
-                                    </li>
-                                    <li class="my-1">
-                                        <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                            id="modal-cambiar-canal-boton-orden-descendente" autocomplete="off" />
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="modal-cambiar-canal-boton-orden-descendente"><i
-                                                class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
-                                    </li>
-                                    <li class="my-1">
-                                        <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                            id="modal-cambiar-canal-boton-orden-original" autocomplete="off"
-                                            checked="checked" />
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="modal-cambiar-canal-boton-orden-original"><i
-                                                class="bi bi-arrow-clockwise"></i> Predeterminado</label>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="collapse py-2" id="modal-cambiar-canal-collapse-btn-group">
-                            <div class="card card-body rounded-4">
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones"
-                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-paises">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="modal-content bg-transparent bg-blur border-0">
+                <div class="modal-header bg-transparent border-0 d-flex flex-column pb-0">
+                    <h2 class="text-light m-0">Cambiando canal [<span class="modal-title fs-5"
+                            id="label-para-nombre-canal-cambiar"></span>]</h2>
                 </div>
 
                 <div class="modal-body vh-100 scrollbar-thin-gray bg-transparent rounded-bottom-3">
@@ -471,17 +436,17 @@
                             id="modal-cambiar-canal-mensaje-alerta">
                             <div
                                 class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
-                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px">
+                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
                                     <i class="bi bi-backspace-reverse"></i>
-                                    No se han encontrado resultados para tu búsqueda (<span
-                                        class="text-break fst-italic"></span>).
+                                    No se han encontrado resultados para tu búsqueda
+                                    (<span class="text-break fst-italic"></span>).
                                 </p>
                                 <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
                                     <ul>
                                         <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
                                         <li>Prueba diferentes palabras clave.</li>
                                         <li>Prueba palabras en español.</li>
-                                        <li>Desactiva los filtros por país.</li>
+                                        <li>Desactiva los filtros por país y/o categorías.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -492,6 +457,76 @@
                 </div>
 
                 <div class="modal-footer bg-transparent border-0 d-flex align-items-center justify-content-center">
+                    <div class="w-100 bg-light-subtle p-2 rounded-3 d-flex flex-column mt-2 rounded-4 gap-2">
+                        <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-sliders"></i>
+                            <span>Filtros</span>
+                        </span>
+                        <div class="d-flex gap-1 mt-1 flex-wrap">
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-flag"></i>
+                                    <span>País</span>
+                                </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones"
+                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-paises">
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                    <span>Categoría</span>
+                                </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones por categoría"
+                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-categorias">
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-funnel"></i>
+                                    <span>Orden</span>
+                                </span> -->
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-sort-down"></i> Orden
+                                    </button>
+                                    <ul class="dropdown-menu p-2 rounded-4">
+                                        <li class="my-1">
+                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
+                                                id="modal-cambiar-canal-boton-orden-ascendente" autocomplete="off" />
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="modal-cambiar-canal-boton-orden-ascendente"><i
+                                                    class="bi bi-sort-alpha-down"></i> Ascendente</label>
+                                        </li>
+                                        <li class="my-1">
+                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
+                                                id="modal-cambiar-canal-boton-orden-descendente" autocomplete="off" />
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="modal-cambiar-canal-boton-orden-descendente"><i
+                                                    class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
+                                        </li>
+                                        <li class="my-1">
+                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
+                                                id="modal-cambiar-canal-boton-orden-original" autocomplete="off"
+                                                checked="checked" />
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="modal-cambiar-canal-boton-orden-original"><i
+                                                    class="bi bi-arrow-clockwise"></i> Predeterminado</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating w-100">
+                            <input class="form-control rounded-4" type="search" id="modal-cambiar-canal-input-filtro"
+                                placeholder="Escribe para buscar...">
+                            <label for="modal-cambiar-canal-input-filtro">Cambiar por:</label>
+                        </div>
+                    </div>
+
                     <button type="button"
                         class="btn btn-secondary rounded-pill d-flex justify-content-center align-items-center"
                         data-bs-dismiss="modal" style="height: 2.5rem; width: 2.5rem">
@@ -514,14 +549,66 @@
                 </div>
 
                 <div class="modal-body vh-100 py-0 scrollbar-thin-gray ">
-                    <div class="w-100 bg-dark-subtle p-2 rounded-4 mb-2 d-flex flex-column">
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#modal-collapse-btn-group"
-                                aria-expanded="false" aria-controls="modal-collapse-btn-group">
-                                <i class="bi bi-funnel"></i> Filtrar por país
-                            </button>
-                            <div class="ms-auto">
+                    <div>
+                        <!-- Mensaje alerta sin resultados modal -->
+                        <div class="modal-canales-mensaje-alerta d-none shadow" tabindex="0"
+                            id="modal-canales-mensaje-alerta">
+                            <div
+                                class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
+                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
+                                    <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
+                                    búsqueda
+                                    (<span class="text-break fst-italic"></span>).
+                                </p>
+                                <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
+                                    <p>Sugerencias:</p>
+                                    <ul>
+                                        <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                                        <li>Prueba diferentes palabras clave.</li>
+                                        <li>Prueba palabras en español.</li>
+                                        <li>Desactiva los filtros por país y/o categorías.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /Mensaje alerta sin resultados -->
+                        <div class="collapse-canales" id="modal-canales-body-botones-canales">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2 d-flex flex-column gap-1">
+                        <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-sliders"></i>
+                            <span>Filtros</span>
+                        </span>
+                        <div class="d-flex gap-1 mt-1 flex-wrap">
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-flag"></i>
+                                    <span>País</span>
+                                </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones"
+                                    id='modal-canales-collapse-botones-listado-filtro-paises'>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                    <span>Categoría</span>
+                                </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                    aria-label="Toggle radio para grupo botones por categoría"
+                                    id="modal-canales-collapse-botones-listado-filtro-categorias">
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-funnel"></i>
+                                    <span>Orden</span>
+                                </span> -->
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
                                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -556,50 +643,13 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="collapse py-2" id="modal-collapse-btn-group">
-                            <div class="card card-body rounded-4">
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones"
-                                    id='modal-canales-collapse-botones-listado-filtro-paises'>
-                                </div>
-                            </div>
+                        <div class="form-floating w-100">
+                            <input type="search" class="form-control rounded-4" id="modal-canales-input-filtro"
+                                placeholder="Buscar por país o canal">
+                            <label for="filtro">Buscar por país o canal</label>
                         </div>
                     </div>
 
-                    <div>
-                        <!-- Mensaje alerta sin resultados modal -->
-                        <div class="modal-canales-mensaje-alerta d-none shadow" tabindex="0"
-                            id="modal-canales-mensaje-alerta">
-                            <div
-                                class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
-                                <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
-                                    <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu
-                                    búsqueda (<span class="text-break fst-italic"></span>).
-                                </p>
-                                <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-start">
-                                    <p>Sugerencias:</p>
-                                    <ul>
-                                        <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
-                                        <li>Prueba diferentes palabras clave.</li>
-                                        <li>Prueba palabras en español.</li>
-                                        <li>Desactiva los filtros por país.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /Mensaje alerta sin resultados -->
-                        <div class="modal-body-canales" id="modal-canales-body-botones-canales">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer border-0">
-                    <div class="form-floating w-100">
-                        <input type="search" class="form-control rounded-4" id="modal-canales-input-filtro"
-                            placeholder="Buscar por país o canal">
-                        <label for="filtro">Buscar por país o canal</label>
-                    </div>
                     <div class="d-flex justify-content-between w-100">
                         <button class="btn btn-danger rounded-pill d-none" id="boton-modal-quitar-todo-canal-activo">
                             <i class="bi bi-power"></i> Quitar todos
@@ -625,17 +675,69 @@
         </header>
 
         <div class="offcanvas-body scrollbar-thin-gray bg-transparent px-3 py-0">
+            <div class="h-100">
+                <!-- Mensaje alerta sin resultados offcanvas -->
+                <div class="offcanvas-canales-mensaje-alerta d-none shadow" tabindex="0"
+                    id="offcanvas-canales-mensaje-alerta">
+                    <div
+                        class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
+                        <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
+                            <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu búsqueda
+                            (<span class="text-break fst-italic"></span>).
+                        </p>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-3">
+                            <p>Sugerencias:</p>
+                            <ul>
+                                <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                                <li>Prueba diferentes palabras clave.</li>
+                                <li>Prueba palabras en español.</li>
+                                <li>Desactiva los filtros por país y/o categorías.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Mensaje alerta sin resultados -->
+                <div class="offcanvas-canales-body-canales" id="offcanvas-canales-body-botones-canales">
+                </div>
+            </div>
+        </div>
+
+        <footer class="p-2 d-flex flex-column bg-transparent">
             <div class="d-flex flex-column bg-transparent">
-                <div class="bg-dark-subtle p-2 mb-2 rounded-4 d-flex flex-column">
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-dark w-100 rounded-pill" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#offcanvas-collapse-btn-group" aria-expanded="false"
-                            aria-controls="offcanvas-collapse-btn-group">
-                            <i class="bi bi-funnel"></i> Filtrar por país
-                        </button>
-                        <div class="ms-auto">
+                <div class="bg-light-subtle p-2 mb-2 rounded-4 d-flex flex-column gap-1">
+                    <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-sliders"></i>
+                        <span>Filtros</span>
+                    </span>
+                    <div class="d-flex gap-1 mt-1 flex-wrap">
+                        <div class="d-flex flex-column">
+                            <!--   <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-flag"></i>
+                                <span>País</span>
+                            </span> -->
+                            <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
+                                aria-label="Toggle radio para grupo botones"
+                                id='offcanvas-canales-collapse-botones-listado-filtro-paises'>
+
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                                <span>Categoría</span>
+                            </span> -->
+                            <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
+                                aria-label="Toggle radio para grupo botones por categoría"
+                                id='offcanvas-canales-collapse-botones-listado-filtro-categorias'>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <!-- <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-funnel"></i>
+                                <span>Orden</span>
+                            </span> -->
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle rounded-pill"
+                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-sort-down"></i> Orden
                                 </button>
@@ -665,50 +767,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse py-2" id="offcanvas-collapse-btn-group">
-                        <div class="card card-body rounded-4">
-                            <div class="btn-group btn-group-sm container-btn-group px-1 scrollbar-thin-gray"
-                                role="group" aria-label="Toggle radio para grupo botones"
-                                id='offcanvas-canales-collapse-botones-listado-filtro-paises'>
-                            </div>
-                        </div>
+                    <div class="form-floating w-100">
+                        <input type="search" class="form-control rounded-4" id="offcanvas-canales-input-filtro"
+                            placeholder="Buscar por país o canal">
+                        <label for="filtro">Buscar por país o canal</label>
                     </div>
                 </div>
             </div>
 
-            <div class="h-100">
-                <!-- Mensaje alerta sin resultados offcanvas -->
-                <div class="offcanvas-canales-mensaje-alerta d-none shadow" tabindex="0"
-                    id="offcanvas-canales-mensaje-alerta">
-                    <div
-                        class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
-                        <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
-                            <i class="bi bi-backspace-reverse"></i> No se han encontrado resultados para tu búsqueda
-                            (<span class="text-break fst-italic"></span>).
-                        </p>
-                        <div class="bg-danger bg-opacity-10 p-3 rounded-3">
-                            <p>Sugerencias:</p>
-                            <ul>
-                                <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
-                                <li>Prueba diferentes palabras clave.</li>
-                                <li>Prueba palabras en español.</li>
-                                <li>Desactiva los filtros por país.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- /Mensaje alerta sin resultados -->
-                <div class="offcanvas-canales-body-canales" id="offcanvas-canales-body-botones-canales">
-                </div>
-            </div>
-        </div>
-
-        <footer class="p-2 d-flex flex-column bg-transparent">
-            <div class="form-floating w-100">
-                <input type="search" class="form-control rounded-4" id="offcanvas-canales-input-filtro"
-                    placeholder="Buscar por país o canal">
-                <label for="filtro">Buscar por país o canal</label>
-            </div>
             <div class="d-flex justify-content-between mt-2">
                 <button class="btn btn-danger rounded-pill d-none" id="boton-offcanvas-quitar-todo-canal-activo">
                     <i class="bi bi-power"></i> Quitar todos
@@ -1070,8 +1136,8 @@
                                         rel="nofollow noreferrer">Revista De Frente <i
                                             class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
-                                <td><a href="https://www.facebook.com/DeFrente.cl" rel="nofollow noreferrer">Facebook <i
-                                            class="bi bi-box-arrow-up-right"></i></a></td>
+                                <td><a href="https://www.facebook.com/DeFrente.cl" rel="nofollow noreferrer">Facebook
+                                        <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
@@ -1151,12 +1217,13 @@
                                 <td><i class="bi bi-cloud-slash"></i></td>
                             </tr>
                             <tr>
-                                <td scope="row"><a href="https://www.prensaescrita.com/america/chile.php"
+                                <td scope="row"><a href="https://prensaescrita.com/america/chile.php"
                                         rel="nofollow noreferrer">Periódicos Chile <i
                                             class="bi bi-box-arrow-up-right"></i></a> / <a
                                         href="https://sitios.cl/directorio/diarios.htm" rel="nofollow noreferrer">Opción
-                                        <i class="bi bi-box-arrow-up-right"></i></a> / <a href="http://kiosko.net/cl/"
-                                        rel="nofollow noreferrer">Opción2 <i class="bi bi-box-arrow-up-right"></i></a>
+                                        <i class="bi bi-box-arrow-up-right"></i></a>
+                                    / <a href="http://kiosko.net/cl/" rel="nofollow noreferrer">Opción2 <i
+                                            class="bi bi-box-arrow-up-right"></i></a>
                                 </td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
                                 <td><i class="bi bi-cloud-slash"></i></td>
@@ -1424,8 +1491,7 @@
                             <tr>
                                 <td><a href="https://www.ayudabomberos.cl/" rel="nofollow noreferrer">Donar a
                                         Bomberos
-                                        (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        (ayudabomberos.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1434,8 +1500,7 @@
                             <tr>
                                 <td><a href="https://hcstore.org/dona" rel="nofollow noreferrer">Donar a Hogar de
                                         Cristo
-                                        (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        (hcstore.org/dona) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1443,8 +1508,7 @@
                             </tr>
                             <tr>
                                 <td><a href="https://www.cruzroja.cl/" rel="nofollow noreferrer">Donar a Cruz Roja
-                                        chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        chilena (cruzroja.cl) <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1460,8 +1524,7 @@
                                 <td><a href="https://www.gob.cl/noticias/siga-las-siguientes-recomendaciones-en-caso-de-tener-que-evacuar-por-un-incendio-forestal/"
                                         rel="nofollow noreferrer">Recomendaciones en caso de tener que evacuar por
                                         un
-                                        incendio forestal <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        incendio forestal <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1469,8 +1532,7 @@
                             </tr>
                             <tr>
                                 <td><a href="https://senapred.cl/informate/alertas" rel="nofollow noreferrer">Alertas
-                                        SENAPRED <i class="bi bi-box-arrow-up-right"></i></a>
-                                </td>
+                                        SENAPRED <i class="bi bi-box-arrow-up-right"></i></a></td>
                                 <td>
                                 </td>
                                 <td>
@@ -1598,7 +1660,7 @@
     </div>
 
     <!-- botones flotantes -->
-    <div class="btn-group position-fixed bottom-0 start-50 translate-middle-x z-2 z-1054 mb-3" role="group"
+    <div class="btn-group position-fixed bottom-0 start-50 translate-middle-x z-2 z-1040 mb-3" role="group"
         aria-label="grupo botones flotantes" id="grupo-botones-flotantes">
         <button type="button"
             class="focus-outline-blue btn btn-sm btn-indigo rounded-start-5 shadow-sm d-flex gap-1 border-0 fw-normal"
@@ -1729,12 +1791,21 @@
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <p class="mb-1"><i class="bi bi-play-btn"></i> Reproductor para señales m3u8</p>
                         <div class="btn-group w-100 gap-1" role="group" aria-label="Selector reproductor m3u8">
-                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8" id="reproductor-m3u8-videojs" value="videojs" autocomplete="off" data-descripcion="Video.js">
-                            <label class="btn btn-outline-indigo rounded-4 w-100" for="reproductor-m3u8-videojs">Video.js</label>
-                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8" id="reproductor-m3u8-clappr" value="clappr" autocomplete="off" data-descripcion="Clappr">
-                            <label class="btn btn-outline-indigo rounded-4 w-100" for="reproductor-m3u8-clappr">Clappr</label>
-                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8" id="reproductor-m3u8-oplayer" value="oplayer" autocomplete="off" data-descripcion="OPlayer">
-                            <label class="btn btn-outline-indigo rounded-4 w-100" for="reproductor-m3u8-oplayer">OPlayer</label>
+                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8"
+                                id="reproductor-m3u8-videojs" value="videojs" autocomplete="off"
+                                data-descripcion="Video.js">
+                            <label class="btn btn-outline-indigo rounded-4 w-100"
+                                for="reproductor-m3u8-videojs">Video.js</label>
+                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8"
+                                id="reproductor-m3u8-clappr" value="clappr" autocomplete="off"
+                                data-descripcion="Clappr">
+                            <label class="btn btn-outline-indigo rounded-4 w-100"
+                                for="reproductor-m3u8-clappr">Clappr</label>
+                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8"
+                                id="reproductor-m3u8-oplayer" value="oplayer" autocomplete="off"
+                                data-descripcion="OPlayer">
+                            <label class="btn btn-outline-indigo rounded-4 w-100"
+                                for="reproductor-m3u8-oplayer">OPlayer</label>
                         </div>
                         <div class="fs-smaller text-secondary mt-1">
                             Actual: <span id="span-valor-reproductor-m3u8"></span>
@@ -1890,6 +1961,7 @@
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <p class="mb-1">Compartir</p>
+
                         <button type="button" class='btn btn-light-subtle w-100' id="boton-compartir">
                             <i class="pe-1 bi bi-share-fill"></i> Compartir
                         </button>
@@ -1961,6 +2033,22 @@
                     </div>
                 </li>
                 <li class="w-100">
+                    <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
+                        <p class="mb-1">Compartir configuración actual</p>
+                        <p class="fs-smaller text-secondary mb-2">
+                            Genera un enlace que intenta restaurar tu selección actual de canales activos.
+                        </p>
+                        <div class="input-group">
+                            <input class="form-control fs-small" type="text"
+                                value="https://alplox.github.io/teles/#setup" aria-label="enlace configuración canales"
+                                readonly id="input-enlace-compartir-setup">
+                            <button type="button" class="btn btn-outline-indigo"
+                                id="boton-copiar-enlace-compartir-setup">Copiar setup <i
+                                    class="bi bi-clipboard"></i></button>
+                        </div>
+                    </div>
+                </li>
+                <li class="w-100">
                     <div
                         class="bg-dark-subtle rounded-4 w-100 py-2 px-3 border border-light-subtle shadow d-flex flex-column">
                         <p>Información</p>
@@ -1973,8 +2061,58 @@
                             <i class="bi bi-github rounded-3 p-1 me-1"></i><a href="https://github.com/Alplox/teles"
                                 rel="nofollow noreferrer">Repositorio <i class="bi bi-box-arrow-up-right"></i></a>
                         </p>
-                        </a>
                     </div>
+                </li>
+                <li class="w-100">
+                    <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
+                        <label class="form-label mb-2" for="input-url-lista-personalizada">
+                            <i class="bi bi-link-45deg"></i> Añadir lista personalizada (.m3u)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-globe"></i></span>
+                            <input type="url" class="form-control" id="input-url-lista-personalizada"
+                                placeholder="https://ejemplo.com/lista.m3u" spellcheck="false" autocomplete="off">
+                            <button type="button" class="btn btn-warning" id="boton-cargar-lista-personalizada">
+                                Cargar lista
+                            </button>
+                        </div>
+                        <div class="form-check form-switch mt-3 d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox"
+                                id="checkbox-combinar-listas-personalizadas">
+                            <label class="form-check-label d-flex flex-column"
+                                for="checkbox-combinar-listas-personalizadas">
+                                <span class="fw-semibold">Combinar canales similares</span>
+                                <small class="text-secondary" id="span-valor-combinar-listas-personalizadas">Combinar
+                                    coincidencias</small>
+                            </label>
+                        </div>
+
+                        <p class="fs-smaller text-secondary mb-0 mt-2">
+                            Los canales se añadirán al final del listado actual sin borrar los predeterminados. La
+                            respuesta dependerá del origen de la lista (puede fallar por CORS).
+                        </p>
+                        <div class="mt-3">
+                            <label class="form-label mb-2" for="textarea-lista-personalizada">
+                                <i class="bi bi-clipboard-plus"></i> Pegar lista manual (.m3u)
+                            </label>
+                            <textarea class="form-control" id="textarea-lista-personalizada" rows="4"
+                                placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-id=..." spellcheck="false"></textarea>
+                            <div class="d-flex flex-column flex-md-row gap-2 mt-2">
+                                <small class="text-secondary flex-grow-1">
+                                    Pega el contenido completo del archivo. Se aplicará la misma preferencia de
+                                    combinación de canales.
+                                </small>
+                                <button type="button" class="btn btn-primary ms-md-auto"
+                                    id="boton-pegar-lista-personalizada">
+                                    Cargar desde texto
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3" id="contenedor-listas-personalizadas">
+                            <p class="text-secondary fs-smaller mb-0">No hay listas guardadas aún.</p>
+                        </div>
+                    </div>
+
                 </li>
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
@@ -1993,28 +2131,16 @@
                     </div>
                 </li>
                 <li class="w-100">
-                    <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                    <div class="w-100 d-flex bg-dark-subtle rounded-pill py-2 px-3 border border-light-subtle shadow">
                         <button type="button"
-                            class="btn btn-sm btn-warning rounded-pill w-100 d-flex justify-content-between align-items-center text-start"
-                            id="boton-experimental">
-                            <span class="flex-grow-1">Activar modo experimental canales IPTV</span><i
+                            class="btn btn-danger rounded-pill btn-sm w-100 d-flex justify-content-between align-items-center text-start"
+                            data-bs-toggle="modal" data-bs-target="#modal-reset"><span class="flex-grow-1">Reiniciar
+                                personalizaciones</span><i
                                 class="bi bi-question-circle ms-auto bg-light-subtle text-body rounded-circle px-1"
-                                data-bs-toggle="tooltip" data-bs-title="
-                            Este botón carga lista IPTV en conjunto a los canales predeterminados.
-                            El funcionamiento de estos, tanto como sus enlaces a los sitios oficiales no se garantiza. 
-                            Esta carga debe ser siempre activada manualmente."></i>
+                                data-bs-toggle="tooltip"
+                                data-bs-title="Este botón sirve para limpiar datos del sitio. Se te pedirá confirmar este paso."></i>
                         </button>
                     </div>
-                </li>
-                <li class="w-100 d-flex bg-dark-subtle rounded-pill py-2 px-3 border border-light-subtle shadow">
-                    <button type="button"
-                        class="btn btn-danger rounded-pill btn-sm w-100 d-flex justify-content-between align-items-center text-start"
-                        data-bs-toggle="modal" data-bs-target="#modal-reset"><span class="flex-grow-1">Reiniciar
-                            personalizaciones</span><i
-                            class="bi bi-question-circle ms-auto bg-light-subtle text-body rounded-circle px-1"
-                            data-bs-toggle="tooltip"
-                            data-bs-title="Este botón sirve para limpiar datos del sitio. Se te pedirá confirmar este paso."></i>
-                    </button>
                 </li>
             </ul>
         </div>
@@ -2060,8 +2186,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
     <script src="assets/js/main.js" type="module"></script>
     <script src="assets/js/botones.js" type="module"></script>
