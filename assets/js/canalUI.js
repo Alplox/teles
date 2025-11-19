@@ -1,6 +1,7 @@
 // Funciones para crear overlays y fragmentos de canal
 import { listaCanales } from './canalesData.js';
-import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele } from './main.js';
+import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele, registrarCambioManualCanales } from './main.js';
+
 import {
     CODIGOS_PAISES,
     ICONOS_PARA_CATEGORIAS,
@@ -287,8 +288,8 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
         <hr>
         Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
-        return
+        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger');
+        return;
     }
 }
 
@@ -315,8 +316,24 @@ export function crearFragmentCanal(canalId) {
         }
 
         if (lsPreferenciasSeñalCanales[canalId]) {
-            señalUtilizar = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString()
-            valorIndexArraySeñal = Number(Object.values(lsPreferenciasSeñalCanales[canalId]))
+            const tipoPreferido = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString();
+            const indicePreferido = Number(Object.values(lsPreferenciasSeñalCanales[canalId]));
+            const valorPreferido = listaCanales?.[canalId]?.señales?.[tipoPreferido];
+
+            let preferenciaValida = false;
+            if (Array.isArray(valorPreferido)) {
+                preferenciaValida = valorPreferido[indicePreferido] !== undefined;
+            } else if (typeof valorPreferido === 'string') {
+                preferenciaValida = valorPreferido.trim() !== '';
+            }
+
+            if (preferenciaValida) {
+                señalUtilizar = tipoPreferido;
+                valorIndexArraySeñal = indicePreferido;
+            } else {
+                delete lsPreferenciasSeñalCanales[canalId];
+                localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+            }
         }
 
         const FRAGMENT_CANAL = document.createDocumentFragment();
@@ -358,6 +375,8 @@ export function cambiarSoloSeñalActiva(canalId) {
 
         if (typeof activarTooltipsBootstrap === 'function') activarTooltipsBootstrap();
         if (typeof hideTextoBotonesOverlay === 'function') hideTextoBotonesOverlay();
+        if (typeof registrarCambioManualCanales === 'function') registrarCambioManualCanales();
+
     } catch (error) {
         console.error(`Error al intentar cambiar señal para canal con id: ${canalId}. Error: ${error}`);
         mostrarToast(`
