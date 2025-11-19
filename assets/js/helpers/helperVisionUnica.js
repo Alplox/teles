@@ -136,13 +136,12 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
         BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-light-subtle', 'btn-indigo');
 
         const CANAL_ACTIVO_VISION_UNICA = CONTAINER_VISION_UNICA.querySelector('div[data-canal]');
-        let canalActivoVisionUnica = CANAL_ACTIVO_VISION_UNICA.dataset.canal;
+        let canalActivoVisionUnica = CANAL_ACTIVO_VISION_UNICA?.dataset.canal;
 
         // tele.remove() alternativa, para evitar que guarde string vacio en localStorage
         try {
-            if (!CANAL_ACTIVO_VISION_UNICA) {
+            if (!CANAL_ACTIVO_VISION_UNICA || !canalActivoVisionUnica) {
                 console.warn(`[teles] Se intentó eliminar canal "${canalActivoVisionUnica}" pero no se encontró ninguna transmisión activa. Se actualizará solo el estado visual.`);
-                ajustarClaseBotonCanal(canalActivoVisionUnica, false);
                 return;
             }
 
