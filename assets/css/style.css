@@ -1,5 +1,5 @@
 /* 
-    style v0.20
+    style v0.21
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -139,6 +139,7 @@
   background-image: -o-linear-gradient(45deg, #FD8829, #B98DFF);
   background-image: linear-gradient(45deg, #FD8829, #B98DFF);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -194,9 +195,11 @@
   z-index: 9999 !important;
 }
 
-.z-1054 {
-  z-index: 1054 !important; /* 1055 es para modales [var(--bs-modal-zindex: 1055)] */
+.z-1040 {
+  z-index: 1040 !important; /* 1055 es para modales [var(--bs-modal-zindex: 1055)] y 1045 para offcanvas */
 }
+
+
 
 /* Fondo alerta de no javascript */
 .bg-noscript {
@@ -305,19 +308,23 @@ a {
 /* modifica colores a checkbox y slider range de offcanvas personalizar */
 input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     background-color: var(--bs-indigo);
   }
 
   &::-ms-thumb {
     -webkit-appearance: none;
+    appearance: none;
     background-color: var(--bs-indigo);
   }
 
   &::-moz-range-thumb {
     -webkit-appearance: none;
+    appearance: none;
     background-color: var(--bs-indigo);
   }
 }
@@ -325,6 +332,7 @@ input[type=range] {
 .form-check-input[type=checkbox]:indeterminate,
 .form-check-input[type=checkbox]:checked {
   -webkit-appearance: none;
+  appearance: none;
   background-color: var(--bs-indigo);
   border-color: #4d0ca1;
 }
@@ -462,16 +470,25 @@ pwa-update {
   max-width: 100%;
 }
 
-.container-btn-group {
+.collapse-canales {
   display: -ms-grid;
   display: grid;
   gap: 0.375rem;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: start;
 }
+
+.container-btn-group {
+  display: -ms-grid;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, max-content));
+}
+
 #modal-collapse-btn-group .container-btn-group,
 #offcanvas-collapse-btn-group .container-btn-group,
 #modal-cambiar-canal-collapse-btn-group .container-btn-group {
-  max-height: 8rem;
+  max-height: 12rem;
   overflow: auto;
 }
 
@@ -496,6 +513,23 @@ pwa-update {
   filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg) brightness(112%) contrast(98%);
 }
 
+.mh-dropdown-filtros {
+  max-height: 12rem;
+  overflow: auto;
+}
+
+/* Filtros: evitar que los botones cambien de fila al variar el texto */
+.container-btn-group .btn-group.dropdown {
+  flex: 0 0 11rem;      /* ancho consistente */
+  min-width: 11rem;
+}
+
+.container-btn-group .btn-group.dropdown > .dropdown-toggle {
+  width: 100%;
+  justify-content: space-between;
+  white-space: nowrap;  /* evita saltos de línea dentro del botón */
+}
+
 /* MARK: @media */
 @media only screen and (max-width: 728px) {
   .vision-unica-grid {
@@ -512,13 +546,17 @@ pwa-update {
 
     &>*:nth-child(1) {
       -ms-grid-row: 2;
+      grid-row: 2;
       -ms-grid-column: 1;
+      grid-column: 1;
       order: 2;
     }
 
     &>*:nth-child(2) {
       -ms-grid-row: 1;
+      grid-row: 1;
       -ms-grid-column: 1;
+      grid-column: 1;
       order: 1;
     }
 
@@ -546,19 +584,22 @@ pwa-update {
 
     &>*:nth-child(1) {
       -ms-grid-row: 1;
+      grid-row: 1;
       -ms-grid-column: 1;
+      grid-column: 1;
       order: 1;
     }
 
     &>*:nth-child(2) {
       -ms-grid-row: 2;
+      grid-row: 2;
       -ms-grid-column: 1;
+      grid-column: 1;
       order: 2;
     }
   }
-
-
 }
+  
 
 /* MARK: Animaciones */
 /* Animacion boton ocultar modal bienvenida*/

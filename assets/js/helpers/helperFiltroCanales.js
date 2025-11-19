@@ -30,25 +30,32 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
         let filtroPorPaisActivo = 'all';
         let filtroPorCategoriaActiva = 'all';
 
-        const botonesFiltroPorPais = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-paises button`);
-        botonesFiltroPorPais.forEach(boton => {
-          if (boton.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
-            filtroPorPaisActivo = CODIGOS_PAISES[boton.dataset.country] ?? boton.dataset.country;
+        const elementosFiltroPais = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-paises [data-country]`);
+        elementosFiltroPais.forEach(elemento => {
+          if (elemento.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
+            const valorDataset = elemento.dataset.country ?? 'all';
+            filtroPorPaisActivo = CODIGOS_PAISES[valorDataset] ?? valorDataset;
           }
         });
 
-        const botonesFiltroPorCategoria = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-categorias button`);
-        botonesFiltroPorCategoria.forEach(boton => {
-          if (boton.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
-            filtroPorCategoriaActiva = boton.dataset.category ?? 'all';
+        const elementosFiltroCategoria = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-categorias [data-category]`);
+        elementosFiltroCategoria.forEach(elemento => {
+          if (elemento.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
+            filtroPorCategoriaActiva = elemento.dataset.category ?? 'all';
           }
         });
+
+        const visibilidadGrupos = new Map();
 
         BOTONES_CANALES.forEach(boton => {
           if (!boton) return;
           const contenidoBotonNormalizado = normalizarInput(`${boton.dataset.country} - ${boton.textContent}`);
           const categoriaCanal = (boton.dataset.category ?? 'undefined').toLowerCase();
           const coincideTexto = contenidoBotonNormalizado.includes(INPUT_NORMALIZADO);
+          const contenedorGrupo = boton.closest('.grupo-canales-origen');
+          if (contenedorGrupo && !visibilidadGrupos.has(contenedorGrupo)) {
+            visibilidadGrupos.set(contenedorGrupo, false);
+          }
 
           const pasaFiltroPais =
             filtroPorPaisActivo === 'all' || boton.dataset.country === filtroPorPaisActivo;
@@ -59,7 +66,17 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
           const mostrar = coincideTexto && pasaFiltroPais && pasaFiltroCategoria;
 
           boton.classList.toggle('d-none', !mostrar);
-          if (mostrar) booleanCoincidencia = true;
+          if (mostrar) {
+            booleanCoincidencia = true;
+            if (contenedorGrupo) {
+              visibilidadGrupos.set(contenedorGrupo, true);
+            }
+          }
+        });
+
+        visibilidadGrupos.forEach((tieneCoincidencias, grupo) => {
+          if (!grupo) return;
+          grupo.classList.toggle('d-none', !tieneCoincidencias);
         });
 
         const alerta = document.querySelector(`#${PREFIJO}-mensaje-alerta`);

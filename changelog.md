@@ -6,21 +6,23 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [v0.21]
 
+### Added
+
+- Incorpora soporte para listas .m3u mediante su URL.
+- Campo para pegar listas .m3u manualmente cuando no se puede acceder/cargar su versión URL.
+- Posibilidad de compartir enlaces que incluyen la selección actual de canales activos mediante el parámetro `c` en la URL. (No testeado a la hora de publicación)
+- Contenedores de botones de canales agrupados por origen. Son secciones colapsables en el modal y el offcanvas de selección de canales, para facilitar la navegación.
+- Filtro por categoría de canal en modal, offcanvas, visión única y modal "Cambiar canal", combinable con país y texto.
+
 ### Changed
 
 - La restauración de listas personalizadas fijadas ahora recompone los botones y el listado de canales tras recargar para preservar los canales añadidos por el usuario.
 - Se redujo el peso del DOM de las listas de canales cargando bajo demanda las listas de "Visión única" y "Cambiar canal".
-- Se eliminaron fondos con `bg-blur` en modales/offcanvas de canales y panel de personalización para mejorar el rendimiento en scroll y clics.
 - Se migró el manejo de clics en botones de canales a delegación de eventos sobre los contenedores principales, reduciendo el número de listeners individuales.
 - Se simplificó el cálculo de ancho en las barras de overlay y se eliminó el enfoque automático en inputs de filtro para reducir trabajo de layout en interacciones frecuentes.
 - El filtro por país dejó de sobrescribir el texto del buscador y ahora se combina con la búsqueda por nombre y categoría.
-
-### Added
-
-- Campo para pegar listas .m3u manualmente cuando no se puede acceder a la URL.
-- Posibilidad de compartir enlaces que incluyen la selección actual de canales activos mediante el parámetro `c` en la URL.
-- Contenedores de botones de canales agrupados por origen ahora son secciones colapsables en el modal y el offcanvas de selección de canales, para facilitar la navegación.
-- Filtro por categoría de canal en modal, offcanvas, visión única y modal "Cambiar canal", combinable con país y texto.
+- La interfaz de filtros por país y categoría en modal, offcanvas, visión única y "Cambiar canal" se compactó en dos filas de chips horizontales siempre visibles para mejorar la experiencia en móviles.
+- Actualiza version bootstrap a v5.3.8
 
 ### Fixed
 
@@ -28,7 +30,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Inicializada la preferencia de combinar listas personalizadas al cargar la interfaz para eliminar errores `ReferenceError` y mantener sincronizados switch, texto auxiliar y localStorage.
 - La restauración automática vuelve a aplicar las listas personalizadas fijadas antes de recrear la interfaz para que los canales añadidos reaparezcan tras recargar.
 - Eliminar listas personalizadas ya no falla cuando los canales asociados no están activos; la limpieza ignora transmisiones inexistentes.
-- Corregida la redeclaración de `guardarBackupCanales` y llaves desbalanceadas en `canalesData.js` al integrar la lógica de listas personalizadas e IPTV.
+- Los filtros de País y Categoría se sincronizan automáticamente, deshabilitando opciones incompatibles para evitar combinaciones sin resultados.
+- El textarea de listas manuales impide pegar únicamente URLs o texto sin cabecera `#EXTM3U`, mostrando errores descriptivos antes de procesar la lista.
 
 ## [v0.20]
 

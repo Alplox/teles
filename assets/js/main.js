@@ -1,5 +1,5 @@
 /* 
-  main v0.20
+  main v0.21
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -7,7 +7,6 @@
 // MARK: import
 import {
     fetchCargarCanales,
-    fetchCargarCanalesIPTV,
     cargarListaPersonalizadaM3U,
     cargarListaPersonalizadaDesdeTexto,
     restaurarListasPersonalizadas,
@@ -38,7 +37,6 @@ import {
     iniciarRevisarConexion,
     mostrarToast,
     playAudioSinDelay,
-    quitarTodoCanalActivo,
     obtenerCanalesPredeterminados,
     guardarCanalesEnLocalStorage,
     ajustarClaseBotonCanal,
@@ -858,31 +856,6 @@ window.addEventListener('DOMContentLoaded', () => {
         return eliminados;
     }
 
-    if (BOTON_EXPERIMENTAL) {
-        BOTON_EXPERIMENTAL.addEventListener('click', async () => {
-            try {
-                if (localStorage.getItem('modo-experimental') !== 'activo') {
-                    BOTON_EXPERIMENTAL.querySelector('span').textContent = 'Cargando...';
-                    await fetchCargarCanalesIPTV();
-                    localStorage.setItem('modo-experimental', 'activo');
-                    limpiarContenedoresListadosCanales({ resaltarExperimental: true });
-                    quitarTodoCanalActivo();
-                    crearBotonesParaCanales();
-                    crearBotonesPaises();
-                    crearBotonesCategorias();
-
-                    mostrarToast('Modo experimental activado. Se han combinado listas de canales y sus señales m3u8.', 'warning');
-                } else {
-                    playAudioSinDelay(AUDIO_FAIL);
-                    mostrarToast('Ya estas en modo experimental. Revisa los canales que se cargaron. Para regresar al modo normal recarga la página. <br> <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>', 'info');
-                }
-            } catch (error) {
-                BOTON_EXPERIMENTAL.querySelector('span').textContent = 'Activar modo experimental canales IPTV';
-                console.error('Error al activar modo experimental:', error);
-            }
-        });
-    }
-
     if (BOTON_CARGAR_LISTA_PERSONALIZADA && INPUT_URL_LISTA_PERSONALIZADA) {
         const textoOriginalBoton = BOTON_CARGAR_LISTA_PERSONALIZADA.innerHTML;
         const toggleEstadoBoton = (cargando) => {
@@ -918,6 +891,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 crearBotonesParaCanales();
                 crearBotonesPaises();
                 crearBotonesCategorias();
+                activarTooltipsBootstrap();
 
                 renderizarListasPersonalizadasUI();
                 mostrarToast('Lista personalizada cargada correctamente. Los nuevos canales se añadieron al final.', 'success');
@@ -970,4 +944,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    ajustarVisibilidadBotonesQuitarTodaSeñal()
 });

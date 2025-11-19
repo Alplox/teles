@@ -1,5 +1,5 @@
-import { URL_JSON_CANALES_PRINCIPAL, URL_M3U_CANALES_IPTV } from "./constants/index.js";
-import { sonNombresSimilares, M3U_A_JSON } from "./helpers/index.js";
+import { URL_JSON_CANALES_PRINCIPAL } from "./constants/configGlobal.js";
+import { sonNombresSimilares, M3U_A_JSON, validarTextoM3U } from "./helpers/index.js";
 
 // Gestión de backup y fetch de canales
 export const ARRAY_CANALES_PREDETERMINADOS = ['24-horas', 'meganoticias', 't13'];
@@ -13,7 +13,7 @@ const LS_KEY_LISTAS_PERSONALIZADAS = 'listas-personalizadas-m3u';
 export const LS_KEY_COMBINAR_CANALES = 'combinar-canales-personalizados';
 const DEFAULT_COMBINAR_CANALES = true;
 
-export const ORIGEN_PREDETERMINADO = 'Canales predeterminados';
+export const ORIGEN_PREDETERMINADO = 'Canales predeterminados (github.com/Alplox/json-teles)';
 
 export function esBackupValido() {
     const fechaStr = localStorage.getItem(LS_KEY_CANALES_FECHA);
@@ -72,6 +72,13 @@ function asignarOrigenBase() {
         if (!canal.origenLista) {
             canal.origenLista = ORIGEN_PREDETERMINADO;
         }
+        if (!canal.origenListaOriginal) {
+            canal.origenListaOriginal = canal.origenLista;
+        }
+        if (!Array.isArray(canal.fuentesCombinadas) || canal.fuentesCombinadas.length === 0) {
+            canal.fuentesCombinadas = [canal.origenListaOriginal];
+        }
+        canal.esSeñalCombinada = Array.isArray(canal.fuentesCombinadas) && canal.fuentesCombinadas.length > 1;
     }
 }
 
@@ -127,12 +134,22 @@ function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', 
                 .filter(url => url && !m3u8Actuales.includes(url));
             existingChannel.señales.m3u8_url.push(...nuevasUrls);
 
-            if (!existingChannel.origenLista) {
-                existingChannel.origenLista = origen;
-            }
+            const origenBase = existingChannel.origenListaOriginal ?? existingChannel.origenLista ?? ORIGEN_PREDETERMINADO;
+            existingChannel.origenListaOriginal = origenBase;
+            existingChannel.origenLista = origenBase;
+
             if (fuente && !existingChannel.fuenteLista) {
                 existingChannel.fuenteLista = fuente;
             }
+
+            const fuentesPrevias = Array.isArray(existingChannel.fuentesCombinadas) && existingChannel.fuentesCombinadas.length > 0
+                ? existingChannel.fuentesCombinadas
+                : [origenBase];
+            if (origen && !fuentesPrevias.includes(origen)) {
+                fuentesPrevias.push(origen);
+            }
+            existingChannel.fuentesCombinadas = fuentesPrevias;
+            existingChannel.esSeñalCombinada = existingChannel.fuentesCombinadas.length > 1;
 
             console.info('[teles][m3u] Canal existente actualizado', {
                 origen,
@@ -144,7 +161,10 @@ function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', 
             });
         } else {
             datosNuevos.origenLista = origen;
+            datosNuevos.origenListaOriginal = origen;
             if (fuente) datosNuevos.fuenteLista = fuente;
+            datosNuevos.fuentesCombinadas = origen ? [origen] : [];
+            datosNuevos.esSeñalCombinada = false;
             const idResultado = obtenerIdCanalDisponible(nombreCanal, nombreParseM3u, origen);
             listaCanales[idResultado] = datosNuevos;
 
@@ -199,6 +219,11 @@ export async function cargarListaPersonalizadaM3U(url) {
 export async function cargarListaPersonalizadaDesdeTexto(contenido, opciones = {}) {
     if (!contenido || typeof contenido !== 'string') {
         throw new Error('Debes proporcionar el contenido de un archivo .m3u en texto');
+    }
+
+    const { esValido, errores } = validarTextoM3U(contenido);
+    if (!esValido) {
+        throw new Error(errores.join(' '));
     }
 
     const { etiqueta, clave } = opciones;

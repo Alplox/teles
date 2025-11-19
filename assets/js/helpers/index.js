@@ -25,6 +25,8 @@ export * from './helperOrdenGridVisionUnica.js';
 export * from './helperPlayAudio.js';
 export * from './helperQuitarTodo.js';
 export * from './helperReemplazarCanalActivo.js';
+export * from './helperRelacionesFiltros.js';
 export * from './helperSeñalVacia.js';
+export * from './helperSincronizarFiltros.js';
 export * from './helperTema.js';
 export * from './helperVisionUnica.js';

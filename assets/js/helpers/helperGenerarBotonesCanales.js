@@ -63,6 +63,13 @@ export function crearBotonesParaModalCambiarCanal() {
     }
 }
 
+/* 
+document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(boton => {
+            boton.addEventListener('click', () => reemplazarCanalActivo(boton.dataset.canal, LABEL_MODAL_CAMBIAR_CANAL.getAttribute('id-canal-cambio')));
+        });
+        
+        */
+
 /**
  * Renderiza los botones de canales en el contenedor de selección de Visión Única bajo demanda.
  * @returns {void}
@@ -133,13 +140,13 @@ function construirFragmentoCanales(grupos, { idBase = 'grupo-canales' } = {}) {
         header.setAttribute('aria-expanded', 'true');
         header.setAttribute('aria-controls', collapseId);
         header.innerHTML = `
-            <span class="badge rounded-pill text-bg-secondary">${origen}</span>
+            <p class="badge rounded-pill text-bg-secondary text-wrap mb-0 w-100">${origen}</p>
             <small class="text-secondary">${canales.length} canales</small>
-            <i class="bi bi-chevron-up ms-auto"></i>
+            <i class="bi bi-chevron-up ms-auto icono-estado-colapso"></i>
         `;
 
         const lista = document.createElement('div');
-        lista.classList.add('d-flex', 'flex-column', 'gap-2');
+        lista.classList.add('modal-body-canales');
         canales.forEach(({ id, data }) => {
             lista.append(crearBotonCanal(id, data));
         });
@@ -149,9 +156,20 @@ function construirFragmentoCanales(grupos, { idBase = 'grupo-canales' } = {}) {
         contenidoColapsable.append(lista);
 
         const collapse = document.createElement('div');
-        collapse.classList.add('collapse', 'show');
+        collapse.classList.add(/* 'collapse' */ 'modal-body-canales', 'show');
         collapse.id = collapseId;
         collapse.append(contenidoColapsable);
+
+        const iconoEstado = header.querySelector('.icono-estado-colapso');
+        const actualizarIcono = (estaAbierto) => {
+            if (!iconoEstado) return;
+            iconoEstado.classList.toggle('bi-chevron-up', estaAbierto);
+            iconoEstado.classList.toggle('bi-chevron-down', !estaAbierto);
+        };
+
+        collapse.addEventListener('show.bs.collapse', () => actualizarIcono(true));
+        collapse.addEventListener('hide.bs.collapse', () => actualizarIcono(false));
+        actualizarIcono(true);
 
         wrapper.append(header, collapse);
 
@@ -171,11 +189,21 @@ function crearBotonCanal(canalId, canalData) {
     const iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
 
     const nombrePais = país && CODIGOS_PAISES[país.toLowerCase()] ? CODIGOS_PAISES[país.toLowerCase()] : 'Desconocido';
+    const fuentesCombinadas = Array.isArray(canalData?.fuentesCombinadas) ? canalData.fuentesCombinadas.filter(Boolean) : [];
+    const esSeñalCombinada = canalData?.esSeñalCombinada === true && fuentesCombinadas.length > 1;
+    const descripcionFuentes = fuentesCombinadas.length > 0 ? fuentesCombinadas.join(', ') : 'fuentes múltiples';
+    const distintivoCombinado = esSeñalCombinada
+        ? `<span class="badge badge-señal-combinada" data-bs-toggle="tooltip" data-bs-title="Señales desde: ${descripcionFuentes}"><i class="bi bi-shuffle"></i> Mix</span>`
+        : '';
 
     const botonCanal = document.createElement('button');
     botonCanal.setAttribute('data-canal', canalId);
     botonCanal.setAttribute('data-country', `${nombrePais}`);
     botonCanal.setAttribute('data-category', categoría || 'undefined');
+    if (esSeñalCombinada) {
+        botonCanal.classList.add('canal-combinado');
+        botonCanal.dataset.fuentesCombinadas = descripcionFuentes;
+    }
 
     botonCanal.classList.add('btn', CLASE_CSS_BOTON_SECUNDARIO, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
     if (revisarSeñalesVacias(canalId)) botonCanal.classList.add('d-none');
@@ -186,7 +214,8 @@ function crearBotonCanal(canalId, canalData) {
                 ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">`
                 : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${nombrePais}]">${SVG_BANDERA_DESCONOCIDO}</span>`
         }
-        ${iconoCategoria ? `${iconoCategoria}` : ''}`;
+        ${iconoCategoria ? `${iconoCategoria}` : ''}
+        ${distintivoCombinado}`;
     return botonCanal;
 }
 
@@ -252,4 +281,9 @@ function asignarEventosBotones() {
             tele[accionBoton](botonCanalEnDOM.dataset.canal);
         });
     }
+
+    // Cerrar modal tras click
+    document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button[data-canal]').forEach(boton => {
+        boton.setAttribute('data-bs-dismiss', 'modal');
+    });
 }

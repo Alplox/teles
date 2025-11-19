@@ -21,8 +21,9 @@ Enlace: <https://alplox.github.io/teles/>
 
 [![](/assets/img/previews/shots_teles_v0-18_temas.webp)](https://alplox.github.io/teles/)
 [![](/assets/img/previews/shots_teles_v0-18_personalizar.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-18_offcanvas_canales.webp)](https://alplox.github.io/teles/)
+[![](/assets/img/previews/shots_teles_v0-21_offcanvas_canales.webp)](https://alplox.github.io/teles/)
 [![](/assets/img/previews/shots_teles_v0-18_dark_canales.webp)](https://alplox.github.io/teles/)
+[![](/assets/img/previews/shots_teles_v0-21_dark_listas-m3u.webp)](https://alplox.github.io/teles/)
 [![](/assets/img/previews/shots_teles_v0-18.webp)](https://alplox.github.io/teles/)
 
 # Canales disponibles junto a su origen
