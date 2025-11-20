@@ -1,6 +1,6 @@
 // Funciones para crear overlays y fragmentos de canal
 import { listaCanales } from './canalesData.js';
-import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele, registrarCambioManualCanales } from './main.js';
+import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele, registrarCambioManualCanales, limpiarRecursosTransmision } from './main.js';
 
 import {
     CODIGOS_PAISES,
@@ -8,7 +8,7 @@ import {
     AUDIO_POP,
     TWITCH_PARENT
 } from './constants/index.js';
-import { mostrarToast, playAudioSinDelay, hideTextoBotonesOverlay } from './helpers/index.js';
+import { mostrarToast, playAudioSinDelay, hideTextoBotonesOverlay, removerTooltipsBootstrap, activarTooltipsBootstrap } from './helpers/index.js';
 
 // Funciones de UI de canales extraídas de main.js
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
@@ -44,6 +44,9 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     } else {
         IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
     }
+
+    // Almacenamos la instancia del iframe para usarla en el futuro para limpiar recursos
+    DIV_ELEMENT._iframeElement = IFRAME_ELEMENT;
     DIV_ELEMENT.append(IFRAME_ELEMENT);
     return DIV_ELEMENT;
 }
@@ -70,13 +73,15 @@ export function crearVideoJs(canalId, urlCarga) {
                     width: '100%',
                     height: '100%'
                 });
-                // Almacenamos la instancia del reproductor para usarla en el futuro
-                playerContainer._clapprPlayer = clapprPlayer;
+                // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
+                DIV_ELEMENT._clapprPlayer = clapprPlayer;
             } catch (error) {
                 console.error(`Error al inicializar Clappr para canal con id: ${canalId}. Error: ${error}`);
                 mostrarToast(`Error al inicializar Clappr para canal ${canalId}. Se usará Video.js.`, 'danger');
             }
         }, 0);
+
+      
         return DIV_ELEMENT;
     }
     if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
@@ -113,12 +118,15 @@ export function crearVideoJs(canalId, urlCarga) {
                     instancia = instancia.use([OUI()]);
                 }
                 instancia.create();
+                // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
+                DIV_ELEMENT._oplayerPlayer = instancia;
             } catch (error) {
                 console.error(`Error al inicializar OPlayer para canal con id: ${canalId}. Error: ${error}`);
                 mostrarToast(`Error al inicializar OPlayer para canal ${canalId}. Se usará Video.js.`, 'danger');
             }
         }, 0);
 
+       
         return DIV_ELEMENT;
     }
     const DIV_ELEMENT = document.createElement('div');
@@ -133,7 +141,10 @@ export function crearVideoJs(canalId, urlCarga) {
         videojs(videoElement).src({
             src: urlCarga,
         });
-        videojs(videoElement).autoplay('muted');
+        videojs(videoElement).autoplay(true);
+        videojs(videoElement).muted(true);
+        // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
+        DIV_ELEMENT._videojsPlayer = videojs(videoElement);
     } catch (error) {
         console.error(`Error al inicializar Video.js para canal con id: ${canalId}. Error: ${error}`);
         mostrarToast(`Error al inicializar Video.js para canal ${canalId}. Se usará el siguiente canal.`, 'danger');
@@ -367,6 +378,10 @@ export function cambiarSoloSeñalActiva(canalId) {
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
         let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
+
+        removerTooltipsBootstrap();
+
+        limpiarRecursosTransmision(divPadreACambiar);
 
         divExistenteACambiar.remove();
         barraOverlayDeCanalACambiar.remove();

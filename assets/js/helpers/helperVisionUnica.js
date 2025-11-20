@@ -17,6 +17,7 @@ import {
     aplicarEstadoUrlDinamica,
     limpiarParametroCompartidoEnUrl,
     registrarCambioManualCanales,
+    limpiarRecursosTransmision
 } from "../main.js";
 
 import {
@@ -137,38 +138,14 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
 
         const CANAL_ACTIVO_VISION_UNICA = CONTAINER_VISION_UNICA.querySelector('div[data-canal]');
         let canalActivoVisionUnica = CANAL_ACTIVO_VISION_UNICA?.dataset.canal;
-
+        
         // tele.remove() alternativa, para evitar que guarde string vacio en localStorage
         try {
-            if (!CANAL_ACTIVO_VISION_UNICA || !canalActivoVisionUnica) {
-                console.warn(`[teles] Se intentó eliminar canal "${canalActivoVisionUnica}" pero no se encontró ninguna transmisión activa. Se actualizará solo el estado visual.`);
-                return;
+            if (CANAL_ACTIVO_VISION_UNICA !== null) {
+                limpiarRecursosTransmision(CANAL_ACTIVO_VISION_UNICA);
+                removerTooltipsBootstrap();
+                CANAL_ACTIVO_VISION_UNICA.remove();
             }
-
-            // Buscar el elemento <video> dentro del contenedor específico del canal.
-            // Esto es necesario para obtener la instancia de Video.js y poder destruirla correctamente antes de eliminar el DOM.
-            // Evita que queden referencias vivas en memoria o que el reproductor siga ejecutando peticiones de red tras su remoción.
-            let videoElement = CANAL_ACTIVO_VISION_UNICA.querySelector('video');
-            if (videoElement && videoElement.classList.contains('video-js')) {
-                let player = videojs(videoElement);
-                if (player) {
-                    console.log(`Disposing player for canal "${canalActivoVisionUnica}"...`);
-                    player.dispose();
-                }
-            }
-
-            const clapprContainer = CANAL_ACTIVO_VISION_UNICA.querySelector('[contenedor-canal-cambio]');
-            if (clapprContainer && clapprContainer._clapprPlayer && typeof clapprContainer._clapprPlayer.destroy === 'function') {
-                try {
-                    console.log(`Destroying Clappr player for canal "${canalActivoVisionUnica}"...`);
-                    clapprContainer._clapprPlayer.destroy();
-                } catch (errorClappr) {
-                    console.error(`Error al destruir Clappr para canal "${canalActivoVisionUnica}":`, errorClappr);
-                }
-            }
-
-            removerTooltipsBootstrap();
-            CANAL_ACTIVO_VISION_UNICA.remove();
 
             ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
 

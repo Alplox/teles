@@ -78,6 +78,55 @@ const debounce = (fn, delay = 150) => {
 
 const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
 
+/**
+ * Libera instancias de reproductores antes de eliminar el contenedor del DOM.
+ * @param {HTMLElement|null} contenedorTransmision Elemento <div data-canal> que aloja la transmisión.
+ * @returns {void}
+ */
+export const limpiarRecursosTransmision = (contenedorTransmision) => {
+    if (!contenedorTransmision) return;
+
+    const contenedorCambio = contenedorTransmision.querySelector('div[data-canal-cambio]');
+    const canal = contenedorTransmision?.dataset?.canal;
+
+    if (contenedorCambio?._videojsPlayer && typeof contenedorCambio._videojsPlayer.dispose === 'function') {
+        try {
+            const player = contenedorCambio._videojsPlayer;
+            if (player && typeof player.dispose === 'function') {
+                player.dispose();
+            }
+        } catch (errorVideojs) {
+            console.error(`Error al destruir Video.js para canal "${canal}":`, errorVideojs);
+        }
+    }
+
+    if (contenedorCambio?._clapprPlayer && typeof contenedorCambio._clapprPlayer.destroy === 'function') {
+        try {
+            contenedorCambio._clapprPlayer.destroy();
+        } catch (errorClappr) {
+            console.error(`Error al destruir Clappr para canal "${canal}":`, errorClappr);
+        }
+    }
+
+    if (contenedorCambio?._oplayerPlayer && typeof contenedorCambio._oplayerPlayer.destroy === 'function') {
+        try {
+            contenedorCambio._oplayerPlayer.destroy();
+        } catch (errorOplayer) {
+            console.error(`Error al destruir OPlayer para canal "${canal}":`, errorOplayer);
+        }
+    }
+
+    if (contenedorCambio?._iframeElement && typeof contenedorCambio._iframeElement.remove === 'function') {
+        try {
+            contenedorCambio._iframeElement.src = 'about:blank';
+            contenedorCambio._iframeElement.removeAttribute('srcdoc');
+            contenedorCambio._iframeElement.remove();
+        } catch (error) {
+            console.error(`Error al destruir iframe para canal "${canal}":`, error);
+        }
+    }
+};
+
 // MARK: querySelector Globales
 const MAIN_NAVBAR = document.querySelector('#navbar');
 export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
@@ -91,7 +140,6 @@ export const BOTON_ACTIVAR_VISION_GRID = document.querySelector('#boton-activar-
 export const MODAL_CAMBIAR_CANAL = document.querySelector('#modal-cambiar-canal');
 export const LABEL_MODAL_CAMBIAR_CANAL = document.querySelector('#label-para-nombre-canal-cambiar');
 
-const BOTON_EXPERIMENTAL = document.querySelector('#boton-experimental');
 const BOTON_CARGAR_LISTA_PERSONALIZADA = document.querySelector('#boton-cargar-lista-personalizada');
 const INPUT_URL_LISTA_PERSONALIZADA = document.querySelector('#input-url-lista-personalizada');
 const TEXTAREA_LISTA_PERSONALIZADA = document.querySelector('#textarea-lista-personalizada');
@@ -445,33 +493,15 @@ export let tele = {
                 return;
             }
 
-            // Buscar el elemento <video> dentro del contenedor específico del canal.
-            // Esto es necesario para obtener la instancia de Video.js y poder destruirla correctamente antes de eliminar el DOM.
-            // Evita que queden referencias vivas en memoria o que el reproductor siga ejecutando peticiones de red tras su remoción.
-            let videoElement = transmisionPorRemover.querySelector('video');
-            if (videoElement && videoElement.classList.contains('video-js')) {
-                let player = videojs(videoElement);
-                if (player) {
-                    console.log(`Disposing player for canal "${canal}"...`);
-                    player.dispose();
-                }
-            }
-
-            const clapprContainer = transmisionPorRemover.querySelector('[contenedor-canal-cambio]');
-            if (clapprContainer && clapprContainer._clapprPlayer && typeof clapprContainer._clapprPlayer.destroy === 'function') {
-                try {
-                    console.log(`Destroying Clappr player for canal "${canal}"...`);
-                    clapprContainer._clapprPlayer.destroy();
-                } catch (errorClappr) {
-                    console.error(`Error al destruir Clappr para canal "${canal}":`, errorClappr);
-                }
-            }
-
+            // Limpiar recursos antes de eliminar el contenedor; iframe, videojs, clappr, oplayer
+            limpiarRecursosTransmision(transmisionPorRemover);
+            // Remover tooltips; botones flotantes overlay
             removerTooltipsBootstrap();
+            // Eliminar el contenedor del DOM
             transmisionPorRemover.remove();
 
             const esVisionUnica = CONTAINER_VIDEO_VISION_UNICA && CONTAINER_VIDEO_VISION_UNICA.contains(transmisionPorRemover);
-
+            // Si es visión única, mostrar el icono de sin señal activa
             if (esVisionUnica || localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
                 ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
             } else {

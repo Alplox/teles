@@ -23,6 +23,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - El filtro por país dejó de sobrescribir el texto del buscador y ahora se combina con la búsqueda por nombre y categoría.
 - La interfaz de filtros por país y categoría en modal, offcanvas, visión única y "Cambiar canal" se compactó en dos filas de chips horizontales siempre visibles para mejorar la experiencia en móviles.
 - Actualiza version bootstrap a v5.3.8
+- Se extrajo una función reutilizable para limpiar instancias de reproductores (Video.js, Clappr, OPlayer e iframes) antes de eliminar un canal del DOM, evitando fugas de memoria.
 
 ### Fixed
 
@@ -32,6 +33,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Eliminar listas personalizadas ya no falla cuando los canales asociados no están activos; la limpieza ignora transmisiones inexistentes.
 - Los filtros de País y Categoría se sincronizan automáticamente, deshabilitando opciones incompatibles para evitar combinaciones sin resultados.
 - El textarea de listas manuales impide pegar únicamente URLs o texto sin cabecera `#EXTM3U`, mostrando errores descriptivos antes de procesar la lista.
+- Al quitar un canal se limpian los iframes embebidos antes de remover el DOM, evitando que queden peticiones HLS activas.
 
 ## [v0.20]
 
