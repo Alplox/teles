@@ -12,7 +12,19 @@ export function hideTextoBotonesOverlay() {
 
     const overlayWidth = Math.floor(overlay.clientWidth);
     const contenidoWidth = Math.floor(overlay.scrollWidth);
-    const ocultar = contenidoWidth >= overlayWidth;
+    const overlayHeight = Math.floor(overlay.clientHeight);
+    const margenSeguridadPx = 2; // evita falsos positivos cuando ambas medidas son casi iguales
+    const desbordeHorizontal = (contenidoWidth - overlayWidth) > margenSeguridadPx;
+    const margenWrapPx = 8; // tolerancia para paddings/gaps antes de considerar wrap
+
+    // Detecta cuando la barra ocupa más de una línea (hace wrap) comparando su altura vs la altura de un botón
+    const primerElementoInteractivo = overlay.querySelector('button, a, div');
+    const alturaElementoBase = primerElementoInteractivo
+      ? Math.floor(primerElementoInteractivo.getBoundingClientRect().height)
+      : overlayHeight;
+    const wrapActivo = (overlayHeight - alturaElementoBase) > margenWrapPx;
+
+    const ocultar = desbordeHorizontal || wrapActivo;
 
     TEXTO_BOTONES_DENTRO_BARRA_OVERLAY.forEach(span => {
       if (!span) return;

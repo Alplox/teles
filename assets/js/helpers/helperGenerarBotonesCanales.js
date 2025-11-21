@@ -132,7 +132,7 @@ function construirFragmentoCanales(grupos, { idBase = 'grupo-canales' } = {}) {
         const collapseId = `${idBase}-origen-${index}`;
 
         const header = document.createElement('div');
-        header.classList.add('d-flex', 'align-items-center', 'gap-2', 'flex-wrap');
+        header.classList.add('d-flex', 'align-items-center', 'gap-1', 'flex-wrap');
 
         header.setAttribute('data-bs-toggle', 'collapse');
         header.setAttribute('data-bs-target', `#${collapseId}`);

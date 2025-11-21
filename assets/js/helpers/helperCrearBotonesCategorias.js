@@ -77,6 +77,7 @@ export function crearBotonesCategorias() {
             botonToggle.dataset.bsToggle = "dropdown";
             botonToggle.setAttribute("aria-expanded", "false");
             botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría: Todas`;
+          /* botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría`; */
 
             const actualizarEstadoToggle = (tieneFiltroActivo) => {
                 if (tieneFiltroActivo) {
@@ -112,11 +113,13 @@ export function crearBotonesCategorias() {
                     label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
                     label.classList.remove("btn-outline-secondary");
                     botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría: Todas`;
+                   /*  botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría`; */
                     actualizarEstadoToggle(false);
                 } else {
                     label.classList.replace("btn-outline-secondary", CLASE_CSS_BOTON_PRIMARIO);
                     const nombreSeleccionado = label.querySelector(".flex-grow-1")?.textContent?.trim() || "Categoría";
                     botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría: ${nombreSeleccionado}`;
+                   /*  botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> ${nombreSeleccionado}`; */
                     actualizarEstadoToggle(true);
                 }
             };

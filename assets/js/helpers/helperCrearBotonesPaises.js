@@ -74,6 +74,7 @@ export function crearBotonesPaises() {
             botonToggle.dataset.bsToggle = 'dropdown';
             botonToggle.setAttribute('aria-expanded', 'false');
             botonToggle.innerHTML = '<i class="bi bi-flag"></i> País: Todos los países';
+            /* botonToggle.innerHTML = '<i class="bi bi-flag"></i> País'; */
 
             const actualizarEstadoToggle = (tieneFiltroActivo) => {
                 if (tieneFiltroActivo) {
@@ -109,11 +110,13 @@ export function crearBotonesPaises() {
                     label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
                     label.classList.remove('btn-outline-secondary');
                     botonToggle.innerHTML = '<i class="bi bi-flag"></i> País: Todos los países';
+                    /* botonToggle.innerHTML = '<i class="bi bi-flag"></i> País'; */
                     actualizarEstadoToggle(false);
                 } else {
                     label.classList.replace('btn-outline-secondary', CLASE_CSS_BOTON_PRIMARIO);
                     const nombreSeleccionado = label.querySelector('.flex-grow-1')?.textContent?.trim() || 'País';
                     botonToggle.innerHTML = `<i class="bi bi-flag"></i> País: ${nombreSeleccionado}`;
+                    /* botonToggle.innerHTML = `<i class="bi bi-flag"></i> ${nombreSeleccionado}`; */
                     actualizarEstadoToggle(true);
                 }
             };

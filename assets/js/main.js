@@ -952,7 +952,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const bloqueInfo = document.createElement('div');
         bloqueInfo.innerHTML = `
             <p class="fw-semibold mb-0">${etiqueta}</p>
-            <small class="text-secondary">${url}</small><br>
+            <small class="text-secondary text-break">${url}</small><br>
             <small class="text-secondary">Actualizado: ${formatearFecha(data.actualizado)}</small>
         `;
 
