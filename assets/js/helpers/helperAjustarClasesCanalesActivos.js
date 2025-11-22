@@ -1,5 +1,6 @@
-import { CLASE_CSS_BOTON_PRIMARIO } from "../constants/index.js";
-import { mostrarToast, obtenerNumeroCanalesFila } from "./index.js";
+import { CLASE_CSS_BOTON_PRIMARIO, LS_KEY_FULL_HEIGHT_MODE, LS_KEY_BOOTSTRAP_COL_NUMBER } from "../constants/index.js";
+import { mostrarToast } from "./index.js";
+import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
 
 import { 
     BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA,
@@ -17,20 +18,21 @@ export function ajustarNumeroDivisionesClaseCol() {
     try {
         if (typeof isMobile === 'undefined' || !CONTAINER_VISION_CUADRICULA) return;
         const transmisionesEnGrid = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
-        const lsTransmisionesFila = localStorage.getItem('numero-class-columnas-por-fila');
-        const uso100vh = localStorage.getItem('uso-100vh');
-        const claseCienViewHeight = uso100vh === 'activo' ? ['vh-100', 'overflow-hidden'] : [];
-        const containerVision = document.querySelector('#container-vision-cuadricula');
-        if (!containerVision) return;
-        if (uso100vh === 'activo') {
-            containerVision.classList.add('h-100');
-        } else {
-            containerVision.classList.remove('h-100');
-        }        
-        const numCanalesFila = obtenerNumeroCanalesFila();
+        const lsTransmisionesFila = JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER));
         if (!lsTransmisionesFila || isNaN(Number(lsTransmisionesFila))) return;
+        
+        const isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_FULL_HEIGHT_MODE));
+        const claseCienViewHeight = isFullHeightMode ? ['vh-100', 'overflow-hidden'] : [];
+        
+        if (isFullHeightMode) {
+            CONTAINER_VISION_CUADRICULA.classList.add('h-100');
+        } else {
+            CONTAINER_VISION_CUADRICULA.classList.remove('h-100');
+        }        
+        const numCanalesFila = obtainNumberOfChannelsPerRow();
+        
         if (!isMobile.any) {
-            if (transmisionesEnGrid.length < numCanalesFila && uso100vh !== 'activo') {
+            if (transmisionesEnGrid.length < numCanalesFila && !isFullHeightMode) {
                 for (let transmisionActiva of transmisionesEnGrid) {
                     AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`]);
                 }
@@ -41,7 +43,7 @@ export function ajustarNumeroDivisionesClaseCol() {
             } else {
                 for (let transmisionActiva of transmisionesEnGrid) {
                     AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`]);
-                    if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add(...claseCienViewHeight);
+                    if (lsTransmisionesFila === 12 || lsTransmisionesFila === 6) transmisionActiva.classList.add(...claseCienViewHeight);
                 }
             }
         } else if (screen.orientation && screen.orientation.type === 'landscape-primary') {
@@ -52,7 +54,7 @@ export function ajustarNumeroDivisionesClaseCol() {
             } else {
                 for (let transmisionActiva of transmisionesEnGrid) {
                     AsignarClaseColumna(transmisionActiva, [`col-${lsTransmisionesFila}`]);
-                    if (lsTransmisionesFila === '12' || lsTransmisionesFila === '6') transmisionActiva.classList.add(...claseCienViewHeight);
+                    if (lsTransmisionesFila === 12 || lsTransmisionesFila === 6) transmisionActiva.classList.add(...claseCienViewHeight);
                 }
             }
         } else {
@@ -81,12 +83,14 @@ export function ajustarNumeroDivisionesClaseCol() {
 }
 
 export function ajustarClaseColTransmisionesPorFila(columnaValue) {
+    if (!columnaValue || isNaN(Number(columnaValue))) return;
+
     const botonDejarActivo = document.querySelector(`#container-botones-personalizar-transmisiones-por-fila button[value='${columnaValue}']`);
     if (!botonDejarActivo) return;
     BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => {
         boton.classList.replace(CLASE_CSS_BOTON_PRIMARIO, 'btn-light-subtle');
     });
     botonDejarActivo.classList.replace('btn-light-subtle', CLASE_CSS_BOTON_PRIMARIO);
-    localStorage.setItem('numero-class-columnas-por-fila', columnaValue);
+    JSON.stringify(localStorage.setItem(LS_KEY_BOOTSTRAP_COL_NUMBER, columnaValue));
     ajustarNumeroDivisionesClaseCol();
 }

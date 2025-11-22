@@ -1,4 +1,5 @@
 import { URL_JSON_CANALES_PRINCIPAL } from "./constants/configGlobal.js";
+import { LS_KEY_CHANNELS_BACKUP, LS_KEY_CHANNELS_BACKUP_DATE, LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
 import { sonNombresSimilares, M3U_A_JSON, validarTextoM3U } from "./helpers/index.js";
 
 // Gestión de backup y fetch de canales
@@ -6,32 +7,29 @@ export const ARRAY_CANALES_PREDETERMINADOS = ['24-horas', 'meganoticias', 't13']
 export const ARRAY_CANALES_PREDETERMINADOS_EXTRAS = ['chv-noticias', 'cnn-cl', 'lofi-girl'];
 
 export let listaCanales;
-const LS_KEY_CANALES = 'backup-json-canales';
-const LS_KEY_CANALES_FECHA = 'backup-json-canales-fecha';
-const BACKUP_EXPIRACION_HORAS = 24;
-const LS_KEY_LISTAS_PERSONALIZADAS = 'listas-personalizadas-m3u';
-export const LS_KEY_COMBINAR_CANALES = 'combinar-canales-personalizados';
+
 const DEFAULT_COMBINAR_CANALES = true;
 
+export const BACKUP_EXPIRATION_HOURS = 24;
 export const ORIGEN_PREDETERMINADO = 'Canales predeterminados (github.com/Alplox/json-teles)';
 
 export function esBackupValido() {
-    const fechaStr = localStorage.getItem(LS_KEY_CANALES_FECHA);
+    const fechaStr = localStorage.getItem(LS_KEY_CHANNELS_BACKUP_DATE);
     if (!fechaStr) return false;
     const fecha = new Date(fechaStr);
     const ahora = new Date();
     const diffHoras = (ahora - fecha) / (1000 * 60 * 60);
-    return diffHoras < BACKUP_EXPIRACION_HORAS;
+    return diffHoras < BACKUP_EXPIRATION_HOURS;
 }
 
 export function guardarBackupCanales(json) {
-    localStorage.setItem(LS_KEY_CANALES, JSON.stringify(json));
-    localStorage.setItem(LS_KEY_CANALES_FECHA, new Date().toISOString());
+    localStorage.setItem(LS_KEY_CHANNELS_BACKUP, JSON.stringify(json));
+    localStorage.setItem(LS_KEY_CHANNELS_BACKUP_DATE, new Date().toISOString());
 }
 
 export function leerBackupCanales() {
     try {
-        return JSON.parse(localStorage.getItem(LS_KEY_CANALES));
+        return JSON.parse(localStorage.getItem(LS_KEY_CHANNELS_BACKUP));
     } catch {
         return null;
     }
@@ -278,7 +276,7 @@ function obtenerEtiquetaParaLista(url) {
 
 function leerListasPersonalizadas() {
     try {
-        const payload = localStorage.getItem(LS_KEY_LISTAS_PERSONALIZADAS);
+        const payload = localStorage.getItem(LS_KEY_PERSONALIZED_LISTS);
         if (!payload) return {};
         return JSON.parse(payload) ?? {};
     } catch {
@@ -294,7 +292,7 @@ function guardarListaPersonalizada(url, lista) {
         actualizado: new Date().toISOString(),
         pinned: lista.pinned ?? true
     };
-    localStorage.setItem(LS_KEY_LISTAS_PERSONALIZADAS, JSON.stringify(listas));
+    localStorage.setItem(LS_KEY_PERSONALIZED_LISTS, JSON.stringify(listas));
 }
 
 export function obtenerListasPersonalizadas() {
@@ -305,14 +303,14 @@ export function actualizarListaPersonalizada(url, cambios = {}) {
     const listas = leerListasPersonalizadas();
     if (!listas[url]) return;
     listas[url] = { ...listas[url], ...cambios, actualizado: new Date().toISOString() };
-    localStorage.setItem(LS_KEY_LISTAS_PERSONALIZADAS, JSON.stringify(listas));
+    localStorage.setItem(LS_KEY_PERSONALIZED_LISTS, JSON.stringify(listas));
 }
 
 export function eliminarListaPersonalizada(url) {
     const listas = leerListasPersonalizadas();
     if (!listas[url]) return;
     delete listas[url];
-    localStorage.setItem(LS_KEY_LISTAS_PERSONALIZADAS, JSON.stringify(listas));
+    localStorage.setItem(LS_KEY_PERSONALIZED_LISTS, JSON.stringify(listas));
 }
 
 export function aplicarListaPersonalizadaGuardada(url) {
@@ -332,7 +330,7 @@ export function aplicarListaPersonalizadaGuardada(url) {
  * @returns {boolean} `true` cuando se deben combinar coincidencias aproximadas.
  */
 export function obtenerPreferenciaCombinarCanales() {
-    const valor = localStorage.getItem(LS_KEY_COMBINAR_CANALES);
+    const valor = localStorage.getItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS);
     if (valor === null) {
         return DEFAULT_COMBINAR_CANALES;
     }
@@ -344,7 +342,7 @@ export function obtenerPreferenciaCombinarCanales() {
  * @param {boolean} combinar - Nuevo estado deseado.
  */
 export function establecerPreferenciaCombinarCanales(combinar = DEFAULT_COMBINAR_CANALES) {
-    localStorage.setItem(LS_KEY_COMBINAR_CANALES, combinar ? 'true' : 'false');
+    localStorage.setItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS, combinar ? 'true' : 'false');
 }
 
 /**

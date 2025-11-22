@@ -15,9 +15,7 @@ import {
     SPAN_VALOR_TRANSMISIONES_POR_FILA,
     ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA,
     aplicarEstadoUrlDinamica,
-    limpiarParametroCompartidoEnUrl,
-    registrarCambioManualCanales,
-    limpiarRecursosTransmision
+    urlDinamicaHabilitada
 } from "../main.js";
 
 import {
@@ -25,14 +23,17 @@ import {
     mostrarToast,
     activarTooltipsBootstrap,
     ajustarClaseBotonCanal,
-    obtenerNumeroCanalesFila,
     actualizarBotonesPersonalizarOverlay,
     hideTextoBotonesOverlay,
     ajustarNumeroDivisionesClaseCol,
     removerTooltipsBootstrap,
+    registrarCambioManualCanales,
+    limpiarParametroCompartidoEnUrl,
+    limpiarRecursosTransmision
 } from "../helpers/index.js";
-import { CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO } from "../constants/index.js";
+import { CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO, LS_KEY_FULL_HEIGHT_MODE, LS_KEY_VIEW_MODE } from "../constants/index.js";
 import { listaCanales } from "../canalesData.js";
+import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
 
 const BOTON_COPIAR_ENLACE_COMPARTIR_SETUP = document.querySelector('#boton-copiar-enlace-compartir-setup');
 const INPUT_ENLACE_COMPARTIR_SETUP = document.querySelector('#input-enlace-compartir-setup');
@@ -46,7 +47,7 @@ export function activarVisionUnica() {
         if (contenedorVision && !contenedorVision.querySelector('button[data-canal]')) {
             crearBotonesParaVisionUnica();
         }
-        localStorage.setItem('diseño-seleccionado', 'vision-unica');
+        localStorage.setItem(LS_KEY_VIEW_MODE, 'vision-unica');
 
         BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-light-subtle', 'btn-indigo');
         BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-indigo', 'btn-light-subtle');
@@ -131,7 +132,7 @@ export function activarVisionUnica() {
 export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {}) {
     try {
 
-        localStorage.setItem('diseño-seleccionado', 'vision-cuadricula');
+        localStorage.setItem(LS_KEY_VIEW_MODE, 'vision-cuadricula');
 
         BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-indigo', 'btn-light-subtle');
         BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-light-subtle', 'btn-indigo');
@@ -198,10 +199,11 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
         actualizarValorSlider();
 
         CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.disabled = false;
-        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = localStorage.getItem('uso-100vh') === 'activo' ? 'Expandido' : 'Reducido';
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 
+            CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked ? 'Expandido' : 'Reducido';
 
         BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = false });
-        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`;
+        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
 
         ajustarNumeroDivisionesClaseCol();
 
@@ -215,8 +217,7 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
             if (textoPrevio) {
                 SPAN_VALOR_URL_DINAMICA.textContent = textoPrevio;
             } else {
-                const preferenciaActiva = localStorage.getItem('preferencia-url-dinamica') === 'activa';
-                aplicarEstadoUrlDinamica(preferenciaActiva);
+                aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
             }
         }
 

@@ -1,11 +1,12 @@
 import { listaCanales } from "../canalesData.js";
 import { CONTAINER_VISION_CUADRICULA } from "../main.js";
 import { mostrarToast } from "../helpers/index.js";
+import { LS_KEY_VIEW_MODE } from "../constants/localStorageKeys.js";
 
 export function guardarCanalesEnLocalStorage() {
     try {
         // si es vision unica no ejecutar
-        if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+        if (localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') {
             return;
         }
 

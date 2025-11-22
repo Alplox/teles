@@ -1,20 +1,30 @@
 // Funciones para crear overlays y fragmentos de canal
 import { listaCanales } from './canalesData.js';
-import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele, registrarCambioManualCanales, limpiarRecursosTransmision } from './main.js';
+import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele } from './main.js';
 
 import {
     CODIGOS_PAISES,
     ICONOS_PARA_CATEGORIAS,
     AUDIO_POP,
-    TWITCH_PARENT
+    TWITCH_PARENT,
+    LS_KEY_M3U8_PLAYER,
+    LS_KEY_CHANNEL_SIGNAL_PREFERENCE
 } from './constants/index.js';
-import { mostrarToast, playAudioSinDelay, hideTextoBotonesOverlay, removerTooltipsBootstrap, activarTooltipsBootstrap } from './helpers/index.js';
+import { 
+    mostrarToast, 
+    playAudioSinDelay, 
+    hideTextoBotonesOverlay, 
+    removerTooltipsBootstrap, 
+    activarTooltipsBootstrap, 
+    registrarCambioManualCanales, 
+    limpiarRecursosTransmision 
+} from './helpers/index.js';
 
 // Funciones de UI de canales extraídas de main.js
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
-    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
     lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
-    localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
 }
 
 export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
@@ -53,7 +63,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
 
 
 export function crearVideoJs(canalId, urlCarga) {
-    const tipoReproductor = localStorage.getItem('reproductor-m3u8') || 'videojs';
+    const tipoReproductor = localStorage.getItem(LS_KEY_M3U8_PLAYER) || 'videojs';
     if (tipoReproductor === 'clappr' && typeof Clappr !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
@@ -307,7 +317,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
 export function crearFragmentCanal(canalId) {
     if (listaCanales[canalId]?.señales) {
         let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = listaCanales[canalId].señales;
-        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
         let señalUtilizar;
         let valorIndexArraySeñal = 0;
@@ -343,7 +353,7 @@ export function crearFragmentCanal(canalId) {
                 valorIndexArraySeñal = indicePreferido;
             } else {
                 delete lsPreferenciasSeñalCanales[canalId];
-                localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
             }
         }
 

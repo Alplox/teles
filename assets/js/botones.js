@@ -11,12 +11,13 @@ import {
     AUDIO_FAIL,
     AUDIO_SUCCESS,
     AUDIO_TURN_ON,
+    LS_KEY_WELCOME_MODAL_VISIBILITY
 } from './constants/index.js';
 
 // MARK: Botón entendido modal descargo de responsabilidad
 const BOTON_ENTENDIDO = document.querySelector('#boton-entendido');
 BOTON_ENTENDIDO?.addEventListener('click', () => {
-    localStorage.setItem('modal-status', 'hide');
+    localStorage.setItem(LS_KEY_WELCOME_MODAL_VISIBILITY, 'hide');
 });
 
 // MARK: Botón PWA Install

@@ -1,6 +1,6 @@
 import { crearFragmentCanal } from "../canalUI.js";
-import { tele, registrarCambioManualCanales } from "../main.js";
-import { mostrarToast, ajustarClaseBotonCanal, guardarCanalesEnLocalStorage } from "./index.js";
+import { tele } from "../main.js";
+import { mostrarToast, ajustarClaseBotonCanal, guardarCanalesEnLocalStorage, registrarCambioManualCanales } from "../helpers/index.js";
 
 export function reemplazarCanalActivo(canalIdBotonPulsadoEnModal, canalIdExistente) {
     try {

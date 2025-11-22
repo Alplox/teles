@@ -23,11 +23,23 @@ import { crearFragmentCanal, cambiarSoloSeñalActiva } from './canalUI.js';
 
 import {
     PREFIJOS_ID_CONTENEDORES_CANALES,
-    VALOR_COL_FIJO_ESCRITORIO,
-    VALOR_COL_FIJO_TELEFONO,
-    registrarTraduccionVideojs,
-    AUDIO_FAIL
+    BOOTSTRAP_COL_NUMBER_DESKTOP,
+    BOOTSTRAP_COL_NUMBER_MOBILE,
+    AUDIO_FAIL,
+    LS_KEY_WELCOME_MODAL_VISIBILITY,
+    LS_KEY_NAVBAR_VISIBILITY,
+    LS_KEY_VIEW_MODE,
+    LS_KEY_FULL_HEIGHT_MODE,
+    LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
+    LS_KEY_M3U8_PLAYER,
+    LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
+    LS_KEY_DYNAMIC_URL,
+    LS_KEY_FLOATING_BUTTONS_POSITION,
+    LS_KEY_HORIZONTAL_WIDTH_VALUE,
+    LS_KEY_CHANNEL_SIGNAL_PREFERENCE,
+    LS_KEY_BOOTSTRAP_COL_NUMBER
 } from './constants/index.js';
+
 import {
     hideTextoBotonesOverlay,
     activarTooltipsBootstrap,
@@ -42,7 +54,6 @@ import {
     ajustarClaseBotonCanal,
     activarVisionUnica,
     desactivarVisionUnica,
-    obtenerNumeroCanalesFila,
     borraPreferenciaSeñalInvalida,
     revisarSeñalesVacias,
     actualizarValorSlider,
@@ -65,70 +76,23 @@ import {
     cargarOrdenVisionUnica,
     CONTAINER_INTERNO_VISION_UNICA,
     guardarOrdenPanelesVisionUnica,
-    toggleClaseOrdenado
+    toggleClaseOrdenado,
+    sincronizarVisibilidadNavbar,
+    sincronizarParametroCanalesActivos,
+    limpiarParametroCompartidoEnUrl,
+    obtenerCanalesDesdeUrl,
+    registrarCambioManualCanales,
+    limpiarRecursosTransmision
 } from './helpers/index.js';
+import { debounce, obtainNumberOfChannelsPerRow, REGISTER_VIDEOJS_TRANSLATION } from './utils/index.js';
 
-const debounce = (fn, delay = 150) => {
-    let timeoutId;
-    return (...args) => {
-        if (timeoutId) clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => fn(...args), delay);
-    };
-};
 
-const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
-
-/**
- * Libera instancias de reproductores antes de eliminar el contenedor del DOM.
- * @param {HTMLElement|null} contenedorTransmision Elemento <div data-canal> que aloja la transmisión.
- * @returns {void}
- */
-export const limpiarRecursosTransmision = (contenedorTransmision) => {
-    if (!contenedorTransmision) return;
-
-    const contenedorCambio = contenedorTransmision.querySelector('div[data-canal-cambio]');
-    const canal = contenedorTransmision?.dataset?.canal;
-
-    if (contenedorCambio?._videojsPlayer && typeof contenedorCambio._videojsPlayer.dispose === 'function') {
-        try {
-            const player = contenedorCambio._videojsPlayer;
-            if (player && typeof player.dispose === 'function') {
-                player.dispose();
-            }
-        } catch (errorVideojs) {
-            console.error(`Error al destruir Video.js para canal "${canal}":`, errorVideojs);
-        }
-    }
-
-    if (contenedorCambio?._clapprPlayer && typeof contenedorCambio._clapprPlayer.destroy === 'function') {
-        try {
-            contenedorCambio._clapprPlayer.destroy();
-        } catch (errorClappr) {
-            console.error(`Error al destruir Clappr para canal "${canal}":`, errorClappr);
-        }
-    }
-
-    if (contenedorCambio?._oplayerPlayer && typeof contenedorCambio._oplayerPlayer.destroy === 'function') {
-        try {
-            contenedorCambio._oplayerPlayer.destroy();
-        } catch (errorOplayer) {
-            console.error(`Error al destruir OPlayer para canal "${canal}":`, errorOplayer);
-        }
-    }
-
-    if (contenedorCambio?._iframeElement && typeof contenedorCambio._iframeElement.remove === 'function') {
-        try {
-            contenedorCambio._iframeElement.src = 'about:blank';
-            contenedorCambio._iframeElement.removeAttribute('srcdoc');
-            contenedorCambio._iframeElement.remove();
-        } catch (error) {
-            console.error(`Error al destruir iframe para canal "${canal}":`, error);
-        }
-    }
-};
 
 // MARK: querySelector Globales
-const MAIN_NAVBAR = document.querySelector('#navbar');
+export const MAIN_NAVBAR = document.querySelector('#navbar');
+export const CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
+export const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#span-valor-visualizacion-navbar');
+
 export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
 export const CONTAINER_VISION_UNICA = document.querySelector('#container-vision-unica');
 export const CONTAINER_VIDEO_VISION_UNICA = document.querySelector('#container-video-vision-unica');
@@ -150,31 +114,47 @@ const CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS = document.querySelector('#checkbo
 const SPAN_VALOR_COMBINAR_LISTAS_PERSONALIZADAS = document.querySelector('#span-valor-combinar-listas-personalizadas');
 
 // MARK: LocalStorage
-let lsModal = localStorage.getItem('modal-status') ?? 'show';
-let lsNavbar = localStorage.getItem('navbar-display');
-let lsEstiloVision = localStorage.getItem('diseño-seleccionado');
+let lsModal = localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY);
+let lsNavbar = localStorage.getItem(LS_KEY_NAVBAR_VISIBILITY);
+let lsActiveViewMode = localStorage.getItem(LS_KEY_VIEW_MODE);
 
-let lsPosicionBotonesFlotantes = localStorage.getItem('posicion-botones-flotante');
-let lsTextoBotonesFlotantes = localStorage.getItem('texto-botones-flotantes');
-let lsAlturaCanales = localStorage.getItem('uso-100vh');
-let lsFondo = localStorage.getItem('tarjeta-fondo-display');
-let lsReproductorM3u8 = localStorage.getItem('reproductor-m3u8') || 'videojs';
-const KEY_PREFERENCIA_URL_DINAMICA = 'preferencia-url-dinamica';
-let urlDinamicaHabilitada = localStorage.getItem(KEY_PREFERENCIA_URL_DINAMICA) === 'activa';
-let urlCompartidaActiva = false;
-let parametroCompartidoLimpio = false;
-let estaCargandoDesdeUrlCompartida = false;
+let lsPosicionBotonesFlotantes = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_POSITION);
+let lsTextoBotonesFlotantes = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY);
+
+let isFullHeightMode = true;
+try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_FULL_HEIGHT_MODE)) ?? true; } catch {}
+
+let lsFondo = localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY);
+
+let lsReproductorM3u8 = localStorage.getItem(LS_KEY_M3U8_PLAYER);
+
+export let urlDinamicaHabilitada = false;
+try { urlDinamicaHabilitada = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch {}
+
+export let urlCompartidaActiva = false;
+export let estaCargandoDesdeUrlCompartida = false;
+/**
+ * Actualiza la variable que indica si se está cargando desde una URL compartida.
+ * @param {boolean} estado - Nuevo estado para la variable compartida.
+ * @returns {void}
+ * Estado:
+ * - true: Se está cargando desde una URL compartida.
+ * - false: No se está cargando desde una URL compartida.
+ * 
+ * Nota: Esta función se usa para poder modificar el estado de la variable compartida
+ * desde cualquier lugar del código.
+ */
+export const setUrlCompartidaActiva = (estado) => {
+    urlCompartidaActiva = Boolean(estado);
+};
 
 // MARK: PERSONALIZACIONES
 // Navbar
-const CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
-const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#span-valor-visualizacion-navbar');
-
-CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.addEventListener('click', () => {
-    MAIN_NAVBAR.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
-    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
+CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR?.addEventListener('click', () => {
+    sincronizarVisibilidadNavbar(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
 });
 
+// URL dinámica
 const CHECKBOX_URL_DINAMICA = document.querySelector('#checkbox-url-dinamica');
 const SPAN_VALOR_URL_DINAMICA = document.querySelector('#span-valor-url-dinamica');
 const ICONO_URL_DINAMICA = document.querySelector('#icono-url-dinamica');
@@ -191,11 +171,10 @@ export const aplicarEstadoUrlDinamica = (activo) => {
     }
 };
 
-aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
 
 CHECKBOX_URL_DINAMICA?.addEventListener('click', () => {
     urlDinamicaHabilitada = CHECKBOX_URL_DINAMICA.checked;
-    localStorage.setItem(KEY_PREFERENCIA_URL_DINAMICA, urlDinamicaHabilitada ? 'activa' : 'inactiva');
+    localStorage.setItem(LS_KEY_DYNAMIC_URL, JSON.stringify(urlDinamicaHabilitada));
     aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
 
     if (urlDinamicaHabilitada) {
@@ -207,77 +186,6 @@ CHECKBOX_URL_DINAMICA?.addEventListener('click', () => {
     }
 });
 
-export const limpiarParametroCompartidoEnUrl = (forzar = false) => {
-    if (!forzar && (!urlCompartidaActiva || parametroCompartidoLimpio)) return;
-    try {
-        const url = new URL(window.location.href);
-        if (!url.searchParams.has('c')) {
-            parametroCompartidoLimpio = true;
-            return;
-        }
-        url.searchParams.delete('c');
-        window.history.replaceState({}, document.title, url.toString());
-        parametroCompartidoLimpio = true;
-        urlCompartidaActiva = false;
-    } catch (error) {
-        console.error('[teles] Error al limpiar parámetro compartido de la URL:', error);
-    }
-};
-
-export const obtenerIdsCanalesActivos = () => {
-    try {
-        const payload = localStorage.getItem('canales-vision-cuadricula');
-        if (!payload) return [];
-        const datos = JSON.parse(payload);
-        if (!datos || typeof datos !== 'object') return [];
-        return Object.keys(datos);
-    } catch (error) {
-        console.error('[teles] Error al obtener canales activos para URL dinámica:', error);
-        return [];
-    }
-};
-
-export const sincronizarParametroCanalesActivos = () => {
-    if (!urlDinamicaHabilitada) return;
-    // En visión única nunca se debe tocar el parámetro `c` aunque la preferencia esté activa.
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') return;
-    try {
-        const urlActual = new URL(window.location.href);
-        const idsActivos = obtenerIdsCanalesActivos();
-
-        if (!idsActivos.length) {
-            urlActual.searchParams.delete('c');
-        } else {
-            urlActual.searchParams.set('c', idsActivos.join(','));
-        }
-
-        window.history.replaceState({}, document.title, urlActual.toString());
-        parametroCompartidoLimpio = true;
-        urlCompartidaActiva = false;
-    } catch (error) {
-        console.error('[teles] Error al sincronizar URL dinámica:', error);
-    }
-};
-
-/**
- * Gestiona los cambios manuales realizados por usuario sobre los canales activos
- * (añadir/quitar, mover de posición, etc.) y decide si sincronizar o limpiar el parámetro `c`.
- * Respeta el flujo de carga inicial desde una URL compartida para no interferir.
- * @param {{ forzar?: boolean }} [opciones]
- * @returns {void}
- */
-export function registrarCambioManualCanales({ forzar = false } = {}) {
-    if (!forzar && estaCargandoDesdeUrlCompartida) return;
-
-    // En modo "visión única" no usamos la URL dinámica ni el parámetro `c`.
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') return;
-
-    if (urlDinamicaHabilitada) {
-        sincronizarParametroCanalesActivos();
-    } else {
-        limpiarParametroCompartidoEnUrl(true);
-    }
-}
 
 // Overlay
 export const CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
@@ -303,7 +211,7 @@ const SPAN_VALOR_REPRODUCTOR_M3U8 = document.querySelector('#span-valor-reproduc
 
 if (!lsReproductorM3u8) {
     lsReproductorM3u8 = 'videojs';
-    localStorage.setItem('reproductor-m3u8', lsReproductorM3u8);
+    localStorage.setItem(LS_KEY_M3U8_PLAYER, lsReproductorM3u8);
 }
 
 RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
@@ -317,14 +225,14 @@ RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
         if (!radio.checked) return;
         const valor = radio.value;
         const descripcion = radio.dataset.descripcion || valor;
-        localStorage.setItem('reproductor-m3u8', valor);
+        localStorage.setItem(LS_KEY_M3U8_PLAYER, valor);
         if (SPAN_VALOR_REPRODUCTOR_M3U8) {
             SPAN_VALOR_REPRODUCTOR_M3U8.textContent = descripcion;
         }
 
         try {
             const transmisionesActivas = document.querySelectorAll('div[data-canal]');
-            const lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+            const lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
             transmisionesActivas.forEach(transmision => {
                 const canalId = transmision.getAttribute('data-canal');
@@ -369,11 +277,13 @@ RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
 // Tamaño
 export const INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
 export const SPAN_VALOR_INPUT_RANGE = document.querySelector('#span-valor-input-range');
+const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
+window.addEventListener('resize', hideTextoBotonesOverlayDebounced); // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
 
 INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', (event) => {
     SPAN_VALOR_INPUT_RANGE.innerHTML = `${event.target.value}%`;
     CONTAINER_VISION_CUADRICULA.style.maxWidth = `${event.target.value}%`;
-    localStorage.setItem('valor-input-range', event.target.value);
+    localStorage.setItem(LS_KEY_HORIZONTAL_WIDTH_VALUE, event.target.value);
     hideTextoBotonesOverlayDebounced();
 });
 
@@ -385,11 +295,11 @@ const ICONO_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#icono-pers
 CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.addEventListener('click', () => {
     CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked
         ? (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
-            localStorage.setItem('uso-100vh', 'activo'),
+            JSON.stringify(localStorage.setItem(LS_KEY_FULL_HEIGHT_MODE, true)),
             SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido'
         )
         : (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'),
-            localStorage.setItem('uso-100vh', 'inactivo'),
+            JSON.stringify(localStorage.setItem(LS_KEY_FULL_HEIGHT_MODE, false)),
             SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Reducido'
         );
     ajustarNumeroDivisionesClaseCol()
@@ -401,8 +311,9 @@ export const BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA = document.querySelecto
 
 BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => {
     boton.addEventListener('click', () => {
+        console.log(boton.value);
         ajustarClaseColTransmisionesPorFila(boton.value)
-        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
+        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtainNumberOfChannelsPerRow()}`
         hideTextoBotonesOverlay()
     })
 });
@@ -418,7 +329,12 @@ CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.addEventListener('click', () => {
     SPAN_BOTONES_FLOTANTES.forEach(button => {
         button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
     });
-    setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+    setCheckboxState(
+        CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+        SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+        LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY, 
+        CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
+    );
     CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
         ? ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square')
         : ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
@@ -432,13 +348,13 @@ const CONTAINER_TARJETA_LOGO_BACKGROUND = document.querySelector('#container-tar
 
 CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.addEventListener('click', () => {
     CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
+    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY, CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
     CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye') : ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
 });
 
 export const BOTONES_REPOSICIONAR_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
 
-registrarTraduccionVideojs();
+
 
 // MARK: Manejo canales
 export let tele = {
@@ -447,7 +363,7 @@ export let tele = {
             if (!canal || !listaCanales?.[canal]) return console.error(`El canal "${canal}" proporcionado no es válido para ser añadido.`);
             const DIV_CANAL = document.createElement('div');
             DIV_CANAL.setAttribute('data-canal', canal);
-            const esVisionUnica = localStorage.getItem('diseño-seleccionado') === 'vision-unica';
+            const esVisionUnica = localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica' ;
 
             if (esVisionUnica) {
                 // En visión única debe existir como máximo un canal activo.
@@ -502,7 +418,7 @@ export let tele = {
 
             const esVisionUnica = CONTAINER_VIDEO_VISION_UNICA && CONTAINER_VIDEO_VISION_UNICA.contains(transmisionPorRemover);
             // Si es visión única, mostrar el icono de sin señal activa
-            if (esVisionUnica || localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+            if (esVisionUnica || localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') {
                 ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
             } else {
                 guardarCanalesEnLocalStorage();
@@ -554,7 +470,7 @@ export let tele = {
 };
 
 BOTON_ACTIVAR_VISION_UNICA.addEventListener('click', () => {
-    if (localStorage.getItem('diseño-seleccionado') !== 'vision-unica') {
+    if (localStorage.getItem(LS_KEY_VIEW_MODE) !== 'vision-unica') {
         activarVisionUnica();
     } else {
         playAudioSinDelay(AUDIO_FAIL);
@@ -563,7 +479,7 @@ BOTON_ACTIVAR_VISION_UNICA.addEventListener('click', () => {
 })
 
 BOTON_ACTIVAR_VISION_GRID.addEventListener('click', () => {
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+    if (localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') {
         desactivarVisionUnica();
     } else {
         playAudioSinDelay(AUDIO_FAIL);
@@ -620,11 +536,15 @@ new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
     }
 });
 
-// ocultar texto si el tamaño de los botones excede el tamaño del contenedor
-window.addEventListener('resize', hideTextoBotonesOverlayDebounced);
+
+
 
 // MARK: DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
+    REGISTER_VIDEOJS_TRANSLATION();
+
+
+    ajustarNumeroDivisionesClaseCol();
     detectarTemaSistema();
     iniciarRevisarConexion();
     MODAL_CAMBIAR_CANAL.addEventListener('shown.bs.modal', () => {
@@ -639,25 +559,15 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     screen.orientation.addEventListener('change', () => {
-        if (lsEstiloVision !== 'vision-unica') ajustarNumeroDivisionesClaseCol();
+        if (lsActiveViewMode !== 'vision-unica') ajustarNumeroDivisionesClaseCol();
     });
-
-    // Efecto glow en hover a logo del fondo
-    const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
-    TARJETA_LOGO_BACKGROUND.onmousemove = e => {
-        let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
-            x = e.clientX - rect.left,
-            y = e.clientY - rect.top;
-        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
-        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
-    };
 
     if (lsModal !== 'hide') new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
 
     // Navbar
-    lsNavbar !== 'hide'
-        ? (setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', true))
-        : (setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', false));
+    sincronizarVisibilidadNavbar(lsNavbar !== 'hide');
+    // URL dinámica
+    aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
 
     // Posición botones flotante
 
@@ -677,24 +587,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Texto botones flotantes
     if (lsTextoBotonesFlotantes !== 'hide') {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', true);
+        setCheckboxState(
+            CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+            SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+            LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY, 
+            true);
         ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square');
     } else {
         SPAN_BOTONES_FLOTANTES.forEach((button) => {
             button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
         });
-        setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', false);
+        setCheckboxState(
+            CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+            SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 
+            LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY, 
+            false);
         ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
     }
 
     // Tamaño
     actualizarValorSlider();
-    SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
+    SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtainNumberOfChannelsPerRow()}`
 
     // Altura
-    if (lsAlturaCanales !== 'inactivo') {
-        localStorage.setItem('uso-100vh', 'activo'),
-            CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = true;
+    if (isFullHeightMode) {
+        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = true;
         ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
         SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido';
     } else {
@@ -705,11 +622,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // tarjeta fondo
     if (lsFondo !== 'hide') {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', true)
+        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY, true)
         CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
         ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye');
     } else {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', false)
+        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY, false)
         CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
         ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
     }
@@ -750,26 +667,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     inicializarPreferenciaCombinarListas();
 
-    /**
-     * Obtiene la lista de IDs de canales compartidos a través del parámetro `c` en la URL.
-     * El formato esperado es una lista separada por comas, por ejemplo: ?c=24-horas,meganoticias,t13
-     * @returns {string[]} Arreglo de IDs de canales válidos.
-     */
-    function obtenerCanalesCompartidosDesdeUrl() {
-        try {
-            const url = new URL(window.location.href);
-            const param = url.searchParams.get('c');
-            if (!param) return [];
-
-            return param
-                .split(',')
-                .map(id => id.trim())
-                .filter(id => id.length > 0 && listaCanales?.[id]);
-        } catch (error) {
-            console.error('[teles] Error al leer canales compartidos desde la URL:', error);
-            return [];
-        }
-    }
+  
 
     async function cargaInicial() {
         try {
@@ -790,15 +688,16 @@ window.addEventListener('DOMContentLoaded', () => {
                         .filter(id => id.length > 0).length
                     : 0;
 
-                const canalesCompartidos = obtenerCanalesCompartidosDesdeUrl();
+                const canalesCompartidos = obtenerCanalesDesdeUrl();
 
                 if (canalesCompartidos.length > 0) {
-                    urlCompartidaActiva = true;
+                    setUrlCompartidaActiva(true);
                     estaCargandoDesdeUrlCompartida = true;
-                    if (lsEstiloVision === 'vision-unica') {
+
+                    if (lsActiveViewMode === 'vision-unica') {
                         desactivarVisionUnica({ evitarCargaPredeterminados: true });
-                        lsEstiloVision = 'vision-grid';
-                        localStorage.setItem('diseño-seleccionado', 'vision-grid');
+                        lsActiveViewMode = 'vision-grid';
+                        localStorage.setItem(LS_KEY_VIEW_MODE, 'vision-grid');
                     }
                     canalesCompartidos.forEach(canalId => tele.add(canalId));
                     estaCargandoDesdeUrlCompartida = false;
@@ -816,11 +715,15 @@ window.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 } else {
-                    lsEstiloVision === 'vision-unica' ? activarVisionUnica() : tele.cargaCanalesPredeterminados();
+                    lsActiveViewMode === 'vision-unica' ? activarVisionUnica() : tele.cargaCanalesPredeterminados();
                 }
 
                 actualizarBotonesPersonalizarOverlay()
-                ajustarClaseColTransmisionesPorFila(localStorage.getItem('numero-class-columnas-por-fila') ?? (isMobile.any ? VALOR_COL_FIJO_TELEFONO : VALOR_COL_FIJO_ESCRITORIO))
+
+                const lsBootstrapColNumber = 
+                    JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER)) ?? 
+                    (isMobile.any ? BOOTSTRAP_COL_NUMBER_MOBILE : BOOTSTRAP_COL_NUMBER_DESKTOP);
+                ajustarClaseColTransmisionesPorFila(lsBootstrapColNumber);
                 hideTextoBotonesOverlay()
                 activarTooltipsBootstrap();
 
@@ -868,8 +771,6 @@ window.addEventListener('DOMContentLoaded', () => {
         event.target.remove()
     });
 
-    localStorage.setItem('modo-experimental', 'inactivo');
-
     renderizarListasPersonalizadasUI();
 
     function limpiarContenedoresListadosCanales({ resaltarExperimental = false } = {}) {
@@ -893,7 +794,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // Si el usuario está en visión única, volvemos a crear los botones de esa vista
         // para que no quede vacío el panel tras cargar o aplicar listas M3U.
-        if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
+        if (localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') {
             const contenedorVisionUnica = document.querySelector('#vision-unica-body-botones-canales');
             if (contenedorVisionUnica) {
                 try {
@@ -1136,4 +1037,14 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     ajustarVisibilidadBotonesQuitarTodaSeñal()
+
+     // Efecto glow en hover a logo del fondo
+    const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
+    TARJETA_LOGO_BACKGROUND.onmousemove = e => {
+        let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
+            x = e.clientX - rect.left,
+            y = e.clientY - rect.top;
+        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
+        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
+    };
 });

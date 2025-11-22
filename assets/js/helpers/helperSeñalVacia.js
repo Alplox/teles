@@ -1,8 +1,9 @@
 import { listaCanales } from "../canalesData.js";
+import { LS_KEY_CHANNEL_SIGNAL_PREFERENCE } from "../constants/localStorageKeys.js";
 import { revisarSeñalesVacias, mostrarToast } from "../helpers/index.js";
 
 export function borraPreferenciaSeñalInvalida() {
-    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
     if (Object.keys(lsPreferenciasSeñalCanales).length !== 0) {
         for (const idCanalGuardado in lsPreferenciasSeñalCanales) {
             let tipoSeñalGuardada = Object.keys(lsPreferenciasSeñalCanales[idCanalGuardado])[0].toString();
@@ -15,7 +16,7 @@ export function borraPreferenciaSeñalInvalida() {
                             Tú señal preferida para <span class="fw-bold">${idCanalGuardado}</span> (${tipoSeñalGuardada}[${valorIndexArraySeñal}]) 
                             dejo de estar disponible.<br><span class="fw-bold">Utilizará siguiente señal disponible</span>.`, 'warning', false);
                         delete lsPreferenciasSeñalCanales[idCanalGuardado];
-                        localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                        localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
                     }
                 } else {
                     if (listaCanales?.[idCanalGuardado]?.señales?.[tipoSeñalGuardada] === '') {
@@ -23,7 +24,7 @@ export function borraPreferenciaSeñalInvalida() {
                         Tú señal preferida para <span class="fw-bold">${idCanalGuardado}</span> (${tipoSeñalGuardada}[${valorIndexArraySeñal}]) 
                         dejo de estar disponible.<br><span class="fw-bold">Utilizará siguiente señal disponible</span>.`, 'warning', false);
                         delete lsPreferenciasSeñalCanales[idCanalGuardado];
-                        localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                        localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
                     }
                 }
             };

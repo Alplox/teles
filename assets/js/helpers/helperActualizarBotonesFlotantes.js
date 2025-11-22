@@ -1,3 +1,4 @@
+import { LS_KEY_FLOATING_BUTTONS_POSITION } from "../constants/localStorageKeys.js";
 import { BOTONES_REPOSICIONAR_BOTONES_FLOTANTES } from "../main.js";
 
 export function alternarPosicionBotonesFlotantes(topClass, startClass, marginClass, translateClass) {
@@ -29,9 +30,9 @@ export function clicBotonPosicionBotonesFlotantes(topClass, startClass, margin =
     };
     // Solo guardar si la posición cambió y manejar localStorage seguro
     try {
-        const actual = localStorage.getItem('posicion-botones-flotante');
+        const actual = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_POSITION);
         if (!actual || actual !== JSON.stringify(posicionElegida)) {
-            localStorage.setItem('posicion-botones-flotante', JSON.stringify(posicionElegida));
+            localStorage.setItem(LS_KEY_FLOATING_BUTTONS_POSITION, JSON.stringify(posicionElegida));
         }
     } catch (e) {
         console.warn('No se pudo guardar la posición de los botones flotantes en localStorage:', e);
