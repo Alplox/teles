@@ -1,8 +1,8 @@
-import { actualizarListaPersonalizada, aplicarListaPersonalizadaGuardada, channelsList, eliminarListaPersonalizada, obtenerListasPersonalizadas } from "../canalesData.js";
+import { updatePersonalizedList, applySavedPersonalizedList, channelsList, deletePersonalizedList, getPersonalizedLists } from "../channelManager.js";
 import { ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { tele } from "../main.js";
 import { formatDate } from "../utils/index.js";
-import { ajustarClaseBotonCanal, crearBotonesCategorias, crearBotonesPaises, crearBotonesParaCanales, crearBotonesParaVisionUnica, showToast } from "./index.js";
+import { adjustChannelButtonClass, createCategoryButtons, createCountryButtons, createChannelButtons, createButtonsForSingleView, showToast } from "./index.js";
 
 export const limpiarContenedoresListadosCanales = ({ resaltarExperimental = false } = {}) => {
     for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
@@ -29,7 +29,7 @@ export const limpiarContenedoresListadosCanales = ({ resaltarExperimental = fals
         const contenedorVisionUnica = document.querySelector('#single-view-channels-buttons-container');
         if (contenedorVisionUnica) {
             try {
-                crearBotonesParaVisionUnica();
+                createButtonsForSingleView();
             } catch (error) {
                 console.error('[teles] Error al recrear botones de Visión única tras actualizar listas:', error);
             }
@@ -45,7 +45,7 @@ export const resincronizarEstadoVisualCanalesActivos = () => {
         transmisionesActivas.forEach(transmision => {
             const canalId = transmision.getAttribute('data-canal');
             if (!canalId) return;
-            ajustarClaseBotonCanal(canalId, true);
+            adjustChannelButtonClass(canalId, true);
         });
     } catch (error) {
         console.error('[teles] Error al resincronizar estado visual de canales activos:', error);
@@ -55,19 +55,19 @@ export const resincronizarEstadoVisualCanalesActivos = () => {
 export const renderizarListasPersonalizadasUI = () => {
     const customListsContainerEl = document.querySelector('#contenedor-listas-personalizadas');
     if (!customListsContainerEl) return;
-    const listas = obtenerListasPersonalizadas();
-    const urls = Object.keys(listas);
+    const lists = getPersonalizedLists();
+    const urls = Object.keys(lists);
     if (!urls.length) {
         customListsContainerEl.innerHTML = customListsContainerEl?.innerHTML ?? '<p class="text-secondary fs-smaller mb-0">No hay listas guardadas aún.</p>';;
         return;
     }
     const fragment = document.createDocumentFragment();
     urls.sort((a, b) => {
-        const etiquetaA = listas[a]?.etiqueta || a;
-        const etiquetaB = listas[b]?.etiqueta || b;
+        const etiquetaA = lists[a]?.etiqueta || a;
+        const etiquetaB = lists[b]?.etiqueta || b;
         return etiquetaA.localeCompare(etiquetaB, 'es', { sensitivity: 'base' });
     }).forEach(url => {
-        fragment.append(crearTarjetaListaPersonalizada(url, listas[url]));
+        fragment.append(crearTarjetaListaPersonalizada(url, lists[url]));
     });
     customListsContainerEl.innerHTML = '';
     customListsContainerEl.append(fragment);
@@ -97,14 +97,14 @@ const crearTarjetaListaPersonalizada = (url, data = {}) => {
     botonPin.className = `btn btn-sm ${pinned ? 'btn-success' : 'btn-outline-secondary'}`;
     botonPin.innerHTML = pinned ? '<i class="bi bi-pin-angle-fill"></i> Fijada' : '<i class="bi bi-pin-angle"></i> No fijada';
     botonPin.addEventListener('click', () => {
-        const estadoActual = (obtenerListasPersonalizadas()[url]?.pinned !== false);
-        const nuevoEstado = !estadoActual;
-        actualizarListaPersonalizada(url, { pinned: nuevoEstado });
+        const currentState = (getPersonalizedLists()[url]?.pinned !== false);
+        const newState = !currentState;
+        updatePersonalizedList(url, { pinned: newState });
         renderizarListasPersonalizadasUI();
         showToast({
             title: 'Lista personalizada',
-            body: nuevoEstado ? `La lista "${etiqueta}" se restaurará al recargar.` : `La lista "${etiqueta}" ya no se restaurará automáticamente.`,
-            type: nuevoEstado ? 'success' : 'info',
+            body: newState ? `La lista "${etiqueta}" se restaurará al recargar.` : `La lista "${etiqueta}" ya no se restaurará automáticamente.`,
+            type: newState ? 'success' : 'info',
             showReloadOnError: true
         })
     });
@@ -114,12 +114,12 @@ const crearTarjetaListaPersonalizada = (url, data = {}) => {
     botonAplicar.className = 'btn btn-sm btn-outline-primary';
     botonAplicar.innerHTML = '<i class="bi bi-arrow-repeat"></i> Aplicar';
     botonAplicar.addEventListener('click', () => {
-        const exito = aplicarListaPersonalizadaGuardada(url);
-        if (exito) {
+        const success = applySavedPersonalizedList(url);
+        if (success) {
             limpiarContenedoresListadosCanales();
-            crearBotonesParaCanales();
-            crearBotonesPaises();
-            crearBotonesCategorias();
+            createChannelButtons();
+            createCountryButtons();
+            createCategoryButtons();
             resincronizarEstadoVisualCanalesActivos();
             showToast({
                 title: 'Lista personalizada',
@@ -145,12 +145,12 @@ const crearTarjetaListaPersonalizada = (url, data = {}) => {
     botonEliminar.innerHTML = '<i class="bi bi-trash"></i> Quitar';
     botonEliminar.addEventListener('click', () => {
         if (!window.confirm(`¿Eliminar la lista "${etiqueta}" y sus canales asociados?`)) return;
-        eliminarListaPersonalizada(url);
+        deletePersonalizedList(url);
         const eliminados = eliminarCanalesPorFuente(url);
         limpiarContenedoresListadosCanales();
-        crearBotonesParaCanales();
-        crearBotonesPaises();
-        crearBotonesCategorias();
+        createChannelButtons();
+        createCountryButtons();
+        createCategoryButtons();
         resincronizarEstadoVisualCanalesActivos();
 
         renderizarListasPersonalizadasUI();

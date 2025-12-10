@@ -1,5 +1,5 @@
 // Funciones para crear overlays y fragmentos de canal
-import { channelsList } from './canalesData.js';
+import { channelsList } from './channelManager.js';
 
 import {
     COUNTRY_CODES,
@@ -12,10 +12,10 @@ import {
 } from './constants/index.js';
 import {
     showToast,
-    hideTextoBotonesOverlay,
-    registrarCambioManualCanales,
-    limpiarRecursosTransmision,
-    crearBotonesParaModalCambiarCanal
+    hideOverlayButtonText,
+    registerManualChannelChange,
+    cleanTransmissionResources,
+    createButtonsForChangeChannelModal
 } from './helpers/index.js';
 import { tele } from './main.js';
 import {
@@ -194,7 +194,7 @@ export const changeChannelModalEl = document.querySelector('#modal-cambiar-canal
 changeChannelModalEl.addEventListener('shown.bs.modal', () => {
     const contenedorCambiar = document.querySelector('#modal-cambiar-canal-channels-buttons-container');
     if (contenedorCambiar && !contenedorCambiar.querySelector('button[data-canal]')) {
-        crearBotonesParaModalCambiarCanal();
+        createButtonsForChangeChannelModal();
     }
 });
 
@@ -435,7 +435,7 @@ export function cambiarSoloSeñalActiva(canalId) {
 
         disposeBootstrapTooltips();
 
-        limpiarRecursosTransmision(divPadreACambiar);
+        cleanTransmissionResources(divPadreACambiar);
 
         divExistenteACambiar.remove();
         barraOverlayDeCanalACambiar.remove();
@@ -443,8 +443,8 @@ export function cambiarSoloSeñalActiva(canalId) {
         divPadreACambiar.append(crearFragmentCanal(canalId));
 
         if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
-        if (typeof hideTextoBotonesOverlay === 'function') hideTextoBotonesOverlay();
-        if (typeof registrarCambioManualCanales === 'function') registrarCambioManualCanales();
+        if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();
+        if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
 
     } catch (error) {
         console.error(`Error al intentar cambiar señal para canal con id: ${canalId}. Error: ${error}`);

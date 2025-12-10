@@ -4,7 +4,7 @@ import {
     BUTTON_MODAL_LOAD_DEFAULT_CHANNELS,
     BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS
 } from '../botones.js'
-import { AMBIENT_MUSIC, LS_KEY_ACTIVE_VIEW_MODE } from '../constants/index.js';
+import { AMBIENT_MUSIC, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY } from '../constants/index.js';
 import { gridViewContainerEl, musicIcon } from '../main.js';
 
 /**
@@ -19,7 +19,7 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
     });
 
     // si es vision cuadrícula
-    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') {
+    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view' && localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) !== 'hide') {
         if (!hasActiveChannels && AMBIENT_MUSIC.paused && document.querySelector('#alerta-borrado-localstorage').classList.contains('d-none')) {
             AMBIENT_MUSIC.loop = true;
             AMBIENT_MUSIC.play()
@@ -33,8 +33,6 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
             musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
     }
-
-
 
     // Buttons load default channels
     [BUTTON_MODAL_LOAD_DEFAULT_CHANNELS, BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS].forEach(btn => {

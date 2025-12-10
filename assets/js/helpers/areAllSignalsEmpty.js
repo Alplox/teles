@@ -1,4 +1,4 @@
-import { channelsList } from "../canalesData.js";
+import { channelsList } from "../channelManager.js";
 
 /**
  * Checks if all signals for a given channel are empty or undefined.

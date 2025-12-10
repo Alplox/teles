@@ -1,4 +1,4 @@
-import { channelsList } from "../canalesData.js";
+import { channelsList } from "../channelManager.js";
 import { LS_KEY_CHANNEL_SIGNAL_PREFERENCE } from "../constants/localStorageKeys.js";
 import { areAllSignalsEmpty, showToast } from "./index.js";
 

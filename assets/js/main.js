@@ -6,16 +6,18 @@
 
 // MARK: import
 import {
-    fetchCargarCanales,
-    cargarListaPersonalizadaM3U,
-    cargarListaPersonalizadaDesdeTexto,
-    restaurarListasPersonalizadas,
+    fetchLoadChannels,
+    restoreChannelsFromMemory,
+    loadPersonalizedM3UList,
+    loadPersonalizedListFromText,
+    restorePersonalizedLists,
     channelsList,
-    obtenerPreferenciaCombinarCanales,
-    establecerPreferenciaCombinarCanales,
-    ARRAY_CANALES_PREDETERMINADOS,
-    ARRAY_CANALES_PREDETERMINADOS_EXTRAS
-} from './canalesData.js';
+    getCombineChannelsPreference,
+    setCombineChannelsPreference,
+    DEFAULT_CHANNELS_ARRAY,
+    EXTRA_DEFAULT_CHANNELS_ARRAY
+} from './channelManager.js';
+
 
 import {
     crearFragmentCanal,
@@ -45,31 +47,33 @@ import {
 } from './constants/index.js';
 
 import {
-    hideTextoBotonesOverlay,
+    hideOverlayButtonText,
     detectThemePreferences,
     showToast,
-    guardarCanalesEnLocalStorage,
-    ajustarClaseBotonCanal,
-    activarVisionUnica,
-    desactivarVisionUnica,
+    saveChannelsToLocalStorage,
+    adjustChannelButtonClass,
+    activateSingleView,
+    deactivateSingleView,
     deleteInvalidSignalPreferences,
     areAllSignalsEmpty,
-    crearBotonesParaCanales,
+    createChannelButtons,
+    createButtonsForChangeChannelModal,
+    createButtonsForSingleView,
     adjustVisibilityButtonsRemoveAllActiveChannels,
-    ajustarNumeroDivisionesClaseCol,
-    ajustarClaseColTransmisionesPorFila,
-    crearBotonesPaises,
-    crearBotonesCategorias,
-    actualizarBotonesFlotantes,
-    clicBotonPosicionBotonesFlotantes,
-    CONTAINER_INTERNO_VISION_UNICA,
-    guardarOrdenPanelesVisionUnica,
-    toggleClaseOrdenado,
-    sincronizarParametroCanalesActivos,
-    limpiarParametroCompartidoEnUrl,
-    obtenerCanalesDesdeUrl,
-    registrarCambioManualCanales,
-    limpiarRecursosTransmision,
+    saveOriginalOrder,
+    adjustBootstrapColumnClasses,
+    updateGridColumnConfiguration,
+    createCountryButtons,
+    createCategoryButtons,
+    updateFloatingButtons,
+    handleFloatingButtonsPositionClick,
+    saveSingleViewPanelsOrder,
+    toggleOrderedClass,
+    syncActiveChannelsParameter,
+    clearSharedUrlParameter,
+    getChannelsFromUrl,
+    registerManualChannelChange,
+    cleanTransmissionResources,
     syncCheckboxState,
     renderizarListasPersonalizadasUI,
     limpiarContenedoresListadosCanales,
@@ -89,6 +93,7 @@ import {
 export let gridViewContainerEl;
 
 export let singleViewContainerEl;
+export let singleViewGridEl;
 export let singleViewVideoContainerEl;
 
 let singleViewNoSignalIconEl;
@@ -114,7 +119,7 @@ export const aplicarEstadoUrlDinamica = (activo) => {
 export let musicIcon;
 
 export const obtenerCanalesPredeterminados = (isMobile) => {
-    return isMobile ? ARRAY_CANALES_PREDETERMINADOS : ARRAY_CANALES_PREDETERMINADOS.concat(ARRAY_CANALES_PREDETERMINADOS_EXTRAS);
+    return isMobile ? DEFAULT_CHANNELS_ARRAY : DEFAULT_CHANNELS_ARRAY.concat(EXTRA_DEFAULT_CHANNELS_ARRAY);
 }
 
 // Customization
@@ -180,7 +185,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     singleViewActivateButtonEl.addEventListener('click', () => {
         if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') {
-            activarVisionUnica();
+            activateSingleView();
             singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
             gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
         } else {
@@ -193,7 +198,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     gridViewActivateButtonEl.addEventListener('click', () => {
         if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
-            desactivarVisionUnica();
+            deactivateSingleView();
             singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
             gridViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
         } else {
@@ -254,7 +259,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 isVisible: isOverlayVisible
             });
 
-            hideTextoBotonesOverlay();
+            hideOverlayButtonText();
         } catch (error) {
             console.error(`Error durante actualización estado botones personalizar overlay. Error: ${error}`);
             showToast({
@@ -301,8 +306,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     actualizarBotonesPersonalizarOverlay();
 
-    const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
-    window.addEventListener('resize', hideTextoBotonesOverlayDebounced); // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
+    const hideOverlayButtonTextDebounced = debounce(hideOverlayButtonText, 150);
+    window.addEventListener('resize', hideOverlayButtonTextDebounced); // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
 
     // MARK: player for m3u8
     const lsReproductorM3u8 = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) ?? 'videojs';
@@ -398,7 +403,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     widthRangeInputEl.addEventListener('input', (event) => {
         syncHorizontalWidthValue(event.target.value)
-        hideTextoBotonesOverlayDebounced();
+        hideOverlayButtonTextDebounced();
     });
 
     syncHorizontalWidthValue();
@@ -419,7 +424,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, false)),
                 spanElFullHeight.textContent = 'Reducido'
             );
-        ajustarNumeroDivisionesClaseCol()
+        adjustBootstrapColumnClasses()
     });
 
     let isFullHeightMode = true;
@@ -443,9 +448,9 @@ window.addEventListener('DOMContentLoaded', () => {
     buttonsNumberChannelsPerRow.forEach(btn => {
         btn.addEventListener('click', () => {
             console.log(btn.value);
-            ajustarClaseColTransmisionesPorFila(btn.value)
+            updateGridColumnConfiguration(btn.value)
             spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`
-            hideTextoBotonesOverlay()
+            hideOverlayButtonText()
         })
     });
     spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`
@@ -459,16 +464,16 @@ window.addEventListener('DOMContentLoaded', () => {
     buttonsPositionFloatingButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const position = btn.dataset.position.split(' ');
-            clicBotonPosicionBotonesFlotantes(...position);
+            handleFloatingButtonsPositionClick(...position);
         });
     });
 
     let floatingActionsPosition = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_POSITION);
     if (floatingActionsPosition !== null) {
         const { top, start, margin, translate } = JSON.parse(floatingActionsPosition);
-        actualizarBotonesFlotantes(top, start, margin, translate);
+        updateFloatingButtons(top, start, margin, translate);
     } else {
-        actualizarBotonesFlotantes('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
+        updateFloatingButtons('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
     }
 
     // MARK: Text on floating buttons
@@ -521,7 +526,7 @@ window.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(LS_KEY_DYNAMIC_URL, JSON.stringify(isDynamicUrlMode));
         aplicarEstadoUrlDinamica(isDynamicUrlMode);
 
-        isDynamicUrlMode ? sincronizarParametroCanalesActivos() : limpiarParametroCompartidoEnUrl(true);
+        isDynamicUrlMode ? syncActiveChannelsParameter() : clearSharedUrlParameter(true);
     });
     aplicarEstadoUrlDinamica(isDynamicUrlMode);
 
@@ -544,13 +549,88 @@ window.addEventListener('DOMContentLoaded', () => {
             mergeCustomListsValueSpanEl.textContent = obtenerEtiquetaEstado(estado);
         };
 
-        const estadoInicial = obtenerPreferenciaCombinarCanales();
-        aplicarEstado(estadoInicial);
+        const initialState = getCombineChannelsPreference();
+        aplicarEstado(initialState);
 
-        mergeCustomListsCheckboxEl.addEventListener('change', () => {
+        mergeCustomListsCheckboxEl.addEventListener('change', async () => {
             const nuevoEstado = mergeCustomListsCheckboxEl.checked;
-            establecerPreferenciaCombinarCanales(nuevoEstado);
+            setCombineChannelsPreference(nuevoEstado);
             aplicarEstado(nuevoEstado);
+
+            // Re-aplicar lógica inmediatamente
+            try {
+                showToast({
+                    body: 'Actualizando listado de canales...',
+                    type: 'dark',
+                    duration: 2000
+                });
+
+                // 0. Capturar canales activos antes del cambio (evitar que queden duplicados)
+                const canalesActivosGrid = Array.from(gridViewContainerEl.querySelectorAll('div[data-canal]'))
+                    .map(el => el.dataset.canal);
+                const canalActivoSingle = singleViewVideoContainerEl.querySelector('div[data-canal]')?.dataset.canal;
+
+                // 1. Recargar canales base (limpia y recarga predeterminados)
+                await restoreChannelsFromMemory();
+
+                // 2. Restaurar listas personalizadas con la nueva preferencia
+                restorePersonalizedLists();
+
+                // 3. Re-renderizar la interfaz
+                createChannelButtons(channelsList);
+
+                // Actualizar listados adicionales si están en uso o para asegurar consistencia
+                createButtonsForChangeChannelModal(channelsList);
+                createButtonsForSingleView(channelsList);
+
+                saveOriginalOrder(); // Actualizar orden base para features de ordenamiento
+
+                // 4. Refrescar canales activos (Grid View)
+                if (canalesActivosGrid.length > 0) {
+                    canalesActivosGrid.forEach(canalId => {
+                        // Verificar si el canal sigue existiendo en la nueva lista
+                        if (tele && channelsList[canalId]) {
+                            // Remover y volver a añadir para actualizar su estado (mix vs no-mix)
+                            tele.remove(canalId);
+                            tele.add(canalId);
+                        } else if (tele) {
+                            // Si ya no existe (raro, pero posible si cambia ID al combinar/descombinar), removerlo
+                            tele.remove(canalId);
+                        }
+                    });
+                }
+
+                // 5. Refrescar canal activo (Single View)
+                if (canalActivoSingle) {
+                    if (tele && channelsList[canalActivoSingle]) {
+                        // En single view tele.add ya maneja la remoción del anterior, pero para forzar refresh explícito:
+                        tele.remove(canalActivoSingle);
+                        tele.add(canalActivoSingle);
+                    } else if (tele) {
+                        tele.remove(canalActivoSingle);
+                    }
+                }
+
+                // Actualizar contadores si existen (función auxiliar comunmente usada)
+                const contenedorGrilla = document.getElementById('container-vision-cuadricula');
+                if (contenedorGrilla) {
+                    const totalCanales = contenedorGrilla.children.length;
+                    // Si tienes un elemento UI para mostrar el total, actualízalo aquí
+                }
+
+                showToast({
+                    body: 'Listado y canales activos actualizados correctamente',
+                    type: 'success'
+                });
+
+            } catch (error) {
+                console.error('Error al actualizar listado por cambio de preferencia:', error);
+                showToast({
+                    title: 'Error',
+                    body: 'No se pudo actualizar el listado inmediatamente. Recarga la página.',
+                    type: 'danger'
+                });
+            }
         }, { once: false });
     }
 
@@ -599,11 +679,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
             toggleEstadoBoton(true);
             try {
-                await cargarListaPersonalizadaM3U(urlLista);
+                await loadPersonalizedM3UList(listUrl);
                 limpiarContenedoresListadosCanales();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
                 resincronizarEstadoVisualCanalesActivos();
                 initializeBootstrapTooltips();
 
@@ -658,12 +738,12 @@ window.addEventListener('DOMContentLoaded', () => {
             toggleBotonPegado(true);
             try {
                 const etiquetaManual = `Lista manual ${new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}`;
-                await cargarListaPersonalizadaDesdeTexto(contenidoLista, { etiqueta: etiquetaManual });
+                await loadPersonalizedListFromText(listContent, { etiqueta: manualLabel });
                 customListTextareaEl.value = '';
                 limpiarContenedoresListadosCanales();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
                 resincronizarEstadoVisualCanalesActivos();
 
                 renderizarListasPersonalizadasUI();
@@ -705,6 +785,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye') : ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
+
+        if (!AMBIENT_MUSIC.paused && !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked) {
+            AMBIENT_MUSIC.pause();
+            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+        }
     });
 
     let logoCardBackgroundState = localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) ?? 'show';
@@ -753,12 +838,12 @@ window.addEventListener('DOMContentLoaded', () => {
     // MARK: 🟢 Carga inicial
     async function cargaInicial() {
         try {
-            await fetchCargarCanales();
+            await fetchLoadChannels();
             if (channelsList) {
-                const listasRestauradas = restaurarListasPersonalizadas();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
+                const restoredLists = restorePersonalizedLists();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
                 deleteInvalidSignalPreferences();
 
                 const urlActual = new URL(window.location.href);
@@ -770,14 +855,14 @@ window.addEventListener('DOMContentLoaded', () => {
                         .filter(id => id.length > 0).length
                     : 0;
 
-                const canalesCompartidos = obtenerCanalesDesdeUrl();
+                const canalesCompartidos = getChannelsFromUrl();
 
                 if (canalesCompartidos.length > 0) {
 
                     estaCargandoDesdeUrlCompartida = true;
 
                     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
-                        desactivarVisionUnica({ evitarCargaPredeterminados: true });
+                        deactivateSingleView({ skipDefaultChannelsLoad: true });
                         singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
                         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
                     }
@@ -803,7 +888,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 } else {
 
                     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
-                        activarVisionUnica();
+                        activateSingleView();
                         singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
                         gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
                     } else {
@@ -816,11 +901,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 const lsBootstrapColNumber =
                     JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER)) ??
                     (isMobile.any ? BOOTSTRAP_COL_NUMBER_MOBILE : BOOTSTRAP_COL_NUMBER_DESKTOP);
-                ajustarClaseColTransmisionesPorFila(lsBootstrapColNumber);
-                hideTextoBotonesOverlay()
+                updateGridColumnConfiguration(lsBootstrapColNumber);
+                hideOverlayButtonText()
                 initializeBootstrapTooltips();
 
-                if (listasRestauradas > 0) {
+                if (restoredLists > 0) {
                     renderizarListasPersonalizadasUI();
                 }
             }
@@ -850,7 +935,7 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     screen.orientation.addEventListener('change', () => {
-        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') ajustarNumeroDivisionesClaseCol();
+        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') adjustBootstrapColumnClasses();
     });
 
     document.addEventListener('hidden.bs.toast', event => {
@@ -869,12 +954,14 @@ window.addEventListener('DOMContentLoaded', () => {
         },
         onEnd: () => {
             initializeBootstrapTooltips();
-            guardarCanalesEnLocalStorage();
-            registrarCambioManualCanales();
+            saveChannelsToLocalStorage();
+            registerManualChannelChange();
         }
     });
 
-    new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
+
+    singleViewGridEl = document.querySelector('.single-view-grid');
+    new Sortable(singleViewGridEl, {
         animation: 350,
         handle: '.clase-para-mover',
         easing: "cubic-bezier(.17,.67,.83,.67)",
@@ -889,17 +976,17 @@ window.addEventListener('DOMContentLoaded', () => {
         },
         onChange: () => {
             try {
-                toggleClaseOrdenado();
+                toggleOrderedClass();
             } catch (e) {
                 console.error('Error en onChange Sortable:', e);
             }
         },
         onEnd: () => {
             try {
-                guardarOrdenPanelesVisionUnica();
+                saveSingleViewPanelsOrder();
                 initializeBootstrapTooltips();
-                toggleClaseOrdenado();
-                registrarCambioManualCanales();
+                toggleOrderedClass();
+                registerManualChannelChange();
             } catch (e) {
                 console.error('Error en onEnd Sortable:', e);
             }
@@ -915,7 +1002,7 @@ window.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => {
             observerScheduled = false;
             try {
-                ajustarNumeroDivisionesClaseCol?.();
+                adjustBootstrapColumnClasses?.();
                 adjustVisibilityButtonsRemoveAllActiveChannels?.();
             } catch (e) {
                 console.error('Error observer', e);
@@ -959,13 +1046,13 @@ export let tele = {
                 DIV_CANAL.classList.add('position-relative', 'shadow');
                 DIV_CANAL.append(crearFragmentCanal(canal));
                 gridViewContainerEl.append(DIV_CANAL);
-                guardarCanalesEnLocalStorage();
+                saveChannelsToLocalStorage();
             }
-            ajustarClaseBotonCanal(canal, true);
+            adjustChannelButtonClass(canal, true);
             initializeBootstrapTooltips();
-            hideTextoBotonesOverlay();
-            registrarCambioManualCanales();
-            ajustarNumeroDivisionesClaseCol();
+            hideOverlayButtonText();
+            registerManualChannelChange();
+            adjustBootstrapColumnClasses();
         } catch (error) {
             console.error(`Error durante creación div de canal con id: ${canal}. Error: ${error}`);
             showToast({
@@ -985,12 +1072,12 @@ export let tele = {
             let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
 
             if (!transmisionPorRemover) {
-                ajustarClaseBotonCanal(canal, false);
+                adjustChannelButtonClass(canal, false);
                 return;
             }
 
             // Limpiar recursos antes de eliminar el contenedor; iframe, videojs, clappr, oplayer
-            limpiarRecursosTransmision(transmisionPorRemover);
+            cleanTransmissionResources(transmisionPorRemover);
             // Remover tooltips; botones flotantes overlay
             disposeBootstrapTooltips();
             // Eliminar el contenedor del DOM
@@ -1001,12 +1088,12 @@ export let tele = {
             if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
                 singleViewNoSignalIconEl.classList.remove('d-none');
             } else {
-                guardarCanalesEnLocalStorage();
+                saveChannelsToLocalStorage();
             }
 
-            ajustarClaseBotonCanal(canal, false);
+            adjustChannelButtonClass(canal, false);
             initializeBootstrapTooltips();
-            registrarCambioManualCanales();
+            registerManualChannelChange();
         } catch (error) {
             console.error(`Error durante eliminación div de canal con id: ${canal}. Error: ${error}`);
             showToast({

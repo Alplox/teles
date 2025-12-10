@@ -1,10 +1,10 @@
 import { obtenerCanalesPredeterminados, tele } from './main.js'
 import {
     showToast,
-    ordenarBotonesCanalesAscendente,
-    ordenarBotonesCanalesDescendente,
-    restaurarOrdenOriginalBotonesCanales,
-    filtrarCanalesPorInput,
+    sortChannelButtonsAscending,
+    sortChannelButtonsDescending,
+    restoreOriginalChannelButtonsOrder,
+    filterChannelsByInput,
 } from './helpers/index.js'
 import {
     AUDIO_STATIC,
@@ -492,13 +492,13 @@ const handleSortClick = (prefix, type, sortFn) => {
 
 for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
     document.querySelector(`#${PREFIJO}-btn-ascending-order`)?.addEventListener('click', () =>
-        handleSortClick(PREFIJO, 'ascending', ordenarBotonesCanalesAscendente));
+        handleSortClick(PREFIJO, 'ascending', sortChannelButtonsAscending));
 
     document.querySelector(`#${PREFIJO}-btn-descending-order`)?.addEventListener('click', () =>
-        handleSortClick(PREFIJO, 'descending', ordenarBotonesCanalesDescendente));
+        handleSortClick(PREFIJO, 'descending', sortChannelButtonsDescending));
 
     document.querySelector(`#${PREFIJO}-btn-default-order`)?.addEventListener('click', () =>
-        handleSortClick(PREFIJO, 'default', restaurarOrdenOriginalBotonesCanales));
+        handleSortClick(PREFIJO, 'default', restoreOriginalChannelButtonsOrder));
 
     let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`)
     const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
@@ -506,7 +506,7 @@ for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
 
     const filtrarCanalesPorInputDebounced = debounce((valor) => {
         inputFiltro.focus();
-        filtrarCanalesPorInput(valor, bodyBotonesCanales);
+        filterChannelsByInput(valor, bodyBotonesCanales);
     }, 200);
 
     inputFiltro.addEventListener('input', (e) => {
