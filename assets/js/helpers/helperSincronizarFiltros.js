@@ -1,4 +1,4 @@
-import { CLASE_CSS_BOTON_PRIMARIO } from "../constants/index.js";
+import { CSS_CLASS_BUTTON_PRIMARY } from "../constants/index.js";
 import {
   obtenerCategoriasPermitidasPorPais,
   obtenerPaisesPermitidosPorCategoria
@@ -44,7 +44,7 @@ function aplicarEstadoDeshabilitado(label, deshabilitar) {
     label.classList.add("disabled", "opacity-50");
     label.setAttribute("aria-disabled", "true");
     label.title = MENSAJE_NO_DISPONIBLE;
-    label.classList.remove(CLASE_CSS_BOTON_PRIMARIO);
+    label.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
     if (!label.classList.contains("btn-outline-secondary")) {
       label.classList.add("btn-outline-secondary");
     }
@@ -82,7 +82,7 @@ function seleccionarFallback(menu, dataAttribute) {
 
 /**
  * Deshabilita categorías incompatibles con el país seleccionado y fuerza un fallback si es necesario.
- * @param {string} prefijo - Prefijo del contenedor (modal-canales, vision-unica, etc.).
+ * @param {string} prefijo - Prefijo del contenedor (modal-canales, single-view, etc.).
  * @param {string} codigoPaisSeleccionado - Código ISO en minúsculas o "Desconocido".
  * @returns {void}
  */
@@ -108,7 +108,7 @@ export function sincronizarCategoriasConPais(prefijo, codigoPaisSeleccionado) {
 
 /**
  * Deshabilita países incompatibles con la categoría seleccionada y fuerza un fallback si es necesario.
- * @param {string} prefijo - Prefijo del contenedor (modal-canales, vision-unica, etc.).
+ * @param {string} prefijo - Prefijo del contenedor (modal-canales, single-view, etc.).
  * @param {string} categoriaSeleccionada - Nombre de categoría en minúsculas o "undefined".
  * @returns {void}
  */

@@ -1,9 +1,9 @@
 import {
-  CLASE_CSS_BOTON_PRIMARIO,
-  PREFIJOS_ID_CONTENEDORES_CANALES,
-  CODIGOS_PAISES
+  CSS_CLASS_BUTTON_PRIMARY,
+  ID_PREFIX_CONTAINERS_CHANNELS,
+  COUNTRY_CODES
 } from '../constants/index.js';
-import { mostrarToast } from './index.js';
+import { showToast } from './index.js';
 
 function normalizarInput(normalizarEsto) {
   return normalizarEsto?.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase() ?? '';
@@ -24,7 +24,7 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
     const INPUT_NORMALIZADO = normalizarInput(valorInput);
     const BOTONES_CANALES = containerBotonesDeCanales.querySelectorAll('button[data-canal]');
 
-    for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+    for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
       if (ID_CONTENEDOR_BOTONES_CANALES.startsWith(PREFIJO)) {
         let booleanCoincidencia = false;
         let filtroPorPaisActivo = 'all';
@@ -32,15 +32,15 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
 
         const elementosFiltroPais = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-paises [data-country]`);
         elementosFiltroPais.forEach(elemento => {
-          if (elemento.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
+          if (elemento.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
             const valorDataset = elemento.dataset.country ?? 'all';
-            filtroPorPaisActivo = CODIGOS_PAISES[valorDataset] ?? valorDataset;
+            filtroPorPaisActivo = COUNTRY_CODES[valorDataset] ?? valorDataset;
           }
         });
 
         const elementosFiltroCategoria = document.querySelectorAll(`#${PREFIJO}-collapse-botones-listado-filtro-categorias [data-category]`);
         elementosFiltroCategoria.forEach(elemento => {
-          if (elemento.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
+          if (elemento.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
             filtroPorCategoriaActiva = elemento.dataset.category ?? 'all';
           }
         });
@@ -86,13 +86,15 @@ export function filtrarCanalesPorInput(valorInput, containerBotonesDeCanales) {
     }
   } catch (error) {
     console.error(`Error durante filtrado canales. Error: ${error}`);
-    mostrarToast(`
-    <span class="fw-bold">Ha ocurrido un error al intentar filtrar canales.</span>
-    <hr>
-    <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-    <hr>
-    Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-    <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
+    
+    showToast({
+        title: 'Ha ocurrido un error al intentar filtrar canales.',
+        body: `Error: ${error}`,
+        type: 'danger',
+        autohide: false,
+        delay: 0,
+        showReloadOnError: true
+    });
     return;
   }
 }

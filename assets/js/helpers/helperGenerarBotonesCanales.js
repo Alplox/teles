@@ -1,11 +1,11 @@
-import { listaCanales, ORIGEN_PREDETERMINADO } from "../canalesData.js";
-import { CLASE_CSS_BOTON_SECUNDARIO, CODIGOS_PAISES, ICONOS_PARA_CATEGORIAS, PREFIJOS_ID_CONTENEDORES_CANALES } from "../constants/index.js";
-import { CONTAINER_VIDEO_VISION_UNICA, tele, LABEL_MODAL_CAMBIAR_CANAL } from "../main.js";
-import { mostrarToast, revisarSeñalesVacias, guardarOrdenOriginal } from "./index.js";
-import { reemplazarCanalActivo } from "./helperReemplazarCanalActivo.js";
+import { channelsList, ORIGEN_PREDETERMINADO } from "../canalesData.js";
+import { CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS } from "../constants/index.js";
+import { singleViewVideoContainerEl, tele } from "../main.js";
+import { showToast, areAllSignalsEmpty, guardarOrdenOriginal, reemplazarCanalActivo } from "./index.js";
 
-// SVG bandera genérica para países desconocidos
-const SVG_BANDERA_DESCONOCIDO = `
+import { changeChannelModalEl } from "../canalUI.js";
+
+const SVG_UNKNOWN_COUNTRY = `
 <svg width="24" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <rect width="16" height="16" rx="2" fill="#e0e0e0"/>
     <rect x="2" y="2" width="12" height="12" rx="1" fill="#bdbdbd"/>
@@ -14,9 +14,86 @@ const SVG_BANDERA_DESCONOCIDO = `
 `;
 
 // Contenedores que se rellenan siempre durante la carga inicial
-const SELECTORES_CONTENEDORES = [
-    '#modal-canales-body-botones-canales',
-    '#offcanvas-canales-body-botones-canales'
+const IDS_MAIN_BUTTONS_CONTAINERS = [
+    '#modal-canales-channels-buttons-container',
+    '#offcanvas-canales-channels-buttons-container'
+];
+
+/**
+ * Configuraciones por escenario para manejar las interacciones de los botones.
+ * Permite controlar contextos multi-selección y selección única.
+ */
+const BUTTON_SCENARIOS = {
+    grid: {
+        descripcion: 'Permite múltiples canales activos dentro de la grilla.',
+        onSelect: ({ channelId, isSelecting }) => {
+            if (!tele || typeof tele.add !== 'function' || typeof tele.remove !== 'function') {
+                console.warn("[teles] Couldn't find 'tele' function to manage grid view.");
+                return;
+            }
+            const action = isSelecting ? 'add' : 'remove';
+            tele[action](channelId);
+        }
+    },
+    cambio: {
+        descripcion: 'Reemplaza la señal activa desde el modal "Cambiar canal".',
+        onSelect: ({ channelId }) => {
+            const previousChannel = changeChannelModalEl?.dataset.channelSource;
+            if (!previousChannel) {
+                console.warn('[teles] There is no channel selected to replace in the "Change channel" modal.');
+                return;
+            }
+            reemplazarCanalActivo(channelId, previousChannel);
+        }
+    },
+    'single-view': {
+        descripcion: 'Sólo permite un canal activo simultáneamente.',
+        onSelect: ({ channelId, isSelecting }) => {
+            if (!tele || typeof tele.add !== 'function' || typeof tele.remove !== 'function') {
+                console.warn("[teles] Couldn't find 'tele' function to manage single view.");
+                return;
+            }
+            if (!singleViewVideoContainerEl) { return; } // document.querySelector('#container-video-single-view')
+
+            if (!isSelecting) {
+                tele.remove(channelId);
+                return;
+            }
+
+            const canalEnUso = singleViewVideoContainerEl.querySelector('div[data-canal]');
+            if (canalEnUso && canalEnUso.dataset.canal && canalEnUso.dataset.canal !== channelId) {
+                tele.remove(canalEnUso.dataset.canal);
+            }
+            tele.add(channelId);
+        }
+    }
+};
+
+/**
+ * Relación entre contenedores y escenarios para inicializar eventos.
+ */
+const BUTTON_CONTAINER_CONFIG = [
+    {
+        selector: '#modal-canales-channels-buttons-container',
+        scenario: 'grid',
+        delegateEvents: true
+    },
+    {
+        selector: '#offcanvas-canales-channels-buttons-container',
+        scenario: 'grid',
+        delegateEvents: true
+    },
+    {
+        selector: '#modal-cambiar-canal-channels-buttons-container',
+        scenario: 'cambio',
+        delegateEvents: false,
+        applyDismissAttribute: true
+    },
+    {
+        selector: '#single-view-channels-buttons-container',
+        scenario: 'single-view',
+        delegateEvents: false
+    }
 ];
 
 /**
@@ -25,25 +102,26 @@ const SELECTORES_CONTENEDORES = [
 export function crearBotonesParaCanales() {
     try {
         const gruposPorOrigen = agruparCanalesPorOrigen();
-        renderizarBotonesEnContenedores(gruposPorOrigen, SELECTORES_CONTENEDORES);
+        renderizarBotonesEnContenedores(gruposPorOrigen, IDS_MAIN_BUTTONS_CONTAINERS);
 
         asignarEventosBotones();
 
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-            guardarOrdenOriginal(`${PREFIJO}-body-botones-canales`);
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
+            guardarOrdenOriginal(`${PREFIJO}-channels-buttons-container`);
         }
     } catch (error) {
         console.error(`Error durante creación botones para canales. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la creación de botones para los canales.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+        showToast({
+            title: 'Ha ocurrido un error durante la creación de botones para los canales.',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
 
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-            document.querySelector(`#${PREFIJO}-body-botones-canales`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
+            document.querySelector(`#${PREFIJO}-channels-buttons-container`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
         }
     }
 }
@@ -55,20 +133,13 @@ export function crearBotonesParaCanales() {
 export function crearBotonesParaModalCambiarCanal() {
     try {
         const gruposPorOrigen = agruparCanalesPorOrigen();
-        renderizarBotonesEnContenedores(gruposPorOrigen, ['#modal-cambiar-canal-body-botones-canales']);
+        renderizarBotonesEnContenedores(gruposPorOrigen, ['#modal-cambiar-canal-channels-buttons-container']);
         asignarEventosBotones();
-        guardarOrdenOriginal('modal-cambiar-canal-body-botones-canales');
+        guardarOrdenOriginal('modal-cambiar-canal-channels-buttons-container');
     } catch (error) {
         console.error('[teles] Error al crear botones para el modal "Cambiar canal":', error);
     }
 }
-
-/* 
-document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').forEach(boton => {
-            boton.addEventListener('click', () => reemplazarCanalActivo(boton.dataset.canal, LABEL_MODAL_CAMBIAR_CANAL.getAttribute('id-canal-cambio')));
-        });
-        
-        */
 
 /**
  * Renderiza los botones de canales en el contenedor de selección de Visión Única bajo demanda.
@@ -77,9 +148,9 @@ document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button').fo
 export function crearBotonesParaVisionUnica() {
     try {
         const gruposPorOrigen = agruparCanalesPorOrigen();
-        renderizarBotonesEnContenedores(gruposPorOrigen, ['#vision-unica-body-botones-canales']);
+        renderizarBotonesEnContenedores(gruposPorOrigen, ['#single-view-channels-buttons-container']);
         asignarEventosBotones();
-        guardarOrdenOriginal('vision-unica-body-botones-canales');
+        guardarOrdenOriginal('single-view-channels-buttons-container');
     } catch (error) {
         console.error('[teles] Error al crear botones para Visión Única:', error);
     }
@@ -91,8 +162,8 @@ export function crearBotonesParaVisionUnica() {
  */
 function agruparCanalesPorOrigen() {
     const grupos = new Map();
-    for (const canalId of Object.keys(listaCanales)) {
-        const data = listaCanales[canalId];
+    for (const canalId of Object.keys(channelsList)) {
+        const data = channelsList[canalId];
         const origen = data?.origenLista ?? ORIGEN_PREDETERMINADO;
         if (!grupos.has(origen)) grupos.set(origen, []);
         grupos.get(origen).push({ id: canalId, data });
@@ -151,14 +222,10 @@ function construirFragmentoCanales(grupos, { idBase = 'grupo-canales' } = {}) {
             lista.append(crearBotonCanal(id, data));
         });
 
-        const contenidoColapsable = document.createElement('div');
-        contenidoColapsable.classList.add('mt-1');
-        contenidoColapsable.append(lista);
-
         const collapse = document.createElement('div');
-        collapse.classList.add(/* 'collapse' */ 'modal-body-canales', 'show');
+        collapse.classList.add('mt-1', 'show');
         collapse.id = collapseId;
-        collapse.append(contenidoColapsable);
+        collapse.append(lista);
 
         const iconoEstado = header.querySelector('.icono-estado-colapso');
         const actualizarIcono = (estaAbierto) => {
@@ -186,9 +253,9 @@ function construirFragmentoCanales(grupos, { idBase = 'grupo-canales' } = {}) {
 function crearBotonCanal(canalId, canalData) {
     let { nombre, país, categoría } = canalData;
     categoría = (categoría ?? '').toLowerCase();
-    const iconoCategoria = categoría && categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
+    const iconoCategoria = categoría && categoría in CATEGORIES_ICONS ? CATEGORIES_ICONS[categoría] : '<i class="bi bi-tv"></i>';
 
-    const nombrePais = país && CODIGOS_PAISES[país.toLowerCase()] ? CODIGOS_PAISES[país.toLowerCase()] : 'Desconocido';
+    const nombrePais = país && COUNTRY_CODES[país.toLowerCase()] ? COUNTRY_CODES[país.toLowerCase()] : 'Desconocido';
     const fuentesCombinadas = Array.isArray(canalData?.fuentesCombinadas) ? canalData.fuentesCombinadas.filter(Boolean) : [];
     const esSeñalCombinada = canalData?.esSeñalCombinada === true && fuentesCombinadas.length > 1;
     const descripcionFuentes = fuentesCombinadas.length > 0 ? fuentesCombinadas.join(', ') : 'fuentes múltiples';
@@ -205,14 +272,13 @@ function crearBotonCanal(canalId, canalData) {
         botonCanal.dataset.fuentesCombinadas = descripcionFuentes;
     }
 
-    botonCanal.classList.add('btn', CLASE_CSS_BOTON_SECUNDARIO, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
-    if (revisarSeñalesVacias(canalId)) botonCanal.classList.add('d-none');
+    botonCanal.classList.add('btn', CSS_CLASS_BUTTON_SECONDARY, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
+    if (areAllSignalsEmpty(canalId)) botonCanal.classList.add('d-none');
     botonCanal.innerHTML = `
         <span class="flex-grow-1">${nombre}</span>
-        ${
-            país && CODIGOS_PAISES[país.toLowerCase()]
-                ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">`
-                : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${nombrePais}]">${SVG_BANDERA_DESCONOCIDO}</span>`
+        ${país && COUNTRY_CODES[país.toLowerCase()]
+            ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${nombrePais}" title="${nombrePais}" class="svg-bandera rounded-1">`
+            : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${nombrePais}]">${SVG_UNKNOWN_COUNTRY}</span>`
         }
         ${iconoCategoria ? `${iconoCategoria}` : ''}
         ${distintivoCombinado}`;
@@ -225,65 +291,99 @@ function crearBotonCanal(canalId, canalData) {
  * @returns {void}
  */
 function asignarEventosBotones() {
-    const SELECTORES_DELEGACION_PRINCIPALES = [
-        '#modal-canales-body-botones-canales',
-        '#offcanvas-canales-body-botones-canales'
-    ];
+    BUTTON_CONTAINER_CONFIG.forEach(config => {
+        const contenedor = document.querySelector(config.selector);
+        if (!contenedor || contenedor.dataset.eventosInicializados === 'true') return;
 
-    SELECTORES_DELEGACION_PRINCIPALES.forEach(selector => {
-        const contenedor = document.querySelector(selector);
-        if (!contenedor || contenedor.dataset.delegacionCanalesInicializada === 'true') return;
+        contenedor.dataset.eventosInicializados = 'true';
 
-        contenedor.dataset.delegacionCanalesInicializada = 'true';
-
-        contenedor.addEventListener('click', (event) => {
-            const botonCanalEnDOM = event.target.closest('button[data-canal]');
-            if (!botonCanalEnDOM || !contenedor.contains(botonCanalEnDOM)) return;
-
-            const accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
-            tele[accionBoton](botonCanalEnDOM.dataset.canal);
-        });
+        if (config.delegateEvents) {
+            registrarEventosDelegados(contenedor, config.scenario);
+        } else {
+            registrarEventosEstaticos(contenedor, config.scenario, {
+                applyDismissAttribute: config.applyDismissAttribute
+            });
+        }
     });
+}
 
-    const contenedorCambiar = document.querySelector('#modal-cambiar-canal-body-botones-canales');
-    if (contenedorCambiar && contenedorCambiar.dataset.delegacionCanalesInicializada !== 'true') {
-        contenedorCambiar.dataset.delegacionCanalesInicializada = 'true';
+/**
+ * Configura delegación de eventos para contenedores dinámicos.
+ * @param {HTMLElement} contenedor
+ * @param {keyof typeof BUTTON_SCENARIOS} scenarioKey
+ * @returns {void}
+ */
+function registrarEventosDelegados(contenedor, scenarioKey) {
+    contenedor.addEventListener('click', (event) => {
+        const boton = event.target.closest('button[data-canal]');
+        if (!boton || !contenedor.contains(boton)) return;
 
-        contenedorCambiar.querySelectorAll('button[data-canal]').forEach(boton => {
-            boton.setAttribute('data-bs-dismiss', 'modal');
-        });
+        manejarSeleccionBoton(boton, scenarioKey);
+    });
+}
 
-        contenedorCambiar.addEventListener('click', (event) => {
-            const botonCanalEnDOM = event.target.closest('button[data-canal]');
-            if (!botonCanalEnDOM || !contenedorCambiar.contains(botonCanalEnDOM)) return;
-
-            const idCanalCambio = LABEL_MODAL_CAMBIAR_CANAL?.getAttribute('id-canal-cambio');
-            if (!idCanalCambio) return;
-
-            reemplazarCanalActivo(botonCanalEnDOM.dataset.canal, idCanalCambio);
-        });
-    }
-
-    const contenedorVisionUnica = document.querySelector('#vision-unica-body-botones-canales');
-    if (contenedorVisionUnica && contenedorVisionUnica.dataset.delegacionCanalesInicializada !== 'true') {
-        contenedorVisionUnica.dataset.delegacionCanalesInicializada = 'true';
-
-        contenedorVisionUnica.addEventListener('click', (event) => {
-            const botonCanalEnDOM = event.target.closest('button[data-canal]');
-            if (!botonCanalEnDOM || !contenedorVisionUnica.contains(botonCanalEnDOM)) return;
-
-            const canalEnUso = CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]');
-            if (canalEnUso) {
-                tele.remove(canalEnUso.dataset.canal);
+/**
+ * Configura listeners directos y observa cambios para contenedores estáticos.
+ * @param {HTMLElement} contenedor
+ * @param {keyof typeof BUTTON_SCENARIOS} scenarioKey
+ * @param {{ applyDismissAttribute?: boolean }} opciones
+ * @returns {void}
+ */
+function registrarEventosEstaticos(contenedor, scenarioKey, { applyDismissAttribute = false } = {}) {
+    const actualizarEventos = () => {
+        const botones = Array.from(contenedor.querySelectorAll('button[data-canal]'));
+        botones.forEach(boton => {
+            const botonClonado = boton.cloneNode(true);
+            if (applyDismissAttribute) {
+                botonClonado.setAttribute('data-bs-dismiss', 'modal');
             }
-
-            const accionBoton = botonCanalEnDOM.classList.contains(CLASE_CSS_BOTON_SECUNDARIO) ? 'add' : 'remove';
-            tele[accionBoton](botonCanalEnDOM.dataset.canal);
+            botonClonado.addEventListener('click', () => manejarSeleccionBoton(botonClonado, scenarioKey));
+            boton.replaceWith(botonClonado);
         });
+    };
+
+    actualizarEventos();
+
+    const observer = new MutationObserver(() => {
+        observer.disconnect();
+        actualizarEventos();
+        observer.observe(contenedor, { childList: true, subtree: true });
+    });
+
+    observer.observe(contenedor, { childList: true, subtree: true });
+}
+
+/**
+ * Maneja la selección de un botón en función del escenario configurado.
+ * @param {HTMLButtonElement} boton
+ * @param {keyof typeof BUTTON_SCENARIOS} scenarioKey
+ * @returns {void}
+ */
+function manejarSeleccionBoton(boton, scenarioKey) {
+    if (!boton) return;
+    const channelId = boton.dataset.canal;
+    if (!channelId) return;
+    const isSelecting = boton.classList.contains(CSS_CLASS_BUTTON_SECONDARY);
+
+    ejecutarEscenarioPorTipo(scenarioKey, {
+        button: boton,
+        channelId,
+        isSelecting
+    });
+}
+
+/**
+ * Ejecuta la acción asociada a un escenario específico.
+ * @param {keyof typeof BUTTON_SCENARIOS} scenarioKey
+ * @param {{ button: HTMLButtonElement, channelId: string, isSelecting: boolean }} contexto
+ * @returns {void}
+ */
+function ejecutarEscenarioPorTipo(scenarioKey, contexto) {
+    const scenario = BUTTON_SCENARIOS[scenarioKey];
+    if (!scenario) {
+        console.warn(`[teles] There is no configuration for the scenario "${scenarioKey}".`);
+        return;
     }
 
-    // Cerrar modal tras click
-    document.querySelectorAll('#modal-cambiar-canal-body-botones-canales button[data-canal]').forEach(boton => {
-        boton.setAttribute('data-bs-dismiss', 'modal');
-    });
+    scenario.onSelect(contexto);
 }

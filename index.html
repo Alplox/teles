@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.21
+    teles v0.22
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -105,10 +105,32 @@
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.21</i>
+                            <i class="badge bg-secondary">v0.22</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
+
+                    <!-- Controles de audio para música ambiente -->
+                    <div id="audio-controls"
+                        class="z-3 d-flex flex-column gap-2 align-items-center bg-info-subtle p-2 rounded-4">
+                        <button id="ambient-music-toggle"
+                            class="btn btn-sm rounded-pill d-flex align-items-center gap-2"
+                            title="Reproducir música ambiente">
+                            <i class="bi bi-play-fill text-flicker fs-4" id="music-icon"></i>
+                            <!--  <span>Música Ambiente</span> -->
+                            <a id="ambient-music-track"
+                                class="fs-smaller bg-light-subtle p-2 rounded-pill user-select-auto"
+                                href="https://freesound.org/people/YellowTree/sounds/693384/">Weather
+                                Forecast Type Beat by
+                                YellowTree</a>
+                        </button>
+                        <div class="d-flex align-items-center gap-2 bg-dark-subtle p-2 rounded-4">
+                            <i class="bi bi-volume-down"></i>
+                            <input type="range" id="ambient-music-volume" class="form-range" min="0" max="100"
+                                value="50" style="width: 150px;">
+                            <i class="bi bi-volume-up"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -264,27 +286,21 @@
         </div>
     </nav>
 
-    <!-- Alerta sin conexión a internet -->
-    <div class="alert alert-danger alert-dismissible fade show mb-0 d-none" role="alert" id="alerta-internet-status">
-        <i class="bi bi-cloud-slash bg-danger-subtle rounded-3 p-1"></i> Sin conexión a internet
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
     <!-- Grid canales -->
     <main class='vh-100'>
         <!-- version vision cuadricula -->
         <div class="row g-0 h-100" id="container-vision-cuadricula">
         </div>
 
-        <!-- version vision unica -->
-        <div class='vh-100 w-100 position-absolute overflow-hidden d-none' id="container-vision-unica">
-            <div class='vision-unica-grid bg-dark-subtle h-100'>
+        <!-- version single view -->
+        <div class='vh-100 w-100 position-absolute overflow-hidden d-none' id="container-single-view">
+            <div class='single-view-grid bg-dark-subtle h-100'>
                 <div class="h-100 overflow-hidden p-2 d-flex flex-column shadow rounded-3 border border-light-subtle"
-                    id="panel-canales-vision-unica">
+                    id="panel-canales-single-view">
 
                     <button type="button" data-bs-toggle="tooltip"
                         data-bs-title="Arrastrar y mover este panel [izquierda-derecha]"
-                        id="boton-mover-panel-canales-vision-unica"
+                        id="boton-mover-panel-canales-single-view"
                         class="btn btn-sm btn-dark-subtle p-0 px-1 rounded-3 mb-2">
                         <div class="d-flex gap-1 pe-auto w-100 clase-para-mover">
                             <span>Mover</span><i class="bi bi-arrows-move ms-auto"></i>
@@ -292,11 +308,11 @@
                     </button>
 
                     <div class="h-100 pt-0 bg-transparent scrollbar-thin-gray overflow-auto overflow-x-hidden ">
-                        <div class="vision-unica-body-canales" id="vision-unica-body-botones-canales">
+                        <div class="one-column-grid" id="single-view-channels-buttons-container">
                         </div>
                         <!-- Mensaje alerta sin resultados offcanvas -->
-                        <div class="vision-unica-mensaje-alerta d-none shadow" tabindex="0"
-                            id="vision-unica-mensaje-alerta">
+                        <div class="single-view-mensaje-alerta d-none shadow" tabindex="0"
+                            id="single-view-mensaje-alerta">
                             <div
                                 class="d-flex flex-column rounded-3 justify-content-center align-items-center text-wrap h-100 bg-danger-subtle p-3">
                                 <p class="fs-4 bg-danger p-3 rounded-3 overflow-auto" style="max-height: 150px;">
@@ -318,83 +334,101 @@
                         <!-- /Mensaje alerta sin resultados -->
                     </div>
 
-                     <div class="d-flex flex-column gap-2">
-                        <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2 d-flex flex-column gap-1">
-                            <div class="d-flex gap-2 align-items-center">
-                                <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-sliders"></i>
-                                    <span>Filtros</span>
-                                </span>
-                            </div>
-                            <div class="d-flex flex-row flex-wrap gap-2 mt-1">
-                                <div class="d-flex flex-column">
-                                    <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
-                                        role="group" aria-label="Toggle radio para grupo botones"
-                                        id='vision-unica-collapse-botones-listado-filtro-paises'>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
-                                        role="group" aria-label="Toggle radio para grupo botones por categoría"
-                                        id='vision-unica-collapse-botones-listado-filtro-categorias'>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-dark dropdown-toggle rounded-pill"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-sort-down"></i> Orden
-                                        </button>
-                                        <ul class="dropdown-menu p-2 rounded-4">
-                                            <li class="mb-1">
-                                                <input type="radio" class="btn-check" name="btnradiovisionunica"
-                                                    id="vision-unica-boton-orden-ascendente" autocomplete="off">
-                                                <label
-                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                    for="vision-unica-boton-orden-ascendente">
-                                                    <i class="bi bi-sort-alpha-down"></i> Ascendente
-                                                </label>
-                                            </li>
-                                            <li class="my-1">
-                                                <input type="radio" class="btn-check" name="btnradiovisionunica"
-                                                    id="vision-unica-boton-orden-descendente" autocomplete="off">
-                                                <label
-                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                    for="vision-unica-boton-orden-descendente">
-                                                    <i class="bi bi-sort-alpha-up-alt"></i> Descendente
-                                                </label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" class="btn-check" name="btnradiovisionunica"
-                                                    id="vision-unica-boton-orden-original" autocomplete="off" checked>
-                                                <label
-                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                    for="vision-unica-boton-orden-original">
-                                                    <i class="bi bi-arrow-clockwise"></i> Predeterminado
-                                                </label>
-                                            </li>
-                                        </ul>
-                                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2">
+                            <!-- Header con buscador siempre visible -->
+                            <div class="d-flex align-items-center gap-2">
+                                <button
+                                    class="btn btn-sm d-flex align-items-center gap-1 p-0 border-0 bg-transparent flex-shrink-0"
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#single-view-filtros-collapse" aria-expanded="false"
+                                    aria-controls="single-view-filtros-collapse">
+                                    <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-sliders"></i>
+                                        <span>Filtros</span>
+                                    </span>
+                                    <i class="bi bi-chevron-down icono-filtros-estado"></i>
+                                </button>
+
+                                <!-- Buscador siempre visible -->
+                                <div class="flex-grow-1">
+                                    <input type="search" class="form-control form-control-sm rounded-4"
+                                        id="single-view-input-filtro" placeholder="Buscar por país o canal">
                                 </div>
                             </div>
-                            <div class="form-floating w-100">
-                                <input type="search" class="form-control rounded-3" id="vision-unica-input-filtro"
-                                    placeholder="Buscar por país o canal">
-                                <label for="filtro">Buscar por país o canal</label>
+
+                            <!-- Contenido colapsable (solo filtros) -->
+                            <div class="collapse mt-2" id="single-view-filtros-collapse">
+                                <div class="d-flex flex-row flex-wrap gap-2">
+                                    <div class="d-flex flex-column">
+                                        <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
+                                            role="group" aria-label="Toggle radio para grupo botones"
+                                            id='single-view-collapse-botones-listado-filtro-paises'>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray"
+                                            role="group" aria-label="Toggle radio para grupo botones por categoría"
+                                            id='single-view-collapse-botones-listado-filtro-categorias'>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-dark dropdown-toggle rounded-pill"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-sort-down"></i> Orden
+                                            </button>
+                                            <ul class="dropdown-menu p-2 rounded-4">
+                                                <li class="mb-1">
+                                                    <input type="radio" class="btn-check"
+                                                        name="btn-ascending-single-view"
+                                                        id="single-view-btn-ascending-order" autocomplete="off">
+                                                    <label
+                                                        class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                        for="single-view-btn-ascending-order">
+                                                        <i class="bi bi-sort-alpha-down"></i> Ascendente
+                                                    </label>
+                                                </li>
+                                                <li class="my-1">
+                                                    <input type="radio" class="btn-check"
+                                                        name="btn-descending-order-single-view"
+                                                        id="single-view-btn-descending-order" autocomplete="off">
+                                                    <label
+                                                        class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                        for="single-view-btn-descending-order">
+                                                        <i class="bi bi-sort-alpha-up-alt"></i> Descendente
+                                                    </label>
+                                                </li>
+                                                <li>
+                                                    <input type="radio" class="btn-check"
+                                                        name="btn-default-order-single-view"
+                                                        id="single-view-btn-default-order" autocomplete="off" checked>
+                                                    <label
+                                                        class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                        for="single-view-btn-default-order">
+                                                        <i class="bi bi-arrow-clockwise"></i> Predeterminado
+                                                    </label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
                     </div>
-                </div>
 
-                <div class="h-100 w-100 bg-transparent rounded-3 border border-light-subtle shadow overflow-hidden"
-                    id="container-video-vision-unica">
-                    <div class="d-flex justify-content-center align-items-center h-100 w-100"
-                        id="icono-sin-señal-vision-unica">
-                        <p class="display-1"><i class="bi bi-camera-video-off"></i></p>
-                    </div>
                 </div>
             </div>
+
+            <div class="h-100 w-100 bg-transparent rounded-3 border border-light-subtle shadow overflow-hidden"
+                id="container-video-single-view">
+                <div class="d-flex justify-content-center align-items-center h-100 w-100"
+                    id="icono-sin-señal-single-view">
+                    <p class="display-1"><i class="bi bi-camera-video-off"></i></p>
+                </div>
+            </div>
+        </div>
         </div>
     </main>
 
@@ -438,80 +472,89 @@
                         </div>
                     </div>
                     <div class="autocomplete-container shadow d-flex flex-column gap-2"
-                        id="modal-cambiar-canal-body-botones-canales"></div>
+                        id="modal-cambiar-canal-channels-buttons-container"></div>
                 </div>
 
                 <div class="modal-footer bg-transparent border-0 d-flex align-items-center justify-content-center">
-                    <div class="w-100 bg-light-subtle p-2 rounded-3 d-flex flex-column mt-2 rounded-4 gap-2">
-                        <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-sliders"></i>
-                            <span>Filtros</span>
-                        </span>
-                        <div class="d-flex gap-1 mt-1 flex-wrap">
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-flag"></i>
-                                    <span>País</span>
-                                </span> -->
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones"
-                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-paises">
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-grid-3x3-gap"></i>
-                                    <span>Categoría</span>
-                                </span> -->
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones por categoría"
-                                    id="modal-cambiar-canal-collapse-botones-listado-filtro-categorias">
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-funnel"></i>
-                                    <span>Orden</span>
-                                </span> -->
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-sort-down"></i> Orden
-                                    </button>
-                                    <ul class="dropdown-menu p-2 rounded-4">
-                                        <li class="my-1">
-                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                                id="modal-cambiar-canal-boton-orden-ascendente" autocomplete="off" />
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-cambiar-canal-boton-orden-ascendente"><i
-                                                    class="bi bi-sort-alpha-down"></i> Ascendente</label>
-                                        </li>
-                                        <li class="my-1">
-                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                                id="modal-cambiar-canal-boton-orden-descendente" autocomplete="off" />
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-cambiar-canal-boton-orden-descendente"><i
-                                                    class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
-                                        </li>
-                                        <li class="my-1">
-                                            <input type="radio" class="btn-check" name="btnRadioAutocomplete"
-                                                id="modal-cambiar-canal-boton-orden-original" autocomplete="off"
-                                                checked="checked" />
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-cambiar-canal-boton-orden-original"><i
-                                                    class="bi bi-arrow-clockwise"></i> Predeterminado</label>
-                                        </li>
-                                    </ul>
-                                </div>
+                    <div class="w-100 bg-light-subtle p-2 rounded-3 mt-2 rounded-4">
+                        <!-- Header con buscador siempre visible -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button
+                                class="btn btn-sm d-flex align-items-center gap-1 p-0 border-0 bg-transparent flex-shrink-0"
+                                type="button" data-bs-toggle="collapse"
+                                data-bs-target="#modal-cambiar-canal-filtros-collapse" aria-expanded="false"
+                                aria-controls="modal-cambiar-canal-filtros-collapse">
+                                <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-sliders"></i>
+                                    <span>Filtros</span>
+                                </span>
+                                <i class="bi bi-chevron-down icono-filtros-estado"></i>
+                            </button>
+
+                            <!-- Buscador siempre visible -->
+                            <div class="flex-grow-1">
+                                <input class="form-control form-control-sm rounded-4" type="search"
+                                    id="modal-cambiar-canal-input-filtro" placeholder="Escribe para buscar...">
                             </div>
                         </div>
-                        <div class="form-floating w-100">
-                            <input class="form-control rounded-4" type="search" id="modal-cambiar-canal-input-filtro"
-                                placeholder="Escribe para buscar...">
-                            <label for="modal-cambiar-canal-input-filtro">Cambiar por:</label>
+
+                        <!-- Contenido colapsable (solo filtros) -->
+                        <div class="collapse mt-2" id="modal-cambiar-canal-filtros-collapse">
+                            <div class="d-flex gap-1 flex-wrap">
+                                <div class="d-flex flex-column">
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones"
+                                        id="modal-cambiar-canal-collapse-botones-listado-filtro-paises">
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones por categoría"
+                                        id="modal-cambiar-canal-collapse-botones-listado-filtro-categorias">
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="btn-group">
+                                        <button type="button"
+                                            class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-sort-down"></i> Orden
+                                        </button>
+                                        <ul class="dropdown-menu p-2 rounded-4">
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-ascending-change-channel-modal"
+                                                    id="modal-cambiar-canal-btn-ascending-order" autocomplete="off" />
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-cambiar-canal-btn-ascending-order"><i
+                                                        class="bi bi-sort-alpha-down"></i> Ascendente</label>
+                                            </li>
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-descending-change-channel-modal"
+                                                    id="modal-cambiar-canal-btn-descending-order" autocomplete="off" />
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-cambiar-canal-btn-descending-order"><i
+                                                        class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
+                                            </li>
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-default-order-change-channel-modal"
+                                                    id="modal-cambiar-canal-btn-default-order" autocomplete="off"
+                                                    checked="checked" />
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-cambiar-canal-btn-default-order"><i
+                                                        class="bi bi-arrow-clockwise"></i> Predeterminado</label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                     <button type="button"
                         class="btn btn-secondary rounded-pill d-flex justify-content-center align-items-center"
                         data-bs-dismiss="modal" style="height: 2.5rem; width: 2.5rem">
@@ -520,6 +563,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Modal listado canales -->
@@ -557,81 +601,102 @@
                             </div>
                         </div>
                         <!-- /Mensaje alerta sin resultados -->
-                        <div class="collapse-canales" id="modal-canales-body-botones-canales">
+                        <div class="collapse-canales" id="modal-canales-channels-buttons-container">
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer border-0">
-                    <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2 d-flex flex-column gap-1">
-                        <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-sliders"></i>
-                            <span>Filtros</span>
-                        </span>
-                        <div class="d-flex gap-1 mt-1 flex-wrap">
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-flag"></i>
-                                    <span>País</span>
-                                </span> -->
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones"
-                                    id='modal-canales-collapse-botones-listado-filtro-paises'>
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-grid-3x3-gap"></i>
-                                    <span>Categoría</span>
-                                </span> -->
-                                <div class="btn-group btn-group-sm container-btn-group" role="group"
-                                    aria-label="Toggle radio para grupo botones por categoría"
-                                    id="modal-canales-collapse-botones-listado-filtro-categorias">
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-funnel"></i>
-                                    <span>Orden</span>
-                                </span> -->
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-sort-down"></i> Orden
-                                    </button>
-                                    <ul class="dropdown-menu p-2 rounded-4">
-                                        <li class="mb-1">
-                                            <input type="radio" class="btn-check" name="btnradio"
-                                                id="modal-canales-boton-orden-ascendente" autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-canales-boton-orden-ascendente">
-                                                <i class="bi bi-sort-alpha-down"></i> Ascendente
-                                            </label>
-                                        </li>
-                                        <li class="my-1">
-                                            <input type="radio" class="btn-check" name="btnradio"
-                                                id="modal-canales-boton-orden-descendente" autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-canales-boton-orden-descendente">
-                                                <i class="bi bi-sort-alpha-up-alt"></i> Descendente
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <input type="radio" class="btn-check" name="btnradio"
-                                                id="modal-canales-boton-orden-original" autocomplete="off" checked>
-                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                                for="modal-canales-boton-orden-original">
-                                                <i class="bi bi-arrow-clockwise"></i> Predeterminado
-                                            </label>
-                                        </li>
-                                    </ul>
-                                </div>
+                    <div class="w-100 bg-light-subtle p-2 rounded-4 mb-2">
+                        <!-- Header con buscador siempre visible -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button
+                                class="btn btn-sm d-flex align-items-center gap-1 p-0 border-0 bg-transparent flex-shrink-0"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#modal-canales-filtros-collapse"
+                                aria-expanded="false" aria-controls="modal-canales-filtros-collapse">
+                                <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-sliders"></i>
+                                    <span>Filtros</span>
+                                </span>
+                                <i class="bi bi-chevron-down icono-filtros-estado"></i>
+                            </button>
+
+                            <!-- Buscador siempre visible -->
+                            <div class="flex-grow-1">
+                                <input type="search" class="form-control form-control-sm rounded-4"
+                                    id="modal-canales-input-filtro" placeholder="Buscar por país o canal">
                             </div>
                         </div>
-                        <div class="form-floating w-100">
-                            <input type="search" class="form-control rounded-4" id="modal-canales-input-filtro"
-                                placeholder="Buscar por país o canal">
-                            <label for="filtro">Buscar por país o canal</label>
+
+                        <!-- Contenido colapsable (solo filtros) -->
+                        <div class="collapse mt-2" id="modal-canales-filtros-collapse">
+                            <div class="d-flex gap-1 flex-wrap">
+                                <div class="d-flex flex-column">
+                                    <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-flag"></i>
+                                        <span>País</span>
+                                    </span> -->
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones"
+                                        id='modal-canales-collapse-botones-listado-filtro-paises'>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-grid-3x3-gap"></i>
+                                        <span>Categoría</span>
+                                    </span> -->
+                                    <div class="btn-group btn-group-sm container-btn-group" role="group"
+                                        aria-label="Toggle radio para grupo botones por categoría"
+                                        id="modal-canales-collapse-botones-listado-filtro-categorias">
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-funnel"></i>
+                                        <span>Orden</span>
+                                    </span> -->
+                                    <div class="btn-group" role="group">
+                                        <button type="button"
+                                            class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-sort-down"></i> Orden
+                                        </button>
+                                        <ul class="dropdown-menu p-2 rounded-4">
+                                            <li class="mb-1">
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-ascending-channels-modal"
+                                                    id="modal-canales-btn-ascending-order" autocomplete="off">
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-canales-btn-ascending-order">
+                                                    <i class="bi bi-sort-alpha-down"></i> Ascendente
+                                                </label>
+                                            </li>
+                                            <li class="my-1">
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-descending-channels-modal"
+                                                    id="modal-canales-btn-descending-order" autocomplete="off">
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-canales-btn-descending-order">
+                                                    <i class="bi bi-sort-alpha-up-alt"></i> Descendente
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <input type="radio" class="btn-check"
+                                                    name="btn-default-order-channels-modal"
+                                                    id="modal-canales-btn-default-order" autocomplete="off" checked>
+                                                <label
+                                                    class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                    for="modal-canales-btn-default-order">
+                                                    <i class="bi bi-arrow-clockwise"></i> Predeterminado
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -682,80 +747,94 @@
                     </div>
                 </div>
                 <!-- /Mensaje alerta sin resultados -->
-                <div class="offcanvas-canales-body-canales" id="offcanvas-canales-body-botones-canales">
+                <div class="one-column-grid" id="offcanvas-canales-channels-buttons-container">
                 </div>
             </div>
         </div>
 
         <footer class="p-2 d-flex flex-column bg-transparent">
             <div class="d-flex flex-column bg-transparent">
-                <div class="bg-light-subtle p-2 mb-2 rounded-4 d-flex flex-column gap-1">
-                    <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
-                        <i class="bi bi-sliders"></i>
-                        <span>Filtros</span>
-                    </span>
-                    <div class="d-flex gap-1 mt-1 flex-wrap">
-                        <div class="d-flex flex-column">
-                            <!--   <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-flag"></i>
-                                <span>País</span>
-                            </span> -->
-                            <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
-                                aria-label="Toggle radio para grupo botones"
-                                id='offcanvas-canales-collapse-botones-listado-filtro-paises'>
+                <div class="bg-light-subtle p-2 mb-2 rounded-4">
+                    <!-- Header con buscador siempre visible -->
+                    <div class="d-flex align-items-center gap-2">
+                        <button
+                            class="btn btn-sm d-flex align-items-center gap-1 p-0 border-0 bg-transparent flex-shrink-0"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#offcanvas-canales-filtros-collapse"
+                            aria-expanded="false" aria-controls="offcanvas-canales-filtros-collapse">
+                            <span class="small text-secondary-emphasis d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-sliders"></i>
+                                <span>Filtros</span>
+                            </span>
+                            <i class="bi bi-chevron-down icono-filtros-estado"></i>
+                        </button>
 
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-grid-3x3-gap"></i>
-                                <span>Categoría</span>
-                            </span> -->
-                            <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
-                                aria-label="Toggle radio para grupo botones por categoría"
-                                id='offcanvas-canales-collapse-botones-listado-filtro-categorias'>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <!-- <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-funnel"></i>
-                                <span>Orden</span>
-                            </span> -->
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-sort-down"></i> Orden
-                                </button>
-                                <ul class="dropdown-menu p-2 rounded-4">
-                                    <li class="mb-1">
-                                        <input type="radio" class="btn-check" name="btnradio2"
-                                            id="offcanvas-canales-boton-orden-ascendente" autocomplete="off">
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="offcanvas-canales-boton-orden-ascendente"><i
-                                                class="bi bi-sort-alpha-down"></i> Ascendente</label>
-                                    </li>
-                                    <li class="my-1">
-                                        <input type="radio" class="btn-check" name="btnradio2"
-                                            id="offcanvas-canales-boton-orden-descendente" autocomplete="off">
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="offcanvas-canales-boton-orden-descendente"><i
-                                                class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" class="btn-check" name="btnradio2"
-                                            id="offcanvas-canales-boton-orden-original" autocomplete="off" checked>
-                                        <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
-                                            for="offcanvas-canales-boton-orden-original"><i
-                                                class="bi bi-arrow-clockwise"></i> Predeterminado</label>
-                                    </li>
-                                </ul>
-                            </div>
+                        <!-- Buscador siempre visible -->
+                        <div class="flex-grow-1">
+                            <input type="search" class="form-control form-control-sm rounded-4"
+                                id="offcanvas-canales-input-filtro" placeholder="Buscar por país o canal">
                         </div>
                     </div>
-                    <div class="form-floating w-100">
-                        <input type="search" class="form-control rounded-4" id="offcanvas-canales-input-filtro"
-                            placeholder="Buscar por país o canal">
-                        <label for="filtro">Buscar por país o canal</label>
+
+                    <!-- Contenido colapsable (solo filtros) -->
+                    <div class="collapse mt-2" id="offcanvas-canales-filtros-collapse">
+                        <div class="d-flex gap-1 flex-wrap">
+                            <div class="d-flex flex-column">
+                                <!--   <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-flag"></i>
+                                        <span>País</span>
+                                    </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
+                                    aria-label="Toggle radio para grupo botones"
+                                    id='offcanvas-canales-collapse-botones-listado-filtro-paises'>
+
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!--  <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-grid-3x3-gap"></i>
+                                        <span>Categoría</span>
+                                    </span> -->
+                                <div class="btn-group btn-group-sm container-btn-group scrollbar-thin-gray" role="group"
+                                    aria-label="Toggle radio para grupo botones por categoría"
+                                    id='offcanvas-canales-collapse-botones-listado-filtro-categorias'>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <!-- <span class="small text-secondary mb-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-funnel"></i>
+                                        <span>Orden</span>
+                                    </span> -->
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-dark dropdown-toggle h-100 rounded-pill"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-sort-down"></i> Orden
+                                    </button>
+                                    <ul class="dropdown-menu p-2 rounded-4">
+                                        <li class="mb-1">
+                                            <input type="radio" class="btn-check" name="btn-ascending-offcanvas"
+                                                id="offcanvas-canales-btn-ascending-order" autocomplete="off">
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="offcanvas-canales-btn-ascending-order"><i
+                                                    class="bi bi-sort-alpha-down"></i> Ascendente</label>
+                                        </li>
+                                        <li class="my-1">
+                                            <input type="radio" class="btn-check" name="btn-descending-offcanvas"
+                                                id="offcanvas-canales-btn-descending-order" autocomplete="off">
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="offcanvas-canales-btn-descending-order"><i
+                                                    class="bi bi-sort-alpha-up-alt"></i> Descendente</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" class="btn-check" name="btn-default-offcanvas"
+                                                id="offcanvas-canales-btn-default-order" autocomplete="off" checked>
+                                            <label class="btn btn-sm btn-outline-indigo w-100 d-flex gap-1 rounded-3"
+                                                for="offcanvas-canales-btn-default-order"><i
+                                                    class="bi bi-arrow-clockwise"></i> Predeterminado</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -779,19 +858,22 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down">
             <div class="modal-content bg-transparent border-0 shadow">
                 <div class="modal-header bg-body">
-                    <h5 class="modal-title">Descargo de responsabilidad</h5>
+                    <h5 class="modal-title text-flicker">Descargo de responsabilidad</h5>
                 </div>
                 <div class="modal-body bg-body scrollbar-thin-gray">
                     <ul class="ps-3">
-                        <li tabindex="0">"teles" es un proyecto de código abierto gratuito que permite gestionar
+                        <li tabindex="0"><span class="text-flicker">"teles"</span> es un proyecto de código abierto
+                            gratuito que permite gestionar
                             canales
                             de televisión
                             de libre acceso por Internet.</li>
-                        <li tabindex="0">"teles" no decodifica transmisiones. Los enlaces que figuran en este
+                        <li tabindex="0"><span class="text-flicker">"teles"</span> no decodifica transmisiones. Los
+                            enlaces que figuran en este
                             proyecto
                             son procesados
                             desde diferentes sitios públicos con libre distribución/acceso.</li>
-                        <li tabindex="0">"teles" no posee ningún tipo de monetización, en consecuencia, no se lucra
+                        <li tabindex="0"><span class="text-flicker">"teles"</span> no posee ningún tipo de monetización,
+                            en consecuencia, no se lucra
                             de
                             ninguna forma o
                             medio.</li>
@@ -803,7 +885,8 @@
                             por
                             parte de cada
                             canal.</li>
-                        <li tabindex="0">"teles" no ofrece canales de pago bajo ninguna modalidad.</li>
+                        <li tabindex="0"><span class="text-flicker">"teles"</span> no ofrece canales de pago bajo
+                            ninguna modalidad.</li>
                         <li tabindex="0">En este proyecto no se almacena ninguna transmisión.</li>
                         <li tabindex="0">El proyecto tanto como sus mantenedores no asumen responsabilidad alguna
                             respecto a los
@@ -828,7 +911,7 @@
                     </p>
                 </div>
                 <div class="modal-footer d-flex align-items-center justify-content-center bg-blur">
-                    <button type="button" class="btn btn-lg btn-success pulsate-3" id="boton-entendido"
+                    <button type="button" class="btn btn-lg btn-success pulsate-3" id="button-welcome-modal"
                         data-bs-dismiss="modal" data-bs-target="#modal-bienvenida">Entendido <p
                             class="fs-x-small m-0 p-0">(No volver a mostrar)</p></button>
                 </div>
@@ -1700,7 +1783,7 @@
                                 tabindex="0">
                                 <span class="w-100 h-100"><i class="bi bi-grid-3x2"></i> Visión cuadrícula</span>
                             </button>
-                            <button type="button" id="boton-activar-diseño-vision-unica"
+                            <button type="button" id="boton-activar-diseño-single-view"
                                 class="focus-outline-blue btn btn-sm btn-light-subtle rounded-end-5 shadow-sm d-flex gap-1 border-0 w-100 h-100 justify-content-center align-items-center"
                                 tabindex="0">
                                 <span class="w-100 h-100"><i class="bi bi-layout-sidebar"></i> Visión única</span>
@@ -1727,7 +1810,7 @@
                             id="grupo-botones-personalizar-botones-dentro-overlay">
                             <p class="align-self-start">Botones en overlay</p>
                             <div class="d-flex justify-content-between w-100">
-                                <div class="d-flex flex-column div-boton-personalizar-overlay align-items-center">
+                                <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
                                         id="btnSelecionarSeñal" autocomplete="off" checked
                                         data-botonOverlay="overlay-boton-selecionar-señal">
@@ -1735,7 +1818,7 @@
                                             class="bi bi-collection"></i></label>
                                     <span class="fs-smaller text-secondary"></span>
                                 </div>
-                                <div class="d-flex flex-column div-boton-personalizar-overlay align-items-center"
+                                <div class="d-flex flex-column overlay-toggle-item align-items-center"
                                     id="boton-personalizar-boton-mover-overlay">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
                                         id="btnMover" autocomplete="off" checked
@@ -1744,7 +1827,7 @@
                                             class="bi bi-arrows-move"></i></label>
                                     <span class="fs-smaller text-secondary"></span>
                                 </div>
-                                <div class="d-flex flex-column div-boton-personalizar-overlay align-items-center">
+                                <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
                                         id="btnCambiar" autocomplete="off" checked
                                         data-botonOverlay="overlay-boton-cambiar">
@@ -1752,7 +1835,7 @@
                                             class="bi bi-arrow-repeat"></i></label>
                                     <span class="fs-smaller text-secondary"></span>
                                 </div>
-                                <div class="d-flex flex-column div-boton-personalizar-overlay align-items-center">
+                                <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
                                         id="btnFuente" autocomplete="off" checked
                                         data-botonOverlay="overlay-boton-pagina-oficial">
@@ -1760,7 +1843,7 @@
                                             class="bi bi-box-arrow-up-right"></i></label>
                                     <span class="fs-smaller text-secondary"></span>
                                 </div>
-                                <div class="d-flex flex-column div-boton-personalizar-overlay align-items-center">
+                                <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
                                         id="btnQuitar" autocomplete="off" checked
                                         data-botonOverlay="overlay-boton-quitar">
@@ -1800,14 +1883,14 @@
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
                         <div class="form-check form-switch d-flex align-items-center gap-2">
-                            <input class="form-check-input" type="checkbox" id="checkbox-personalizar-tema">
+                            <input class="form-check-input" type="checkbox" id="checkbox-change-theme">
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
-                                for="checkbox-personalizar-tema"> Tema
+                                for="checkbox-change-theme"> Tema
                                 <div class="fs-smaller text-secondary">
-                                    [<span id="span-valor-tema">Claro</span>]
+                                    [<span id="span-current-theme">Claro</span>]
                                 </div>
                                 <i class="bi bi-sun bg-light-subtle px-2 py-1 rounded-circle ms-auto"
-                                    id="icono-personalizar-tema"></i>
+                                    id="icon-bootstrap-current-theme"></i>
                             </label>
                         </div>
                     </div>
@@ -2148,7 +2231,7 @@
             </ul>
         </div>
         <div class="d-flex p-3 bg-dark bg-opacity-75 gap-2 rounded-bottom-5">
-            <button type="button" class="btn btn-success rounded-pill" id="boton-instalar-pwa">
+            <button type="button" class="btn btn-success rounded-pill" id="button-pwa-install">
                 <i class="bi bi-plus-circle-dotted"></i> Instalar
             </button>
 
@@ -2194,7 +2277,6 @@
         crossorigin="anonymous"></script>
     <script src="assets/js/main.js" type="module"></script>
     <script src="assets/js/botones.js" type="module"></script>
-    <script src="assets/js/observer.js" type="module"></script>
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 

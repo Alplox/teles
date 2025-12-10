@@ -1,4 +1,4 @@
-export const REGISTER_VIDEOJS_TRANSLATION = () => {
+export const registerVideojsTranslation = () => {
     if (typeof window !== 'undefined' && window.videojs) {
         window.videojs.addLanguage("es", {
             "Play": "Reproducir",

@@ -1,21 +1,21 @@
-import { listaCanales } from "../canalesData.js";
+import { channelsList } from "../canalesData.js";
 import {
-    CLASE_CSS_BOTON_PRIMARIO,
-    PREFIJOS_ID_CONTENEDORES_CANALES,
-    ICONOS_PARA_CATEGORIAS
+    CSS_CLASS_BUTTON_PRIMARY,
+    ID_PREFIX_CONTAINERS_CHANNELS,
+    CATEGORIES_ICONS
 } from "../constants/index.js";
-import { filtrarCanalesPorInput, mostrarToast } from "./index.js";
+import { filtrarCanalesPorInput, showToast } from "./index.js";
 import { sincronizarPaisesConCategoria } from "./helperSincronizarFiltros.js";
 
 /**
  * Crea y registra los botones de filtro por categoría para todos los prefijos de contenedores.
- * Usa los datos de `listaCanales` para contar canales por categoría y engancha el filtrado combinado
+ * Usa los datos de `channelsList` para contar canales por categoría y engancha el filtrado combinado
  * de texto, país y categoría a través de `filtrarCanalesPorInput`.
  * @returns {void}
  */
 export function crearBotonesCategorias() {
     try {
-        const CATEGORIAS_BRUTAS = Object.values(listaCanales).map(canal => {
+        const CATEGORIAS_BRUTAS = Object.values(channelsList).map(canal => {
             const valorCategoria = canal?.categoría;
             if (!valorCategoria || valorCategoria === "") return "undefined";
             return `${valorCategoria}`.toLowerCase();
@@ -32,18 +32,18 @@ export function crearBotonesCategorias() {
 
         const OPCIONES_CATEGORIAS = [];
 
-        const iconoTodas = ICONOS_PARA_CATEGORIAS.general ?? ICONOS_PARA_CATEGORIAS.undefined;
+        const iconoTodas = CATEGORIES_ICONS.general ?? CATEGORIES_ICONS.undefined;
         OPCIONES_CATEGORIAS.push({
             valor: "all",
             nombreVisible: "Todas",
-            badge: Object.keys(listaCanales).length,
+            badge: Object.keys(channelsList).length,
             icono: iconoTodas
         });
 
         for (const CATEGORIA of CATEGORIAS_UNICAS) {
             const nombreCategoria = CATEGORIA.charAt(0).toUpperCase() + CATEGORIA.slice(1);
             const cantidadCanales = CONTEO_CANALES_POR_CATEGORIA[CATEGORIA] || 0;
-            const iconoCategoria = ICONOS_PARA_CATEGORIAS[CATEGORIA] ?? ICONOS_PARA_CATEGORIAS.undefined;
+            const iconoCategoria = CATEGORIES_ICONS[CATEGORIA] ?? CATEGORIES_ICONS.undefined;
             OPCIONES_CATEGORIAS.push({
                 valor: CATEGORIA,
                 nombreVisible: nombreCategoria,
@@ -58,11 +58,11 @@ export function crearBotonesCategorias() {
                 valor: "undefined",
                 nombreVisible: "Sin categoría",
                 badge: cantidadSinCategoria,
-                icono: ICONOS_PARA_CATEGORIAS.undefined
+                icono: CATEGORIES_ICONS.undefined
             });
         }
 
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
             const contenedorBotonesFiltroCategorias = document.querySelector(
                 `#${PREFIJO}-collapse-botones-listado-filtro-categorias`
             );
@@ -82,11 +82,11 @@ export function crearBotonesCategorias() {
             const actualizarEstadoToggle = (tieneFiltroActivo) => {
                 if (tieneFiltroActivo) {
                     botonToggle.classList.remove("btn-dark");
-                    if (!botonToggle.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
-                        botonToggle.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    if (!botonToggle.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
+                        botonToggle.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                     }
                 } else {
-                    botonToggle.classList.remove(CLASE_CSS_BOTON_PRIMARIO);
+                    botonToggle.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
                     if (!botonToggle.classList.contains("btn-dark")) {
                         botonToggle.classList.add("btn-dark");
                     }
@@ -100,7 +100,7 @@ export function crearBotonesCategorias() {
 
             const limpiarSeleccion = () => {
                 menuDropdown.querySelectorAll("label[data-category]").forEach(label => {
-                    label.classList.remove(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
                     if (!label.classList.contains("btn-outline-secondary")) {
                         label.classList.add("btn-outline-secondary");
                     }
@@ -110,13 +110,13 @@ export function crearBotonesCategorias() {
             const activarLabel = label => {
                 if (!label) return;
                 if (label.dataset.category === "all") {
-                    label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                     label.classList.remove("btn-outline-secondary");
                     botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría: Todas`;
                    /*  botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría`; */
                     actualizarEstadoToggle(false);
                 } else {
-                    label.classList.replace("btn-outline-secondary", CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.replace("btn-outline-secondary", CSS_CLASS_BUTTON_PRIMARY);
                     const nombreSeleccionado = label.querySelector(".flex-grow-1")?.textContent?.trim() || "Categoría";
                     botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> Categoría: ${nombreSeleccionado}`;
                    /*  botonToggle.innerHTML = `<i class="bi bi-grid-3x3-gap"></i> ${nombreSeleccionado}`; */
@@ -127,7 +127,7 @@ export function crearBotonesCategorias() {
             const manejarCambioFiltro = labelSeleccionada => {
                 try {
                     const contenedorBotonesCanales = document.querySelector(
-                        `#${PREFIJO}-body-botones-canales`
+                        `#${PREFIJO}-channels-buttons-container`
                     );
                     const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
                     const valorBusqueda = inputFiltro?.value ?? "";
@@ -146,13 +146,11 @@ export function crearBotonesCategorias() {
                         activarLabel(labelTodas);
                         sincronizarPaisesConCategoria(PREFIJO, "all");
                     }
-                    mostrarToast(`
-                    <span class="fw-bold">Ha ocurrido un error al intentar activar filtro categoría.</span>
-                    <hr>
-                    <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-                    <hr>
-                    Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-                    <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, "danger", false);
+                    showToast({
+                        title: 'Ha ocurrido un error al intentar activar filtro categoría.',
+                        body: `Error: ${error}`,
+                        type: 'danger'
+                    });
                 }
             };
 
@@ -192,7 +190,7 @@ export function crearBotonesCategorias() {
 
                 if (opcion.valor === "all") {
                     input.checked = true;
-                    label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                 } else {
                     label.classList.add("btn-outline-secondary");
                 }
@@ -214,16 +212,16 @@ export function crearBotonesCategorias() {
         }
     } catch (error) {
         console.error(`Error durante creación botones para filtros categorías. ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la creación de botones para filtrado por categoría.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, "danger", false);
-
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-            const contenedorBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`);
+        showToast({
+            title: 'Ha ocurrido un error durante la creación de botones para filtrado por categoría.',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
+            const contenedorBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`);
             if (contenedorBotonesCanales && typeof insertarDivError === "function") {
                 contenedorBotonesCanales.insertAdjacentElement(
                     "afterend",

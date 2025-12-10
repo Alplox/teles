@@ -2,7 +2,29 @@
 
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 
-Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [v0.22]
+
+### Added
+
+- Audio para alertas de tipo "warning".
+- Audio para música ambiente cuando no hay canales activos. Weather Forecast Type Beat by YellowTree -- https://freesound.org/s/693384/ -- License: Attribution 4.0
+
+### Changed
+
+- Estandarizada la persistencia de los botones del overlay usando claves LS_KEY dedicadas.
+- Filtros ahora son colapsables y barra de busqueda es visible en todo momento. #17 - https://github.com/Alplox/teles/issues/17
+- Ordenar botones canales ahora no realiza manipulacion en el DOM para evitar problemas de rendimiento.
+
+### Removed
+
+- revisarConexion() ya no se muestra alerta si se pierde conexion a internet. (Comportamiento no era el deseado)
+
+### Fixed
+
+- Visibilidad de navbar no retoma estado tras recargar. #18 - https://github.com/Alplox/teles/issues/18
+- Overflow señales en modo visión única #20 - https://github.com/Alplox/teles/issues/20
 
 ## [v0.21]
 
@@ -24,6 +46,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - La interfaz de filtros por país y categoría en modal, offcanvas, visión única y "Cambiar canal" se compactó en dos filas de chips horizontales siempre visibles para mejorar la experiencia en móviles.
 - Actualiza version bootstrap a v5.3.8
 - Se extrajo una función reutilizable para limpiar instancias de reproductores (Video.js, Clappr, OPlayer e iframes) antes de eliminar un canal del DOM, evitando fugas de memoria.
+- Se centralizó la configuración de escenarios de botones (grid, cambio y visión única) para respetar la selección múltiple/única incluso con canales agregados vía listas M3U personalizadas.
 
 ### Fixed
 

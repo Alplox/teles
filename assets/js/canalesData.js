@@ -1,14 +1,12 @@
-import { URL_JSON_CANALES_PRINCIPAL } from "./constants/configGlobal.js";
+import { URL_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
 import { LS_KEY_CHANNELS_BACKUP, LS_KEY_CHANNELS_BACKUP_DATE, LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
-import { sonNombresSimilares, M3U_A_JSON, validarTextoM3U } from "./helpers/index.js";
+import { M3U_A_JSON, validarTextoM3U } from "./helpers/index.js";
 
 // Gestión de backup y fetch de canales
 export const ARRAY_CANALES_PREDETERMINADOS = ['24-horas', 'meganoticias', 't13'];
 export const ARRAY_CANALES_PREDETERMINADOS_EXTRAS = ['chv-noticias', 'cnn-cl', 'lofi-girl'];
 
-export let listaCanales;
-
-const DEFAULT_COMBINAR_CANALES = true;
+export let channelsList;
 
 export const BACKUP_EXPIRATION_HOURS = 24;
 export const ORIGEN_PREDETERMINADO = 'Canales predeterminados (github.com/Alplox/json-teles)';
@@ -39,22 +37,22 @@ export async function fetchCargarCanales() {
     try {
         if (esBackupValido()) {
             console.info('Cargando canales desde backup localStorage');
-            listaCanales = leerBackupCanales();
-            if (listaCanales) return;
+            channelsList = leerBackupCanales();
+            if (channelsList) return;
         }
         console.info('Probando carga archivo principal con canales');
-        const response = await fetch(URL_JSON_CANALES_PRINCIPAL);
+        const response = await fetch(URL_JSON_MAIN_CHANNELS);
         try {
-            listaCanales = await response.json();
-            guardarBackupCanales(listaCanales);
+            channelsList = await response.json();
+            guardarBackupCanales(channelsList);
             asignarOrigenBase();
         } catch (parseError) {
             console.error('Error al parsear JSON principal:', parseError);
             // Intentar cargar backup si existe
             if (esBackupValido()) {
-                console.warn('Usando backup localStorage por error de parseo');
-                listaCanales = leerBackupCanales();
-                if (listaCanales) return;
+                console.warn('[teles] Using channel list backup from localStorage due to parsing error');
+                channelsList = leerBackupCanales();
+                if (channelsList) return;
             }
             throw parseError;
         }
@@ -64,9 +62,9 @@ export async function fetchCargarCanales() {
 }
 
 function asignarOrigenBase() {
-    if (!listaCanales) return;
-    for (const canalId of Object.keys(listaCanales)) {
-        const canal = listaCanales[canalId];
+    if (!channelsList) return;
+    for (const canalId of Object.keys(channelsList)) {
+        const canal = channelsList[canalId];
         if (!canal.origenLista) {
             canal.origenLista = ORIGEN_PREDETERMINADO;
         }
@@ -80,6 +78,14 @@ function asignarOrigenBase() {
     }
 }
 
+const sonNombresSimilares = (nombre1, nombre2) => {
+    const nombre1Lower = nombre1.toLowerCase();
+    const nombre2Lower = nombre2.toLowerCase();
+    return nombre1Lower.includes(nombre2Lower) || nombre2Lower.includes(nombre1Lower);
+}
+
+
+
 /**
  * Combina el JSON base de canales con el resultado parseado desde un .m3u
  * verificando coincidencias aproximadas y registrando trazas del proceso.
@@ -89,8 +95,8 @@ function asignarOrigenBase() {
 function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', fuente = null, combinarCoincidencias } = {}) {
     if (!parseM3u || typeof parseM3u !== 'object') return;
 
-    if (!listaCanales) {
-        listaCanales = {};
+    if (!channelsList) {
+        channelsList = {};
     }
 
     const debeCombinarCoincidencias =
@@ -98,9 +104,9 @@ function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', 
 
     const mapCanales = {};
     if (debeCombinarCoincidencias) {
-        for (const canal of Object.keys(listaCanales)) {
-            const nombreLista = listaCanales[canal].nombre ?? 'Canal sin nombre';
-            mapCanales[nombreLista] = listaCanales[canal];
+        for (const canal of Object.keys(channelsList)) {
+            const nombreLista = channelsList[canal].nombre ?? 'Canal sin nombre';
+            mapCanales[nombreLista] = channelsList[canal];
         }
     }
 
@@ -164,7 +170,7 @@ function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', 
             datosNuevos.fuentesCombinadas = origen ? [origen] : [];
             datosNuevos.esSeñalCombinada = false;
             const idResultado = obtenerIdCanalDisponible(nombreCanal, nombreParseM3u, origen);
-            listaCanales[idResultado] = datosNuevos;
+            channelsList[idResultado] = datosNuevos;
 
             console.info('[teles][m3u] Canal nuevo añadido', {
                 origen,
@@ -179,7 +185,7 @@ function combinarCanalesConLista(parseM3u = {}, { origen = 'lista-desconocida', 
     console.groupEnd();
 }
 
-export async function fetchCargarCanalesIPTV() {
+/* export async function fetchCargarCanalesIPTV() {
     console.info('Probando carga archivo m3u');
     const m3uResponse = await fetch(URL_M3U_CANALES_IPTV);
     const m3uData = await m3uResponse.text();
@@ -189,7 +195,7 @@ export async function fetchCargarCanalesIPTV() {
         fuente: URL_M3U_CANALES_IPTV,
         combinarCoincidencias: obtenerPreferenciaCombinarCanales()
     });
-}
+} */
 
 export async function cargarListaPersonalizadaM3U(url) {
     if (!url || typeof url !== 'string') {
@@ -330,18 +336,15 @@ export function aplicarListaPersonalizadaGuardada(url) {
  * @returns {boolean} `true` cuando se deben combinar coincidencias aproximadas.
  */
 export function obtenerPreferenciaCombinarCanales() {
-    const valor = localStorage.getItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS);
-    if (valor === null) {
-        return DEFAULT_COMBINAR_CANALES;
-    }
-    return valor === 'true';
+    const valor = localStorage.getItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS) ?? 'true';
+    return valor;
 }
 
 /**
  * Permite actualizar la preferencia sobre combinar coincidencias aproximadas.
  * @param {boolean} combinar - Nuevo estado deseado.
  */
-export function establecerPreferenciaCombinarCanales(combinar = DEFAULT_COMBINAR_CANALES) {
+export function establecerPreferenciaCombinarCanales(combinar) {
     localStorage.setItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS, combinar ? 'true' : 'false');
 }
 
@@ -350,16 +353,16 @@ export function establecerPreferenciaCombinarCanales(combinar = DEFAULT_COMBINAR
  * @param {string} [baseId] - Identificador sugerido proveniente del archivo .m3u.
  * @param {string} [nombreFallback] - Nombre del canal utilizado como respaldo para crear el slug.
  * @param {string} [origen] - Texto adicional utilizado para evitar colisiones.
- * @returns {string} ID disponible dentro de `listaCanales`.
+ * @returns {string} ID disponible dentro de `channelsList`.
  */
 function obtenerIdCanalDisponible(baseId = '', nombreFallback = '', origen = '') {
     const slugBase = slugifyValor(baseId || nombreFallback || origen || `canal-${Date.now()}`);
-    if (!listaCanales?.[slugBase]) {
+    if (!channelsList?.[slugBase]) {
         return slugBase;
     }
     let correlativo = 2;
     let candidato = `${slugBase}-${correlativo}`;
-    while (listaCanales?.[candidato]) {
+    while (channelsList?.[candidato]) {
         correlativo += 1;
         candidato = `${slugBase}-${correlativo}`;
     }

@@ -1,11 +1,13 @@
+import { LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS } from "../constants/index.js";
+import { showToast } from "./index.js";
 
 
-export const CONTAINER_INTERNO_VISION_UNICA = document.querySelector('.vision-unica-grid');
-const ID_EN_ORDEN_ORIGINAL = ['panel-canales-vision-unica', 'container-video-vision-unica'];
+export const CONTAINER_INTERNO_VISION_UNICA = document.querySelector('.single-view-grid');
+const ID_EN_ORDEN_ORIGINAL = ['panel-canales-single-view', 'container-video-single-view'];
 
 export function cargarOrdenVisionUnica() {
     try {
-        const ordenGuardado = localStorage.getItem('orden-grid-vision-unica');
+        const ordenGuardado = localStorage.getItem(LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS);
         let ordenAUsar = ID_EN_ORDEN_ORIGINAL;
         if (ordenGuardado) {
             try {
@@ -14,8 +16,8 @@ export function cargarOrdenVisionUnica() {
                     ordenAUsar = elementosOrdenados;
                 }
             } catch (e) {
-                console.error('Error al parsear orden-grid-vision-unica:', e);
-                localStorage.removeItem('orden-grid-vision-unica');
+                console.error(`Error al parsear ${LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS}:`, e);
+                localStorage.removeItem(LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS);
             }
         }
         ordenAUsar.forEach(id => {
@@ -23,23 +25,24 @@ export function cargarOrdenVisionUnica() {
             if (elemento) CONTAINER_INTERNO_VISION_UNICA.appendChild(elemento);
         });
         const esOrdenOriginal = JSON.stringify(ID_EN_ORDEN_ORIGINAL) === JSON.stringify(getOrdenActual());
-        CONTAINER_INTERNO_VISION_UNICA.classList.toggle('vision-unica-grid-reordenado', !esOrdenOriginal);
+        CONTAINER_INTERNO_VISION_UNICA.classList.toggle('single-view-grid-reordenado', !esOrdenOriginal);
     } catch (error) {
         console.error(`Error durante la carga orden paneles para modo "Visión Única". Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la carga orden paneles para modo "Visión Única".</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        showToast({
+            title: 'Ha ocurrido un error durante la carga de orden de paneles para modo "Visión Única".',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 }
 
 export function guardarOrdenPanelesVisionUnica() {
     let ordenActual = Array.from(CONTAINER_INTERNO_VISION_UNICA.children).map(item => item.id);
-    localStorage.setItem('orden-grid-vision-unica', JSON.stringify(ordenActual));
+    localStorage.setItem(LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS, JSON.stringify(ordenActual));
 }
 
 function getOrdenActual() {
@@ -48,6 +51,6 @@ function getOrdenActual() {
 export function toggleClaseOrdenado() {
     const ordenActual = getOrdenActual();
     const esOrdenOriginal = JSON.stringify(ID_EN_ORDEN_ORIGINAL) === JSON.stringify(ordenActual);
-    CONTAINER_INTERNO_VISION_UNICA.classList.toggle('vision-unica-grid-reordenado', !esOrdenOriginal);
+    CONTAINER_INTERNO_VISION_UNICA.classList.toggle('single-view-grid-reordenado', !esOrdenOriginal);
 }
 

@@ -1,15 +1,15 @@
-import { listaCanales } from "../canalesData.js";
+import { channelsList } from "../canalesData.js";
 import {
-    CLASE_CSS_BOTON_PRIMARIO,
-    CODIGOS_PAISES,
-    PREFIJOS_ID_CONTENEDORES_CANALES,
+    CSS_CLASS_BUTTON_PRIMARY,
+    COUNTRY_CODES,
+    ID_PREFIX_CONTAINERS_CHANNELS,
 } from "../constants/index.js";
-import { filtrarCanalesPorInput, mostrarToast } from "./index.js";
+import { filtrarCanalesPorInput, showToast } from "./index.js";
 import { sincronizarCategoriasConPais } from "./helperSincronizarFiltros.js";
 
 export function crearBotonesPaises() {
     try {
-        const NUMERO_CANALES_CON_PAIS = Object.values(listaCanales).map(canal => {
+        const NUMERO_CANALES_CON_PAIS = Object.values(channelsList).map(canal => {
             if (canal?.país !== '') {
                 return canal.país.toLowerCase();
             } else {
@@ -20,13 +20,13 @@ export function crearBotonesPaises() {
         const PAISES_SIN_REPETIRSE = [...new Set(NUMERO_CANALES_CON_PAIS)]
 
         const CONTEO_NUMERO_CANALES_POR_PAIS = NUMERO_CANALES_CON_PAIS.reduce((conteo, pais) => {
-            conteo[CODIGOS_PAISES[pais] ?? 'Desconocido'] = (conteo[CODIGOS_PAISES[pais] ?? 'Desconocido'] || 0) + 1;
+            conteo[COUNTRY_CODES[pais] ?? 'Desconocido'] = (conteo[COUNTRY_CODES[pais] ?? 'Desconocido'] || 0) + 1;
             return conteo;
         }, {});
 
-        const PAISES_ORDENADOS = PAISES_SIN_REPETIRSE.filter(pais => CODIGOS_PAISES[pais]).sort((a, b) => {
-            const codigoA = CODIGOS_PAISES[a].toLowerCase();
-            const codigoB = CODIGOS_PAISES[b].toLowerCase();
+        const PAISES_ORDENADOS = PAISES_SIN_REPETIRSE.filter(pais => COUNTRY_CODES[pais]).sort((a, b) => {
+            const codigoA = COUNTRY_CODES[a].toLowerCase();
+            const codigoB = COUNTRY_CODES[b].toLowerCase();
             return codigoA.localeCompare(codigoB);
         });
 
@@ -35,13 +35,13 @@ export function crearBotonesPaises() {
         OPCIONES_PAISES.push({
             valor: 'all',
             nombreVisible: 'Todos los países',
-            badge: Object.keys(listaCanales).length,
+            badge: Object.keys(channelsList).length,
             flag: null
         });
 
         for (const PAIS of PAISES_ORDENADOS) {
-            if (!CODIGOS_PAISES[PAIS]) continue;
-            const nombrePais = CODIGOS_PAISES[PAIS];
+            if (!COUNTRY_CODES[PAIS]) continue;
+            const nombrePais = COUNTRY_CODES[PAIS];
             const cantidadCanales = CONTEO_NUMERO_CANALES_POR_PAIS[nombrePais] || 0;
             OPCIONES_PAISES.push({
                 valor: PAIS,
@@ -61,7 +61,7 @@ export function crearBotonesPaises() {
             });
         }
 
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
             const contenedorBotonesFiltroPaises = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`);
             if (!contenedorBotonesFiltroPaises) continue;
 
@@ -79,11 +79,11 @@ export function crearBotonesPaises() {
             const actualizarEstadoToggle = (tieneFiltroActivo) => {
                 if (tieneFiltroActivo) {
                     botonToggle.classList.remove('btn-dark');
-                    if (!botonToggle.classList.contains(CLASE_CSS_BOTON_PRIMARIO)) {
-                        botonToggle.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    if (!botonToggle.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
+                        botonToggle.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                     }
                 } else {
-                    botonToggle.classList.remove(CLASE_CSS_BOTON_PRIMARIO);
+                    botonToggle.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
                     if (!botonToggle.classList.contains('btn-dark')) {
                         botonToggle.classList.add('btn-dark');
                     }
@@ -97,7 +97,7 @@ export function crearBotonesPaises() {
 
             const limpiarSeleccion = () => {
                 menuDropdown.querySelectorAll('label[data-country]').forEach(label => {
-                    label.classList.remove(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
                     if (!label.classList.contains('btn-outline-secondary')) {
                         label.classList.add('btn-outline-secondary');
                     }
@@ -107,13 +107,13 @@ export function crearBotonesPaises() {
             const activarLabel = label => {
                 if (!label) return;
                 if (label.dataset.country === 'all') {
-                    label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                     label.classList.remove('btn-outline-secondary');
                     botonToggle.innerHTML = '<i class="bi bi-flag"></i> País: Todos los países';
                     /* botonToggle.innerHTML = '<i class="bi bi-flag"></i> País'; */
                     actualizarEstadoToggle(false);
                 } else {
-                    label.classList.replace('btn-outline-secondary', CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.replace('btn-outline-secondary', CSS_CLASS_BUTTON_PRIMARY);
                     const nombreSeleccionado = label.querySelector('.flex-grow-1')?.textContent?.trim() || 'País';
                     botonToggle.innerHTML = `<i class="bi bi-flag"></i> País: ${nombreSeleccionado}`;
                     /* botonToggle.innerHTML = `<i class="bi bi-flag"></i> ${nombreSeleccionado}`; */
@@ -123,7 +123,7 @@ export function crearBotonesPaises() {
 
             const manejarCambioFiltro = labelSeleccionada => {
                 try {
-                    const contenedorBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`);
+                    const contenedorBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`);
                     const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
                     const valorBusqueda = inputFiltro?.value ?? '';
                     const valorPaisSeleccionado = labelSeleccionada?.dataset.country ?? 'all';
@@ -140,13 +140,15 @@ export function crearBotonesPaises() {
                         labelTodos.previousElementSibling.checked = true;
                         activarLabel(labelTodos);
                     }
-                    mostrarToast(`
-                    <span class="fw-bold">Ha ocurrido un error al intentar activar filtro país.</span>
-                    <hr>
-                    <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-                    <hr>
-                    Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-                    <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+                    
+                    showToast({
+                        title: 'Ha ocurrido un error al intentar activar filtro país.',
+                        body: `Error: ${error}`,
+                        type: 'danger',
+                        autohide: false,
+                        delay: 0,
+                        showReloadOnError: true
+                    });
                 }
             };
 
@@ -178,7 +180,7 @@ export function crearBotonesPaises() {
 
                 if (opcion.valor === 'all') {
                     input.checked = true;
-                    label.classList.add(CLASE_CSS_BOTON_PRIMARIO);
+                    label.classList.add(CSS_CLASS_BUTTON_PRIMARY);
                 } else {
                     label.classList.add('btn-outline-secondary');
                 }
@@ -200,16 +202,17 @@ export function crearBotonesPaises() {
         }
     } catch (error) {
         console.error(`Error durante creación botones para filtros paises. ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la creación de botones para filtrado por país.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false);
+        showToast({
+            title: 'Ha ocurrido un error durante la creación de botones para filtrado por país.',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-            document.querySelector(`#${PREFIJO}-body-botones-canales`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para filtro paises'));
+        for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
+            document.querySelector(`#${PREFIJO}-channels-buttons-container`).insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para filtro paises'));
         }
         return
     }

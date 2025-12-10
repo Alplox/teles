@@ -1,5 +1,5 @@
 import { LS_KEY_FLOATING_BUTTONS_POSITION } from "../constants/localStorageKeys.js";
-import { BOTONES_REPOSICIONAR_BOTONES_FLOTANTES } from "../main.js";
+import { buttonsPositionFloatingButtons } from "../main.js";
 
 export function alternarPosicionBotonesFlotantes(topClass, startClass, marginClass, translateClass) {
     const divBotonesFlotantes = document.querySelector('#grupo-botones-flotantes');
@@ -35,7 +35,7 @@ export function clicBotonPosicionBotonesFlotantes(topClass, startClass, margin =
             localStorage.setItem(LS_KEY_FLOATING_BUTTONS_POSITION, JSON.stringify(posicionElegida));
         }
     } catch (e) {
-        console.warn('No se pudo guardar la posición de los botones flotantes en localStorage:', e);
+        console.warn('[teles] The position of the floating buttons could not be saved to localStorage:', e);
     }
 }
 
@@ -46,7 +46,7 @@ function esBotonReposicionar(boton, top, start, margin, translate) {
 
 export function actualizarBotonesFlotantes(top, start, margin, translate) {
     alternarPosicionBotonesFlotantes(top, start, margin, translate);
-    BOTONES_REPOSICIONAR_BOTONES_FLOTANTES.forEach(boton => {
-        boton.checked = esBotonReposicionar(boton, top, start, margin, translate);
+    buttonsPositionFloatingButtons.forEach(btn => {
+        btn.checked = esBotonReposicionar(btn, top, start, margin, translate);
     });
 }

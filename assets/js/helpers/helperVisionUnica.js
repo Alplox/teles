@@ -1,77 +1,86 @@
 import { crearFragmentCanal } from "../canalUI.js";
-import { crearBotonesParaVisionUnica } from "./helperGenerarBotonesCanales.js";
+import { channelsList } from "../canalesData.js";
 import {
-    CONTAINER_VISION_CUADRICULA,
-    CONTAINER_VISION_UNICA,
-    BOTON_ACTIVAR_VISION_UNICA,
-    BOTON_ACTIVAR_VISION_GRID,
+    AMBIENT_MUSIC,
+    CSS_CLASS_BUTTON_PRIMARY,
+    CSS_CLASS_BUTTON_SECONDARY,
+    LS_KEY_ACTIVE_VIEW_MODE,
+    LS_KEY_HORIZONTAL_WIDTH_VALUE,
+    LS_KEY_SAVED_CHANNELS_GRID_VIEW
+} from "../constants/index.js";
+
+import {
+    gridViewContainerEl,
+    singleViewContainerEl,
     tele,
-    INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA,
-    SPAN_VALOR_INPUT_RANGE,
-    CHECKBOX_PERSONALIZAR_USO_100VH_CANALES,
-    SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES,
-    BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA,
-    CONTAINER_VIDEO_VISION_UNICA,
-    SPAN_VALOR_TRANSMISIONES_POR_FILA,
-    ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA,
+    widthRangeInputEl,
+    widthRangeValueEl,
+    checkboxElFullHeight,
+    spanElFullHeight,
+    spanElNumberChannelsPerRow,
+    buttonsNumberChannelsPerRow,
     aplicarEstadoUrlDinamica,
-    urlDinamicaHabilitada
+    isDynamicUrlMode,
+    checkboxElDynamicUrl,
+    spanElDynamicUrlValue
 } from "../main.js";
 
 import {
-    actualizarValorSlider,
-    mostrarToast,
-    activarTooltipsBootstrap,
+    showToast,
     ajustarClaseBotonCanal,
-    actualizarBotonesPersonalizarOverlay,
     hideTextoBotonesOverlay,
     ajustarNumeroDivisionesClaseCol,
-    removerTooltipsBootstrap,
     registrarCambioManualCanales,
     limpiarParametroCompartidoEnUrl,
-    limpiarRecursosTransmision
+    limpiarRecursosTransmision,
+    crearBotonesParaVisionUnica,
+    cargarOrdenVisionUnica,
+    adjustVisibilityButtonsRemoveAllActiveChannels
 } from "../helpers/index.js";
-import { CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO, LS_KEY_FULL_HEIGHT_MODE, LS_KEY_VIEW_MODE } from "../constants/index.js";
-import { listaCanales } from "../canalesData.js";
-import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
+
+import {
+    obtainNumberOfChannelsPerRow,
+    initializeBootstrapTooltips,
+    disposeBootstrapTooltips
+} from "../utils/index.js";
 
 const BOTON_COPIAR_ENLACE_COMPARTIR_SETUP = document.querySelector('#boton-copiar-enlace-compartir-setup');
 const INPUT_ENLACE_COMPARTIR_SETUP = document.querySelector('#input-enlace-compartir-setup');
-const CHECKBOX_URL_DINAMICA_PERSONALIZACION = document.querySelector('#checkbox-url-dinamica');
-const SPAN_VALOR_URL_DINAMICA = document.querySelector('#span-valor-url-dinamica');
 
 export function activarVisionUnica() {
     try {
+        if (!AMBIENT_MUSIC.paused) {
+            adjustVisibilityButtonsRemoveAllActiveChannels();
+        }
 
-        const contenedorVision = document.querySelector('#vision-unica-body-botones-canales');
+        cargarOrdenVisionUnica();
+        const contenedorVision = document.querySelector('#single-view-channels-buttons-container');
         if (contenedorVision && !contenedorVision.querySelector('button[data-canal]')) {
             crearBotonesParaVisionUnica();
         }
-        localStorage.setItem(LS_KEY_VIEW_MODE, 'vision-unica');
+        localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'single-view');
 
-        BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-light-subtle', 'btn-indigo');
-        BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-indigo', 'btn-light-subtle');
 
         // En visión única limpiamos cualquier parámetro compartido `c`
         // y deshabilitamos controles pensados para la cuadrícula (URL dinámica y compartir setup).
         limpiarParametroCompartidoEnUrl(true);
 
-        if (CHECKBOX_URL_DINAMICA_PERSONALIZACION) {
-            CHECKBOX_URL_DINAMICA_PERSONALIZACION.disabled = true;
+        if (checkboxElDynamicUrl) {
+            checkboxElDynamicUrl.disabled = true;
         }
-        if (SPAN_VALOR_URL_DINAMICA) {
-            SPAN_VALOR_URL_DINAMICA.dataset.textoPrevio = SPAN_VALOR_URL_DINAMICA.textContent || '';
-            SPAN_VALOR_URL_DINAMICA.textContent = '[solo en visión cuadrícula]';
+        if (spanElDynamicUrlValue) {
+            spanElDynamicUrlValue.dataset.textoPrevio = spanElDynamicUrlValue.textContent || '';
+            spanElDynamicUrlValue.textContent = '[solo en visión cuadrícula]';
         }
 
         BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.setAttribute('disabled', 'disabled');
         INPUT_ENLACE_COMPARTIR_SETUP?.setAttribute('disabled', 'disabled');
 
-        document.querySelectorAll('#vision-unica-body-botones-canales button, #modal-cambiar-canal-body-botones-canales button').forEach(botonCanalEnDOM => {
-            botonCanalEnDOM.classList.replace(CLASE_CSS_BOTON_PRIMARIO, CLASE_CSS_BOTON_SECUNDARIO);
+        document.querySelectorAll('#single-view-channels-buttons-container button, #modal-cambiar-canal-channels-buttons-container button').forEach(botonCanalEnDOM => {
+            botonCanalEnDOM.classList.replace(CSS_CLASS_BUTTON_PRIMARY, CSS_CLASS_BUTTON_SECONDARY);
         });
 
-        const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
+        const CANALES_ACTIVOS_EN_DOM = gridViewContainerEl.querySelectorAll('div[data-canal]');
         if (CANALES_ACTIVOS_EN_DOM.length > 0) {
             CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
                 divCanal.innerHTML = ''; // limpia html en vez de remover para evitar activar observer
@@ -80,8 +89,8 @@ export function activarVisionUnica() {
             });
         };
 
-        CONTAINER_VISION_CUADRICULA.classList.add('d-none');
-        CONTAINER_VISION_UNICA.classList.remove('d-none');
+        gridViewContainerEl.classList.add('d-none');
+        singleViewContainerEl.classList.remove('d-none');
         document.querySelector('nav .btn-group').classList.add('d-none');
         document.querySelector('nav a.gradient-text').classList.remove('d-none');
 
@@ -90,41 +99,38 @@ export function activarVisionUnica() {
         divBotonesFlotantes.querySelector('div.bg-light-subtle').classList.add('d-none');
         divBotonesFlotantes.querySelector('.btn-dark').classList.replace('rounded-end-5', 'rounded-pill');
 
-        actualizarBotonesPersonalizarOverlay();
+        widthRangeInputEl.disabled = true;
+        widthRangeValueEl.textContent = 'Deshabilitado';
 
-        INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = true;
-        SPAN_VALOR_INPUT_RANGE.textContent = 'Deshabilitado';
+        checkboxElFullHeight.disabled = true;
+        spanElFullHeight.textContent = 'Deshabilitado';
 
-        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.disabled = true;
-        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Deshabilitado';
+        buttonsNumberChannelsPerRow.forEach(boton => { boton.disabled = true });
+        spanElNumberChannelsPerRow.innerHTML = `Deshabilitado`;
 
-        BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = true });
-        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `Deshabilitado`;
-
-        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
-
-        if (CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]')) tele.remove(CONTAINER_VIDEO_VISION_UNICA.querySelector('div[data-canal]').dataset.canal);
+        let lsCanales = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
 
         if (Object.keys(lsCanales).length > 0) {
             try {
-                if (listaCanales[Object.keys(lsCanales)[0]]) {
+                if (channelsList[Object.keys(lsCanales)[0]]) {
                     tele.add(Object.keys(lsCanales)[0]);
                 }
             } catch (error) {
-                return console.error(`Error durante carga canales para modo vision unica. Error: ${error}`);
+                return console.error(`Error durante carga canales para modo single view. Error: ${error}`);
             }
         };
 
         document.querySelector('#boton-personalizar-boton-mover-overlay').classList.add('clase-vacia'); // esto es solo para mediaquery en css
     } catch (error) {
         console.error(`Error durante la activación del modo "Visión Única". Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la activación del modo "Visión Única".</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        showToast({
+            title: 'Ha ocurrido un error al intentar activar el modo "Visión Única".',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        })
         return
     }
 }
@@ -132,50 +138,43 @@ export function activarVisionUnica() {
 export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {}) {
     try {
 
-        localStorage.setItem(LS_KEY_VIEW_MODE, 'vision-cuadricula');
+        localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
 
-        BOTON_ACTIVAR_VISION_UNICA.classList.replace('btn-indigo', 'btn-light-subtle');
-        BOTON_ACTIVAR_VISION_GRID.classList.replace('btn-light-subtle', 'btn-indigo');
-
-        const CANAL_ACTIVO_VISION_UNICA = CONTAINER_VISION_UNICA.querySelector('div[data-canal]');
+        const CANAL_ACTIVO_VISION_UNICA = singleViewContainerEl.querySelector('div[data-canal]');
         let canalActivoVisionUnica = CANAL_ACTIVO_VISION_UNICA?.dataset.canal;
-        
-        // tele.remove() alternativa, para evitar que guarde string vacio en localStorage
+
+        // tele.remove() alternativo, para evitar que guarde string vacio en localStorage
         try {
             if (CANAL_ACTIVO_VISION_UNICA !== null) {
                 limpiarRecursosTransmision(CANAL_ACTIVO_VISION_UNICA);
-                removerTooltipsBootstrap();
+                disposeBootstrapTooltips();
                 CANAL_ACTIVO_VISION_UNICA.remove();
             }
 
-            ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
-
             ajustarClaseBotonCanal(canalActivoVisionUnica, false);
-            activarTooltipsBootstrap();
+            initializeBootstrapTooltips();
             registrarCambioManualCanales();
         } catch (error) {
-            console.error(`Error durante eliminación div de canal de vision unica con id: ${canalActivoVisionUnica}. Error: ${error}`);
-            mostrarToast(`
-                    <span class="fw-bold">Ha ocurrido un error durante la eliminación canal de vision unica con id: ${canalActivoVisionUnica}.</span>
-                    <hr>
-                    <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-                    <hr>
-                    Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-                    <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+            console.error(`Error durante eliminación de canal activo en modo "Visión Única". Error: ${error}`);
+            showToast({
+                title: 'Ha ocurrido un error durante eliminación de canal activo en modo "Visión Única".',
+                body: `Error: ${error}`,
+                type: 'danger',
+                autohide: false,
+                delay: 0,
+                showReloadOnError: true
+            })
             return
         }
 
-        // Ajustar icono sin señal activa
-        ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
-
-        const CANALES_ACTIVOS_EN_DOM = CONTAINER_VISION_CUADRICULA.querySelectorAll('div[data-canal]');
+        const CANALES_ACTIVOS_EN_DOM = gridViewContainerEl.querySelectorAll('div[data-canal]');
 
         if (CANALES_ACTIVOS_EN_DOM.length > 0) {
             CANALES_ACTIVOS_EN_DOM.forEach(divCanal => {
                 divCanal.dataset.canal = divCanal.dataset.respaldo;
                 divCanal.append(crearFragmentCanal(divCanal.dataset.canal));
                 ajustarClaseBotonCanal(divCanal.dataset.canal, true);
-                activarTooltipsBootstrap();
+                initializeBootstrapTooltips();
                 hideTextoBotonesOverlay();
                 divCanal.removeAttribute('data-respaldo');
             });
@@ -183,8 +182,15 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
             tele.cargaCanalesPredeterminados();
         }
 
-        CONTAINER_VISION_CUADRICULA.classList.remove('d-none');
-        CONTAINER_VISION_UNICA.classList.add('d-none');
+
+        const hasActiveChannels = CANALES_ACTIVOS_EN_DOM.length > 0;
+
+        if (!hasActiveChannels) {
+            adjustVisibilityButtonsRemoveAllActiveChannels();
+        }
+
+        gridViewContainerEl.classList.remove('d-none');
+        singleViewContainerEl.classList.add('d-none');
         document.querySelector('nav .btn-group').classList.remove('d-none');
         document.querySelector('nav a.gradient-text').classList.add('d-none');
 
@@ -193,31 +199,29 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
         divBotonesFlotantes.querySelector('div.bg-light-subtle').classList.remove('d-none');
         divBotonesFlotantes.querySelector('.btn-dark').classList.replace('rounded-pill', 'rounded-end-5');
 
-        actualizarBotonesPersonalizarOverlay();
+        widthRangeInputEl.disabled = false;
+        widthRangeValueEl.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
 
-        INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.disabled = false;
-        actualizarValorSlider();
+        checkboxElFullHeight.disabled = false;
+        spanElFullHeight.textContent =
+            checkboxElFullHeight.checked ? 'Expandido' : 'Reducido';
 
-        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.disabled = false;
-        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 
-            CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked ? 'Expandido' : 'Reducido';
-
-        BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => { boton.disabled = false });
-        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
+        buttonsNumberChannelsPerRow.forEach(boton => { boton.disabled = false });
+        spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
 
         ajustarNumeroDivisionesClaseCol();
 
         document.querySelector('#boton-personalizar-boton-mover-overlay').classList.remove('clase-vacia');
 
-        if (CHECKBOX_URL_DINAMICA_PERSONALIZACION) {
-            CHECKBOX_URL_DINAMICA_PERSONALIZACION.disabled = false;
+        if (checkboxElDynamicUrl) {
+            checkboxElDynamicUrl.disabled = false;
         }
-        if (SPAN_VALOR_URL_DINAMICA) {
-            const textoPrevio = SPAN_VALOR_URL_DINAMICA.dataset.textoPrevio;
+        if (spanElDynamicUrlValue) {
+            const textoPrevio = spanElDynamicUrlValue.dataset.textoPrevio;
             if (textoPrevio) {
-                SPAN_VALOR_URL_DINAMICA.textContent = textoPrevio;
+                spanElDynamicUrlValue.textContent = textoPrevio;
             } else {
-                aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
+                aplicarEstadoUrlDinamica(isDynamicUrlMode);
             }
         }
 
@@ -227,13 +231,14 @@ export function desactivarVisionUnica({ evitarCargaPredeterminados = false } = {
         registrarCambioManualCanales({ forzar: true });
     } catch (error) {
         console.error(`Error durante la desactivación del modo "Visión Única". Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la desactivación del modo "Visión Única".</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        showToast({
+            title: 'Ha ocurrido un error al intentar desactivar el modo "Visión Única".',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 }

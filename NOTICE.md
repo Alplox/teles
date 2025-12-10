@@ -71,3 +71,7 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 * Clappr <https://github.com/clappr/clappr> - [(MIT)](https://github.com/clappr/clappr/blob/master/LICENSE)
 
 * OPlayer <https://github.com/shiyiya/oplayer> - [(MIT)](https://github.com/shiyiya/oplayer/blob/master/LICENSE)
+
+* [Audio] Pop 8 por D.S.G. <https://freesound.org/people/D.S.G./sounds/328117/> - [(Creative Commons 0)](https://creativecommons.org/public-domain/cc0/)
+
+* [Audio] Weather Forecast Type Beat por YellowTree <https://freesound.org/people/YellowTree/sounds/693384/> - [(Attribution 4.0)](https://creativecommons.org/licenses/by/4.0/)

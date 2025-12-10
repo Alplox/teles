@@ -1,21 +1,25 @@
-import { listaCanales } from "../canalesData.js";
-import { LS_KEY_VIEW_MODE } from "../constants/localStorageKeys.js";
-import { estaCargandoDesdeUrlCompartida, urlCompartidaActiva, urlDinamicaHabilitada, setUrlCompartidaActiva } from "../main.js";
+import { channelsList } from "../canalesData.js";
+import { LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
+import { estaCargandoDesdeUrlCompartida, isDynamicUrlMode } from "../main.js";
 
 let parametroCompartidoLimpio = false;
 
 export const limpiarParametroCompartidoEnUrl = (forzar = false) => {
-    if (!forzar && (!urlCompartidaActiva || parametroCompartidoLimpio)) return;
     try {
         const url = new URL(window.location.href);
+
+        // Si no estamos forzando y no hay parámetro 'c', no hacemos nada.
+        // Esto reemplaza el chequeo de urlCompartidaActiva
+        if (!forzar && !url.searchParams.has('c')) return;
+
         if (!url.searchParams.has('c')) {
             parametroCompartidoLimpio = true;
             return;
         }
+
         url.searchParams.delete('c');
         window.history.replaceState({}, document.title, url.toString());
         parametroCompartidoLimpio = true;
-        setUrlCompartidaActiva(false);
 
     } catch (error) {
         console.error('[teles] Error al limpiar parámetro compartido de la URL:', error);
@@ -24,7 +28,7 @@ export const limpiarParametroCompartidoEnUrl = (forzar = false) => {
 
 export const obtenerIdsCanalesActivos = () => {
     try {
-        const payload = localStorage.getItem('canales-vision-cuadricula');
+        const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
         if (!payload) return [];
         const datos = JSON.parse(payload);
         if (!datos || typeof datos !== 'object') return [];
@@ -36,9 +40,9 @@ export const obtenerIdsCanalesActivos = () => {
 };
 
 export const sincronizarParametroCanalesActivos = () => {
-    if (!urlDinamicaHabilitada) return;
+    if (!isDynamicUrlMode) return;
     // En visión única nunca se debe tocar el parámetro `c` aunque la preferencia esté activa.
-    if (localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') return;
+    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') return;
     try {
         const urlActual = new URL(window.location.href);
         const idsActivos = obtenerIdsCanalesActivos();
@@ -51,7 +55,6 @@ export const sincronizarParametroCanalesActivos = () => {
 
         window.history.replaceState({}, document.title, urlActual.toString());
         parametroCompartidoLimpio = true;
-        setUrlCompartidaActiva(false);
     } catch (error) {
         console.error('[teles] Error al sincronizar URL dinámica:', error);
     }
@@ -64,17 +67,13 @@ export const sincronizarParametroCanalesActivos = () => {
  * @param {{ forzar?: boolean }} [opciones]
  * @returns {void}
  */
-export function registrarCambioManualCanales({ forzar = false } = {}) {
+export const registrarCambioManualCanales = ({ forzar = false } = {}) => {
     if (!forzar && estaCargandoDesdeUrlCompartida) return;
 
     // En modo "visión única" no usamos la URL dinámica ni el parámetro `c`.
-    if (localStorage.getItem(LS_KEY_VIEW_MODE) === 'vision-unica') return;
+    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') return;
 
-    if (urlDinamicaHabilitada) {
-        sincronizarParametroCanalesActivos();
-    } else {
-        limpiarParametroCompartidoEnUrl(true);
-    }
+    isDynamicUrlMode ? sincronizarParametroCanalesActivos() : limpiarParametroCompartidoEnUrl(true);
 }
 
 
@@ -83,7 +82,7 @@ export function registrarCambioManualCanales({ forzar = false } = {}) {
    * El formato esperado es una lista separada por comas, por ejemplo: ?c=24-horas,meganoticias,t13
    * @returns {string[]} Arreglo de IDs de canales válidos.
    */
-export function obtenerCanalesDesdeUrl() {
+export const obtenerCanalesDesdeUrl = () => {
     try {
         const url = new URL(window.location.href);
         const param = url.searchParams.get('c');
@@ -92,7 +91,7 @@ export function obtenerCanalesDesdeUrl() {
         return param
             .split(',')
             .map(id => id.trim())
-            .filter(id => id.length > 0 && listaCanales?.[id]);
+            .filter(id => id.length > 0 && channelsList?.[id]);
     } catch (error) {
         console.error('[teles] Error al leer canales compartidos desde la URL:', error);
         return [];

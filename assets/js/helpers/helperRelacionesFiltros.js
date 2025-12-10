@@ -1,11 +1,11 @@
-import { listaCanales } from "../canalesData.js";
+import { channelsList } from "../canalesData.js";
 
 const VALOR_PAIS_DESCONOCIDO = "Desconocido";
 const VALOR_CATEGORIA_SIN_DEFINIR = "undefined";
 
 /**
  * Construye las relaciones país-categoría en tiempo de ejecución para evitar
- * ciclos de inicialización. Siempre usa el estado más reciente de `listaCanales`.
+ * ciclos de inicialización. Siempre usa el estado más reciente de `channelsList`.
  * @returns {{
  *   mapaCategoriasPorPais: Map<string, Set<string>>,
  *   mapaPaisesPorCategoria: Map<string, Set<string>>,
@@ -16,7 +16,7 @@ const VALOR_CATEGORIA_SIN_DEFINIR = "undefined";
 function construirRelaciones() {
   const mapaCategoriasPorPais = new Map();
   const mapaPaisesPorCategoria = new Map();
-  const canales = listaCanales ? Object.values(listaCanales) : [];
+  const canales = channelsList ? Object.values(channelsList) : [];
 
   for (const canal of canales) {
     const codigoPais = canal?.país?.trim()

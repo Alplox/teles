@@ -1,5 +1,0 @@
-import { ARRAY_CANALES_PREDETERMINADOS, ARRAY_CANALES_PREDETERMINADOS_EXTRAS } from "../canalesData.js";
-
-export function obtenerCanalesPredeterminados(isMobile) {
-    return isMobile ? ARRAY_CANALES_PREDETERMINADOS : ARRAY_CANALES_PREDETERMINADOS.concat(ARRAY_CANALES_PREDETERMINADOS_EXTRAS);
-}

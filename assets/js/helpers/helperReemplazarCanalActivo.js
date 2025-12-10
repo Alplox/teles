@@ -1,8 +1,8 @@
 import { crearFragmentCanal } from "../canalUI.js";
 import { tele } from "../main.js";
-import { mostrarToast, ajustarClaseBotonCanal, guardarCanalesEnLocalStorage, registrarCambioManualCanales } from "../helpers/index.js";
+import { showToast, ajustarClaseBotonCanal, guardarCanalesEnLocalStorage, registrarCambioManualCanales } from "../helpers/index.js";
 
-export function reemplazarCanalActivo(canalIdBotonPulsadoEnModal, canalIdExistente) {
+export const reemplazarCanalActivo = (canalIdBotonPulsadoEnModal, canalIdExistente) => {
     try {
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalIdExistente}"]`)
         if (divPadreACambiar) {
@@ -25,13 +25,14 @@ export function reemplazarCanalActivo(canalIdBotonPulsadoEnModal, canalIdExisten
         }
     } catch (error) {
         console.error(`Error intentar cambiar canal con id: ${canalIdExistente} por canal: ${canalIdBotonPulsadoEnModal}. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al intentar cambiar canal con id: ${canalIdExistente} por canal: ${canalIdBotonPulsadoEnModal}.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger')
+        showToast({
+            title: `Ha ocurrido un error al intentar cambiar canal: ${canalIdExistente} por canal: ${canalIdBotonPulsadoEnModal}.`,
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 }

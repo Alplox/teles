@@ -1,5 +1,5 @@
 /* 
-    style v0.21
+    style v0.22
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -400,6 +400,18 @@ pwa-update {
   }
 }
 
+/* Subir z-index de barra-overlay cuando se muestra dropdown-menu */
+.barra-overlay:has(.dropdown-menu.show) {
+  z-index: 1060 !important;
+}
+
+#container-single-view .barra-overlay #overlay-boton-selecionar-señal + .dropdown-menu {
+  position: fixed !important;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1055 !important;
+}
+
 .d-none__barras-overlay .barra-overlay {
   display: none !important;
 }
@@ -432,7 +444,7 @@ pwa-update {
   display: none !important;
 }
 
-.vision-unica-grid {
+.single-view-grid {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: minmax(300px, 2fr) 7rem 7fr;
@@ -442,7 +454,7 @@ pwa-update {
 }
 
 /* Estilos para revertir tamaños cuando los elementos se reordenan */
-.vision-unica-grid-reordenado {
+.single-view-grid-reordenado {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns:  7rem 7fr minmax(300px, 2fr);
@@ -461,8 +473,7 @@ pwa-update {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
-.offcanvas-canales-body-canales,
-.vision-unica-body-canales {
+.one-column-grid {
   display: -ms-grid;
   display: grid;
   gap: 0.375rem;
@@ -532,7 +543,7 @@ pwa-update {
 
 /* MARK: @media */
 @media only screen and (max-width: 728px) {
-  .vision-unica-grid {
+  .single-view-grid {
     display: -ms-grid;
     display: grid;
     -ms-grid-rows: 1fr 2fr;
@@ -561,7 +572,7 @@ pwa-update {
     }
 
     #overlay-boton-mover,
-    #boton-mover-panel-canales-vision-unica {
+    #boton-mover-panel-canales-single-view {
       display: none !important;
     }
   }
@@ -570,7 +581,7 @@ pwa-update {
     display: none !important;
   }
 
-  .vision-unica-grid-reordenado {
+  .single-view-grid-reordenado {
     display: -ms-grid;
     display: grid;
     -ms-grid-rows: 1fr 2fr;
@@ -997,5 +1008,26 @@ pwa-update {
 
   to {
     text-shadow: 2px 0.5px 2px #ea36af, -1px -0.5px 2px #75fa69;
+  }
+}
+
+/* Collapsible Filters - Icon Estado */
+.icono-filtros-estado {
+  transition: transform 0.2s ease;
+}
+
+button[aria-expanded="true"] .icono-filtros-estado {
+  transform: rotate(180deg); /* Expandido */
+}
+
+button[aria-expanded="false"] .icono-filtros-estado {
+  transform: rotate(0deg); /* Colapsado */
+}
+
+/* Optimización para landscape mode en móviles */
+@media only screen and (max-width: 915px) and (orientation: landscape) {
+  /* Reducir padding en landscape para maximizar espacio */
+  .bg-light-subtle {
+    padding: 0.5rem !important;
   }
 }

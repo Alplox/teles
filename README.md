@@ -4,7 +4,7 @@ teles es una PWA (sitio web que se puede instalar como aplicación) de Código A
 
 # Enlace teles
 
-Enlace: <https://alplox.github.io/teles/>
+🔗 Enlace: <https://alplox.github.io/teles/>
 
 # Tabla de contenido
 

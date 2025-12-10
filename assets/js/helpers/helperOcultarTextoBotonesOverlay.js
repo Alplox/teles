@@ -1,5 +1,5 @@
 // Función para ocultar texto si el tamaño de los botones excede el tamaño del contenedor
-export function hideTextoBotonesOverlay() {
+export const hideTextoBotonesOverlay = () => {
   const BARRAS_OVERLAY = document.querySelectorAll('.barra-overlay');
   BARRAS_OVERLAY.forEach(overlay => {
     if (!overlay) return;
