@@ -1,47 +1,51 @@
-import { tele } from './main.js'
+import { getDefaultChannels, tele } from './main.js'
 import {
-    aplicarTema,
-    mostrarToast,
-    playAudioSinDelay,
-    quitarTodoCanalActivo,
-    obtenerCanalesPredeterminados
+    showToast,
+    sortChannelButtonsAscending,
+    sortChannelButtonsDescending,
+    restoreOriginalChannelButtonsOrder,
+    filterChannelsByInput,
+    getActiveChannelIds,
 } from './helpers/index.js'
 import {
-    AUDIO_ESTATICA,
+    AUDIO_STATIC,
     AUDIO_FAIL,
     AUDIO_SUCCESS,
     AUDIO_TURN_ON,
+    LS_KEY_WELCOME_MODAL_VISIBILITY,
+    CSS_CLASS_BUTTON_PRIMARY,
+    ID_PREFIX_CONTAINERS_CHANNELS,
+    LS_KEY_SAVED_CHANNELS_GRID_VIEW,
+    AUDIO_TV_SHUTDOWN
 } from './constants/index.js';
+import { debounce, playAudio } from './utils/index.js';
 
-// MARK: Botón entendido modal descargo de responsabilidad
-const BOTON_ENTENDIDO = document.querySelector('#boton-entendido');
-BOTON_ENTENDIDO?.addEventListener('click', () => {
-    localStorage.setItem('modal-status', 'hide');
+// MARK: Button Welcome Modal
+const buttonWelcomeModal = document.querySelector('#button-welcome-modal');
+buttonWelcomeModal?.addEventListener('click', () => {
+    localStorage.setItem(LS_KEY_WELCOME_MODAL_VISIBILITY, 'hide');
+    playAudio(AUDIO_SUCCESS);
 });
 
-// MARK: Botón PWA Install
-let containerPwaInstall = document.querySelector('#pwa-install');
-const BOTON_INSTALAR_PWA = document.querySelector('#boton-instalar-pwa');
+// MARK: Button PWA Install
+let containerInstallPwa = document.querySelector('#pwa-install');
+const buttonInstallPwa = document.querySelector('#button-pwa-install');
 
-// Ocultar botón PWA en Firefox
+// Hide the button for unsupported browsers
 if (navigator.userAgent.toLowerCase().includes('firefox')) {
-    BOTON_INSTALAR_PWA?.classList.add('d-none');
-    if (containerPwaInstall) containerPwaInstall.style.display = 'none';
+    buttonInstallPwa?.classList.add('d-none');
+    containerInstallPwa?.classList.add('d-none');
 } else {
-    BOTON_INSTALAR_PWA?.addEventListener('click', () => {
+    buttonInstallPwa?.addEventListener('click', () => {
         try {
-            containerPwaInstall?.showDialog?.(true); // con valor "true" para forzar aparición
+            containerInstallPwa?.showDialog?.(true); // "true" value to forced
         } catch (error) {
-            console.error('Error al mostrar el diálogo de instalación PWA:', error);
+            console.error('[teles] Error at attempt to show PWA install dialog:', error);
         }
     });
 }
 
-// MARK: Botón tema
-export const CHECKBOX_PERSONALIZAR_TEMA = document.querySelector('#checkbox-personalizar-tema');
-CHECKBOX_PERSONALIZAR_TEMA?.addEventListener('change', () => {
-    aplicarTema(CHECKBOX_PERSONALIZAR_TEMA.checked);
-});
+
 
 // MARK: Botón compartir
 const DATOS_NAVIGATOR_SHARE = {
@@ -61,7 +65,7 @@ function obtenerUrlCompartirConCanalesActivos() {
     try {
         const urlBase = new URL(DATOS_NAVIGATOR_SHARE.url, window.location.href);
 
-        const payload = localStorage.getItem('canales-vision-cuadricula');
+        const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
         if (!payload) {
             urlBase.searchParams.delete('c');
             return urlBase.toString();
@@ -101,7 +105,7 @@ function obtenerUrlCompartirConCanalesActivos() {
 
         return urlFinal;
     } catch (error) {
-        console.error('[teles] Error al generar URL para compartir con canales activos:', error);
+        console.error('[teles] Error at attempt to generate share URL with active channels:', error);
         return DATOS_NAVIGATOR_SHARE.url;
     }
 }
@@ -115,7 +119,7 @@ if (navigator.share && BOTON_COMPARTIR) {
         try {
             await navigator.share(DATOS_NAVIGATOR_SHARE);
         } catch (err) {
-            console.error(`[teles] Error al compartir usando navigator.share: ${err}`);
+            console.error(`[teles] Error at attempt to share using navigator.share: ${err}`);
         }
     });
 } else {
@@ -126,57 +130,96 @@ if (navigator.share && BOTON_COMPARTIR) {
 // MARK: Botones carga canales predeterminados
 const cargarCanalesPredeterminados = () => {
     try {
-        document.querySelectorAll('div[data-canal]').forEach(transmision => {
-            tele.remove(transmision.dataset.canal);
-        });
-        playAudioSinDelay(AUDIO_TURN_ON);
-        obtenerCanalesPredeterminados(isMobile?.any).forEach(canal => tele.add(canal));
+        removeAllChannels(false);
+        playAudio(AUDIO_TURN_ON);
+        getDefaultChannels(isMobile?.any).forEach(canal => tele.add(canal));
     } catch (error) {
-        console.error(`Error durante carga canales predeterminados. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al intentar cargar canales predeterminados.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
+        showToast({
+            title: 'Error al cargar canales predeterminados',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 };
 
-export const BOTON_MODAL_CANALES_PREDETERMINADOS = document.querySelector('#boton-modal-cargar-canales-por-defecto');
-export const BOTON_OFFCANVAS_CANALES_PREDETERMINADOS = document.querySelector('#boton-offcanvas-cargar-canales-por-defecto');
+export const BUTTON_MODAL_LOAD_DEFAULT_CHANNELS = document.querySelector('#boton-modal-cargar-canales-por-defecto');
+export const BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS = document.querySelector('#boton-offcanvas-cargar-canales-por-defecto');
 
-BOTON_MODAL_CANALES_PREDETERMINADOS?.addEventListener('click', cargarCanalesPredeterminados);
-BOTON_OFFCANVAS_CANALES_PREDETERMINADOS?.addEventListener('click', cargarCanalesPredeterminados);
+BUTTON_MODAL_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPredeterminados);
+BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPredeterminados);
 
 // MARK: Botones quitar
-export const BOTON_MODAL_QUITAR_TODO_ACTIVO = document.querySelector('#boton-modal-quitar-todo-canal-activo');
-export const BOTON_OFFCANVAS_QUITAR_TODO_ACTIVO = document.querySelector('#boton-offcanvas-quitar-todo-canal-activo');
+const removeAllChannels = (withAudio = true) => {
+    try {
+        if (withAudio) playAudio(AUDIO_TV_SHUTDOWN)
+        getActiveChannelIds().forEach(channelId => {
+            if (channelId) tele.remove(channelId);
+        });
+    } catch (error) {
+        console.error(`[teles] Error at attempt to remove all channels: ${error}`);
+        showToast({
+            title: 'Ha ocurrido un error al intentar quitar todos los canales.',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
+        return
+    }
+};
 
-BOTON_MODAL_QUITAR_TODO_ACTIVO?.addEventListener('click', quitarTodoCanalActivo);
-BOTON_OFFCANVAS_QUITAR_TODO_ACTIVO?.addEventListener('click', quitarTodoCanalActivo);
+
+
+export const BUTTON_MODAL_REMOVE_ALL_ACTIVE_CHANNELS = document.querySelector('#boton-modal-quitar-todo-canal-activo');
+export const BUTTON_OFFCANVAS_REMOVE_ALL_ACTIVE_CHANNELS = document.querySelector('#boton-offcanvas-quitar-todo-canal-activo');
+
+BUTTON_MODAL_REMOVE_ALL_ACTIVE_CHANNELS?.addEventListener('click', removeAllChannels);
+BUTTON_OFFCANVAS_REMOVE_ALL_ACTIVE_CHANNELS?.addEventListener('click', removeAllChannels);
 
 // MARK: Botón borrar localstorage
 const BOTON_BORRAR_LOCALSTORAGE = document.querySelector('#boton-borrar-localstorage');
 BOTON_BORRAR_LOCALSTORAGE?.addEventListener('click', () => {
     try {
-        quitarTodoCanalActivo();
-        localStorage.clear();
-        AUDIO_ESTATICA.volume = 0.8;
-        AUDIO_ESTATICA.loop = true;
-        AUDIO_ESTATICA.play();
+        const safeRemoveAllChannels = () => {
+            if (typeof removeAllChannels !== 'function') return;
+            try { removeAllChannels(); } catch (error) { console.error('[teles] removeAllChannels failed:', error); }
+        };
+
+        const safeClearLocalStorage = () => {
+            if (!window.localStorage) return;
+            try { localStorage.clear(); } catch (error) { console.error('[teles] localStorage.clear failed:', error); }
+        };
+
+        const safePlayStatic = async () => {
+            if (!AUDIO_STATIC) return;
+            try {
+                AUDIO_STATIC.volume = 0.8;
+                AUDIO_STATIC.loop = true;
+                await AUDIO_STATIC.play();
+            } catch (error) {
+                console.error('[teles] AUDIO_STATIC.play() reject:', error);
+            }
+        };
+        safeRemoveAllChannels();
+        safeClearLocalStorage();
+        safePlayStatic();
+
         document.querySelector('#alerta-borrado-localstorage')?.classList.remove('d-none');
     } catch (error) {
-        console.error('Error al intentar eliminar almacenamiento local sitio: ', error);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al intentar eliminar el almacenamiento local del sitio.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>
-        `, 'danger', false);
+        console.error('[teles] Error at attempt to clear local storage: ', error);
+        showToast({
+            title: 'Error al intentar eliminar almacenamiento local',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 });
@@ -195,18 +238,19 @@ function enterFullscreen() {
             element.msRequestFullscreen();
         }
     } catch (error) {
-        console.error(`Error al solicitar entrar a pantalla completa. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al solicitar entrar a pantalla completa.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>
-        `, 'danger', false);
+        console.error('[teles] Error at attempt to enter fullscreen: ', error);
+        showToast({
+            title: 'Error al solicitar entrar a pantalla completa',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 }
+
 
 function exitFullscreen() {
     try {
@@ -220,15 +264,15 @@ function exitFullscreen() {
             document.msExitFullscreen();
         }
     } catch (error) {
-        console.error(`Error al solicitar salir de pantalla completa. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al solicitar salir de pantalla completa.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>
-        `, 'danger', false);
+        console.error('[teles] Error at attempt to exit fullscreen: ', error);
+        showToast({
+            title: 'Error al solicitar salir de pantalla completa',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return
     }
 }
@@ -264,8 +308,8 @@ if (!isFullscreenSupported() && BOTON_FULLSCREEN?.parentElement?.parentElement) 
 function handleFullscreenChange() {
     if (!BOTON_FULLSCREEN) return;
     isFullscreen()
-        ? (BOTON_FULLSCREEN.innerHTML = 'Salir pantalla completa <i class="bi bi-fullscreen-exit ms-auto"></i>', BOTON_FULLSCREEN.classList.replace('btn-light-subtle', 'btn-indigo'))
-        : (BOTON_FULLSCREEN.innerHTML = 'Entrar pantalla completa <i class="bi bi-arrows-fullscreen ms-auto"></i>', BOTON_FULLSCREEN.classList.replace('btn-indigo', 'btn-light-subtle'));
+        ? (BOTON_FULLSCREEN.innerHTML = 'Salir pantalla completa <i class="bi bi-fullscreen-exit ms-auto"></i>', BOTON_FULLSCREEN.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY))
+        : (BOTON_FULLSCREEN.innerHTML = 'Entrar pantalla completa <i class="bi bi-arrows-fullscreen ms-auto"></i>', BOTON_FULLSCREEN.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle'));
 }
 
 /* window.addEventListener('resize', handleFullscreenChange); */
@@ -293,22 +337,22 @@ BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
 
         if (navigator.clipboard && INPUT_ENLACE_COMPARTIR) {
             await navigator.clipboard.writeText(INPUT_ENLACE_COMPARTIR.value);
-            playAudioSinDelay(AUDIO_SUCCESS);
+            playAudio(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-success');
         } else {
             throw new Error('Clipboard API no soportada o input no encontrado');
         }
     } catch (error) {
-        console.error('Error al copiar el enlace usando navigator.clipboard: ', error);
+        console.error('[teles] Error at attempt to copy link using navigator.clipboard: ', error);
         try {
             document.execCommand('copy', false, INPUT_ENLACE_COMPARTIR?.value ?? DATOS_NAVIGATOR_SHARE.url);
-            playAudioSinDelay(AUDIO_SUCCESS);
+            playAudio(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-success');
         } catch (execError) {
-            console.error('Error al copiar el enlace usando execCommand: ', execError);
-            playAudioSinDelay(AUDIO_FAIL);
+            console.error('[teles] Error at attempt to copy link using execCommand: ', execError);
+            playAudio(AUDIO_FAIL);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-danger');
             return;
@@ -350,23 +394,23 @@ BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.addEventListener('click', async () => {
 
         if (navigator.clipboard && INPUT_ENLACE_COMPARTIR_SETUP) {
             await navigator.clipboard.writeText(INPUT_ENLACE_COMPARTIR_SETUP.value);
-            playAudioSinDelay(AUDIO_SUCCESS);
+            playAudio(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-success');
         } else {
             throw new Error('Clipboard API no soportada o input no encontrado');
         }
     } catch (error) {
-        console.error('Error al copiar el enlace de configuración usando navigator.clipboard: ', error);
+        console.error('[teles] Error at attempt to copy link using navigator.clipboard: ', error);
         try {
             const textoFallback = INPUT_ENLACE_COMPARTIR_SETUP?.value ?? obtenerUrlCompartirConCanalesActivos();
             document.execCommand('copy', false, textoFallback);
-            playAudioSinDelay(AUDIO_SUCCESS);
+            playAudio(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-success');
         } catch (execError) {
-            console.error('Error al copiar el enlace de configuración usando execCommand: ', execError);
-            playAudioSinDelay(AUDIO_FAIL);
+            console.error('[teles] Error at attempt to copy link using execCommand: ', execError);
+            playAudio(AUDIO_FAIL);
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-danger');
             return;
@@ -380,3 +424,90 @@ BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.addEventListener('click', async () => {
         }, 2000);
     }
 });
+
+// Ordenar botones canales
+
+// CACHE: Crear mapas de elementos DOM una sola vez al cargar
+const sortButtonsCache = new Map();
+
+// Inicializar cache para cada prefijo
+function initSortButtonsCache(prefix) {
+    if (sortButtonsCache.has(prefix)) return sortButtonsCache.get(prefix);
+
+    const buttons = {
+        'ascending': {
+            input: document.getElementById(`${prefix}-btn-ascending-order`),
+            label: null
+        },
+        'descending': {
+            input: document.getElementById(`${prefix}-btn-descending-order`),
+            label: null
+        },
+        'default': {
+            input: document.getElementById(`${prefix}-btn-default-order`),
+            label: null
+        }
+    };
+
+    // Cachear también los labels
+    Object.keys(buttons).forEach(key => {
+        if (buttons[key].input) {
+            buttons[key].label = document.querySelector(`label[for="${buttons[key].input.id}"]`);
+        }
+    });
+
+    sortButtonsCache.set(prefix, buttons);
+    return buttons;
+}
+
+// Versión optimizada de handleSortClick
+const handleSortClick = (prefix, type, sortFn) => {
+    const buttons = initSortButtonsCache(prefix);
+
+    // 1. Actualizar estado visual de forma eficiente
+    Object.entries(buttons).forEach(([key, { input, label }]) => {
+        if (!input || !label) return;
+
+        const isActive = key === type;
+
+        if (isActive) {
+            // Activar
+            label.classList.remove('btn-outline-indigo');
+            label.classList.add(CSS_CLASS_BUTTON_PRIMARY);
+            input.checked = true;
+        } else {
+            // Desactivar
+            label.classList.remove(CSS_CLASS_BUTTON_PRIMARY);
+            label.classList.add('btn-outline-indigo');
+            input.checked = false;
+        }
+    });
+
+    // 2. Ejecutar ordenamiento en el siguiente frame (UN SOLO RAF)
+    const containerId = `${prefix}-channels-buttons-container`;
+    requestAnimationFrame(() => sortFn(containerId));
+};
+
+for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
+    document.querySelector(`#${PREFIJO}-btn-ascending-order`)?.addEventListener('click', () =>
+        handleSortClick(PREFIJO, 'ascending', sortChannelButtonsAscending));
+
+    document.querySelector(`#${PREFIJO}-btn-descending-order`)?.addEventListener('click', () =>
+        handleSortClick(PREFIJO, 'descending', sortChannelButtonsDescending));
+
+    document.querySelector(`#${PREFIJO}-btn-default-order`)?.addEventListener('click', () =>
+        handleSortClick(PREFIJO, 'default', restoreOriginalChannelButtonsOrder));
+
+    let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`)
+    const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
+    if (!inputFiltro) continue;
+
+    const filtrarCanalesPorInputDebounced = debounce((valor) => {
+        inputFiltro.focus();
+        filterChannelsByInput(valor, bodyBotonesCanales);
+    }, 200);
+
+    inputFiltro.addEventListener('input', (e) => {
+        filtrarCanalesPorInputDebounced(e.target.value);
+    });
+}

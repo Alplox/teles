@@ -2,7 +2,52 @@
 
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 
-Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [v0.22]
+
+### Refactored
+
+- Traducido `main.js` a inglés: renombra exportaciones (p.ej. `getDefaultChannels`, `loadDefaultChannels`, contenedores de vista), limpia nombres locales, traduce comentarios, añade JSDoc y corrige variables no definidas al cargar listas personalizadas.
+- Renombradas funciones de listas personalizadas (`clearChannelListContainers`, `renderPersonalizedListsUI`, `resyncActiveChannelsVisualState`, etc.) para mantener consistencia en inglés y se añadieron descripciones JSDoc.
+- Traducido `helperActualizarBotonesFlotantes.js` a Inglés -> `floatingButtonsPosition.js`: renombra funciones (`alternarPosicionBotonesFlotantes` -> `toggleFloatingButtonsPosition`, `clicBotonPosicionBotonesFlotantes` -> `handleFloatingButtonsPositionClick`, `esBotonReposicionar` -> `isRepositionButton`, `actualizarBotonesFlotantes` -> `updateFloatingButtons`), variables, y comentarios. Agrega documentación JSDoc y optimiza el código con constantes congeladas y uso del operador spread.
+- Traducido `helperVisionUnica.js` a Inglés -> `singleViewMode.js`: renombra funciones (`activarVisionUnica` -> `activateSingleView`, `desactivarVisionUnica` -> `deactivateSingleView`), variables, y comentarios. Extrae funciones de apoyo reutilizables (`disableGridViewControls`, `enableGridViewControls`, `updateFloatingButtonsForViewMode`, `updateNavigationForViewMode`, `backupActiveChannels`, `restoreBackedUpChannels`, `resetChannelButtonStyles`, `loadFirstSavedChannel`) para una mejor modularidad. Agrega documentación JSDoc completa.
+- Traducido `helperSincronizarFiltros.js` a Inglés -> `syncFilters.js`: renombra funciones (`sincronizarCategoriasConPais` -> `syncCategoriesWithCountry`, `sincronizarPaisesConCategoria` -> `syncCountriesWithCategory`), variables (`MENSAJE_NO_DISPONIBLE` -> `UNAVAILABLE_MESSAGE`, `SELECTORES_MENU` -> `MENU_SELECTORS`, etc.), y comentarios. Convierte funciones a estilo de flecha para consistencia. Agrega documentación JSDoc.
+- Traducido `helperGenerarBotonesCanales.js` a Inglés -> `channelButtonsGenerator.js`: renombra funciones (`crearBotonesParaCanales` -> `createChannelButtons`, `crearBotonesParaModalCambiarCanal` -> `createButtonsForChangeChannelModal`, `crearBotonesParaVisionUnica` -> `createButtonsForSingleView`), variables, y comentarios. Convierte funciones a estilo de flecha. Agrega documentación JSDoc.
+- Traducido `helperAjustarClasesCanalesActivos.js` a Inglés -> `adjustActiveChannelClasses.js`: renombra funciones (`ajustarNumeroDivisionesClaseCol` -> `adjustBootstrapColumnClasses`, `ajustarClaseColTransmisionesPorFila` -> `updateGridColumnConfiguration`), variables, y comentarios. Convierte funciones a estilo de flecha y optimiza la lógica. Agrega documentación JSDoc.
+- Traducido `helperCambioOrdenBotones.js` a Inglés -> `channelButtonSorter.js`: renombra funciones (`guardarOrdenOriginal` -> `saveOriginalOrder`, `ordenarBotonesCanalesAscendente` -> `sortChannelButtonsAscending`, `ordenarBotonesCanalesDescendente` -> `sortChannelButtonsDescending`, `restaurarOrdenOriginalBotonesCanales` -> `restoreOriginalChannelButtonsOrder`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperRelacionesFiltros.js` a Inglés -> `filterRelations.js`: renombra funciones (`construirRelaciones` -> `buildRelations`, `obtenerCategoriasPermitidasPorPais` -> `getAllowedCategoriesByCountry`, `obtenerPaisesPermitidosPorCategoria` -> `getAllowedCountriesByCategory`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperFiltroCanales.js` a Inglés -> `channelFilteringHelper.js`: renombra funciones (`filtrarCanalesPorInput` -> `filterChannelsByInput`, `normalizarInput` -> `normalizeInput`, `alertaNoCoincidencias` -> `toggleNoMatchesAlert`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperCrearBotonesPaises.js` a Inglés -> `countryButtonCreator.js`: renombra funciones (`crearBotonesPaises` -> `createCountryButtons`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperOrdenGridVisionUnica.js` a Inglés -> `singleViewGridOrder.js`: renombra funciones (`cargarOrdenVisionUnica` -> `loadSingleViewOrder`, `guardarOrdenPanelesVisionUnica` -> `saveSingleViewPanelsOrder`, `toggleClaseOrdenado` -> `toggleOrderedClass`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperCrearBotonesCategorias.js` a Inglés -> `categoryButtonCreator.js`: renombra funciones (`crearBotonesCategorias` -> `createCategoryButtons`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperOcultarTextoBotonesOverlay.js` a Inglés -> `overlayButtonTextHider.js`: renombra funciones (`hideTextoBotonesOverlay` -> `hideOverlayButtonText`). Agrega documentación JSDoc.
+- Traducido `canalesData.js` a Inglés -> `channelManager.js`: renombra funciones (`fetchCargarCanales` -> `fetchLoadChannels`, `guardarBackupCanales` -> `saveChannelBackup`, etc.), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperClaseBoton.js` a Inglés -> `buttonClassHelper.js`: renombra funciones (`ajustarClaseBotonCanal` -> `adjustChannelButtonClass`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperGuardarCanales.js` a Inglés -> `channelStorageHelper.js`: renombra funciones (`guardarCanalesEnLocalStorage` -> `saveChannelsToLocalStorage`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `limpiarRecursosTransmision.js` a Inglés -> `cleanTransmissionResources.js`: renombra funciones (`limpiarRecursosTransmision` -> `cleanTransmissionResources`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `obtenerCanalesDesdeUrl.js` a Inglés -> `urlChannelParams.js`: renombra funciones (`limpiarParametroCompartidoEnUrl` -> `clearSharedUrlParameter`, `sincronizarParametroCanalesActivos` -> `syncActiveChannelsParameter`, `registrarCambioManualCanales` -> `registerManualChannelChange`, `obtenerCanalesDesdeUrl` -> `getChannelsFromUrl`), variables, y comentarios. Agrega documentación JSDoc.
+- Traducido `helperM3U.js` a Inglés -> `m3uHelper.js`: renombra funciones (`validarTextoM3U` -> `validateM3UContent`, `M3U_A_JSON` -> `m3uToJson`), variables, y comentarios. Agrega documentación JSDoc.
+
+### Added
+
+- Audio para alertas de tipo "warning".
+- Audio para música ambiente cuando no hay canales activos. Weather Forecast Type Beat by YellowTree -- https://freesound.org/s/693384/ -- License: Attribution 4.0
+
+### Changed
+
+- Estandarizada la persistencia de los botones del overlay usando claves LS_KEY dedicadas.
+- Filtros ahora son colapsables y barra de busqueda es visible en todo momento. #17 - https://github.com/Alplox/teles/issues/17
+- Ordenar botones canales ahora no realiza manipulacion en el DOM para evitar problemas de rendimiento.
+
+### Removed
+
+- revisarConexion() ya no se muestra alerta si se pierde conexion a internet. (Comportamiento no era el deseado)
+
+### Fixed
+
+- Visibilidad de navbar no retoma estado tras recargar. #18 - https://github.com/Alplox/teles/issues/18
+- Overflow señales en modo visión única #20 - https://github.com/Alplox/teles/issues/20
 
 ## [v0.21]
 
@@ -24,6 +69,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - La interfaz de filtros por país y categoría en modal, offcanvas, visión única y "Cambiar canal" se compactó en dos filas de chips horizontales siempre visibles para mejorar la experiencia en móviles.
 - Actualiza version bootstrap a v5.3.8
 - Se extrajo una función reutilizable para limpiar instancias de reproductores (Video.js, Clappr, OPlayer e iframes) antes de eliminar un canal del DOM, evitando fugas de memoria.
+- Se centralizó la configuración de escenarios de botones (grid, cambio y visión única) para respetar la selección múltiple/única incluso con canales agregados vía listas M3U personalizadas.
 
 ### Fixed
 

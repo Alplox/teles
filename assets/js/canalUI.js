@@ -1,20 +1,33 @@
 // Funciones para crear overlays y fragmentos de canal
-import { listaCanales } from './canalesData.js';
-import { LABEL_MODAL_CAMBIAR_CANAL, MODAL_CAMBIAR_CANAL, tele, registrarCambioManualCanales, limpiarRecursosTransmision } from './main.js';
+import { channelsList } from './channelManager.js';
 
 import {
-    CODIGOS_PAISES,
-    ICONOS_PARA_CATEGORIAS,
+    COUNTRY_CODES,
+    CATEGORIES_ICONS,
     AUDIO_POP,
-    TWITCH_PARENT
+    TWITCH_PARENT,
+    LS_KEY_M3U8_PLAYER_CHOICE,
+    LS_KEY_CHANNEL_SIGNAL_PREFERENCE,
+    CSS_CLASS_BUTTON_SECONDARY
 } from './constants/index.js';
-import { mostrarToast, playAudioSinDelay, hideTextoBotonesOverlay, removerTooltipsBootstrap, activarTooltipsBootstrap } from './helpers/index.js';
+import {
+    showToast,
+    hideOverlayButtonText,
+    registerManualChannelChange,
+    cleanTransmissionResources,
+    createButtonsForChangeChannelModal
+} from './helpers/index.js';
+import { tele } from './main.js';
+import {
+    initializeBootstrapTooltips,
+    disposeBootstrapTooltips,
+    playAudio
+} from './utils/index.js';
 
-// Funciones de UI de canales extraídas de main.js
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
-    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
     lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
-    localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
 }
 
 export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
@@ -22,7 +35,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     const DIV_ELEMENT = document.createElement('div');
     DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
     DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
-    const { nombre, señales } = listaCanales[canalId];
+    const { nombre, señales } = channelsList[canalId];
 
     const URL_POR_TIPO_SEÑAL = {
         'iframe_url': señales.iframe_url && señales.iframe_url[valorIndex],
@@ -53,7 +66,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
 
 
 export function crearVideoJs(canalId, urlCarga) {
-    const tipoReproductor = localStorage.getItem('reproductor-m3u8') || 'videojs';
+    const tipoReproductor = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) || 'videojs';
     if (tipoReproductor === 'clappr' && typeof Clappr !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
@@ -76,12 +89,19 @@ export function crearVideoJs(canalId, urlCarga) {
                 // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._clapprPlayer = clapprPlayer;
             } catch (error) {
-                console.error(`Error al inicializar Clappr para canal con id: ${canalId}. Error: ${error}`);
-                mostrarToast(`Error al inicializar Clappr para canal ${canalId}. Se usará Video.js.`, 'danger');
+                console.error(`[teles] Error at attempt to initialize Clappr for channel with id: ${canalId}. Error: ${error}`);
+                showToast({
+                    title: `Error al inicializar Clappr para canal ${canalId}. Se usará Video.js.`,
+                    body: `Error: ${error}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    showReloadOnError: true
+                });
             }
         }, 0);
 
-      
+
         return DIV_ELEMENT;
     }
     if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
@@ -121,12 +141,19 @@ export function crearVideoJs(canalId, urlCarga) {
                 // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._oplayerPlayer = instancia;
             } catch (error) {
-                console.error(`Error al inicializar OPlayer para canal con id: ${canalId}. Error: ${error}`);
-                mostrarToast(`Error al inicializar OPlayer para canal ${canalId}. Se usará Video.js.`, 'danger');
+                console.error(`[teles] Error at attempt to initialize OPlayer for channel with id: ${canalId}. Error: ${error}`);
+                showToast({
+                    title: `Error al inicializar OPlayer para canal ${canalId}. Se usará Video.js.`,
+                    body: `Error: ${error}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    showReloadOnError: true
+                });
             }
         }, 0);
 
-       
+
         return DIV_ELEMENT;
     }
     const DIV_ELEMENT = document.createElement('div');
@@ -146,19 +173,37 @@ export function crearVideoJs(canalId, urlCarga) {
         // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
         DIV_ELEMENT._videojsPlayer = videojs(videoElement);
     } catch (error) {
-        console.error(`Error al inicializar Video.js para canal con id: ${canalId}. Error: ${error}`);
-        mostrarToast(`Error al inicializar Video.js para canal ${canalId}. Se usará el siguiente canal.`, 'danger');
+        console.error(`[teles] Error at attempt to initialize Video.js for channel with id: ${canalId}. Error: ${error}`);
+        showToast({
+            title: `Error al inicializar Video.js para canal ${canalId}. Se procesará el siguiente canal.`,
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
     }
     return DIV_ELEMENT;
 }
 
+export const changeChannelModalEl = document.querySelector('#modal-cambiar-canal');
+// Create buttons for channels on event listener so it runs only one time
+changeChannelModalEl.addEventListener('shown.bs.modal', () => {
+    const contenedorCambiar = document.querySelector('#modal-cambiar-canal-channels-buttons-container');
+    if (contenedorCambiar && !contenedorCambiar.querySelector('button[data-canal]')) {
+        createButtonsForChangeChannelModal();
+    }
+});
+
+
+const changeChannelModalLabelEl = document.querySelector('#label-para-nombre-canal-cambiar');
 export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
     try {
-        let { nombre = 'Nombre Canal', señales, sitio_oficial, país, categoría } = listaCanales[canalId];
+        let { nombre = 'Nombre Canal', señales, sitio_oficial, país, categoría } = channelsList[canalId];
 
         valorIndex = Number(valorIndex);
         categoría = categoría.toLowerCase();
-        let iconoCategoria = categoría in ICONOS_PARA_CATEGORIAS ? ICONOS_PARA_CATEGORIAS[categoría] : '<i class="bi bi-tv"></i>';
+        let iconoCategoria = categoría in CATEGORIES_ICONS ? CATEGORIES_ICONS[categoría] : '<i class="bi bi-tv"></i>';
 
         const FRAGMENT_OVERLAY = document.createDocumentFragment();
         const DIV_ELEMENT = document.createElement('div');
@@ -173,7 +218,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('aria-expanded', 'false');
 
         BOTON_SELECCIONAR_SEÑAL_CANAL.innerHTML = '<span>Seleccionar señal</span><i class="bi bi-collection" data-bs-toggle="tooltip" data-bs-title="Seleccionar diferente señal"></i>';
-        BOTON_SELECCIONAR_SEÑAL_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'dropdown-toggle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'p-0', 'px-1', 'pe-auto', 'mt-1', 'rounded-3');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'dropdown-toggle', 'd-flex', 'justify-content-center', 'align-items-center', 'gap-1', 'p-0', 'px-1', 'pe-auto', 'mt-1', 'rounded-3');
 
         const DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL = document.createElement("ul");
         DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.classList.add('dropdown-menu');
@@ -231,7 +276,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_MOVER_CANAL.setAttribute('data-bs-toggle', 'tooltip');
         BOTON_MOVER_CANAL.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
         BOTON_MOVER_CANAL.innerHTML = '<span>Mover</span><i class="bi bi-arrows-move"></i>';
-        BOTON_MOVER_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'clase-para-mover');
+        BOTON_MOVER_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'clase-para-mover');
 
         const BOTON_CAMBIAR_CANAL = document.createElement('button');
         BOTON_CAMBIAR_CANAL.id = 'overlay-boton-cambiar';
@@ -241,11 +286,11 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_CAMBIAR_CANAL.setAttribute('data-bs-title', 'Cambiar este canal');
         BOTON_CAMBIAR_CANAL.setAttribute('data-button-cambio', canalId);
         BOTON_CAMBIAR_CANAL.innerHTML = '<span>Cambiar</span><i class="bi bi-arrow-repeat"></i>';
-        BOTON_CAMBIAR_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
+        BOTON_CAMBIAR_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
         BOTON_CAMBIAR_CANAL.addEventListener('click', () => {
-            LABEL_MODAL_CAMBIAR_CANAL.textContent = nombre;
-            LABEL_MODAL_CAMBIAR_CANAL.setAttribute('id-canal-cambio', canalId);
-            new bootstrap.Modal(MODAL_CAMBIAR_CANAL).show();
+            changeChannelModalLabelEl.textContent = nombre;
+            changeChannelModalEl.dataset.channelSource = canalId;
+            new bootstrap.Modal(changeChannelModalEl).show();
         });
 
         const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
@@ -261,13 +306,13 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_SITIO_OFICIAL_CANAL.innerHTML = `<span>
                 ${nombre}
                 ${país
-                ? ` <img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${CODIGOS_PAISES[país]}" title="${CODIGOS_PAISES[país]}" class="svg-bandera">`
+                ? ` <img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${COUNTRY_CODES[país]}" title="${COUNTRY_CODES[país]}" class="svg-bandera">`
                 : ''}
                 ${iconoCategoria
                 ? ` ${iconoCategoria}`
                 : ''}
                 </span> <i class="bi bi-box-arrow-up-right"></i>`;
-        BOTON_SITIO_OFICIAL_CANAL.classList.add('btn', 'btn-sm', 'btn-dark-subtle', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'text-nowrap');
+        BOTON_SITIO_OFICIAL_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'text-nowrap');
 
         const BOTON_QUITAR_CANAL = document.createElement('button');
         BOTON_QUITAR_CANAL.id = 'overlay-boton-quitar';
@@ -280,7 +325,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_QUITAR_CANAL.classList.add('btn', 'btn-sm', 'btn-danger', 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
         BOTON_QUITAR_CANAL.addEventListener('click', () => {
             tele.remove(canalId);
-            playAudioSinDelay(AUDIO_POP);
+            playAudio(AUDIO_POP);
         });
 
         DIV_ELEMENT.append(BOTON_SELECCIONAR_SEÑAL_CANAL);
@@ -292,22 +337,25 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         FRAGMENT_OVERLAY.append(DIV_ELEMENT);
         return FRAGMENT_OVERLAY;
     } catch (error) {
-        console.error(`Error durante creación overlay para canal con id: ${canalId}. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error durante la creación del overlay para el canal con id: ${canalId}.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger');
+        console.error(`[teles] Error at attempt to create overlay for channel with id: ${canalId}. Error: ${error}`);
+        showToast({
+            title: `Error al crear overlay para canal ${canalId}.`,
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return;
     }
 }
 
+
+
 export function crearFragmentCanal(canalId) {
-    if (listaCanales[canalId]?.señales) {
-        let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = listaCanales[canalId].señales;
-        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+    if (channelsList[canalId]?.señales) {
+        let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = channelsList[canalId].señales;
+        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
         let señalUtilizar;
         let valorIndexArraySeñal = 0;
@@ -329,7 +377,7 @@ export function crearFragmentCanal(canalId) {
         if (lsPreferenciasSeñalCanales[canalId]) {
             const tipoPreferido = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString();
             const indicePreferido = Number(Object.values(lsPreferenciasSeñalCanales[canalId]));
-            const valorPreferido = listaCanales?.[canalId]?.señales?.[tipoPreferido];
+            const valorPreferido = channelsList?.[canalId]?.señales?.[tipoPreferido];
 
             let preferenciaValida = false;
             if (Array.isArray(valorPreferido)) {
@@ -343,7 +391,7 @@ export function crearFragmentCanal(canalId) {
                 valorIndexArraySeñal = indicePreferido;
             } else {
                 delete lsPreferenciasSeñalCanales[canalId];
-                localStorage.setItem('preferencia-señal-canales', JSON.stringify(lsPreferenciasSeñalCanales));
+                localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
             }
         }
 
@@ -362,45 +410,49 @@ export function crearFragmentCanal(canalId) {
             return FRAGMENT_CANAL;
         }
     } else {
-        console.error(`${canalId} no tiene señales definidas.`);
-        mostrarToast(`
-        <span class="fw-bold">${canalId}</span> no tiene señales definidas. 
-        <br>Prueba recargando o borrar la caché del navegador.
-        <button type="button" class="btn btn-danger rounded-pill btn-sm w-100 border-light mt-2" data-bs-toggle="modal"
-            data-bs-target="#modal-reset">Probar reiniciar almacenamiento local</button>`, 'danger', false);
+        console.error(`[teles] Error at attempt to create fragment for channel with id: ${canalId}. Error: ${error}`);
+        showToast({
+            title: `Canal ${canalId} no tiene señales definidas. Se procesará el siguiente canal.`,
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
     }
 }
 
 export function cambiarSoloSeñalActiva(canalId) {
     try {
-        if (!canalId) return console.error(`El canal "${canalId}" proporcionado no es válido para cambio señal.`);
+        if (!canalId) return console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
 
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
         let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
 
-        removerTooltipsBootstrap();
+        disposeBootstrapTooltips();
 
-        limpiarRecursosTransmision(divPadreACambiar);
+        cleanTransmissionResources(divPadreACambiar);
 
         divExistenteACambiar.remove();
         barraOverlayDeCanalACambiar.remove();
 
         divPadreACambiar.append(crearFragmentCanal(canalId));
 
-        if (typeof activarTooltipsBootstrap === 'function') activarTooltipsBootstrap();
-        if (typeof hideTextoBotonesOverlay === 'function') hideTextoBotonesOverlay();
-        if (typeof registrarCambioManualCanales === 'function') registrarCambioManualCanales();
+        if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
+        if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();
+        if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
 
     } catch (error) {
-        console.error(`Error al intentar cambiar señal para canal con id: ${canalId}. Error: ${error}`);
-        mostrarToast(`
-        <span class="fw-bold">Ha ocurrido un error al intentar cambiar señal para canal con id: ${canalId}.</span>
-        <hr>
-        <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-        <hr>
-        Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-        <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger');
+        console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
+        showToast({
+            title: `Error al intentar cambiar señal para canal ${canalId}.`,
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
         return;
     }
 }

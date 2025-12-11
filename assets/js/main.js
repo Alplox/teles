@@ -1,648 +1,933 @@
 /* 
-  main v0.21
+  main v0.22
   by Alplox 
   https://github.com/Alplox/teles
 */
 
 // MARK: import
 import {
-    fetchCargarCanales,
-    cargarListaPersonalizadaM3U,
-    cargarListaPersonalizadaDesdeTexto,
-    restaurarListasPersonalizadas,
-    listaCanales,
-    obtenerListasPersonalizadas,
-    actualizarListaPersonalizada,
-    eliminarListaPersonalizada,
-    aplicarListaPersonalizadaGuardada,
-    obtenerPreferenciaCombinarCanales,
-    establecerPreferenciaCombinarCanales
-} from './canalesData.js';
+    fetchLoadChannels,
+    restoreChannelsFromMemory,
+    loadPersonalizedM3UList,
+    loadPersonalizedListFromText,
+    restorePersonalizedLists,
+    channelsList,
+    getCombineChannelsPreference,
+    setCombineChannelsPreference,
+    DEFAULT_CHANNELS_ARRAY,
+    EXTRA_DEFAULT_CHANNELS_ARRAY
+} from './channelManager.js';
 
-import { crearFragmentCanal, cambiarSoloSeñalActiva } from './canalUI.js';
 
 import {
-    PREFIJOS_ID_CONTENEDORES_CANALES,
-    VALOR_COL_FIJO_ESCRITORIO,
-    VALOR_COL_FIJO_TELEFONO,
-    registrarTraduccionVideojs,
-    AUDIO_FAIL
+    crearFragmentCanal,
+    cambiarSoloSeñalActiva
+} from './canalUI.js';
+
+import {
+    BOOTSTRAP_COL_NUMBER_DESKTOP,
+    BOOTSTRAP_COL_NUMBER_MOBILE,
+    LS_KEY_WELCOME_MODAL_VISIBILITY,
+    LS_KEY_NAVBAR_VISIBILITY,
+    LS_KEY_ACTIVE_VIEW_MODE,
+    LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED,
+    LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
+    LS_KEY_M3U8_PLAYER_CHOICE,
+    LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
+    LS_KEY_DYNAMIC_URL,
+    LS_KEY_FLOATING_BUTTONS_POSITION,
+    LS_KEY_HORIZONTAL_WIDTH_VALUE,
+    LS_KEY_CHANNEL_SIGNAL_PREFERENCE,
+    LS_KEY_BOOTSTRAP_COL_NUMBER,
+    LS_KEY_OVERLAY_VISIBILITY,
+    LS_KEY_SAVED_CHANNELS_GRID_VIEW,
+    OVERLAY_BUTTONS_CONFIG,
+    CSS_CLASS_BUTTON_PRIMARY,
+    AMBIENT_MUSIC
 } from './constants/index.js';
+
 import {
-    hideTextoBotonesOverlay,
-    activarTooltipsBootstrap,
-    removerTooltipsBootstrap,
-    detectarTemaSistema,
-    setCheckboxState,
-    iniciarRevisarConexion,
-    mostrarToast,
-    playAudioSinDelay,
-    obtenerCanalesPredeterminados,
-    guardarCanalesEnLocalStorage,
-    ajustarClaseBotonCanal,
-    activarVisionUnica,
-    desactivarVisionUnica,
-    obtenerNumeroCanalesFila,
-    borraPreferenciaSeñalInvalida,
-    revisarSeñalesVacias,
-    actualizarValorSlider,
-    actualizarBotonesPersonalizarOverlay,
-    crearBotonesParaCanales,
-    crearBotonesParaModalCambiarCanal,
-    crearBotonesParaVisionUnica,
-    ajustarVisibilidadBotonesQuitarTodaSeñal,
-    ajustarNumeroDivisionesClaseCol,
-    filtrarCanalesPorInput,
-    ajustarClaseColTransmisionesPorFila,
-    ordenarBotonesCanalesAscendente,
-    ordenarBotonesCanalesDescendente,
-    restaurarOrdenOriginalBotonesCanales,
-    crearBotonesPaises,
-    crearBotonesCategorias,
-    addSortEventListener,
-    actualizarBotonesFlotantes,
-    clicBotonPosicionBotonesFlotantes,
-    cargarOrdenVisionUnica,
-    CONTAINER_INTERNO_VISION_UNICA,
-    guardarOrdenPanelesVisionUnica,
-    toggleClaseOrdenado
+    hideOverlayButtonText,
+    detectThemePreferences,
+    showToast,
+    saveChannelsToLocalStorage,
+    adjustChannelButtonClass,
+    activateSingleView,
+    deactivateSingleView,
+    deleteInvalidSignalPreferences,
+    areAllSignalsEmpty,
+    createChannelButtons,
+    createButtonsForChangeChannelModal,
+    createButtonsForSingleView,
+    adjustVisibilityButtonsRemoveAllActiveChannels,
+    saveOriginalOrder,
+    adjustBootstrapColumnClasses,
+    updateGridColumnConfiguration,
+    createCountryButtons,
+    createCategoryButtons,
+    updateFloatingButtons,
+    handleFloatingButtonsPositionClick,
+    saveSingleViewPanelsOrder,
+    toggleOrderedClass,
+    syncActiveChannelsParameter,
+    clearSharedUrlParameter,
+    getChannelsFromUrl,
+    registerManualChannelChange,
+    cleanTransmissionResources,
+    syncCheckboxState,
+    applyTheme,
+    clearChannelListContainers,
+    resyncActiveChannelsVisualState,
+    renderPersonalizedListsUI,
+    getActiveChannelIds
 } from './helpers/index.js';
 
-const debounce = (fn, delay = 150) => {
-    let timeoutId;
-    return (...args) => {
-        if (timeoutId) clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => fn(...args), delay);
+import {
+    debounce,
+    obtainNumberOfChannelsPerRow,
+    registerVideojsTranslation,
+    initializeBootstrapTooltips,
+    disposeBootstrapTooltips
+} from './utils/index.js';
+
+// MARK: 📦 Exports
+export let gridViewContainer;
+
+export let singleViewContainer;
+export let singleViewGrid;
+export let singleViewVideoContainer;
+
+let singleViewNoSignalIcon;
+
+// URL dinámica
+export let isDynamicUrlMode = false;
+try { isDynamicUrlMode = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch { }
+
+export let isLoadingFromSharedUrl = false;
+
+export let dynamicUrlCheckbox;
+export let dynamicUrlValueSpan;
+let dynamicUrlIcon;
+
+/**
+ * Syncs the dynamic URL toggle UI with a given state.
+ * UI strings remain in Spanish intentionally.
+ * @param {boolean} enabled
+ */
+export const applyDynamicUrlState = (enabled) => {
+    if (!dynamicUrlCheckbox || !dynamicUrlValueSpan || !dynamicUrlIcon) return;
+    dynamicUrlCheckbox.checked = enabled;
+    dynamicUrlValueSpan.textContent = enabled ? '[habilitada]' : '[deshabilitada]';
+    dynamicUrlIcon.classList.toggle('text-success', enabled);
+    dynamicUrlIcon.classList.toggle('text-secondary', !enabled);
+};
+
+export let musicIcon;
+
+/**
+ * Returns default channels set, adding extra defaults on desktop.
+ * @param {boolean} isMobile
+ * @returns {string[]}
+ */
+export const getDefaultChannels = (isMobile) => {
+    return isMobile ? DEFAULT_CHANNELS_ARRAY : DEFAULT_CHANNELS_ARRAY.concat(EXTRA_DEFAULT_CHANNELS_ARRAY);
+}
+
+// Customization
+// Number channels per row
+export let numberChannelsPerRowSpan;
+export let numberChannelsPerRowButtons;
+// Floating buttons
+export let floatingButtonsPositionButtons;
+// Horizontal width
+export let widthRangeInput;
+export let widthRangeValue;
+
+// Toggle full height
+export let fullHeightCheckbox;
+export let fullHeightSpan;
+
+
+
+
+
+// MARK: 📫 DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+    registerVideojsTranslation();
+
+    // querySelector
+    singleViewNoSignalIcon = document.querySelector('#icono-sin-señal-single-view');
+    singleViewContainer = document.querySelector('#container-single-view');
+    singleViewVideoContainer = document.querySelector('#container-video-single-view');
+    gridViewContainer = document.querySelector('#container-vision-cuadricula');
+
+    dynamicUrlCheckbox = document.querySelector('#checkbox-url-dinamica')
+    dynamicUrlValueSpan = document.querySelector('#span-valor-url-dinamica');
+    dynamicUrlIcon = document.querySelector('#icono-url-dinamica');
+
+    // MARK: Customization
+    // MARK: Navbar
+    const navbarCheckboxEl = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
+
+    const syncNavbarVisibility = (isNavbarVisible) => {
+        if (!navbarCheckboxEl) { return }
+
+        let navbarEl = document.querySelector('#navbar');
+        let navbarSpanEl = document.querySelector('#span-valor-visualizacion-navbar');
+
+        navbarEl?.classList.toggle('d-none', !isNavbarVisible);
+        syncCheckboxState({
+            checkbox: navbarCheckboxEl,
+            statusElement: navbarSpanEl,
+            storageKey: LS_KEY_NAVBAR_VISIBILITY,
+            isVisible: isNavbarVisible
+        });
     };
-};
 
-const hideTextoBotonesOverlayDebounced = debounce(hideTextoBotonesOverlay, 150);
-
-/**
- * Libera instancias de reproductores antes de eliminar el contenedor del DOM.
- * @param {HTMLElement|null} contenedorTransmision Elemento <div data-canal> que aloja la transmisión.
- * @returns {void}
- */
-export const limpiarRecursosTransmision = (contenedorTransmision) => {
-    if (!contenedorTransmision) return;
-
-    const contenedorCambio = contenedorTransmision.querySelector('div[data-canal-cambio]');
-    const canal = contenedorTransmision?.dataset?.canal;
-
-    if (contenedorCambio?._videojsPlayer && typeof contenedorCambio._videojsPlayer.dispose === 'function') {
-        try {
-            const player = contenedorCambio._videojsPlayer;
-            if (player && typeof player.dispose === 'function') {
-                player.dispose();
-            }
-        } catch (errorVideojs) {
-            console.error(`Error al destruir Video.js para canal "${canal}":`, errorVideojs);
-        }
-    }
-
-    if (contenedorCambio?._clapprPlayer && typeof contenedorCambio._clapprPlayer.destroy === 'function') {
-        try {
-            contenedorCambio._clapprPlayer.destroy();
-        } catch (errorClappr) {
-            console.error(`Error al destruir Clappr para canal "${canal}":`, errorClappr);
-        }
-    }
-
-    if (contenedorCambio?._oplayerPlayer && typeof contenedorCambio._oplayerPlayer.destroy === 'function') {
-        try {
-            contenedorCambio._oplayerPlayer.destroy();
-        } catch (errorOplayer) {
-            console.error(`Error al destruir OPlayer para canal "${canal}":`, errorOplayer);
-        }
-    }
-
-    if (contenedorCambio?._iframeElement && typeof contenedorCambio._iframeElement.remove === 'function') {
-        try {
-            contenedorCambio._iframeElement.src = 'about:blank';
-            contenedorCambio._iframeElement.removeAttribute('srcdoc');
-            contenedorCambio._iframeElement.remove();
-        } catch (error) {
-            console.error(`Error al destruir iframe para canal "${canal}":`, error);
-        }
-    }
-};
-
-// MARK: querySelector Globales
-const MAIN_NAVBAR = document.querySelector('#navbar');
-export const CONTAINER_VISION_CUADRICULA = document.querySelector('#container-vision-cuadricula');
-export const CONTAINER_VISION_UNICA = document.querySelector('#container-vision-unica');
-export const CONTAINER_VIDEO_VISION_UNICA = document.querySelector('#container-video-vision-unica');
-export const ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA = document.querySelector('#icono-sin-señal-vision-unica');
-
-export const BOTON_ACTIVAR_VISION_UNICA = document.querySelector('#boton-activar-diseño-vision-unica');
-export const BOTON_ACTIVAR_VISION_GRID = document.querySelector('#boton-activar-diseño-vision-grid');
-
-export const MODAL_CAMBIAR_CANAL = document.querySelector('#modal-cambiar-canal');
-export const LABEL_MODAL_CAMBIAR_CANAL = document.querySelector('#label-para-nombre-canal-cambiar');
-
-const BOTON_CARGAR_LISTA_PERSONALIZADA = document.querySelector('#boton-cargar-lista-personalizada');
-const INPUT_URL_LISTA_PERSONALIZADA = document.querySelector('#input-url-lista-personalizada');
-const TEXTAREA_LISTA_PERSONALIZADA = document.querySelector('#textarea-lista-personalizada');
-const BOTON_PEGAR_LISTA_PERSONALIZADA = document.querySelector('#boton-pegar-lista-personalizada');
-const CONTENEDOR_LISTAS_PERSONALIZADAS = document.querySelector('#contenedor-listas-personalizadas');
-const TEXTO_LISTAS_VACIAS = CONTENEDOR_LISTAS_PERSONALIZADAS?.innerHTML ?? '<p class="text-secondary fs-smaller mb-0">No hay listas guardadas aún.</p>';
-const CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS = document.querySelector('#checkbox-combinar-listas-personalizadas');
-const SPAN_VALOR_COMBINAR_LISTAS_PERSONALIZADAS = document.querySelector('#span-valor-combinar-listas-personalizadas');
-
-// MARK: LocalStorage
-let lsModal = localStorage.getItem('modal-status') ?? 'show';
-let lsNavbar = localStorage.getItem('navbar-display');
-let lsEstiloVision = localStorage.getItem('diseño-seleccionado');
-
-let lsPosicionBotonesFlotantes = localStorage.getItem('posicion-botones-flotante');
-let lsTextoBotonesFlotantes = localStorage.getItem('texto-botones-flotantes');
-let lsAlturaCanales = localStorage.getItem('uso-100vh');
-let lsFondo = localStorage.getItem('tarjeta-fondo-display');
-let lsReproductorM3u8 = localStorage.getItem('reproductor-m3u8') || 'videojs';
-const KEY_PREFERENCIA_URL_DINAMICA = 'preferencia-url-dinamica';
-let urlDinamicaHabilitada = localStorage.getItem(KEY_PREFERENCIA_URL_DINAMICA) === 'activa';
-let urlCompartidaActiva = false;
-let parametroCompartidoLimpio = false;
-let estaCargandoDesdeUrlCompartida = false;
-
-// MARK: PERSONALIZACIONES
-// Navbar
-const CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
-const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR = document.querySelector('#span-valor-visualizacion-navbar');
-
-CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.addEventListener('click', () => {
-    MAIN_NAVBAR.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
-    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR.checked);
-});
-
-const CHECKBOX_URL_DINAMICA = document.querySelector('#checkbox-url-dinamica');
-const SPAN_VALOR_URL_DINAMICA = document.querySelector('#span-valor-url-dinamica');
-const ICONO_URL_DINAMICA = document.querySelector('#icono-url-dinamica');
-
-export const aplicarEstadoUrlDinamica = (activo) => {
-    if (!CHECKBOX_URL_DINAMICA) return;
-    CHECKBOX_URL_DINAMICA.checked = activo;
-    if (SPAN_VALOR_URL_DINAMICA) {
-        SPAN_VALOR_URL_DINAMICA.textContent = activo ? '[habilitada]' : '[deshabilitada]';
-    }
-    if (ICONO_URL_DINAMICA) {
-        ICONO_URL_DINAMICA.classList.toggle('text-success', activo);
-        ICONO_URL_DINAMICA.classList.toggle('text-secondary', !activo);
-    }
-};
-
-aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
-
-CHECKBOX_URL_DINAMICA?.addEventListener('click', () => {
-    urlDinamicaHabilitada = CHECKBOX_URL_DINAMICA.checked;
-    localStorage.setItem(KEY_PREFERENCIA_URL_DINAMICA, urlDinamicaHabilitada ? 'activa' : 'inactiva');
-    aplicarEstadoUrlDinamica(urlDinamicaHabilitada);
-
-    if (urlDinamicaHabilitada) {
-        sincronizarParametroCanalesActivos();
-        mostrarToast('La URL reflejará tus canales activos automáticamente.', 'info');
-    } else {
-        limpiarParametroCompartidoEnUrl(true);
-        mostrarToast('La URL dejará de actualizarse automáticamente.', 'info');
-    }
-});
-
-export const limpiarParametroCompartidoEnUrl = (forzar = false) => {
-    if (!forzar && (!urlCompartidaActiva || parametroCompartidoLimpio)) return;
-    try {
-        const url = new URL(window.location.href);
-        if (!url.searchParams.has('c')) {
-            parametroCompartidoLimpio = true;
-            return;
-        }
-        url.searchParams.delete('c');
-        window.history.replaceState({}, document.title, url.toString());
-        parametroCompartidoLimpio = true;
-        urlCompartidaActiva = false;
-    } catch (error) {
-        console.error('[teles] Error al limpiar parámetro compartido de la URL:', error);
-    }
-};
-
-export const obtenerIdsCanalesActivos = () => {
-    try {
-        const payload = localStorage.getItem('canales-vision-cuadricula');
-        if (!payload) return [];
-        const datos = JSON.parse(payload);
-        if (!datos || typeof datos !== 'object') return [];
-        return Object.keys(datos);
-    } catch (error) {
-        console.error('[teles] Error al obtener canales activos para URL dinámica:', error);
-        return [];
-    }
-};
-
-export const sincronizarParametroCanalesActivos = () => {
-    if (!urlDinamicaHabilitada) return;
-    // En visión única nunca se debe tocar el parámetro `c` aunque la preferencia esté activa.
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') return;
-    try {
-        const urlActual = new URL(window.location.href);
-        const idsActivos = obtenerIdsCanalesActivos();
-
-        if (!idsActivos.length) {
-            urlActual.searchParams.delete('c');
-        } else {
-            urlActual.searchParams.set('c', idsActivos.join(','));
-        }
-
-        window.history.replaceState({}, document.title, urlActual.toString());
-        parametroCompartidoLimpio = true;
-        urlCompartidaActiva = false;
-    } catch (error) {
-        console.error('[teles] Error al sincronizar URL dinámica:', error);
-    }
-};
-
-/**
- * Gestiona los cambios manuales realizados por usuario sobre los canales activos
- * (añadir/quitar, mover de posición, etc.) y decide si sincronizar o limpiar el parámetro `c`.
- * Respeta el flujo de carga inicial desde una URL compartida para no interferir.
- * @param {{ forzar?: boolean }} [opciones]
- * @returns {void}
- */
-export function registrarCambioManualCanales({ forzar = false } = {}) {
-    if (!forzar && estaCargandoDesdeUrlCompartida) return;
-
-    // En modo "visión única" no usamos la URL dinámica ni el parámetro `c`.
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') return;
-
-    if (urlDinamicaHabilitada) {
-        sincronizarParametroCanalesActivos();
-    } else {
-        limpiarParametroCompartidoEnUrl(true);
-    }
-}
-
-// Overlay
-export const CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
-export const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#span-valor-visualizacion-overlay');
-CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.addEventListener('click', () => {
-    document.body.classList.toggle('d-none__barras-overlay', !CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked);
-    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY, 'overlay-display', CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked);
-    actualizarBotonesPersonalizarOverlay();
-});
-
-export const BOTONES_PERSONALIZAR_OVERLAY = document.querySelectorAll('.div-boton-personalizar-overlay');
-BOTONES_PERSONALIZAR_OVERLAY.forEach(contenedorBoton => {
-    let botonIndividual = contenedorBoton.querySelector('.btn-check');
-    let datasetBoton = botonIndividual.dataset.botonoverlay
-    botonIndividual.addEventListener('click', () => {
-        localStorage.setItem(`${datasetBoton}`, botonIndividual.checked ? 'show' : 'hide');
-        actualizarBotonesPersonalizarOverlay();
+    navbarCheckboxEl?.addEventListener('click', () => {
+        syncNavbarVisibility(navbarCheckboxEl.checked);
     });
-});
 
-const RADIOS_REPRODUCTOR_M3U8 = document.querySelectorAll('input[name="btnradio-reproductor-m3u8"]');
-const SPAN_VALOR_REPRODUCTOR_M3U8 = document.querySelector('#span-valor-reproductor-m3u8');
+    syncNavbarVisibility(localStorage.getItem(LS_KEY_NAVBAR_VISIBILITY) !== 'hide');
 
-if (!lsReproductorM3u8) {
-    lsReproductorM3u8 = 'videojs';
-    localStorage.setItem('reproductor-m3u8', lsReproductorM3u8);
-}
+    // MARK: View mode
+    const gridViewActivateButtonEl = document.querySelector('#boton-activar-diseño-vision-grid');
+    const singleViewActivateButtonEl = document.querySelector('#boton-activar-diseño-single-view');
 
-RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
-    if (radio.value === lsReproductorM3u8) {
-        radio.checked = true;
-        if (SPAN_VALOR_REPRODUCTOR_M3U8) {
-            SPAN_VALOR_REPRODUCTOR_M3U8.textContent = radio.dataset.descripcion || radio.value;
+    singleViewActivateButtonEl.addEventListener('click', () => {
+        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') {
+            activateSingleView();
+            singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
+            gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+        } else {
+            showToast({
+                title: 'Ya estas en modo visión única',
+                type: 'info'
+            });
         }
-    }
-    radio.addEventListener('change', () => {
-        if (!radio.checked) return;
-        const valor = radio.value;
-        const descripcion = radio.dataset.descripcion || valor;
-        localStorage.setItem('reproductor-m3u8', valor);
-        if (SPAN_VALOR_REPRODUCTOR_M3U8) {
-            SPAN_VALOR_REPRODUCTOR_M3U8.textContent = descripcion;
-        }
+    })
 
+    gridViewActivateButtonEl.addEventListener('click', () => {
+        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+            deactivateSingleView();
+            singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+            gridViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
+        } else {
+            showToast({
+                title: 'Ya estas en modo visión cuadrícula',
+                type: 'info'
+            });
+        }
+    })
+
+
+    // MARK: Overlay buttons 
+    // buttons overlay; signals, move, change, web, close
+    const overlayToggleItems = document.querySelectorAll('.overlay-toggle-item');
+    // Optimization: cache references to avoid repeated querySelector calls
+    const overlayToggleCache = Array.from(overlayToggleItems).map(toggle => {
+        const checkboxEl = toggle.querySelector('input[type="checkbox"]');
+        const spanEl = toggle.querySelector('span');
+
+        if (!checkboxEl || !spanEl) return null;
+
+        const buttonConfig = OVERLAY_BUTTONS_CONFIG[checkboxEl.id];
+        if (!buttonConfig) return null;
+
+        return { checkboxEl, spanEl, buttonConfig };
+    }).filter(item => item !== null);
+
+    /**
+     * Syncs overlay customization controls with persisted visibility preferences.
+     */
+    function updateOverlayCustomizationButtons() {
         try {
-            const transmisionesActivas = document.querySelectorAll('div[data-canal]');
-            const lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem('preferencia-señal-canales')) || {};
+            const isOverlayVisible = localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) !== 'hide';
 
-            transmisionesActivas.forEach(transmision => {
-                const canalId = transmision.getAttribute('data-canal');
-                if (!canalId) return;
+            // Optimization: manipulate the global class only once
+            document.body.classList.toggle('d-none__barras-overlay', !isOverlayVisible);
 
-                const datosCanal = listaCanales?.[canalId]?.señales;
-                if (!datosCanal) return;
+            overlayToggleCache.forEach(({ checkboxEl, spanEl, buttonConfig }) => {
+                if (isOverlayVisible) {
+                    checkboxEl.disabled = false;
 
-                let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = datosCanal;
-                let señalUtilizar;
-                let valorIndexArraySeñal = 0;
-
-                if (Array.isArray(iframe_url) && iframe_url.length > 0) {
-                    señalUtilizar = 'iframe_url';
-                } else if (Array.isArray(m3u8_url) && m3u8_url.length > 0) {
-                    señalUtilizar = 'm3u8_url';
-                } else if (yt_id !== '') {
-                    señalUtilizar = 'yt_id';
-                } else if (yt_embed !== '') {
-                    señalUtilizar = 'yt_embed';
-                } else if (yt_playlist !== '') {
-                    señalUtilizar = 'yt_playlist';
-                } else if (twitch_id !== '') {
-                    señalUtilizar = 'twitch_id';
-                }
-
-                if (lsPreferenciasSeñalCanales[canalId]) {
-                    señalUtilizar = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString();
-                    valorIndexArraySeñal = Number(Object.values(lsPreferenciasSeñalCanales[canalId]));
-                }
-
-                if (señalUtilizar === 'm3u8_url') {
-                    cambiarSoloSeñalActiva(canalId);
+                    const isButtonVisible = localStorage.getItem(buttonConfig.storageKey) !== 'hide';
+                    syncCheckboxState({
+                        checkbox: checkboxEl,
+                        statusElement: spanEl,
+                        storageKey: buttonConfig.storageKey,
+                        isVisible: isButtonVisible
+                    });
+                    document.body.classList.toggle(`d-none__barras-overlay__${buttonConfig.classSuffix}`, !isButtonVisible);
+                } else {
+                    checkboxEl.checked = false;
+                    checkboxEl.disabled = true;
+                    spanEl.textContent = '[Oculto]';
                 }
             });
+
+            syncCheckboxState({
+                checkbox: overlayVisibilityCheckbox,
+                statusElement: overlayVisibilityValueSpan,
+                storageKey: LS_KEY_OVERLAY_VISIBILITY,
+                isVisible: isOverlayVisible
+            });
+
+            hideOverlayButtonText();
         } catch (error) {
-            console.error('Error al intentar recargar canales tras cambiar reproductor m3u8:', error);
+            console.error(`[teles] Error while updating overlay customization buttons. Error: ${error}`);
+            showToast({
+                title: 'Ha ocurrido un error durante la actualización del estado botones personalizar overlay.',
+                body: `Error: ${error}`,
+                type: 'danger',
+            });
         }
+    }
+
+    // button for the whole overlay
+    const overlayVisibilityCheckbox = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
+    const overlayVisibilityValueSpan = document.querySelector('#span-valor-visualizacion-overlay');
+    if (overlayVisibilityCheckbox && overlayVisibilityValueSpan) {
+        overlayVisibilityCheckbox.addEventListener('click', () => {
+            document.body.classList.toggle('d-none__barras-overlay', !overlayVisibilityCheckbox.checked);
+            syncCheckboxState({
+                checkbox: overlayVisibilityCheckbox,
+                statusElement: overlayVisibilityValueSpan,
+                storageKey: LS_KEY_OVERLAY_VISIBILITY,
+                isVisible: overlayVisibilityCheckbox.checked
+            });
+            updateOverlayCustomizationButtons();
+        });
+    }
+
+    Object.values(OVERLAY_BUTTONS_CONFIG).forEach(button => {
+        const individualButton = document.getElementById(button.id);
+        if (!individualButton) return;
+
+        individualButton.addEventListener('click', () => {
+            localStorage.setItem(button.storageKey, individualButton.checked ? 'show' : 'hide');
+            updateOverlayCustomizationButtons();
+        });
     });
-});
 
-// Tamaño
-export const INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
-export const SPAN_VALOR_INPUT_RANGE = document.querySelector('#span-valor-input-range');
+    // checkbox overlay visibility on start
+    if (overlayVisibilityCheckbox && overlayVisibilityValueSpan) {
+        syncCheckboxState({
+            checkbox: overlayVisibilityCheckbox,
+            statusElement: overlayVisibilityValueSpan,
+            storageKey: LS_KEY_OVERLAY_VISIBILITY,
+            isVisible:
+                localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) === null
+                    ? true
+                    : localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) !== 'hide'
+        });
+    }
+    updateOverlayCustomizationButtons();
 
-INPUT_RANGE_PERSONALIZACION_TAMAÑO_VISION_CUADRICULA.addEventListener('input', (event) => {
-    SPAN_VALOR_INPUT_RANGE.innerHTML = `${event.target.value}%`;
-    CONTAINER_VISION_CUADRICULA.style.maxWidth = `${event.target.value}%`;
-    localStorage.setItem('valor-input-range', event.target.value);
-    hideTextoBotonesOverlayDebounced();
-});
+    const hideOverlayButtonTextDebounced = debounce(hideOverlayButtonText, 150);
+    window.addEventListener('resize', hideOverlayButtonTextDebounced); // hide text if button size exceeds container
 
-// alternar altura canales
-export const CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#checkbox-personalizar-altura-canales');
-export const SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#span-valor-altura-canales');
-const ICONO_PERSONALIZAR_USO_100VH_CANALES = document.querySelector('#icono-personalizar-altura-canales');
+    // MARK: player for m3u8
+    const lsReproductorM3u8 = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) ?? 'videojs';
+    const RADIOS_REPRODUCTOR_M3U8 = document.querySelectorAll('input[name="btnradio-reproductor-m3u8"]');
+    const SPAN_VALOR_REPRODUCTOR_M3U8 = document.querySelector('#span-valor-reproductor-m3u8');
 
-CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.addEventListener('click', () => {
-    CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked
-        ? (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
-            localStorage.setItem('uso-100vh', 'activo'),
-            SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido'
-        )
-        : (ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'),
-            localStorage.setItem('uso-100vh', 'inactivo'),
-            SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Reducido'
-        );
-    ajustarNumeroDivisionesClaseCol()
-});
 
-// Canales por fila
-export const SPAN_VALOR_TRANSMISIONES_POR_FILA = document.querySelector('#span-valor-transmisiones-por-fila')
-export const BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
+    RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
+        if (radio.value === lsReproductorM3u8) {
+            radio.checked = true;
+            if (SPAN_VALOR_REPRODUCTOR_M3U8) {
+                SPAN_VALOR_REPRODUCTOR_M3U8.textContent = radio.dataset.descripcion || radio.value;
+            }
+        }
+        radio.addEventListener('change', () => {
+            if (!radio.checked) return;
+            const valor = radio.value;
+            const descripcion = radio.dataset.descripcion || valor;
+            localStorage.setItem(LS_KEY_M3U8_PLAYER_CHOICE, valor);
+            if (SPAN_VALOR_REPRODUCTOR_M3U8) {
+                SPAN_VALOR_REPRODUCTOR_M3U8.textContent = descripcion;
+            }
 
-BOTONES_PERSONALIZAR_TRANSMISIONES_POR_FILA.forEach(boton => {
-    boton.addEventListener('click', () => {
-        ajustarClaseColTransmisionesPorFila(boton.value)
-        SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
-        hideTextoBotonesOverlay()
-    })
-});
+            try {
+                const channelSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
-// Texto botones flotantes
-const CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#checkbox-personalizar-texto-botones-flotantes');
-const SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#span-valor-texto-en-botones-flotante');
-const ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#icono-personalizar-texto-botones-flotantes');
+                getActiveChannelIds().forEach(channelId => {
+                    if (channelId) {
+                        const channelData = channelsList?.[channelId]?.señales;
+                        if (!channelData) return;
 
-const SPAN_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-flotantes button>span');
+                        let signalToUse;
 
-CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.addEventListener('click', () => {
-    SPAN_BOTONES_FLOTANTES.forEach(button => {
-        button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+                        // 1. Priority: saved user preference
+                        if (channelSignalPreferences[channelId]) {
+                            signalToUse = Object.keys(channelSignalPreferences[channelId])[0];
+                        } else {
+                            // 2. Default: signal priority
+                            const { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, twitch_id } = channelData;
+
+                            if (iframe_url?.length) signalToUse = 'iframe_url';
+                            else if (m3u8_url?.length) signalToUse = 'm3u8_url';
+                            else if (yt_id) signalToUse = 'yt_id';
+                            else if (yt_embed) signalToUse = 'yt_embed';
+                            else if (yt_playlist) signalToUse = 'yt_playlist';
+                            else if (twitch_id) signalToUse = 'twitch_id';
+                        }
+
+                        if (signalToUse === 'm3u8_url') {
+                            cambiarSoloSeñalActiva(channelId);
+                        }
+
+                    }
+                });
+
+            } catch (error) {
+                console.error('[teles] Error reloading channels after changing m3u8 player:', error);
+            }
+        });
     });
-    setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
-    CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
-        ? ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square')
-        : ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
-});
 
-// ocultar fondo
-const CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#checkbox-tarjeta-logo-background');
-const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#span-valor-visualizacion-tarjeta-logo-background');
-const ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#icono-personalizar-visualizacion-tarjeta-logo-background');
-const CONTAINER_TARJETA_LOGO_BACKGROUND = document.querySelector('#container-tarjeta-logo-background');
 
-CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.addEventListener('click', () => {
-    CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-    setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-    CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye') : ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
-});
+    // MARK: Change theme
+    detectThemePreferences();
+    const themeCheckboxEl = document.querySelector('#checkbox-change-theme');
+    themeCheckboxEl?.addEventListener('change', () => {
+        applyTheme(themeCheckboxEl.checked);
+    });
 
-export const BOTONES_REPOSICIONAR_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
+    // MARK: Slider horizontal width
+    widthRangeInput = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
+    widthRangeValue = document.querySelector('#span-valor-input-range');
+    /**
+     * Syncs horizontal width for the grid view container.
+     * @param {number} [newValue] - Optional new width value.
+     */
+    const syncHorizontalWidthValue = (newValue) => {
+        // Obtener o establecer el valor, con manejo de valores nulos/undefined
+        const storedValue = localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE);
+        const widthValue = newValue ?? (storedValue ? parseInt(storedValue, 10) : 100);
 
-registrarTraduccionVideojs();
+        // Actualizar localStorage solo si hay un nuevo valor
+        if (newValue !== undefined) {
+            localStorage.setItem(LS_KEY_HORIZONTAL_WIDTH_VALUE, widthValue);
+        }
 
-// MARK: Manejo canales
-export let tele = {
-    add: (canal) => {
-        try {
-            if (!canal || !listaCanales?.[canal]) return console.error(`El canal "${canal}" proporcionado no es válido para ser añadido.`);
-            const DIV_CANAL = document.createElement('div');
-            DIV_CANAL.setAttribute('data-canal', canal);
-            const esVisionUnica = localStorage.getItem('diseño-seleccionado') === 'vision-unica';
+        // Aplicar los cambios
+        const widthPercentage = `${widthValue}%`;
+        widthRangeInput.value = widthValue;
+        widthRangeValue.textContent = widthPercentage;
+        gridViewContainer.style.maxWidth = widthPercentage;
+    };
 
-            if (esVisionUnica) {
-                // En visión única debe existir como máximo un canal activo.
-                const canalEnUso = CONTAINER_VIDEO_VISION_UNICA?.querySelector('div[data-canal]');
-                if (canalEnUso && canalEnUso.dataset.canal && canalEnUso.dataset.canal !== canal) {
-                    tele.remove(canalEnUso.dataset.canal);
+    widthRangeInput.addEventListener('input', (event) => {
+        syncHorizontalWidthValue(event.target.value)
+        hideOverlayButtonTextDebounced();
+    });
+
+    syncHorizontalWidthValue();
+
+
+    // MARK: Checkbox use full height
+    fullHeightCheckbox = document.querySelector('#checkbox-personalizar-altura-canales');
+    fullHeightSpan = document.querySelector('#span-valor-altura-canales');
+    const iconElFullHeight = document.querySelector('#icono-personalizar-altura-canales');
+
+    fullHeightCheckbox.addEventListener('click', () => {
+        fullHeightCheckbox.checked
+            ? (iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
+                JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true)),
+                fullHeightSpan.textContent = 'Expandido'
+            )
+            : (iconElFullHeight.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'),
+                JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, false)),
+                fullHeightSpan.textContent = 'Reducido'
+            );
+        adjustBootstrapColumnClasses()
+    });
+
+    let isFullHeightMode = true;
+    try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)) ?? true; } catch { }
+
+    if (isFullHeightMode) {
+        JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true));
+        fullHeightCheckbox.checked = true;
+        iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
+        fullHeightSpan.textContent = 'Expandido';
+    } else {
+        fullHeightCheckbox.checked = false;
+        iconElFullHeight.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse');
+        fullHeightSpan.textContent = 'Reducido';
+    }
+
+    // MARK: Number channels per row
+    numberChannelsPerRowSpan = document.querySelector('#span-valor-transmisiones-por-fila');
+    numberChannelsPerRowButtons = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
+
+    numberChannelsPerRowButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            updateGridColumnConfiguration(btn.value)
+            numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`
+            hideOverlayButtonText()
+        })
+    });
+    numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`
+
+
+    // MARK: Floating buttons position
+    floatingButtonsPositionButtons = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
+    floatingButtonsPositionButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const position = btn.dataset.position.split(' ');
+            handleFloatingButtonsPositionClick(...position);
+        });
+    });
+
+    let floatingActionsPosition = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_POSITION);
+    if (floatingActionsPosition !== null) {
+        const { top, start, margin, translate } = JSON.parse(floatingActionsPosition);
+        updateFloatingButtons(top, start, margin, translate);
+    } else {
+        updateFloatingButtons('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
+    }
+
+    // MARK: Text on floating buttons
+    const floatingButtonsTextCheckbox = document.querySelector('#checkbox-personalizar-texto-botones-flotantes');
+    const floatingButtonsTextValueSpan = document.querySelector('#span-valor-texto-en-botones-flotante');
+    const floatingButtonsTextIcon = document.querySelector('#icono-personalizar-texto-botones-flotantes');
+
+    const floatingButtonsSpans = document.querySelectorAll('#grupo-botones-flotantes button>span');
+
+    floatingButtonsTextCheckbox.addEventListener('click', () => {
+        floatingButtonsSpans.forEach(button => {
+            button.classList.toggle('d-none', !floatingButtonsTextCheckbox.checked);
+        });
+        syncCheckboxState({
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
+            storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
+            isVisible: floatingButtonsTextCheckbox.checked
+        });
+        floatingButtonsTextCheckbox.checked
+            ? floatingButtonsTextIcon.classList.replace('bi-square', 'bi-info-square')
+            : floatingButtonsTextIcon.classList.replace('bi-info-square', 'bi-square');
+    });
+
+    if (localStorage.getItem(LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY) !== 'hide') {
+        syncCheckboxState({
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
+            storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
+            isVisible: true
+        });
+        floatingButtonsTextIcon.classList.replace('bi-square', 'bi-info-square');
+    } else {
+        floatingButtonsSpans.forEach((button) => {
+            button.classList.toggle('d-none', !floatingButtonsTextCheckbox.checked);
+        });
+        syncCheckboxState({
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
+            storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
+            isVisible: false
+        });
+        floatingButtonsTextIcon.classList.replace('bi-info-square', 'bi-square');
+    }
+
+
+    // MARK: Dynamic URL
+    dynamicUrlCheckbox?.addEventListener('click', () => {
+        isDynamicUrlMode = dynamicUrlCheckbox.checked;
+        localStorage.setItem(LS_KEY_DYNAMIC_URL, JSON.stringify(isDynamicUrlMode));
+        applyDynamicUrlState(isDynamicUrlMode);
+
+        isDynamicUrlMode ? syncActiveChannelsParameter() : clearSharedUrlParameter(true);
+    });
+    applyDynamicUrlState(isDynamicUrlMode);
+
+
+    const mergeCustomListsCheckboxEl = document.querySelector('#checkbox-combinar-listas-personalizadas');
+    const mergeCustomListsValueSpanEl = document.querySelector('#span-valor-combinar-listas-personalizadas');
+
+    /**
+     * Initializes and syncs the toggle for merging similar channels between custom lists.
+     */
+    function initMergeCustomListsPreference() {
+        if (!mergeCustomListsCheckboxEl || !mergeCustomListsValueSpanEl) { return }
+
+        const getStateLabel = (state) => state ? 'Combinar coincidencias' : 'Mantener listas separadas';
+
+        const applyState = (state) => {
+            mergeCustomListsCheckboxEl.checked = state;
+            mergeCustomListsValueSpanEl.textContent = getStateLabel(state);
+        };
+
+        const initialState = getCombineChannelsPreference();
+        applyState(initialState);
+
+        mergeCustomListsCheckboxEl.addEventListener('change', async () => {
+            const newState = mergeCustomListsCheckboxEl.checked;
+            setCombineChannelsPreference(newState);
+            applyState(newState);
+
+            try {
+                showToast({
+                    body: 'Actualizando listado de canales...',
+                    type: 'dark',
+                    duration: 2000
+                });
+
+                // 0. Capture active channels before the change (avoid duplicates)
+                const activeGridChannels = getActiveChannelIds();
+                const activeSingleChannel = singleViewVideoContainer.querySelector('div[data-canal]')?.dataset.canal;
+
+                // 1. Reload base channels (resets defaults)
+                await restoreChannelsFromMemory();
+
+                // 2. Restore personalized lists with the new preference
+                restorePersonalizedLists();
+
+                // 3. Re-render UI
+                createChannelButtons(channelsList);
+
+                // Update additional lists to ensure consistency
+                createButtonsForChangeChannelModal(channelsList);
+                createButtonsForSingleView(channelsList);
+
+                saveOriginalOrder(); // Update base order for sorting features
+
+                // 4. Refresh active channels (Grid View)
+                if (activeGridChannels.length > 0) {
+                    activeGridChannels.forEach(channelId => {
+                        if (tele && channelsList[channelId]) {
+                            tele.remove(channelId);
+                            tele.add(channelId);
+                        } else if (tele) {
+                            tele.remove(channelId);
+                        }
+                    });
                 }
 
-                DIV_CANAL.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
-                DIV_CANAL.append(crearFragmentCanal(canal));
-                CONTAINER_VIDEO_VISION_UNICA.append(DIV_CANAL);
-                ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.add('d-none');
-            } else {
-                DIV_CANAL.classList.add('position-relative', 'shadow');
-                DIV_CANAL.append(crearFragmentCanal(canal));
-                CONTAINER_VISION_CUADRICULA.append(DIV_CANAL);
-                guardarCanalesEnLocalStorage();
-            }
-            ajustarClaseBotonCanal(canal, true);
-            activarTooltipsBootstrap();
-            hideTextoBotonesOverlay();
-            registrarCambioManualCanales();
-        } catch (error) {
-            console.error(`Error durante creación div de canal con id: ${canal}. Error: ${error}`);
-            mostrarToast(`
-            <span class="fw-bold">Ha ocurrido un error durante la creación canal para ser insertado - id: ${canal}.</span>
-            <hr>
-            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-            <hr>
-            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
-            return
-        }
-    },
-    remove: (canal) => {
-        try {
-            if (!canal) return console.error(`El canal "${canal}" proporcionado no es válido para su eliminación.`);
-            let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+                // 5. Refresh active channel (Single View)
+                if (activeSingleChannel) {
+                    if (tele && channelsList[activeSingleChannel]) {
+                        tele.remove(activeSingleChannel);
+                        tele.add(activeSingleChannel);
+                    } else if (tele) {
+                        tele.remove(activeSingleChannel);
+                    }
+                }
 
-            if (!transmisionPorRemover) {
-                console.warn(`[teles] Se intentó eliminar canal "${canal}" pero no se encontró ninguna transmisión activa. Se actualizará solo el estado visual.`);
-                ajustarClaseBotonCanal(canal, false);
+                showToast({
+                    body: 'Listado y canales activos actualizados correctamente',
+                    type: 'success'
+                });
+
+            } catch (error) {
+                console.error('[teles] Error updating list after preference change', error);
+                showToast({
+                    title: 'Error',
+                    body: 'No se pudo actualizar el listado inmediatamente. Recarga la página.',
+                    type: 'danger'
+                });
+            }
+        }, { once: false });
+    }
+
+    initMergeCustomListsPreference();
+
+
+    renderPersonalizedListsUI();
+
+
+    const loadCustomListButtonEl = document.querySelector('#boton-cargar-lista-personalizada');
+    const customListUrlInputEl = document.querySelector('#input-url-lista-personalizada');
+    if (loadCustomListButtonEl && customListUrlInputEl) {
+        const originalButtonText = loadCustomListButtonEl.innerHTML;
+        const toggleLoadingStateButton = (isLoading) => {
+            if (isLoading) {
+                loadCustomListButtonEl.disabled = true;
+                loadCustomListButtonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Cargando...';
+            } else {
+                loadCustomListButtonEl.disabled = false;
+                loadCustomListButtonEl.innerHTML = originalButtonText;
+            }
+        };
+
+        loadCustomListButtonEl.addEventListener('click', async () => {
+            const listUrl = customListUrlInputEl.value.trim();
+            if (!listUrl) {
+                showToast({
+                    body: 'Ingresa la URL a tu archivo .m3u antes de cargarla.',
+                    type: 'warning'
+                });
+                customListUrlInputEl.focus();
                 return;
             }
 
-            // Limpiar recursos antes de eliminar el contenedor; iframe, videojs, clappr, oplayer
-            limpiarRecursosTransmision(transmisionPorRemover);
-            // Remover tooltips; botones flotantes overlay
-            removerTooltipsBootstrap();
-            // Eliminar el contenedor del DOM
-            transmisionPorRemover.remove();
-
-            const esVisionUnica = CONTAINER_VIDEO_VISION_UNICA && CONTAINER_VIDEO_VISION_UNICA.contains(transmisionPorRemover);
-            // Si es visión única, mostrar el icono de sin señal activa
-            if (esVisionUnica || localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
-                ICONO_SIN_SEÑAL_ACTIVA_VISION_UNICA.classList.remove('d-none');
-            } else {
-                guardarCanalesEnLocalStorage();
+            try {
+                new URL(listUrl);
+            } catch {
+                showToast({
+                    title: 'La URL ingresada no es válida.',
+                    body: 'Verifica que comience con https://',
+                    type: 'danger'
+                });
+                customListUrlInputEl.focus();
+                return;
             }
 
-            ajustarClaseBotonCanal(canal, false);
-            activarTooltipsBootstrap();
-            registrarCambioManualCanales();
-        } catch (error) {
-            console.error(`Error durante eliminación div de canal con id: ${canal}. Error: ${error}`);
-            mostrarToast(`
-            <span class="fw-bold">Ha ocurrido un error durante la eliminación canal con id: ${canal}.</span>
-            <hr>
-            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-            <hr>
-            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
-            return
-        }
-    },
-    cargaCanalesPredeterminados: () => {
-        let lsCanales = JSON.parse(localStorage.getItem('canales-vision-cuadricula')) || {};
-        if (Object.keys(lsCanales).length === 0 && lsModal !== 'hide') {
-            obtenerCanalesPredeterminados(isMobile.any).forEach(canal => tele.add(canal));
-        } else {
+            toggleLoadingStateButton(true);
             try {
-                Object.keys(lsCanales).forEach(canal => {
-                    if (revisarSeñalesVacias(canal)) {
-                        document.querySelectorAll(`button[data-canal="${canal}"]`).forEach(boton => {
-                            boton.classList.add('d-none');
-                        });
-                    } else {
-                        tele.add(canal);
-                    }
+                await loadPersonalizedM3UList(listUrl);
+                clearChannelListContainers();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
+                resyncActiveChannelsVisualState();
+                initializeBootstrapTooltips();
+
+                renderPersonalizedListsUI();
+                showToast({
+                    title: 'Lista personalizada cargada correctamente.',
+                    body: 'Los nuevos canales se añadieron a su lista.',
+                    type: 'success'
                 });
             } catch (error) {
-                console.error(`Error durante carga canales predeterminados. Error: ${error}`);
-                mostrarToast(`
-                <span class="fw-bold">Ha ocurrido un error durante la carga de canales predeterminados.</span>
-                <hr>
-                <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-                <hr>
-                Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-                <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
-                return
+                console.error('[teles] Error loading personalized M3U list:', error);
+                showToast({
+                    title: 'No fue posible cargar la lista personalizada.',
+                    body: `Verifica la URL o si el servidor permite descargas (CORS). <br> Error: ${error}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    allowHtml: true
+                });
+            } finally {
+                toggleLoadingStateButton(false);
+            }
+        });
+    }
+
+    const pasteCustomListButtonEl = document.querySelector('#boton-pegar-lista-personalizada');
+    const customListTextareaEl = document.querySelector('#textarea-lista-personalizada');
+
+    if (pasteCustomListButtonEl && customListTextareaEl) {
+        const originalPasteButtonText = pasteCustomListButtonEl.innerHTML;
+        const togglePasteButton = (isLoading) => {
+            if (isLoading) {
+                pasteCustomListButtonEl.disabled = true;
+                pasteCustomListButtonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Procesando...';
+            } else {
+                pasteCustomListButtonEl.disabled = false;
+                pasteCustomListButtonEl.innerHTML = originalPasteButtonText;
             }
         };
-    }
-};
 
-BOTON_ACTIVAR_VISION_UNICA.addEventListener('click', () => {
-    if (localStorage.getItem('diseño-seleccionado') !== 'vision-unica') {
-        activarVisionUnica();
+        pasteCustomListButtonEl.addEventListener('click', async () => {
+            const listContent = customListTextareaEl.value.trim();
+            if (!listContent) {
+                showToast({
+                    body: 'Pega el contenido completo de tu archivo .m3u antes de continuar.',
+                    type: 'warning'
+                });
+                customListTextareaEl.focus();
+                return;
+            }
+
+            togglePasteButton(true);
+            try {
+                const manualLabel = `Lista manual ${new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}`;
+                await loadPersonalizedListFromText(listContent, { etiqueta: manualLabel });
+                customListTextareaEl.value = '';
+                clearChannelListContainers();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
+                resyncActiveChannelsVisualState();
+
+                renderPersonalizedListsUI();
+                showToast({
+                    title: 'Lista manual cargada correctamente.',
+                    body: 'Se añadieron los nuevos canales a su lista.',
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('[teles] Error processing manually pasted list:', error);
+                showToast({
+                    title: 'No fue posible procesar el texto pegado.',
+                    body: `Revisa el formato del archivo .m3u. Error: ${error.message}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    showReloadOnError: true,
+                    allowHtml: true
+                });
+            } finally {
+                togglePasteButton(false);
+            }
+        });
+    }
+
+    // MARK: Background card
+    const logoCardBackgroundCheckbox = document.querySelector('#checkbox-tarjeta-logo-background');
+    const logoCardBackgroundValueSpan = document.querySelector('#span-valor-visualizacion-tarjeta-logo-background');
+    const logoCardBackgroundIcon = document.querySelector('#icono-personalizar-visualizacion-tarjeta-logo-background');
+    const logoCardBackgroundContainer = document.querySelector('#container-tarjeta-logo-background');
+
+    logoCardBackgroundCheckbox.addEventListener('click', () => {
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
+        syncCheckboxState({
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
+            storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
+            isVisible: logoCardBackgroundCheckbox.checked
+        });
+
+        logoCardBackgroundCheckbox.checked ? logoCardBackgroundIcon.classList.replace('bi-eye-slash', 'bi-eye') : logoCardBackgroundIcon.classList.replace('bi-eye', 'bi-eye-slash');
+
+        if (!AMBIENT_MUSIC.paused && !logoCardBackgroundCheckbox.checked) {
+            AMBIENT_MUSIC.pause();
+            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+        }
+    });
+
+    let logoCardBackgroundState = localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) ?? 'show';
+    if (logoCardBackgroundState !== 'hide') {
+        syncCheckboxState({
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
+            storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
+            isVisible: true
+        })
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
+        logoCardBackgroundIcon.classList.replace('bi-eye-slash', 'bi-eye');
     } else {
-        playAudioSinDelay(AUDIO_FAIL);
-        mostrarToast('Ya estas en modo visión única', 'info');
+        syncCheckboxState({
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
+            storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
+            isVisible: false
+        })
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
+        logoCardBackgroundIcon.classList.replace('bi-eye', 'bi-eye-slash');
     }
-})
 
-BOTON_ACTIVAR_VISION_GRID.addEventListener('click', () => {
-    if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
-        desactivarVisionUnica();
-    } else {
-        playAudioSinDelay(AUDIO_FAIL);
-        mostrarToast('Ya estas en modo visión cuadrícula', 'info');
-    }
-})
+    // MARK: Ambient music
+    const toggleButton = document.querySelector('#ambient-music-toggle');
+    const volumeSlider = document.querySelector('#ambient-music-volume');
+    musicIcon = document.querySelector('#music-icon');
 
-// MARK: otros
-// plugin para mover canales en grid
-new Sortable(CONTAINER_VISION_CUADRICULA, {
-    animation: 350,
-    handle: '.clase-para-mover',
-    easing: "cubic-bezier(.17,.67,.83,.67)",
-    ghostClass: 'marca-al-mover',
-    onStart: () => {
-        removerTooltipsBootstrap(); // evitamos tooltips flotando al mover
-    },
-    onEnd: () => {
-        activarTooltipsBootstrap();
-        guardarCanalesEnLocalStorage();
-        registrarCambioManualCanales();
-    }
-});
-
-new Sortable(CONTAINER_INTERNO_VISION_UNICA, {
-    animation: 350,
-    handle: '.clase-para-mover',
-    easing: "cubic-bezier(.17,.67,.83,.67)",
-    ghostClass: 'marca-al-mover',
-    swapThreshold: 0.30,
-    onStart: () => {
-        try {
-            removerTooltipsBootstrap();
-        } catch (e) {
-            console.error('Error en onStart Sortable:', e);
-        }
-    },
-    onChange: () => {
-        try {
-            toggleClaseOrdenado();
-        } catch (e) {
-            console.error('Error en onChange Sortable:', e);
-        }
-    },
-    onEnd: () => {
-        try {
-            guardarOrdenPanelesVisionUnica();
-            activarTooltipsBootstrap();
-            toggleClaseOrdenado();
-            registrarCambioManualCanales();
-        } catch (e) {
-            console.error('Error en onEnd Sortable:', e);
-        }
-    }
-});
-
-// ocultar texto si el tamaño de los botones excede el tamaño del contenedor
-window.addEventListener('resize', hideTextoBotonesOverlayDebounced);
-
-// MARK: DOMContentLoaded
-window.addEventListener('DOMContentLoaded', () => {
-    detectarTemaSistema();
-    iniciarRevisarConexion();
-    MODAL_CAMBIAR_CANAL.addEventListener('shown.bs.modal', () => {
-        const contenedorCambiar = document.querySelector('#modal-cambiar-canal-body-botones-canales');
-        if (contenedorCambiar && !contenedorCambiar.querySelector('button[data-canal]')) {
-            crearBotonesParaModalCambiarCanal();
+    toggleButton.addEventListener('click', () => {
+        if (AMBIENT_MUSIC.paused) {
+            AMBIENT_MUSIC.play().catch(e => console.error('[teles] Error playing audio:', e));
+            AMBIENT_MUSIC.loop = true;
+            AMBIENT_MUSIC.volume = volumeSlider.value / 100;
+            musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
+        } else {
+            AMBIENT_MUSIC.pause();
+            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
     });
 
-    MODAL_CAMBIAR_CANAL.addEventListener('hidden.bs.modal', () => {
-        LABEL_MODAL_CAMBIAR_CANAL.setAttribute('id-canal-cambio', '')
+    // Control de volumen
+    volumeSlider.addEventListener('input', (e) => {
+        AMBIENT_MUSIC.volume = e.target.value / 100;
     });
 
-    screen.orientation.addEventListener('change', () => {
-        if (lsEstiloVision !== 'vision-unica') ajustarNumeroDivisionesClaseCol();
-    });
+    // MARK: 🟢 Initial load
+    /**
+     * Performs initial channel load and restores personalized lists.
+     * Keeps user-facing strings in Spanish to avoid UX changes.
+     */
+    async function initialLoad() {
+        try {
+            await fetchLoadChannels();
+            if (channelsList) {
+                const restoredLists = restorePersonalizedLists();
+                createChannelButtons();
+                createCountryButtons();
+                createCategoryButtons();
+                deleteInvalidSignalPreferences();
 
-    // Efecto glow en hover a logo del fondo
+                const currentUrl = new URL(window.location.href);
+                const sharedParam = currentUrl.searchParams.get('c');
+                const totalRequestedChannels = sharedParam
+                    ? sharedParam
+                        .split(',')
+                        .map(id => id.trim())
+                        .filter(id => id.length > 0).length
+                    : 0;
+
+                const sharedChannels = getChannelsFromUrl();
+
+                if (sharedChannels.length > 0) {
+
+                    isLoadingFromSharedUrl = true;
+
+                    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+                        deactivateSingleView({ skipDefaultChannelsLoad: true });
+                        singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+                        localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
+                    }
+                    sharedChannels.forEach(canalId => tele.add(canalId));
+                    isLoadingFromSharedUrl = false;
+
+                    if (totalRequestedChannels > sharedChannels.length) {
+                        const difference = totalRequestedChannels - sharedChannels.length;
+                        showToast({
+                            title: 'Canales omitidos al cargar desde URL',
+                            body: `No todos los canales compartidos se pudieron cargar 
+                                (se cargaron ${sharedChannels.length} de ${totalRequestedChannels}). 
+                                Es posible que algunos provengan de listas personalizadas o modos 
+                                que no están disponibles en este navegador.`,
+                            type: 'info'
+                        });
+                        console.info('[teles] Omited channels from URL', {
+                            totalSolicitados: totalRequestedChannels,
+                            totalCargados: sharedChannels.length,
+                            faltantes: difference
+                        });
+                    }
+                } else {
+
+                    if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+                        activateSingleView();
+                        singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
+                        gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+                    } else {
+                        tele.loadDefaultChannels();
+                    }
+                }
+
+                /// actualizarBotonesPersonalizarOverlay()
+
+                const lsBootstrapColNumber =
+                    JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER)) ??
+                    (isMobile.any ? BOOTSTRAP_COL_NUMBER_MOBILE : BOOTSTRAP_COL_NUMBER_DESKTOP);
+                updateGridColumnConfiguration(lsBootstrapColNumber);
+                hideOverlayButtonText()
+                initializeBootstrapTooltips();
+
+                if (restoredLists > 0) {
+                    renderPersonalizedListsUI();
+                }
+            }
+        } catch (error) {
+            console.error('[teles] Error during initial load', error);
+            showToast({
+                title: 'Error durante carga inicial',
+                body: `Error: ${error}`,
+                type: 'danger',
+                showReloadOnError: true
+            });
+            return
+        }
+    }
+    initialLoad();
+
+    adjustVisibilityButtonsRemoveAllActiveChannels()
+
+    // Glow effect on background logo hover
     const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
     TARJETA_LOGO_BACKGROUND.onmousemove = e => {
         let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
@@ -652,488 +937,228 @@ window.addEventListener('DOMContentLoaded', () => {
         TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
     };
 
-    if (lsModal !== 'hide') new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
-
-    // Navbar
-    lsNavbar !== 'hide'
-        ? (setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', true))
-        : (setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_NAVBAR, 'navbar-display', false));
-
-    // Posición botones flotante
-
-    BOTONES_REPOSICIONAR_BOTONES_FLOTANTES.forEach(boton => {
-        boton.addEventListener('click', () => {
-            const BOTON_DATASET_POSITION = boton.dataset.position.split(' ');
-            clicBotonPosicionBotonesFlotantes(...BOTON_DATASET_POSITION);
-        });
+    screen.orientation.addEventListener('change', () => {
+        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') adjustBootstrapColumnClasses();
     });
-
-    if (lsPosicionBotonesFlotantes) {
-        const { top, start, margin, translate } = JSON.parse(lsPosicionBotonesFlotantes);
-        actualizarBotonesFlotantes(top, start, margin, translate);
-    } else {
-        actualizarBotonesFlotantes('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
-    }
-
-    // Texto botones flotantes
-    if (lsTextoBotonesFlotantes !== 'hide') {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', true);
-        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square');
-    } else {
-        SPAN_BOTONES_FLOTANTES.forEach((button) => {
-            button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
-        });
-        setCheckboxState(CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES, 'texto-botones-flotantes', false);
-        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
-    }
-
-    // Tamaño
-    actualizarValorSlider();
-    SPAN_VALOR_TRANSMISIONES_POR_FILA.innerHTML = `${obtenerNumeroCanalesFila()}`
-
-    // Altura
-    if (lsAlturaCanales !== 'inactivo') {
-        localStorage.setItem('uso-100vh', 'activo'),
-            CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = true;
-        ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
-        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Expandido';
-    } else {
-        CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.checked = false;
-        ICONO_PERSONALIZAR_USO_100VH_CANALES.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse');
-        SPAN_VALOR_CHECKBOX_PERSONALIZAR_USO_100VH_CANALES.textContent = 'Reducido';
-    }
-
-    // tarjeta fondo
-    if (lsFondo !== 'hide') {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', true)
-        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye');
-    } else {
-        setCheckboxState(CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND, 'tarjeta-fondo-display', false)
-        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
-    }
-
-    /**
-     * Inicializa y sincroniza el switch para combinar canales similares entre listas personalizadas.
-     * Actualiza el texto auxiliar y persiste la preferencia en localStorage.
-     * @returns {void}
-     */
-    function inicializarPreferenciaCombinarListas() {
-        if (!CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS || !SPAN_VALOR_COMBINAR_LISTAS_PERSONALIZADAS) {
-            console.warn('[teles] No se encontró el control para combinar listas personalizadas.');
-            return;
-        }
-
-        const obtenerEtiquetaEstado = (estado) => estado ? 'Combinar coincidencias' : 'Mantener listas separadas';
-
-        const aplicarEstado = (estado) => {
-            CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS.checked = estado;
-            SPAN_VALOR_COMBINAR_LISTAS_PERSONALIZADAS.textContent = obtenerEtiquetaEstado(estado);
-        };
-
-        const estadoInicial = obtenerPreferenciaCombinarCanales();
-        aplicarEstado(estadoInicial);
-
-        CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS.addEventListener('change', () => {
-            const nuevoEstado = CHECKBOX_COMBINAR_LISTAS_PERSONALIZADAS.checked;
-            establecerPreferenciaCombinarCanales(nuevoEstado);
-            aplicarEstado(nuevoEstado);
-            mostrarToast(
-                nuevoEstado
-                    ? 'Se combinarán canales similares al importar listas personalizadas.'
-                    : 'Se mantendrán separados los canales aun cuando existan coincidencias.',
-                nuevoEstado ? 'success' : 'info'
-            );
-        }, { once: false });
-    }
-
-    inicializarPreferenciaCombinarListas();
-
-    /**
-     * Obtiene la lista de IDs de canales compartidos a través del parámetro `c` en la URL.
-     * El formato esperado es una lista separada por comas, por ejemplo: ?c=24-horas,meganoticias,t13
-     * @returns {string[]} Arreglo de IDs de canales válidos.
-     */
-    function obtenerCanalesCompartidosDesdeUrl() {
-        try {
-            const url = new URL(window.location.href);
-            const param = url.searchParams.get('c');
-            if (!param) return [];
-
-            return param
-                .split(',')
-                .map(id => id.trim())
-                .filter(id => id.length > 0 && listaCanales?.[id]);
-        } catch (error) {
-            console.error('[teles] Error al leer canales compartidos desde la URL:', error);
-            return [];
-        }
-    }
-
-    async function cargaInicial() {
-        try {
-            await fetchCargarCanales();
-            if (listaCanales) {
-                const listasRestauradas = restaurarListasPersonalizadas();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
-                borraPreferenciaSeñalInvalida();
-
-                const urlActual = new URL(window.location.href);
-                const paramCompartidos = urlActual.searchParams.get('c');
-                const totalCanalesSolicitados = paramCompartidos
-                    ? paramCompartidos
-                        .split(',')
-                        .map(id => id.trim())
-                        .filter(id => id.length > 0).length
-                    : 0;
-
-                const canalesCompartidos = obtenerCanalesCompartidosDesdeUrl();
-
-                if (canalesCompartidos.length > 0) {
-                    urlCompartidaActiva = true;
-                    estaCargandoDesdeUrlCompartida = true;
-                    if (lsEstiloVision === 'vision-unica') {
-                        desactivarVisionUnica({ evitarCargaPredeterminados: true });
-                        lsEstiloVision = 'vision-grid';
-                        localStorage.setItem('diseño-seleccionado', 'vision-grid');
-                    }
-                    canalesCompartidos.forEach(canalId => tele.add(canalId));
-                    estaCargandoDesdeUrlCompartida = false;
-
-                    if (totalCanalesSolicitados > canalesCompartidos.length) {
-                        const diferencia = totalCanalesSolicitados - canalesCompartidos.length;
-                        mostrarToast(
-                            `No todos los canales compartidos se pudieron cargar (se cargaron ${canalesCompartidos.length} de ${totalCanalesSolicitados}). Es posible que algunos provengan de listas personalizadas o modos que no están disponibles en este navegador.`,
-                            'info'
-                        );
-                        console.info('[teles][compartir] Canales omitidos al cargar desde URL', {
-                            totalSolicitados: totalCanalesSolicitados,
-                            totalCargados: canalesCompartidos.length,
-                            faltantes: diferencia
-                        });
-                    }
-                } else {
-                    lsEstiloVision === 'vision-unica' ? activarVisionUnica() : tele.cargaCanalesPredeterminados();
-                }
-
-                actualizarBotonesPersonalizarOverlay()
-                ajustarClaseColTransmisionesPorFila(localStorage.getItem('numero-class-columnas-por-fila') ?? (isMobile.any ? VALOR_COL_FIJO_TELEFONO : VALOR_COL_FIJO_ESCRITORIO))
-                hideTextoBotonesOverlay()
-                activarTooltipsBootstrap();
-
-                if (listasRestauradas > 0) {
-                    renderizarListasPersonalizadasUI();
-                }
-            }
-        } catch (error) {
-            console.error(`Error durante carga inicial. Error: ${error}`);
-            mostrarToast(`
-            <span class="fw-bold">Ha ocurrido un error durante la carga inicial.</span>
-            <hr>
-            <span class="bg-dark bg-opacity-25 px-2 rounded-3">Error: ${error}</span>
-            <hr>
-            Si error persiste tras recargar, prueba borrar tu almacenamiento local desde el panel "Personalización" o borrando la caché del navegador.
-            <button type="button" class="btn btn-light rounded-pill btn-sm w-100 border-light mt-2" onclick="location.reload()"> Pulsa para recargar <i class="bi bi-arrow-clockwise"></i></button>`, 'danger', false)
-            return
-        }
-    }
-    cargaInicial();
-
-    cargarOrdenVisionUnica();
-
-    // Ordenar botones canales
-    for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-        addSortEventListener(`${PREFIJO}-boton-orden-ascendente`, `${PREFIJO}-body-botones-canales`, ordenarBotonesCanalesAscendente);
-        addSortEventListener(`${PREFIJO}-boton-orden-descendente`, `${PREFIJO}-body-botones-canales`, ordenarBotonesCanalesDescendente);
-        addSortEventListener(`${PREFIJO}-boton-orden-original`, `${PREFIJO}-body-botones-canales`, restaurarOrdenOriginalBotonesCanales);
-
-        let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-body-botones-canales`)
-        const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
-        if (!inputFiltro) continue;
-
-        const filtrarCanalesPorInputDebounced = debounce((valor) => {
-            inputFiltro.focus();
-            filtrarCanalesPorInput(valor, bodyBotonesCanales);
-        }, 200);
-
-        inputFiltro.addEventListener('input', (e) => {
-            filtrarCanalesPorInputDebounced(e.target.value);
-        });
-    }
 
     document.addEventListener('hidden.bs.toast', event => {
         event.target.remove()
     });
 
-    localStorage.setItem('modo-experimental', 'inactivo');
-
-    renderizarListasPersonalizadasUI();
-
-    function limpiarContenedoresListadosCanales({ resaltarExperimental = false } = {}) {
-        for (const PREFIJO of PREFIJOS_ID_CONTENEDORES_CANALES) {
-            const contenedorBotones = document.querySelector(`#${PREFIJO}-body-botones-canales`);
-            const contenedorPaises = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-paises`);
-            const contenedorCategorias = document.querySelector(`#${PREFIJO}-collapse-botones-listado-filtro-categorias`);
-            if (contenedorBotones) {
-                if (resaltarExperimental) {
-                    contenedorBotones.classList.add('border', 'border-warning', 'rounded-3');
-                }
-                contenedorBotones.innerHTML = '';
-            }
-            if (contenedorPaises) {
-                contenedorPaises.innerHTML = '';
-            }
-            if (contenedorCategorias) {
-                contenedorCategorias.innerHTML = '';
-            }
+    // MARK: others
+    // plugin to move channels in grid
+    new Sortable(gridViewContainer, {
+        animation: 350,
+        handle: '.clase-para-mover',
+        easing: "cubic-bezier(.17,.67,.83,.67)",
+        ghostClass: 'marca-al-mover',
+        onStart: () => {
+            disposeBootstrapTooltips(); // evitamos tooltips flotando al mover
+        },
+        onEnd: () => {
+            initializeBootstrapTooltips();
+            saveChannelsToLocalStorage();
+            registerManualChannelChange();
         }
+    });
 
-        // Si el usuario está en visión única, volvemos a crear los botones de esa vista
-        // para que no quede vacío el panel tras cargar o aplicar listas M3U.
-        if (localStorage.getItem('diseño-seleccionado') === 'vision-unica') {
-            const contenedorVisionUnica = document.querySelector('#vision-unica-body-botones-canales');
-            if (contenedorVisionUnica) {
-                try {
-                    crearBotonesParaVisionUnica();
-                } catch (error) {
-                    console.error('[teles] Error al recrear botones de Visión única tras actualizar listas:', error);
-                }
-            }
-        }
-    }
 
-    function resincronizarEstadoVisualCanalesActivos() {
-        try {
-            const transmisionesActivas = document.querySelectorAll('div[data-canal]');
-            if (!transmisionesActivas.length) return;
-
-            transmisionesActivas.forEach(transmision => {
-                const canalId = transmision.getAttribute('data-canal');
-                if (!canalId) return;
-                ajustarClaseBotonCanal(canalId, true);
-            });
-        } catch (error) {
-            console.error('[teles] Error al resincronizar estado visual de canales activos:', error);
-        }
-    }
-
-    function renderizarListasPersonalizadasUI() {
-        if (!CONTENEDOR_LISTAS_PERSONALIZADAS) return;
-        const listas = obtenerListasPersonalizadas();
-        const urls = Object.keys(listas);
-        if (!urls.length) {
-            CONTENEDOR_LISTAS_PERSONALIZADAS.innerHTML = TEXTO_LISTAS_VACIAS;
-            return;
-        }
-        const fragment = document.createDocumentFragment();
-        urls.sort((a, b) => {
-            const etiquetaA = listas[a]?.etiqueta || a;
-            const etiquetaB = listas[b]?.etiqueta || b;
-            return etiquetaA.localeCompare(etiquetaB, 'es', { sensitivity: 'base' });
-        }).forEach(url => {
-            fragment.append(crearTarjetaListaPersonalizada(url, listas[url]));
-        });
-        CONTENEDOR_LISTAS_PERSONALIZADAS.innerHTML = '';
-        CONTENEDOR_LISTAS_PERSONALIZADAS.append(fragment);
-    }
-
-    function crearTarjetaListaPersonalizada(url, data = {}) {
-        const card = document.createElement('div');
-        card.classList.add('bg-body-secondary', 'bg-opacity-10', 'rounded-3', 'p-2', 'border', 'border-light-subtle', 'mb-2');
-        const etiqueta = data.etiqueta || url;
-        const pinned = data.pinned !== false;
-
-        const encabezado = document.createElement('div');
-        encabezado.classList.add('d-flex', 'justify-content-between', 'align-items-start', 'gap-2');
-
-        const bloqueInfo = document.createElement('div');
-        bloqueInfo.innerHTML = `
-            <p class="fw-semibold mb-0">${etiqueta}</p>
-            <small class="text-secondary text-break">${url}</small><br>
-            <small class="text-secondary">Actualizado: ${formatearFecha(data.actualizado)}</small>
-        `;
-
-        const bloqueAcciones = document.createElement('div');
-        bloqueAcciones.classList.add('d-flex', 'flex-column', 'gap-1');
-
-        const botonPin = document.createElement('button');
-        botonPin.type = 'button';
-        botonPin.className = `btn btn-sm ${pinned ? 'btn-success' : 'btn-outline-secondary'}`;
-        botonPin.innerHTML = pinned ? '<i class="bi bi-pin-angle-fill"></i> Fijada' : '<i class="bi bi-pin-angle"></i> No fijada';
-        botonPin.addEventListener('click', () => {
-            const estadoActual = (obtenerListasPersonalizadas()[url]?.pinned !== false);
-            const nuevoEstado = !estadoActual;
-            actualizarListaPersonalizada(url, { pinned: nuevoEstado });
-            renderizarListasPersonalizadasUI();
-            mostrarToast(
-                nuevoEstado ? `La lista "${etiqueta}" se restaurará al recargar.` : `La lista "${etiqueta}" ya no se restaurará automáticamente.`,
-                nuevoEstado ? 'success' : 'info'
-            );
-        });
-
-        const botonAplicar = document.createElement('button');
-        botonAplicar.type = 'button';
-        botonAplicar.className = 'btn btn-sm btn-outline-primary';
-        botonAplicar.innerHTML = '<i class="bi bi-arrow-repeat"></i> Aplicar';
-        botonAplicar.addEventListener('click', () => {
-            const exito = aplicarListaPersonalizadaGuardada(url);
-            if (exito) {
-                limpiarContenedoresListadosCanales();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
-                resincronizarEstadoVisualCanalesActivos();
-
-                mostrarToast(`Lista "${etiqueta}" aplicada correctamente.`, 'success');
-            } else {
-                mostrarToast('No fue posible aplicar la lista seleccionada.', 'danger');
-            }
-        });
-
-        const botonEliminar = document.createElement('button');
-        botonEliminar.type = 'button';
-        botonEliminar.className = 'btn btn-sm btn-outline-danger';
-        botonEliminar.innerHTML = '<i class="bi bi-trash"></i> Quitar';
-        botonEliminar.addEventListener('click', () => {
-            if (!window.confirm(`¿Eliminar la lista "${etiqueta}" y sus canales asociados?`)) return;
-            eliminarListaPersonalizada(url);
-            const eliminados = eliminarCanalesPorFuente(url);
-            limpiarContenedoresListadosCanales();
-            crearBotonesParaCanales();
-            crearBotonesPaises();
-            crearBotonesCategorias();
-            resincronizarEstadoVisualCanalesActivos();
-
-            renderizarListasPersonalizadasUI();
-            mostrarToast(`Lista eliminada. ${eliminados} canal(es) removidos.`, 'warning');
-        });
-
-        bloqueAcciones.append(botonPin, botonAplicar, botonEliminar);
-        encabezado.append(bloqueInfo, bloqueAcciones);
-        card.append(encabezado);
-        return card;
-    }
-
-    function formatearFecha(fechaISO) {
-        if (!fechaISO) return 'sin registro';
-        try {
-            return new Date(fechaISO).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
-        } catch {
-            return fechaISO;
-        }
-    }
-
-    function eliminarCanalesPorFuente(fuente) {
-        if (!fuente || !listaCanales) return 0;
-        let eliminados = 0;
-
-        Object.keys(listaCanales).forEach(canalId => {
-            if (listaCanales[canalId]?.fuenteLista === fuente) {
-                try {
-                    tele.remove?.(canalId);
-                } catch (error) {
-                    console.warn(`No se pudo remover canal activo ${canalId}:`, error);
-                }
-                delete listaCanales[canalId];
-                eliminados++;
-            }
-        });
-        return eliminados;
-    }
-
-    if (BOTON_CARGAR_LISTA_PERSONALIZADA && INPUT_URL_LISTA_PERSONALIZADA) {
-        const textoOriginalBoton = BOTON_CARGAR_LISTA_PERSONALIZADA.innerHTML;
-        const toggleEstadoBoton = (cargando) => {
-            if (cargando) {
-                BOTON_CARGAR_LISTA_PERSONALIZADA.disabled = true;
-                BOTON_CARGAR_LISTA_PERSONALIZADA.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Cargando...';
-            } else {
-                BOTON_CARGAR_LISTA_PERSONALIZADA.disabled = false;
-                BOTON_CARGAR_LISTA_PERSONALIZADA.innerHTML = textoOriginalBoton;
-            }
-        };
-
-        BOTON_CARGAR_LISTA_PERSONALIZADA.addEventListener('click', async () => {
-            const urlLista = INPUT_URL_LISTA_PERSONALIZADA.value.trim();
-            if (!urlLista) {
-                mostrarToast('Ingresa la URL a tu archivo .m3u antes de cargarla.', 'warning');
-                INPUT_URL_LISTA_PERSONALIZADA.focus();
-                return;
-            }
-
+    singleViewGrid = document.querySelector('.single-view-grid');
+    new Sortable(singleViewGrid, {
+        animation: 350,
+        handle: '.clase-para-mover',
+        easing: "cubic-bezier(.17,.67,.83,.67)",
+        ghostClass: 'marca-al-mover',
+        swapThreshold: 0.30,
+        onStart: () => {
             try {
-                new URL(urlLista);
-            } catch {
-                mostrarToast('La URL ingresada no es válida. Verifica que comience con http(s)://', 'warning');
-                INPUT_URL_LISTA_PERSONALIZADA.focus();
-                return;
+                disposeBootstrapTooltips();
+            } catch (e) {
+                console.error('[teles] Error in Sortable onStart:', e);
             }
-
-            toggleEstadoBoton(true);
+        },
+        onChange: () => {
             try {
-                await cargarListaPersonalizadaM3U(urlLista);
-                limpiarContenedoresListadosCanales();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
-                resincronizarEstadoVisualCanalesActivos();
-                activarTooltipsBootstrap();
+                toggleOrderedClass();
+            } catch (e) {
+                console.error('[teles] Error in Sortable onChange:', e);
+            }
+        },
+        onEnd: () => {
+            try {
+                saveSingleViewPanelsOrder();
+                initializeBootstrapTooltips();
+                toggleOrderedClass();
+                registerManualChannelChange();
+            } catch (e) {
+                console.error('[teles] Error in Sortable onEnd:', e);
+            }
+        }
+    });
 
-                renderizarListasPersonalizadasUI();
-                mostrarToast('Lista personalizada cargada correctamente. Los nuevos canales se añadieron al final.', 'success');
-            } catch (error) {
-                console.error('Error al cargar lista personalizada M3U:', error);
-                mostrarToast('No fue posible cargar la lista personalizada. Verifica la URL o si el servidor permite descargas (CORS).', 'danger');
-            } finally {
-                toggleEstadoBoton(false);
+
+    let observerScheduled = false;
+
+    const OBSERVER = new MutationObserver(() => {
+        if (observerScheduled) return;
+        observerScheduled = true;
+        requestAnimationFrame(() => {
+            observerScheduled = false;
+            try {
+                adjustBootstrapColumnClasses?.();
+                adjustVisibilityButtonsRemoveAllActiveChannels?.();
+            } catch (e) {
+                console.error('[teles] Error in mutation observer', e);
             }
         });
+    });
+
+    const OBSERVER_CONFIG = {
+        childList: true,
+        subtree: false,
+        attributes: false,
+        characterData: false
+    };
+
+    if (gridViewContainer) {
+        OBSERVER.observe(gridViewContainer, OBSERVER_CONFIG);
     }
-
-    if (BOTON_PEGAR_LISTA_PERSONALIZADA && TEXTAREA_LISTA_PERSONALIZADA) {
-        const textoOriginalBotonPegado = BOTON_PEGAR_LISTA_PERSONALIZADA.innerHTML;
-        const toggleBotonPegado = (cargando) => {
-            if (cargando) {
-                BOTON_PEGAR_LISTA_PERSONALIZADA.disabled = true;
-                BOTON_PEGAR_LISTA_PERSONALIZADA.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Procesando...';
-            } else {
-                BOTON_PEGAR_LISTA_PERSONALIZADA.disabled = false;
-                BOTON_PEGAR_LISTA_PERSONALIZADA.innerHTML = textoOriginalBotonPegado;
-            }
-        };
-
-        BOTON_PEGAR_LISTA_PERSONALIZADA.addEventListener('click', async () => {
-            const contenidoLista = TEXTAREA_LISTA_PERSONALIZADA.value.trim();
-            if (!contenidoLista) {
-                mostrarToast('Pega el contenido completo de tu archivo .m3u antes de continuar.', 'warning');
-                TEXTAREA_LISTA_PERSONALIZADA.focus();
-                return;
-            }
-
-            toggleBotonPegado(true);
-            try {
-                const etiquetaManual = `Lista manual ${new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}`;
-                await cargarListaPersonalizadaDesdeTexto(contenidoLista, { etiqueta: etiquetaManual });
-                TEXTAREA_LISTA_PERSONALIZADA.value = '';
-                limpiarContenedoresListadosCanales();
-                crearBotonesParaCanales();
-                crearBotonesPaises();
-                crearBotonesCategorias();
-                resincronizarEstadoVisualCanalesActivos();
-
-                renderizarListasPersonalizadasUI();
-                mostrarToast('Lista manual cargada correctamente. Los nuevos canales se añadieron al final.', 'success');
-            } catch (error) {
-                console.error('Error al procesar lista pegada manualmente:', error);
-                mostrarToast(error?.message ?? 'No fue posible procesar el texto pegado. Revisa el formato del archivo .m3u.', 'danger');
-            } finally {
-                toggleBotonPegado(false);
-            }
-        });
-    }
-
-    ajustarVisibilidadBotonesQuitarTodaSeñal()
 });
+
+// MARK: 📺 Channel management
+/**
+ * Public channel controller used across UI modules.
+ */
+export let tele = {
+    /**
+     * Adds a channel to the current view (grid or single view).
+     * @param {string} channelId - Channel identifier key in channelsList.
+     */
+    add: (channelId) => {
+        try {
+            if (!channelId || !channelsList?.[channelId]) return console.error(`[teles] The channel "${channelId}" provided is not valid to be added.`);
+            const channelContainer = document.createElement('div');
+            channelContainer.setAttribute('data-canal', channelId);
+            const isSingleView = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
+
+            if (isSingleView) {
+                // Single view must have at most one active channel.
+                const channelInUse = singleViewVideoContainer?.querySelector('div[data-canal]');
+                if (channelInUse && channelInUse.dataset.canal && channelInUse.dataset.canal !== channelId) {
+                    tele.remove(channelInUse.dataset.canal);
+                }
+
+                channelContainer.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
+                channelContainer.append(crearFragmentCanal(channelId));
+                singleViewVideoContainer.append(channelContainer);
+                singleViewNoSignalIcon.classList.add('d-none');
+            } else {
+                channelContainer.classList.add('position-relative', 'shadow');
+                channelContainer.append(crearFragmentCanal(channelId));
+                gridViewContainer.append(channelContainer);
+                saveChannelsToLocalStorage();
+            }
+            adjustChannelButtonClass(channelId, true);
+            initializeBootstrapTooltips();
+            hideOverlayButtonText();
+            registerManualChannelChange();
+            adjustBootstrapColumnClasses();
+        } catch (error) {
+            console.error(`[teles] Error while creating channel container id: ${channelId}. Error: ${error}`);
+            showToast({
+                title: `Ha ocurrido un error durante la creación canal para ser insertado - ID: ${channelId}.`,
+                body: `Error: ${error}`,
+                type: 'danger',
+                autohide: false,
+                delay: 0,
+                showReloadOnError: true
+            })
+            return
+        }
+    },
+    /**
+     * Removes a channel from the current view.
+     * @param {string} channelId - Channel identifier key in channelsList.
+     */
+    remove: (channelId) => {
+        try {
+            if (!channelId) return console.error(`[teles] The channel "${channelId}" provided is not valid for removal.`);
+            let transmissionToRemove = document.querySelector(`div[data-canal="${channelId}"]`);
+
+            if (!transmissionToRemove) {
+                adjustChannelButtonClass(channelId, false);
+                return;
+            }
+
+            // Clean resources before removing the container; iframe, videojs, clappr, oplayer
+            cleanTransmissionResources(transmissionToRemove);
+            // Remove tooltips; floating overlay buttons
+            disposeBootstrapTooltips();
+            // Remove container from DOM
+            transmissionToRemove.remove();
+
+
+            // If single view, show the no-signal icon
+            if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+                singleViewNoSignalIcon.classList.remove('d-none');
+            } else {
+                saveChannelsToLocalStorage();
+            }
+
+            adjustChannelButtonClass(channelId, false);
+            initializeBootstrapTooltips();
+            registerManualChannelChange();
+        } catch (error) {
+            console.error(`[teles] Error while removing channel container id: ${channelId}. Error: ${error}`);
+            showToast({
+                title: `Ha ocurrido un error durante la eliminación canal - ID: ${channelId}.`,
+                body: `Error: ${error}`,
+                type: 'danger',
+                autohide: false,
+                delay: 0,
+                showReloadOnError: true
+            })
+            return
+        }
+    },
+    /**
+     * Loads default channels either from stored state or the predefined list.
+     */
+    loadDefaultChannels: () => {
+        let savedChannels = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
+        // Default
+        if (Object.keys(savedChannels).length === 0 && localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY) !== 'hide') {
+            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId));
+            new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
+            // Check saved    
+        } else {
+            try {
+                Object.keys(savedChannels).forEach(channelId => {
+                    if (areAllSignalsEmpty(channelId)) {
+                        document.querySelectorAll(`button[data-canal="${channelId}"]`).forEach(buttonEl => {
+                            buttonEl.classList.add('d-none');
+                        });
+                        showToast({
+                            title: `Canal ${channelId} sin señales activas.`,
+                            body: 'Se eliminará del listado.',
+                            type: 'warning'
+                        });
+                    } else {
+                        tele.add(channelId);
+                    }
+                });
+            } catch (error) {
+                console.error(`[teles] Error while loading default channels. Error: ${error}`);
+                showToast({
+                    title: `Ha ocurrido un error durante la carga de canales predeterminados.`,
+                    body: `Error: ${error}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    showReloadOnError: true
+                })
+                return
+            }
+        };
+    }
+};
