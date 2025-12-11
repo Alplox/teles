@@ -1,5 +1,5 @@
 import { LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS } from "../constants/index.js";
-import { singleViewGridEl } from "../main.js";
+import { singleViewGrid } from "../main.js";
 import { showToast } from "./index.js";
 
 /** @type {string[]} Original order of IDs for single view containers */
@@ -24,20 +24,20 @@ export function loadSingleViewOrder() {
                     orderToUse = parsedOrder;
                 }
             } catch (e) {
-                console.error(`Error parsing ${LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS}:`, e);
+                console.error(`[teles] Error parsing ${LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS}:`, e);
                 localStorage.removeItem(LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS);
             }
         }
 
         orderToUse.forEach(id => {
             const element = document.getElementById(id);
-            if (element) singleViewGridEl.appendChild(element);
+            if (element) singleViewGrid.appendChild(element);
         });
 
         const isOriginalOrder = JSON.stringify(ORIGINAL_ORDER_IDS) === JSON.stringify(getCurrentOrder());
-        singleViewGridEl.classList.toggle('single-view-grid-reordenado', !isOriginalOrder);
+        singleViewGrid.classList.toggle('single-view-grid-reordenado', !isOriginalOrder);
     } catch (error) {
-        console.error(`Error loading panel order for "Single View" mode. Error: ${error}`);
+        console.error(`[teles] Error loading panel order for "Single View" mode. Error: ${error}`);
         showToast({
             title: 'Ha ocurrido un error durante la carga de orden de paneles para modo "Visión Única".',
             body: `Error: ${error}`,
@@ -54,7 +54,7 @@ export function loadSingleViewOrder() {
  * @returns {void}
  */
 export function saveSingleViewPanelsOrder() {
-    const currentOrder = Array.from(singleViewGridEl.children).map(item => item.id);
+    const currentOrder = Array.from(singleViewGrid.children).map(item => item.id);
     localStorage.setItem(LS_KEY_ORDER_SINGLE_VIEW_MAIN_CONTAINERS, JSON.stringify(currentOrder));
 }
 
@@ -63,7 +63,7 @@ export function saveSingleViewPanelsOrder() {
  * @returns {string[]} Array of element IDs.
  */
 function getCurrentOrder() {
-    return Array.from(singleViewGridEl.children).map(item => item.id);
+    return Array.from(singleViewGrid.children).map(item => item.id);
 }
 
 /**
@@ -74,5 +74,5 @@ function getCurrentOrder() {
 export function toggleOrderedClass() {
     const currentOrder = getCurrentOrder();
     const isOriginalOrder = JSON.stringify(ORIGINAL_ORDER_IDS) === JSON.stringify(currentOrder);
-    singleViewGridEl.classList.toggle('single-view-grid-reordenado', !isOriginalOrder);
+    singleViewGrid.classList.toggle('single-view-grid-reordenado', !isOriginalOrder);
 }

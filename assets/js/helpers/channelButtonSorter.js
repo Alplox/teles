@@ -24,7 +24,7 @@ export function saveOriginalOrder(containerId) {
             }
         }
     } catch (e) {
-        console.error('Error in saveOriginalOrder:', e);
+        console.error('[teles] Error in saveOriginalOrder:', e);
     }
 }
 
@@ -70,7 +70,7 @@ function applySorting(containerId, compareFn) {
             });
         }
     } catch (e) {
-        console.error(`Error sorting containers (${containerId}):`, e);
+        console.error(`[teles] Error sorting containers (${containerId}):`, e);
     }
 }
 
@@ -158,6 +158,6 @@ export function restoreOriginalChannelButtonsOrder(containerId) {
         }
 
     } catch (e) {
-        console.error('Error in restoreOriginalChannelButtonsOrder:', e);
+        console.error('[teles] Error in restoreOriginalChannelButtonsOrder:', e);
     }
 }

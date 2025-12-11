@@ -1,7 +1,3 @@
-
-
-
-
 export const playAudio = (audio, loop = false) => {
     if (!audio) return;
     try {
@@ -10,6 +6,6 @@ export const playAudio = (audio, loop = false) => {
         audio.loop = loop;
         audio.play();
     } catch (error) {
-        console.error('Error while playing audio:', error);
+        console.error('[teles] Error while playing audio:', error);
     }
 }

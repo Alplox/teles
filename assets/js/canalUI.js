@@ -24,14 +24,11 @@ import {
     playAudio
 } from './utils/index.js';
 
-// Funciones de UI de canales extraídas de main.js
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
     let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
     lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
     localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
 }
-
-
 
 export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     valorIndex = Number(valorIndex)
@@ -92,7 +89,7 @@ export function crearVideoJs(canalId, urlCarga) {
                 // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._clapprPlayer = clapprPlayer;
             } catch (error) {
-                console.error(`Error al inicializar Clappr para canal con id: ${canalId}. Error: ${error}`);
+                console.error(`[teles] Error at attempt to initialize Clappr for channel with id: ${canalId}. Error: ${error}`);
                 showToast({
                     title: `Error al inicializar Clappr para canal ${canalId}. Se usará Video.js.`,
                     body: `Error: ${error}`,
@@ -144,7 +141,7 @@ export function crearVideoJs(canalId, urlCarga) {
                 // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._oplayerPlayer = instancia;
             } catch (error) {
-                console.error(`Error al inicializar OPlayer para canal con id: ${canalId}. Error: ${error}`);
+                console.error(`[teles] Error at attempt to initialize OPlayer for channel with id: ${canalId}. Error: ${error}`);
                 showToast({
                     title: `Error al inicializar OPlayer para canal ${canalId}. Se usará Video.js.`,
                     body: `Error: ${error}`,
@@ -176,7 +173,7 @@ export function crearVideoJs(canalId, urlCarga) {
         // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
         DIV_ELEMENT._videojsPlayer = videojs(videoElement);
     } catch (error) {
-        console.error(`Error al inicializar Video.js para canal con id: ${canalId}. Error: ${error}`);
+        console.error(`[teles] Error at attempt to initialize Video.js for channel with id: ${canalId}. Error: ${error}`);
         showToast({
             title: `Error al inicializar Video.js para canal ${canalId}. Se procesará el siguiente canal.`,
             body: `Error: ${error}`,
@@ -340,7 +337,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         FRAGMENT_OVERLAY.append(DIV_ELEMENT);
         return FRAGMENT_OVERLAY;
     } catch (error) {
-        console.error(`Error durante creación overlay para canal con id: ${canalId}. Error: ${error}`);
+        console.error(`[teles] Error at attempt to create overlay for channel with id: ${canalId}. Error: ${error}`);
         showToast({
             title: `Error al crear overlay para canal ${canalId}.`,
             body: `Error: ${error}`,
@@ -413,7 +410,7 @@ export function crearFragmentCanal(canalId) {
             return FRAGMENT_CANAL;
         }
     } else {
-        console.error(`Canal ${canalId} no tiene señales definidas.`);
+        console.error(`[teles] Error at attempt to create fragment for channel with id: ${canalId}. Error: ${error}`);
         showToast({
             title: `Canal ${canalId} no tiene señales definidas. Se procesará el siguiente canal.`,
             body: `Error: ${error}`,
@@ -427,7 +424,7 @@ export function crearFragmentCanal(canalId) {
 
 export function cambiarSoloSeñalActiva(canalId) {
     try {
-        if (!canalId) return console.error(`El canal "${canalId}" proporcionado no es válido para cambio señal.`);
+        if (!canalId) return console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
 
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
@@ -447,7 +444,7 @@ export function cambiarSoloSeñalActiva(canalId) {
         if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
 
     } catch (error) {
-        console.error(`Error al intentar cambiar señal para canal con id: ${canalId}. Error: ${error}`);
+        console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
         showToast({
             title: `Error al intentar cambiar señal para canal ${canalId}.`,
             body: `Error: ${error}`,

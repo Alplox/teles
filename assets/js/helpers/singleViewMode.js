@@ -10,19 +10,19 @@ import {
 } from "../constants/index.js";
 
 import {
-    gridViewContainerEl,
-    singleViewContainerEl,
+    gridViewContainer,
+    singleViewContainer,
     tele,
-    widthRangeInputEl,
-    widthRangeValueEl,
-    checkboxElFullHeight,
-    spanElFullHeight,
-    spanElNumberChannelsPerRow,
-    buttonsNumberChannelsPerRow,
-    aplicarEstadoUrlDinamica,
+    widthRangeInput,
+    widthRangeValue,
+    fullHeightCheckbox,
+    fullHeightSpan,
+    numberChannelsPerRowSpan,
+    numberChannelsPerRowButtons,
+    applyDynamicUrlState,
     isDynamicUrlMode,
-    checkboxElDynamicUrl,
-    spanElDynamicUrlValue
+    dynamicUrlCheckbox,
+    dynamicUrlValueSpan
 } from "../main.js";
 
 import {
@@ -57,12 +57,12 @@ const SHARE_LINK_INPUT = document.querySelector('#input-enlace-compartir-setup')
  */
 const disableGridViewControls = () => {
     // Disable dynamic URL controls
-    if (checkboxElDynamicUrl) {
-        checkboxElDynamicUrl.disabled = true;
+    if (dynamicUrlCheckbox) {
+        dynamicUrlCheckbox.disabled = true;
     }
-    if (spanElDynamicUrlValue) {
-        spanElDynamicUrlValue.dataset.textoPrevio = spanElDynamicUrlValue.textContent || '';
-        spanElDynamicUrlValue.textContent = '[solo en visión cuadrícula]';
+    if (dynamicUrlValueSpan) {
+        dynamicUrlValueSpan.dataset.textoPrevio = dynamicUrlValueSpan.textContent || '';
+        dynamicUrlValueSpan.textContent = '[solo en visión cuadrícula]';
     }
 
     // Disable share setup controls
@@ -70,16 +70,16 @@ const disableGridViewControls = () => {
     SHARE_LINK_INPUT?.setAttribute('disabled', 'disabled');
 
     // Disable width range controls
-    widthRangeInputEl.disabled = true;
-    widthRangeValueEl.textContent = 'Deshabilitado';
+    widthRangeInput.disabled = true;
+    widthRangeValue.textContent = 'Deshabilitado';
 
     // Disable full height controls
-    checkboxElFullHeight.disabled = true;
-    spanElFullHeight.textContent = 'Deshabilitado';
+    fullHeightCheckbox.disabled = true;
+    fullHeightSpan.textContent = 'Deshabilitado';
 
     // Disable channels per row buttons
-    buttonsNumberChannelsPerRow.forEach(btn => { btn.disabled = true; });
-    spanElNumberChannelsPerRow.innerHTML = 'Deshabilitado';
+    numberChannelsPerRowButtons.forEach(btn => { btn.disabled = true; });
+    numberChannelsPerRowSpan.innerHTML = 'Deshabilitado';
 };
 
 /**
@@ -89,15 +89,15 @@ const disableGridViewControls = () => {
  */
 const enableGridViewControls = () => {
     // Enable dynamic URL controls
-    if (checkboxElDynamicUrl) {
-        checkboxElDynamicUrl.disabled = false;
+    if (dynamicUrlCheckbox) {
+        dynamicUrlCheckbox.disabled = false;
     }
-    if (spanElDynamicUrlValue) {
-        const previousText = spanElDynamicUrlValue.dataset.textoPrevio;
+    if (dynamicUrlValueSpan) {
+        const previousText = dynamicUrlValueSpan.dataset.textoPrevio;
         if (previousText) {
-            spanElDynamicUrlValue.textContent = previousText;
+            dynamicUrlValueSpan.textContent = previousText;
         } else {
-            aplicarEstadoUrlDinamica(isDynamicUrlMode);
+            applyDynamicUrlState(isDynamicUrlMode);
         }
     }
 
@@ -106,16 +106,16 @@ const enableGridViewControls = () => {
     SHARE_LINK_INPUT?.removeAttribute('disabled');
 
     // Enable width range controls
-    widthRangeInputEl.disabled = false;
-    widthRangeValueEl.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
+    widthRangeInput.disabled = false;
+    widthRangeValue.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
 
     // Enable full height controls
-    checkboxElFullHeight.disabled = false;
-    spanElFullHeight.textContent = checkboxElFullHeight.checked ? 'Expandido' : 'Reducido';
+    fullHeightCheckbox.disabled = false;
+    fullHeightSpan.textContent = fullHeightCheckbox.checked ? 'Expandido' : 'Reducido';
 
     // Enable channels per row buttons
-    buttonsNumberChannelsPerRow.forEach(btn => { btn.disabled = false; });
-    spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
+    numberChannelsPerRowButtons.forEach(btn => { btn.disabled = false; });
+    numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
 };
 
 /**
@@ -166,7 +166,7 @@ const updateNavigationForViewMode = (isSingleView) => {
  * @returns {void}
  */
 const backupActiveChannels = () => {
-    const activeChannelsInDOM = gridViewContainerEl.querySelectorAll('div[data-canal]');
+    const activeChannelsInDOM = gridViewContainer.querySelectorAll('div[data-canal]');
 
     activeChannelsInDOM.forEach(channelDiv => {
         // Clear HTML instead of removing to avoid triggering observer
@@ -181,7 +181,7 @@ const backupActiveChannels = () => {
  * @returns {number} Number of channels restored
  */
 const restoreBackedUpChannels = () => {
-    const activeChannelsInDOM = gridViewContainerEl.querySelectorAll('div[data-canal]');
+    const activeChannelsInDOM = gridViewContainer.querySelectorAll('div[data-canal]');
 
     activeChannelsInDOM.forEach(channelDiv => {
         channelDiv.dataset.canal = channelDiv.dataset.respaldo;
@@ -225,7 +225,7 @@ const loadFirstSavedChannel = () => {
                 tele.add(firstChannelId);
             }
         } catch (error) {
-            console.error(`Error loading channels for single view mode. Error: ${error}`);
+            console.error(`[teles] Error loading channels for single view mode. Error: ${error}`);
         }
     }
 };
@@ -260,8 +260,8 @@ export function activateSingleView() {
         backupActiveChannels();
 
         // Toggle view containers visibility
-        gridViewContainerEl.classList.add('d-none');
-        singleViewContainerEl.classList.remove('d-none');
+        gridViewContainer.classList.add('d-none');
+        singleViewContainer.classList.remove('d-none');
 
         updateNavigationForViewMode(true);
         updateFloatingButtonsForViewMode(true);
@@ -272,7 +272,7 @@ export function activateSingleView() {
         document.querySelector('#boton-personalizar-boton-mover-overlay')?.classList.add('clase-vacia');
 
     } catch (error) {
-        console.error(`Error activating "Single View" mode. Error: ${error}`);
+        console.error(`[teles] Error activating "Single View" mode. Error: ${error}`);
         showToast({
             title: 'Ha ocurrido un error al intentar activar el modo "Visión Única".',
             body: `Error: ${error}`,
@@ -296,7 +296,7 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
 
         // Remove active channel from single view
-        const activeChannelInSingleView = singleViewContainerEl.querySelector('div[data-canal]');
+        const activeChannelInSingleView = singleViewContainer.querySelector('div[data-canal]');
         const activeChannelId = activeChannelInSingleView?.dataset.canal;
 
         // Alternative to tele.remove() to avoid saving empty string to localStorage
@@ -311,7 +311,7 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
             initializeBootstrapTooltips();
             registerManualChannelChange();
         } catch (error) {
-            console.error(`Error removing active channel in "Single View" mode. Error: ${error}`);
+            console.error(`[teles] Error removing active channel in "Single View" mode. Error: ${error}`);
             showToast({
                 title: 'Ha ocurrido un error durante eliminación de canal activo en modo "Visión Única".',
                 body: `Error: ${error}`,
@@ -328,14 +328,14 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
 
         if (restoredChannelsCount === 0) {
             if (!skipDefaultChannelsLoad) {
-                tele.cargaCanalesPredeterminados();
+                tele.loadDefaultChannels();
             }
             adjustVisibilityButtonsRemoveAllActiveChannels();
         }
 
         // Toggle view containers visibility
-        gridViewContainerEl.classList.remove('d-none');
-        singleViewContainerEl.classList.add('d-none');
+        gridViewContainer.classList.remove('d-none');
+        singleViewContainer.classList.add('d-none');
 
         updateNavigationForViewMode(false);
         updateFloatingButtonsForViewMode(false);
@@ -348,7 +348,7 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
         registerManualChannelChange({ force: true });
 
     } catch (error) {
-        console.error(`Error deactivating "Single View" mode. Error: ${error}`);
+        console.error(`[teles] Error deactivating "Single View" mode. Error: ${error}`);
         showToast({
             title: 'Ha ocurrido un error al intentar desactivar el modo "Visión Única".',
             body: `Error: ${error}`,

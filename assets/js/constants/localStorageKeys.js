@@ -3,7 +3,7 @@
 export const LS_KEY_CHANNELS_BACKUP = 'backup-json-channels';
 export const LS_KEY_CHANNELS_BACKUP_DATE = 'backup-json-channels-date';
 
-export const LS_KEY_SAVED_CHANNELS_GRID_VIEW = 'canales-vision-cuadricula'
+export const LS_KEY_SAVED_CHANNELS_GRID_VIEW = 'active-channels'
 
 ///////////////////// Personalizaciones
 export const LS_KEY_WELCOME_MODAL_VISIBILITY = 'welcome-modal-visibility';

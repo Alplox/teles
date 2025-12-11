@@ -111,7 +111,7 @@ export function filterChannelsByInput(inputValue, channelButtonsContainer) {
             }
         }
     } catch (error) {
-        console.error(`Error filtering channels. Error: ${error}`);
+        console.error(`[teles] Error filtering channels. Error: ${error}`);
 
         showToast({
             title: 'Ha ocurrido un error al intentar filtrar canales.',

@@ -3,6 +3,6 @@ export const formatDate = (date) => {
     try {
         return new Date(date).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
     } catch {
-        return date;
+        return `error al formatear fecha ${date}`;
     }
 }

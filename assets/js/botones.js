@@ -1,10 +1,11 @@
-import { obtenerCanalesPredeterminados, tele } from './main.js'
+import { getDefaultChannels, tele } from './main.js'
 import {
     showToast,
     sortChannelButtonsAscending,
     sortChannelButtonsDescending,
     restoreOriginalChannelButtonsOrder,
     filterChannelsByInput,
+    getActiveChannelIds,
 } from './helpers/index.js'
 import {
     AUDIO_STATIC,
@@ -39,7 +40,7 @@ if (navigator.userAgent.toLowerCase().includes('firefox')) {
         try {
             containerInstallPwa?.showDialog?.(true); // "true" value to forced
         } catch (error) {
-            console.error('Error al mostrar el diálogo de instalación PWA:', error);
+            console.error('[teles] Error at attempt to show PWA install dialog:', error);
         }
     });
 }
@@ -104,7 +105,7 @@ function obtenerUrlCompartirConCanalesActivos() {
 
         return urlFinal;
     } catch (error) {
-        console.error('[teles] Error al generar URL para compartir con canales activos:', error);
+        console.error('[teles] Error at attempt to generate share URL with active channels:', error);
         return DATOS_NAVIGATOR_SHARE.url;
     }
 }
@@ -118,7 +119,7 @@ if (navigator.share && BOTON_COMPARTIR) {
         try {
             await navigator.share(DATOS_NAVIGATOR_SHARE);
         } catch (err) {
-            console.error(`[teles] Error al compartir usando navigator.share: ${err}`);
+            console.error(`[teles] Error at attempt to share using navigator.share: ${err}`);
         }
     });
 } else {
@@ -129,11 +130,9 @@ if (navigator.share && BOTON_COMPARTIR) {
 // MARK: Botones carga canales predeterminados
 const cargarCanalesPredeterminados = () => {
     try {
-        document.querySelectorAll('div[data-canal]').forEach(transmision => {
-            tele.remove(transmision.dataset.canal);
-        });
+        removeAllChannels(false);
         playAudio(AUDIO_TURN_ON);
-        obtenerCanalesPredeterminados(isMobile?.any).forEach(canal => tele.add(canal));
+        getDefaultChannels(isMobile?.any).forEach(canal => tele.add(canal));
     } catch (error) {
         showToast({
             title: 'Error al cargar canales predeterminados',
@@ -154,15 +153,14 @@ BUTTON_MODAL_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPrede
 BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPredeterminados);
 
 // MARK: Botones quitar
-const removeAllChannels = () => {
+const removeAllChannels = (withAudio = true) => {
     try {
-        playAudio(AUDIO_TV_SHUTDOWN)
-        document.querySelectorAll('div[data-canal]').forEach(channel => {
-            const CHANNEL_TO_REMOVE = channel?.dataset?.canal;
-            if (CHANNEL_TO_REMOVE) tele.remove(CHANNEL_TO_REMOVE);
+        if (withAudio) playAudio(AUDIO_TV_SHUTDOWN)
+        getActiveChannelIds().forEach(channelId => {
+            if (channelId) tele.remove(channelId);
         });
     } catch (error) {
-        console.error(`Error al intentar quitar todos los canales. Error: ${error}`);
+        console.error(`[teles] Error at attempt to remove all channels: ${error}`);
         showToast({
             title: 'Ha ocurrido un error al intentar quitar todos los canales.',
             body: `Error: ${error}`,
@@ -189,12 +187,12 @@ BOTON_BORRAR_LOCALSTORAGE?.addEventListener('click', () => {
     try {
         const safeRemoveAllChannels = () => {
             if (typeof removeAllChannels !== 'function') return;
-            try { removeAllChannels(); } catch (error) { console.error('[teles] removeAllChannels falló:', error); }
+            try { removeAllChannels(); } catch (error) { console.error('[teles] removeAllChannels failed:', error); }
         };
 
         const safeClearLocalStorage = () => {
             if (!window.localStorage) return;
-            try { localStorage.clear(); } catch (error) { console.error('[teles] localStorage.clear falló:', error); }
+            try { localStorage.clear(); } catch (error) { console.error('[teles] localStorage.clear failed:', error); }
         };
 
         const safePlayStatic = async () => {
@@ -213,7 +211,7 @@ BOTON_BORRAR_LOCALSTORAGE?.addEventListener('click', () => {
 
         document.querySelector('#alerta-borrado-localstorage')?.classList.remove('d-none');
     } catch (error) {
-        console.error('Error al intentar eliminar almacenamiento local sitio: ', error);
+        console.error('[teles] Error at attempt to clear local storage: ', error);
         showToast({
             title: 'Error al intentar eliminar almacenamiento local',
             body: `Error: ${error}`,
@@ -240,7 +238,7 @@ function enterFullscreen() {
             element.msRequestFullscreen();
         }
     } catch (error) {
-        console.error(`Error al solicitar entrar a pantalla completa. Error: ${error}`);
+        console.error('[teles] Error at attempt to enter fullscreen: ', error);
         showToast({
             title: 'Error al solicitar entrar a pantalla completa',
             body: `Error: ${error}`,
@@ -266,7 +264,7 @@ function exitFullscreen() {
             document.msExitFullscreen();
         }
     } catch (error) {
-        console.error(`Error al solicitar salir de pantalla completa. Error: ${error}`);
+        console.error('[teles] Error at attempt to exit fullscreen: ', error);
         showToast({
             title: 'Error al solicitar salir de pantalla completa',
             body: `Error: ${error}`,
@@ -346,14 +344,14 @@ BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
             throw new Error('Clipboard API no soportada o input no encontrado');
         }
     } catch (error) {
-        console.error('Error al copiar el enlace usando navigator.clipboard: ', error);
+        console.error('[teles] Error at attempt to copy link using navigator.clipboard: ', error);
         try {
             document.execCommand('copy', false, INPUT_ENLACE_COMPARTIR?.value ?? DATOS_NAVIGATOR_SHARE.url);
             playAudio(AUDIO_SUCCESS);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-success');
         } catch (execError) {
-            console.error('Error al copiar el enlace usando execCommand: ', execError);
+            console.error('[teles] Error at attempt to copy link using execCommand: ', execError);
             playAudio(AUDIO_FAIL);
             BOTON_COPIAR_ENLACE_COMPARTIR.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR.classList.add('bg-danger');
@@ -403,7 +401,7 @@ BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.addEventListener('click', async () => {
             throw new Error('Clipboard API no soportada o input no encontrado');
         }
     } catch (error) {
-        console.error('Error al copiar el enlace de configuración usando navigator.clipboard: ', error);
+        console.error('[teles] Error at attempt to copy link using navigator.clipboard: ', error);
         try {
             const textoFallback = INPUT_ENLACE_COMPARTIR_SETUP?.value ?? obtenerUrlCompartirConCanalesActivos();
             document.execCommand('copy', false, textoFallback);
@@ -411,7 +409,7 @@ BOTON_COPIAR_ENLACE_COMPARTIR_SETUP?.addEventListener('click', async () => {
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado exitoso! <i class="bi bi-clipboard-check"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-success');
         } catch (execError) {
-            console.error('Error al copiar el enlace de configuración usando execCommand: ', execError);
+            console.error('[teles] Error at attempt to copy link using execCommand: ', execError);
             playAudio(AUDIO_FAIL);
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = 'Copiado fallido! <i class="bi bi-clipboard-x"></i>';
             BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.classList.add('bg-danger');

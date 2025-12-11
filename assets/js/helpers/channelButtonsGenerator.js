@@ -1,6 +1,6 @@
 import { channelsList, DEFAULT_SOURCE_ORIGIN } from "../channelManager.js";
 import { CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS } from "../constants/index.js";
-import { singleViewVideoContainerEl, tele } from "../main.js";
+import { singleViewVideoContainer, tele } from "../main.js";
 import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel } from "./index.js";
 
 import { changeChannelModalEl } from "../canalUI.js";
@@ -61,14 +61,14 @@ const BUTTON_SCENARIOS = {
                 console.warn("[teles] Couldn't find 'tele' function to manage single view.");
                 return;
             }
-            if (!singleViewVideoContainerEl) return;
+            if (!singleViewVideoContainer) return;
 
             if (!isSelecting) {
                 tele.remove(channelId);
                 return;
             }
 
-            const currentChannel = singleViewVideoContainerEl.querySelector('div[data-canal]');
+            const currentChannel = singleViewVideoContainer.querySelector('div[data-canal]');
             if (currentChannel?.dataset.canal && currentChannel.dataset.canal !== channelId) {
                 tele.remove(currentChannel.dataset.canal);
             }
@@ -398,7 +398,7 @@ export const createChannelButtons = () => {
             saveOriginalOrder(`${PREFIX}-channels-buttons-container`);
         }
     } catch (error) {
-        console.error(`Error creating channel buttons. Error: ${error}`);
+        console.error(`[teles] Error creating channel buttons. Error: ${error}`);
         showToast({
             title: 'Ha ocurrido un error durante la creación de botones para los canales.',
             body: `Error: ${error}`,

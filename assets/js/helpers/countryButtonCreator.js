@@ -137,7 +137,7 @@ export function createCountryButtons() {
                     syncCategoriesWithCountry(PREFIX, selectedCountryValue);
                     filterChannelsByInput(searchValue, channelButtonsContainer);
                 } catch (error) {
-                    console.error(`Error activating country filter: ${error}`);
+                    console.error(`[teles] Error activating country filter: ${error}`);
                     clearSelection();
                     const allLabel = dropdownMenu.querySelector('label[data-country="all"]');
                     if (allLabel) {
@@ -205,7 +205,7 @@ export function createCountryButtons() {
             countryFilterContainer.append(dropdownWrapper);
         }
     } catch (error) {
-        console.error(`Error creating buttons for country filter: ${error}`);
+        console.error(`[teles] Error creating buttons for country filter: ${error}`);
         showToast({
             title: 'Ha ocurrido un error durante la creación de botones para filtrado por país.',
             body: `Error: ${error}`,

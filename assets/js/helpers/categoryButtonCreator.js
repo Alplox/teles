@@ -135,7 +135,7 @@ export function createCategoryButtons() {
                     syncCountriesWithCategory(PREFIX, selectedCategory);
                     filterChannelsByInput(searchValue, channelButtonsContainer);
                 } catch (error) {
-                    console.error(`Error activating category filter. ${error}`);
+                    console.error(`[teles] Error activating category filter. ${error}`);
                     clearSelection();
                     const allLabel = dropdownMenu.querySelector('label[data-category="all"]');
                     if (allLabel) {
@@ -208,7 +208,7 @@ export function createCategoryButtons() {
             categoryFilterContainer.append(dropdownWrapper);
         }
     } catch (error) {
-        console.error(`Error creating category filter buttons. ${error}`);
+        console.error(`[teles] Error creating category filter buttons. ${error}`);
         showToast({
             title: 'Ha ocurrido un error durante la creación de botones para filtrado por categoría.',
             body: `Error: ${error}`,

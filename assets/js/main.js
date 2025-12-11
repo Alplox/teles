@@ -75,10 +75,11 @@ import {
     registerManualChannelChange,
     cleanTransmissionResources,
     syncCheckboxState,
-    renderizarListasPersonalizadasUI,
-    limpiarContenedoresListadosCanales,
-    resincronizarEstadoVisualCanalesActivos,
-    applyTheme
+    applyTheme,
+    clearChannelListContainers,
+    resyncActiveChannelsVisualState,
+    renderPersonalizedListsUI,
+    getActiveChannelIds
 } from './helpers/index.js';
 
 import {
@@ -90,51 +91,61 @@ import {
 } from './utils/index.js';
 
 // MARK: 📦 Exports
-export let gridViewContainerEl;
+export let gridViewContainer;
 
-export let singleViewContainerEl;
-export let singleViewGridEl;
-export let singleViewVideoContainerEl;
+export let singleViewContainer;
+export let singleViewGrid;
+export let singleViewVideoContainer;
 
-let singleViewNoSignalIconEl;
+let singleViewNoSignalIcon;
 
 // URL dinámica
 export let isDynamicUrlMode = false;
 try { isDynamicUrlMode = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch { }
 
-export let estaCargandoDesdeUrlCompartida = false;
+export let isLoadingFromSharedUrl = false;
 
-export let checkboxElDynamicUrl;
-export let spanElDynamicUrlValue;
-let iconElDynamicUrl;
+export let dynamicUrlCheckbox;
+export let dynamicUrlValueSpan;
+let dynamicUrlIcon;
 
-export const aplicarEstadoUrlDinamica = (activo) => {
-    if (!checkboxElDynamicUrl || !spanElDynamicUrlValue || !iconElDynamicUrl) return;
-    checkboxElDynamicUrl.checked = activo;
-    spanElDynamicUrlValue.textContent = activo ? '[habilitada]' : '[deshabilitada]';
-    iconElDynamicUrl.classList.toggle('text-success', activo);
-    iconElDynamicUrl.classList.toggle('text-secondary', !activo);
+/**
+ * Syncs the dynamic URL toggle UI with a given state.
+ * UI strings remain in Spanish intentionally.
+ * @param {boolean} enabled
+ */
+export const applyDynamicUrlState = (enabled) => {
+    if (!dynamicUrlCheckbox || !dynamicUrlValueSpan || !dynamicUrlIcon) return;
+    dynamicUrlCheckbox.checked = enabled;
+    dynamicUrlValueSpan.textContent = enabled ? '[habilitada]' : '[deshabilitada]';
+    dynamicUrlIcon.classList.toggle('text-success', enabled);
+    dynamicUrlIcon.classList.toggle('text-secondary', !enabled);
 };
 
 export let musicIcon;
 
-export const obtenerCanalesPredeterminados = (isMobile) => {
+/**
+ * Returns default channels set, adding extra defaults on desktop.
+ * @param {boolean} isMobile
+ * @returns {string[]}
+ */
+export const getDefaultChannels = (isMobile) => {
     return isMobile ? DEFAULT_CHANNELS_ARRAY : DEFAULT_CHANNELS_ARRAY.concat(EXTRA_DEFAULT_CHANNELS_ARRAY);
 }
 
 // Customization
 // Number channels per row
-export let spanElNumberChannelsPerRow;
-export let buttonsNumberChannelsPerRow;
+export let numberChannelsPerRowSpan;
+export let numberChannelsPerRowButtons;
 // Floating buttons
-export let buttonsPositionFloatingButtons;
+export let floatingButtonsPositionButtons;
 // Horizontal width
-export let widthRangeInputEl;
-export let widthRangeValueEl;
+export let widthRangeInput;
+export let widthRangeValue;
 
 // Toggle full height
-export let checkboxElFullHeight;
-export let spanElFullHeight;
+export let fullHeightCheckbox;
+export let fullHeightSpan;
 
 
 
@@ -145,20 +156,20 @@ window.addEventListener('DOMContentLoaded', () => {
     registerVideojsTranslation();
 
     // querySelector
-    singleViewNoSignalIconEl = document.querySelector('#icono-sin-señal-single-view');
-    singleViewContainerEl = document.querySelector('#container-single-view');
-    singleViewVideoContainerEl = document.querySelector('#container-video-single-view');
-    gridViewContainerEl = document.querySelector('#container-vision-cuadricula');
+    singleViewNoSignalIcon = document.querySelector('#icono-sin-señal-single-view');
+    singleViewContainer = document.querySelector('#container-single-view');
+    singleViewVideoContainer = document.querySelector('#container-video-single-view');
+    gridViewContainer = document.querySelector('#container-vision-cuadricula');
 
-    checkboxElDynamicUrl = document.querySelector('#checkbox-url-dinamica')
-    spanElDynamicUrlValue = document.querySelector('#span-valor-url-dinamica');
-    iconElDynamicUrl = document.querySelector('#icono-url-dinamica');
+    dynamicUrlCheckbox = document.querySelector('#checkbox-url-dinamica')
+    dynamicUrlValueSpan = document.querySelector('#span-valor-url-dinamica');
+    dynamicUrlIcon = document.querySelector('#icono-url-dinamica');
 
     // MARK: Customization
     // MARK: Navbar
     const navbarCheckboxEl = document.querySelector('#checkbox-personalizar-visualizacion-navbar');
 
-    const sincronizarVisibilidadNavbar = (isNavbarVisible) => {
+    const syncNavbarVisibility = (isNavbarVisible) => {
         if (!navbarCheckboxEl) { return }
 
         let navbarEl = document.querySelector('#navbar');
@@ -174,10 +185,10 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     navbarCheckboxEl?.addEventListener('click', () => {
-        sincronizarVisibilidadNavbar(navbarCheckboxEl.checked);
+        syncNavbarVisibility(navbarCheckboxEl.checked);
     });
 
-    sincronizarVisibilidadNavbar(localStorage.getItem(LS_KEY_NAVBAR_VISIBILITY) !== 'hide');
+    syncNavbarVisibility(localStorage.getItem(LS_KEY_NAVBAR_VISIBILITY) !== 'hide');
 
     // MARK: View mode
     const gridViewActivateButtonEl = document.querySelector('#boton-activar-diseño-vision-grid');
@@ -213,7 +224,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // MARK: Overlay buttons 
     // buttons overlay; signals, move, change, web, close
     const overlayToggleItems = document.querySelectorAll('.overlay-toggle-item');
-    // Optimización: Cacheamos referencias para evitar querySelector en cada llamada
+    // Optimization: cache references to avoid repeated querySelector calls
     const overlayToggleCache = Array.from(overlayToggleItems).map(toggle => {
         const checkboxEl = toggle.querySelector('input[type="checkbox"]');
         const spanEl = toggle.querySelector('span');
@@ -226,11 +237,14 @@ window.addEventListener('DOMContentLoaded', () => {
         return { checkboxEl, spanEl, buttonConfig };
     }).filter(item => item !== null);
 
-    function actualizarBotonesPersonalizarOverlay() {
+    /**
+     * Syncs overlay customization controls with persisted visibility preferences.
+     */
+    function updateOverlayCustomizationButtons() {
         try {
             const isOverlayVisible = localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) !== 'hide';
 
-            // Optimización: Manipulamos la clase global una sola vez
+            // Optimization: manipulate the global class only once
             document.body.classList.toggle('d-none__barras-overlay', !isOverlayVisible);
 
             overlayToggleCache.forEach(({ checkboxEl, spanEl, buttonConfig }) => {
@@ -253,15 +267,15 @@ window.addEventListener('DOMContentLoaded', () => {
             });
 
             syncCheckboxState({
-                checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
-                statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
+                checkbox: overlayVisibilityCheckbox,
+                statusElement: overlayVisibilityValueSpan,
                 storageKey: LS_KEY_OVERLAY_VISIBILITY,
                 isVisible: isOverlayVisible
             });
 
             hideOverlayButtonText();
         } catch (error) {
-            console.error(`Error durante actualización estado botones personalizar overlay. Error: ${error}`);
+            console.error(`[teles] Error while updating overlay customization buttons. Error: ${error}`);
             showToast({
                 title: 'Ha ocurrido un error durante la actualización del estado botones personalizar overlay.',
                 body: `Error: ${error}`,
@@ -271,48 +285,53 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // button for the whole overlay
-    const CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
-    const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY = document.querySelector('#span-valor-visualizacion-overlay');
-    CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.addEventListener('click', () => {
-        document.body.classList.toggle('d-none__barras-overlay', !CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked);
-        syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
-            storageKey: LS_KEY_OVERLAY_VISIBILITY,
-            isVisible: CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY.checked
+    const overlayVisibilityCheckbox = document.querySelector('#checkbox-personalizar-visualizacion-overlay');
+    const overlayVisibilityValueSpan = document.querySelector('#span-valor-visualizacion-overlay');
+    if (overlayVisibilityCheckbox && overlayVisibilityValueSpan) {
+        overlayVisibilityCheckbox.addEventListener('click', () => {
+            document.body.classList.toggle('d-none__barras-overlay', !overlayVisibilityCheckbox.checked);
+            syncCheckboxState({
+                checkbox: overlayVisibilityCheckbox,
+                statusElement: overlayVisibilityValueSpan,
+                storageKey: LS_KEY_OVERLAY_VISIBILITY,
+                isVisible: overlayVisibilityCheckbox.checked
+            });
+            updateOverlayCustomizationButtons();
         });
-        actualizarBotonesPersonalizarOverlay();
-    });
+    }
 
     Object.values(OVERLAY_BUTTONS_CONFIG).forEach(button => {
-        const botonIndividual = document.getElementById(button.id);
-        if (!botonIndividual) return;
+        const individualButton = document.getElementById(button.id);
+        if (!individualButton) return;
 
-        botonIndividual.addEventListener('click', () => {
-            localStorage.setItem(button.storageKey, botonIndividual.checked ? 'show' : 'hide');
-            actualizarBotonesPersonalizarOverlay();
+        individualButton.addEventListener('click', () => {
+            localStorage.setItem(button.storageKey, individualButton.checked ? 'show' : 'hide');
+            updateOverlayCustomizationButtons();
         });
     });
 
     // checkbox overlay visibility on start
-    syncCheckboxState({
-        checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
-        statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_OVERLAY,
-        storageKey: LS_KEY_OVERLAY_VISIBILITY,
-        isVisible:
-            localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) === null
-                ? true
-                : localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) !== 'hide'
-    });
-    actualizarBotonesPersonalizarOverlay();
+    if (overlayVisibilityCheckbox && overlayVisibilityValueSpan) {
+        syncCheckboxState({
+            checkbox: overlayVisibilityCheckbox,
+            statusElement: overlayVisibilityValueSpan,
+            storageKey: LS_KEY_OVERLAY_VISIBILITY,
+            isVisible:
+                localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) === null
+                    ? true
+                    : localStorage.getItem(LS_KEY_OVERLAY_VISIBILITY) !== 'hide'
+        });
+    }
+    updateOverlayCustomizationButtons();
 
     const hideOverlayButtonTextDebounced = debounce(hideOverlayButtonText, 150);
-    window.addEventListener('resize', hideOverlayButtonTextDebounced); // ocultar texto si el tamaño de los botones excede el tamaño del contenedor
+    window.addEventListener('resize', hideOverlayButtonTextDebounced); // hide text if button size exceeds container
 
     // MARK: player for m3u8
     const lsReproductorM3u8 = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) ?? 'videojs';
     const RADIOS_REPRODUCTOR_M3U8 = document.querySelectorAll('input[name="btnradio-reproductor-m3u8"]');
     const SPAN_VALOR_REPRODUCTOR_M3U8 = document.querySelector('#span-valor-reproductor-m3u8');
+
 
     RADIOS_REPRODUCTOR_M3U8.forEach(radio => {
         if (radio.value === lsReproductorM3u8) {
@@ -331,40 +350,39 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const transmisionesActivas = document.querySelectorAll('div[data-canal]');
-                // Optimización: Parsear preferencias una sola vez fuera del bucle
-                const lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+                const channelSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
-                transmisionesActivas.forEach(transmision => {
-                    const canalId = transmision.getAttribute('data-canal');
-                    if (!canalId) return;
+                getActiveChannelIds().forEach(channelId => {
+                    if (channelId) {
+                        const channelData = channelsList?.[channelId]?.señales;
+                        if (!channelData) return;
 
-                    const datosCanal = channelsList?.[canalId]?.señales;
-                    if (!datosCanal) return;
+                        let signalToUse;
 
-                    let señalUtilizar;
+                        // 1. Priority: saved user preference
+                        if (channelSignalPreferences[channelId]) {
+                            signalToUse = Object.keys(channelSignalPreferences[channelId])[0];
+                        } else {
+                            // 2. Default: signal priority
+                            const { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, twitch_id } = channelData;
 
-                    // 1. Prioridad: Preferencia guardada del usuario
-                    if (lsPreferenciasSeñalCanales[canalId]) {
-                        señalUtilizar = Object.keys(lsPreferenciasSeñalCanales[canalId])[0];
-                    } else {
-                        // 2. Default: Jerarquía de señales
-                        const { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, twitch_id } = datosCanal;
+                            if (iframe_url?.length) signalToUse = 'iframe_url';
+                            else if (m3u8_url?.length) signalToUse = 'm3u8_url';
+                            else if (yt_id) signalToUse = 'yt_id';
+                            else if (yt_embed) signalToUse = 'yt_embed';
+                            else if (yt_playlist) signalToUse = 'yt_playlist';
+                            else if (twitch_id) signalToUse = 'twitch_id';
+                        }
 
-                        if (iframe_url?.length) señalUtilizar = 'iframe_url';
-                        else if (m3u8_url?.length) señalUtilizar = 'm3u8_url';
-                        else if (yt_id) señalUtilizar = 'yt_id';
-                        else if (yt_embed) señalUtilizar = 'yt_embed';
-                        else if (yt_playlist) señalUtilizar = 'yt_playlist';
-                        else if (twitch_id) señalUtilizar = 'twitch_id';
-                    }
+                        if (signalToUse === 'm3u8_url') {
+                            cambiarSoloSeñalActiva(channelId);
+                        }
 
-                    if (señalUtilizar === 'm3u8_url') {
-                        cambiarSoloSeñalActiva(canalId);
                     }
                 });
+
             } catch (error) {
-                console.error('Error al intentar recargar canales tras cambiar reproductor m3u8:', error);
+                console.error('[teles] Error reloading channels after changing m3u8 player:', error);
             }
         });
     });
@@ -378,11 +396,11 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // MARK: Slider horizontal width
-    widthRangeInputEl = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
-    widthRangeValueEl = document.querySelector('#span-valor-input-range');
+    widthRangeInput = document.querySelector('#input-range-tamaño-container-vision-cuadricula');
+    widthRangeValue = document.querySelector('#span-valor-input-range');
     /**
-     * Sincroniza el ancho horizontal del contenedor de la vista de cuadrícula
-     * @param {number} [newValue] - Nuevo valor de ancho (opcional)
+     * Syncs horizontal width for the grid view container.
+     * @param {number} [newValue] - Optional new width value.
      */
     const syncHorizontalWidthValue = (newValue) => {
         // Obtener o establecer el valor, con manejo de valores nulos/undefined
@@ -396,12 +414,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // Aplicar los cambios
         const widthPercentage = `${widthValue}%`;
-        widthRangeInputEl.value = widthValue;
-        widthRangeValueEl.textContent = widthPercentage;
-        gridViewContainerEl.style.maxWidth = widthPercentage;
+        widthRangeInput.value = widthValue;
+        widthRangeValue.textContent = widthPercentage;
+        gridViewContainer.style.maxWidth = widthPercentage;
     };
 
-    widthRangeInputEl.addEventListener('input', (event) => {
+    widthRangeInput.addEventListener('input', (event) => {
         syncHorizontalWidthValue(event.target.value)
         hideOverlayButtonTextDebounced();
     });
@@ -410,19 +428,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
     // MARK: Checkbox use full height
-    checkboxElFullHeight = document.querySelector('#checkbox-personalizar-altura-canales');
-    spanElFullHeight = document.querySelector('#span-valor-altura-canales');
+    fullHeightCheckbox = document.querySelector('#checkbox-personalizar-altura-canales');
+    fullHeightSpan = document.querySelector('#span-valor-altura-canales');
     const iconElFullHeight = document.querySelector('#icono-personalizar-altura-canales');
 
-    checkboxElFullHeight.addEventListener('click', () => {
-        checkboxElFullHeight.checked
+    fullHeightCheckbox.addEventListener('click', () => {
+        fullHeightCheckbox.checked
             ? (iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
                 JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true)),
-                spanElFullHeight.textContent = 'Expandido'
+                fullHeightSpan.textContent = 'Expandido'
             )
             : (iconElFullHeight.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'),
                 JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, false)),
-                spanElFullHeight.textContent = 'Reducido'
+                fullHeightSpan.textContent = 'Reducido'
             );
         adjustBootstrapColumnClasses()
     });
@@ -432,36 +450,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (isFullHeightMode) {
         JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true));
-        checkboxElFullHeight.checked = true;
+        fullHeightCheckbox.checked = true;
         iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
-        spanElFullHeight.textContent = 'Expandido';
+        fullHeightSpan.textContent = 'Expandido';
     } else {
-        checkboxElFullHeight.checked = false;
+        fullHeightCheckbox.checked = false;
         iconElFullHeight.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse');
-        spanElFullHeight.textContent = 'Reducido';
+        fullHeightSpan.textContent = 'Reducido';
     }
 
     // MARK: Number channels per row
-    spanElNumberChannelsPerRow = document.querySelector('#span-valor-transmisiones-por-fila');
-    buttonsNumberChannelsPerRow = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
+    numberChannelsPerRowSpan = document.querySelector('#span-valor-transmisiones-por-fila');
+    numberChannelsPerRowButtons = document.querySelectorAll('#container-botones-personalizar-transmisiones-por-fila button');
 
-    buttonsNumberChannelsPerRow.forEach(btn => {
+    numberChannelsPerRowButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            console.log(btn.value);
             updateGridColumnConfiguration(btn.value)
-            spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`
+            numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`
             hideOverlayButtonText()
         })
     });
-    spanElNumberChannelsPerRow.innerHTML = `${obtainNumberOfChannelsPerRow()}`
-
-
-
+    numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`
 
 
     // MARK: Floating buttons position
-    buttonsPositionFloatingButtons = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
-    buttonsPositionFloatingButtons.forEach(btn => {
+    floatingButtonsPositionButtons = document.querySelectorAll('#grupo-botones-posicion-botones-flotantes .btn-check');
+    floatingButtonsPositionButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const position = btn.dataset.position.split(' ');
             handleFloatingButtonsPositionClick(...position);
@@ -477,87 +491,84 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // MARK: Text on floating buttons
-    const CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#checkbox-personalizar-texto-botones-flotantes');
-    const SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#span-valor-texto-en-botones-flotante');
-    const ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES = document.querySelector('#icono-personalizar-texto-botones-flotantes');
+    const floatingButtonsTextCheckbox = document.querySelector('#checkbox-personalizar-texto-botones-flotantes');
+    const floatingButtonsTextValueSpan = document.querySelector('#span-valor-texto-en-botones-flotante');
+    const floatingButtonsTextIcon = document.querySelector('#icono-personalizar-texto-botones-flotantes');
 
-    const SPAN_BOTONES_FLOTANTES = document.querySelectorAll('#grupo-botones-flotantes button>span');
+    const floatingButtonsSpans = document.querySelectorAll('#grupo-botones-flotantes button>span');
 
-    CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.addEventListener('click', () => {
-        SPAN_BOTONES_FLOTANTES.forEach(button => {
-            button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+    floatingButtonsTextCheckbox.addEventListener('click', () => {
+        floatingButtonsSpans.forEach(button => {
+            button.classList.toggle('d-none', !floatingButtonsTextCheckbox.checked);
         });
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
             storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
-            isVisible: CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
+            isVisible: floatingButtonsTextCheckbox.checked
         });
-        CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked
-            ? ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square')
-            : ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
+        floatingButtonsTextCheckbox.checked
+            ? floatingButtonsTextIcon.classList.replace('bi-square', 'bi-info-square')
+            : floatingButtonsTextIcon.classList.replace('bi-info-square', 'bi-square');
     });
 
     if (localStorage.getItem(LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY) !== 'hide') {
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
             storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
             isVisible: true
         });
-        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-square', 'bi-info-square');
+        floatingButtonsTextIcon.classList.replace('bi-square', 'bi-info-square');
     } else {
-        SPAN_BOTONES_FLOTANTES.forEach((button) => {
-            button.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.checked);
+        floatingButtonsSpans.forEach((button) => {
+            button.classList.toggle('d-none', !floatingButtonsTextCheckbox.checked);
         });
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES,
+            checkbox: floatingButtonsTextCheckbox,
+            statusElement: floatingButtonsTextValueSpan,
             storageKey: LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
             isVisible: false
         });
-        ICONO_PERSONALIZAR_TEXTO_BOTONES_FLOTANTES.classList.replace('bi-info-square', 'bi-square');
+        floatingButtonsTextIcon.classList.replace('bi-info-square', 'bi-square');
     }
 
 
     // MARK: Dynamic URL
-    checkboxElDynamicUrl?.addEventListener('click', () => {
-        isDynamicUrlMode = checkboxElDynamicUrl.checked;
+    dynamicUrlCheckbox?.addEventListener('click', () => {
+        isDynamicUrlMode = dynamicUrlCheckbox.checked;
         localStorage.setItem(LS_KEY_DYNAMIC_URL, JSON.stringify(isDynamicUrlMode));
-        aplicarEstadoUrlDinamica(isDynamicUrlMode);
+        applyDynamicUrlState(isDynamicUrlMode);
 
         isDynamicUrlMode ? syncActiveChannelsParameter() : clearSharedUrlParameter(true);
     });
-    aplicarEstadoUrlDinamica(isDynamicUrlMode);
+    applyDynamicUrlState(isDynamicUrlMode);
 
 
     const mergeCustomListsCheckboxEl = document.querySelector('#checkbox-combinar-listas-personalizadas');
     const mergeCustomListsValueSpanEl = document.querySelector('#span-valor-combinar-listas-personalizadas');
 
     /**
-         * Inicializa y sincroniza el switch para combinar canales similares entre listas personalizadas.
-         * Actualiza el texto auxiliar y persiste la preferencia en localStorage.
-         * @returns {void}
-         */
-    function inicializarPreferenciaCombinarListas() {
+     * Initializes and syncs the toggle for merging similar channels between custom lists.
+     */
+    function initMergeCustomListsPreference() {
         if (!mergeCustomListsCheckboxEl || !mergeCustomListsValueSpanEl) { return }
 
-        const obtenerEtiquetaEstado = (estado) => estado ? 'Combinar coincidencias' : 'Mantener listas separadas';
+        const getStateLabel = (state) => state ? 'Combinar coincidencias' : 'Mantener listas separadas';
 
-        const aplicarEstado = (estado) => {
-            mergeCustomListsCheckboxEl.checked = estado;
-            mergeCustomListsValueSpanEl.textContent = obtenerEtiquetaEstado(estado);
+        const applyState = (state) => {
+            mergeCustomListsCheckboxEl.checked = state;
+            mergeCustomListsValueSpanEl.textContent = getStateLabel(state);
         };
 
         const initialState = getCombineChannelsPreference();
-        aplicarEstado(initialState);
+        applyState(initialState);
 
         mergeCustomListsCheckboxEl.addEventListener('change', async () => {
-            const nuevoEstado = mergeCustomListsCheckboxEl.checked;
-            setCombineChannelsPreference(nuevoEstado);
-            aplicarEstado(nuevoEstado);
+            const newState = mergeCustomListsCheckboxEl.checked;
+            setCombineChannelsPreference(newState);
+            applyState(newState);
 
-            // Re-aplicar lógica inmediatamente
             try {
                 showToast({
                     body: 'Actualizando listado de canales...',
@@ -565,57 +576,45 @@ window.addEventListener('DOMContentLoaded', () => {
                     duration: 2000
                 });
 
-                // 0. Capturar canales activos antes del cambio (evitar que queden duplicados)
-                const canalesActivosGrid = Array.from(gridViewContainerEl.querySelectorAll('div[data-canal]'))
-                    .map(el => el.dataset.canal);
-                const canalActivoSingle = singleViewVideoContainerEl.querySelector('div[data-canal]')?.dataset.canal;
+                // 0. Capture active channels before the change (avoid duplicates)
+                const activeGridChannels = getActiveChannelIds();
+                const activeSingleChannel = singleViewVideoContainer.querySelector('div[data-canal]')?.dataset.canal;
 
-                // 1. Recargar canales base (limpia y recarga predeterminados)
+                // 1. Reload base channels (resets defaults)
                 await restoreChannelsFromMemory();
 
-                // 2. Restaurar listas personalizadas con la nueva preferencia
+                // 2. Restore personalized lists with the new preference
                 restorePersonalizedLists();
 
-                // 3. Re-renderizar la interfaz
+                // 3. Re-render UI
                 createChannelButtons(channelsList);
 
-                // Actualizar listados adicionales si están en uso o para asegurar consistencia
+                // Update additional lists to ensure consistency
                 createButtonsForChangeChannelModal(channelsList);
                 createButtonsForSingleView(channelsList);
 
-                saveOriginalOrder(); // Actualizar orden base para features de ordenamiento
+                saveOriginalOrder(); // Update base order for sorting features
 
-                // 4. Refrescar canales activos (Grid View)
-                if (canalesActivosGrid.length > 0) {
-                    canalesActivosGrid.forEach(canalId => {
-                        // Verificar si el canal sigue existiendo en la nueva lista
-                        if (tele && channelsList[canalId]) {
-                            // Remover y volver a añadir para actualizar su estado (mix vs no-mix)
-                            tele.remove(canalId);
-                            tele.add(canalId);
+                // 4. Refresh active channels (Grid View)
+                if (activeGridChannels.length > 0) {
+                    activeGridChannels.forEach(channelId => {
+                        if (tele && channelsList[channelId]) {
+                            tele.remove(channelId);
+                            tele.add(channelId);
                         } else if (tele) {
-                            // Si ya no existe (raro, pero posible si cambia ID al combinar/descombinar), removerlo
-                            tele.remove(canalId);
+                            tele.remove(channelId);
                         }
                     });
                 }
 
-                // 5. Refrescar canal activo (Single View)
-                if (canalActivoSingle) {
-                    if (tele && channelsList[canalActivoSingle]) {
-                        // En single view tele.add ya maneja la remoción del anterior, pero para forzar refresh explícito:
-                        tele.remove(canalActivoSingle);
-                        tele.add(canalActivoSingle);
+                // 5. Refresh active channel (Single View)
+                if (activeSingleChannel) {
+                    if (tele && channelsList[activeSingleChannel]) {
+                        tele.remove(activeSingleChannel);
+                        tele.add(activeSingleChannel);
                     } else if (tele) {
-                        tele.remove(canalActivoSingle);
+                        tele.remove(activeSingleChannel);
                     }
-                }
-
-                // Actualizar contadores si existen (función auxiliar comunmente usada)
-                const contenedorGrilla = document.getElementById('container-vision-cuadricula');
-                if (contenedorGrilla) {
-                    const totalCanales = contenedorGrilla.children.length;
-                    // Si tienes un elemento UI para mostrar el total, actualízalo aquí
                 }
 
                 showToast({
@@ -624,7 +623,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
 
             } catch (error) {
-                console.error('Error al actualizar listado por cambio de preferencia:', error);
+                console.error('[teles] Error updating list after preference change', error);
                 showToast({
                     title: 'Error',
                     body: 'No se pudo actualizar el listado inmediatamente. Recarga la página.',
@@ -634,29 +633,29 @@ window.addEventListener('DOMContentLoaded', () => {
         }, { once: false });
     }
 
-    inicializarPreferenciaCombinarListas();
+    initMergeCustomListsPreference();
 
 
-    renderizarListasPersonalizadasUI();
+    renderPersonalizedListsUI();
 
 
     const loadCustomListButtonEl = document.querySelector('#boton-cargar-lista-personalizada');
     const customListUrlInputEl = document.querySelector('#input-url-lista-personalizada');
     if (loadCustomListButtonEl && customListUrlInputEl) {
-        const textoOriginalBoton = loadCustomListButtonEl.innerHTML;
-        const toggleEstadoBoton = (cargando) => {
-            if (cargando) {
+        const originalButtonText = loadCustomListButtonEl.innerHTML;
+        const toggleLoadingStateButton = (isLoading) => {
+            if (isLoading) {
                 loadCustomListButtonEl.disabled = true;
                 loadCustomListButtonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Cargando...';
             } else {
                 loadCustomListButtonEl.disabled = false;
-                loadCustomListButtonEl.innerHTML = textoOriginalBoton;
+                loadCustomListButtonEl.innerHTML = originalButtonText;
             }
         };
 
         loadCustomListButtonEl.addEventListener('click', async () => {
-            const urlLista = customListUrlInputEl.value.trim();
-            if (!urlLista) {
+            const listUrl = customListUrlInputEl.value.trim();
+            if (!listUrl) {
                 showToast({
                     body: 'Ingresa la URL a tu archivo .m3u antes de cargarla.',
                     type: 'warning'
@@ -666,7 +665,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                new URL(urlLista);
+                new URL(listUrl);
             } catch {
                 showToast({
                     title: 'La URL ingresada no es válida.',
@@ -677,24 +676,24 @@ window.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            toggleEstadoBoton(true);
+            toggleLoadingStateButton(true);
             try {
                 await loadPersonalizedM3UList(listUrl);
-                limpiarContenedoresListadosCanales();
+                clearChannelListContainers();
                 createChannelButtons();
                 createCountryButtons();
                 createCategoryButtons();
-                resincronizarEstadoVisualCanalesActivos();
+                resyncActiveChannelsVisualState();
                 initializeBootstrapTooltips();
 
-                renderizarListasPersonalizadasUI();
+                renderPersonalizedListsUI();
                 showToast({
                     title: 'Lista personalizada cargada correctamente.',
                     body: 'Los nuevos canales se añadieron a su lista.',
                     type: 'success'
                 });
             } catch (error) {
-                console.error('Error al cargar lista personalizada M3U:', error);
+                console.error('[teles] Error loading personalized M3U list:', error);
                 showToast({
                     title: 'No fue posible cargar la lista personalizada.',
                     body: `Verifica la URL o si el servidor permite descargas (CORS). <br> Error: ${error}`,
@@ -704,7 +703,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     allowHtml: true
                 });
             } finally {
-                toggleEstadoBoton(false);
+                toggleLoadingStateButton(false);
             }
         });
     }
@@ -713,20 +712,20 @@ window.addEventListener('DOMContentLoaded', () => {
     const customListTextareaEl = document.querySelector('#textarea-lista-personalizada');
 
     if (pasteCustomListButtonEl && customListTextareaEl) {
-        const textoOriginalBotonPegado = pasteCustomListButtonEl.innerHTML;
-        const toggleBotonPegado = (cargando) => {
-            if (cargando) {
+        const originalPasteButtonText = pasteCustomListButtonEl.innerHTML;
+        const togglePasteButton = (isLoading) => {
+            if (isLoading) {
                 pasteCustomListButtonEl.disabled = true;
                 pasteCustomListButtonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Procesando...';
             } else {
                 pasteCustomListButtonEl.disabled = false;
-                pasteCustomListButtonEl.innerHTML = textoOriginalBotonPegado;
+                pasteCustomListButtonEl.innerHTML = originalPasteButtonText;
             }
         };
 
         pasteCustomListButtonEl.addEventListener('click', async () => {
-            const contenidoLista = customListTextareaEl.value.trim();
-            if (!contenidoLista) {
+            const listContent = customListTextareaEl.value.trim();
+            if (!listContent) {
                 showToast({
                     body: 'Pega el contenido completo de tu archivo .m3u antes de continuar.',
                     type: 'warning'
@@ -735,25 +734,25 @@ window.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            toggleBotonPegado(true);
+            togglePasteButton(true);
             try {
-                const etiquetaManual = `Lista manual ${new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}`;
+                const manualLabel = `Lista manual ${new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}`;
                 await loadPersonalizedListFromText(listContent, { etiqueta: manualLabel });
                 customListTextareaEl.value = '';
-                limpiarContenedoresListadosCanales();
+                clearChannelListContainers();
                 createChannelButtons();
                 createCountryButtons();
                 createCategoryButtons();
-                resincronizarEstadoVisualCanalesActivos();
+                resyncActiveChannelsVisualState();
 
-                renderizarListasPersonalizadasUI();
+                renderPersonalizedListsUI();
                 showToast({
                     title: 'Lista manual cargada correctamente.',
                     body: 'Se añadieron los nuevos canales a su lista.',
                     type: 'success'
                 });
             } catch (error) {
-                console.error('Error al procesar lista pegada manualmente:', error);
+                console.error('[teles] Error processing manually pasted list:', error);
                 showToast({
                     title: 'No fue posible procesar el texto pegado.',
                     body: `Revisa el formato del archivo .m3u. Error: ${error.message}`,
@@ -764,29 +763,29 @@ window.addEventListener('DOMContentLoaded', () => {
                     allowHtml: true
                 });
             } finally {
-                toggleBotonPegado(false);
+                togglePasteButton(false);
             }
         });
     }
 
     // MARK: Background card
-    const CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#checkbox-tarjeta-logo-background');
-    const SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#span-valor-visualizacion-tarjeta-logo-background');
-    const ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND = document.querySelector('#icono-personalizar-visualizacion-tarjeta-logo-background');
-    const CONTAINER_TARJETA_LOGO_BACKGROUND = document.querySelector('#container-tarjeta-logo-background');
+    const logoCardBackgroundCheckbox = document.querySelector('#checkbox-tarjeta-logo-background');
+    const logoCardBackgroundValueSpan = document.querySelector('#span-valor-visualizacion-tarjeta-logo-background');
+    const logoCardBackgroundIcon = document.querySelector('#icono-personalizar-visualizacion-tarjeta-logo-background');
+    const logoCardBackgroundContainer = document.querySelector('#container-tarjeta-logo-background');
 
-    CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.addEventListener('click', () => {
-        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
+    logoCardBackgroundCheckbox.addEventListener('click', () => {
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
             storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
-            isVisible: CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked
+            isVisible: logoCardBackgroundCheckbox.checked
         });
 
-        CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked ? ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye') : ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
+        logoCardBackgroundCheckbox.checked ? logoCardBackgroundIcon.classList.replace('bi-eye-slash', 'bi-eye') : logoCardBackgroundIcon.classList.replace('bi-eye', 'bi-eye-slash');
 
-        if (!AMBIENT_MUSIC.paused && !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked) {
+        if (!AMBIENT_MUSIC.paused && !logoCardBackgroundCheckbox.checked) {
             AMBIENT_MUSIC.pause();
             musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
@@ -795,22 +794,22 @@ window.addEventListener('DOMContentLoaded', () => {
     let logoCardBackgroundState = localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) ?? 'show';
     if (logoCardBackgroundState !== 'hide') {
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
             storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
             isVisible: true
         })
-        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye-slash', 'bi-eye');
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
+        logoCardBackgroundIcon.classList.replace('bi-eye-slash', 'bi-eye');
     } else {
         syncCheckboxState({
-            checkbox: CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
-            statusElement: SPAN_VALOR_CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND,
+            checkbox: logoCardBackgroundCheckbox,
+            statusElement: logoCardBackgroundValueSpan,
             storageKey: LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
             isVisible: false
         })
-        CONTAINER_TARJETA_LOGO_BACKGROUND.classList.toggle('d-none', !CHECKBOX_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.checked);
-        ICONO_PERSONALIZAR_VISUALIZACION_TARJETA_LOGO_BACKGROUND.classList.replace('bi-eye', 'bi-eye-slash');
+        logoCardBackgroundContainer.classList.toggle('d-none', !logoCardBackgroundCheckbox.checked);
+        logoCardBackgroundIcon.classList.replace('bi-eye', 'bi-eye-slash');
     }
 
     // MARK: Ambient music
@@ -820,7 +819,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     toggleButton.addEventListener('click', () => {
         if (AMBIENT_MUSIC.paused) {
-            AMBIENT_MUSIC.play().catch(e => console.error('Error playing audio:', e));
+            AMBIENT_MUSIC.play().catch(e => console.error('[teles] Error playing audio:', e));
             AMBIENT_MUSIC.loop = true;
             AMBIENT_MUSIC.volume = volumeSlider.value / 100;
             musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
@@ -835,8 +834,12 @@ window.addEventListener('DOMContentLoaded', () => {
         AMBIENT_MUSIC.volume = e.target.value / 100;
     });
 
-    // MARK: 🟢 Carga inicial
-    async function cargaInicial() {
+    // MARK: 🟢 Initial load
+    /**
+     * Performs initial channel load and restores personalized lists.
+     * Keeps user-facing strings in Spanish to avoid UX changes.
+     */
+    async function initialLoad() {
         try {
             await fetchLoadChannels();
             if (channelsList) {
@@ -846,43 +849,43 @@ window.addEventListener('DOMContentLoaded', () => {
                 createCategoryButtons();
                 deleteInvalidSignalPreferences();
 
-                const urlActual = new URL(window.location.href);
-                const paramCompartidos = urlActual.searchParams.get('c');
-                const totalCanalesSolicitados = paramCompartidos
-                    ? paramCompartidos
+                const currentUrl = new URL(window.location.href);
+                const sharedParam = currentUrl.searchParams.get('c');
+                const totalRequestedChannels = sharedParam
+                    ? sharedParam
                         .split(',')
                         .map(id => id.trim())
                         .filter(id => id.length > 0).length
                     : 0;
 
-                const canalesCompartidos = getChannelsFromUrl();
+                const sharedChannels = getChannelsFromUrl();
 
-                if (canalesCompartidos.length > 0) {
+                if (sharedChannels.length > 0) {
 
-                    estaCargandoDesdeUrlCompartida = true;
+                    isLoadingFromSharedUrl = true;
 
                     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
                         deactivateSingleView({ skipDefaultChannelsLoad: true });
                         singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
                         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
                     }
-                    canalesCompartidos.forEach(canalId => tele.add(canalId));
-                    estaCargandoDesdeUrlCompartida = false;
+                    sharedChannels.forEach(canalId => tele.add(canalId));
+                    isLoadingFromSharedUrl = false;
 
-                    if (totalCanalesSolicitados > canalesCompartidos.length) {
-                        const diferencia = totalCanalesSolicitados - canalesCompartidos.length;
+                    if (totalRequestedChannels > sharedChannels.length) {
+                        const difference = totalRequestedChannels - sharedChannels.length;
                         showToast({
                             title: 'Canales omitidos al cargar desde URL',
                             body: `No todos los canales compartidos se pudieron cargar 
-                                (se cargaron ${canalesCompartidos.length} de ${totalCanalesSolicitados}). 
+                                (se cargaron ${sharedChannels.length} de ${totalRequestedChannels}). 
                                 Es posible que algunos provengan de listas personalizadas o modos 
                                 que no están disponibles en este navegador.`,
                             type: 'info'
                         });
-                        console.info('[teles][compartir] Canales omitidos al cargar desde URL', {
-                            totalSolicitados: totalCanalesSolicitados,
-                            totalCargados: canalesCompartidos.length,
-                            faltantes: diferencia
+                        console.info('[teles] Omited channels from URL', {
+                            totalSolicitados: totalRequestedChannels,
+                            totalCargados: sharedChannels.length,
+                            faltantes: difference
                         });
                     }
                 } else {
@@ -892,7 +895,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
                         gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
                     } else {
-                        tele.cargaCanalesPredeterminados();
+                        tele.loadDefaultChannels();
                     }
                 }
 
@@ -906,11 +909,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 initializeBootstrapTooltips();
 
                 if (restoredLists > 0) {
-                    renderizarListasPersonalizadasUI();
+                    renderPersonalizedListsUI();
                 }
             }
         } catch (error) {
-            console.error(`Error durante carga inicial. Error: ${error}`);
+            console.error('[teles] Error during initial load', error);
             showToast({
                 title: 'Error durante carga inicial',
                 body: `Error: ${error}`,
@@ -920,11 +923,11 @@ window.addEventListener('DOMContentLoaded', () => {
             return
         }
     }
-    cargaInicial();
+    initialLoad();
 
     adjustVisibilityButtonsRemoveAllActiveChannels()
 
-    // Efecto glow en hover a logo del fondo
+    // Glow effect on background logo hover
     const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
     TARJETA_LOGO_BACKGROUND.onmousemove = e => {
         let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
@@ -942,9 +945,9 @@ window.addEventListener('DOMContentLoaded', () => {
         event.target.remove()
     });
 
-    // MARK: otros
-    // plugin para mover canales en grid
-    new Sortable(gridViewContainerEl, {
+    // MARK: others
+    // plugin to move channels in grid
+    new Sortable(gridViewContainer, {
         animation: 350,
         handle: '.clase-para-mover',
         easing: "cubic-bezier(.17,.67,.83,.67)",
@@ -960,8 +963,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    singleViewGridEl = document.querySelector('.single-view-grid');
-    new Sortable(singleViewGridEl, {
+    singleViewGrid = document.querySelector('.single-view-grid');
+    new Sortable(singleViewGrid, {
         animation: 350,
         handle: '.clase-para-mover',
         easing: "cubic-bezier(.17,.67,.83,.67)",
@@ -971,14 +974,14 @@ window.addEventListener('DOMContentLoaded', () => {
             try {
                 disposeBootstrapTooltips();
             } catch (e) {
-                console.error('Error en onStart Sortable:', e);
+                console.error('[teles] Error in Sortable onStart:', e);
             }
         },
         onChange: () => {
             try {
                 toggleOrderedClass();
             } catch (e) {
-                console.error('Error en onChange Sortable:', e);
+                console.error('[teles] Error in Sortable onChange:', e);
             }
         },
         onEnd: () => {
@@ -988,7 +991,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 toggleOrderedClass();
                 registerManualChannelChange();
             } catch (e) {
-                console.error('Error en onEnd Sortable:', e);
+                console.error('[teles] Error in Sortable onEnd:', e);
             }
         }
     });
@@ -1005,7 +1008,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 adjustBootstrapColumnClasses?.();
                 adjustVisibilityButtonsRemoveAllActiveChannels?.();
             } catch (e) {
-                console.error('Error observer', e);
+                console.error('[teles] Error in mutation observer', e);
             }
         });
     });
@@ -1017,46 +1020,53 @@ window.addEventListener('DOMContentLoaded', () => {
         characterData: false
     };
 
-    if (gridViewContainerEl) {
-        OBSERVER.observe(gridViewContainerEl, OBSERVER_CONFIG);
+    if (gridViewContainer) {
+        OBSERVER.observe(gridViewContainer, OBSERVER_CONFIG);
     }
 });
 
-// MARK: 📺 Manejo canales
+// MARK: 📺 Channel management
+/**
+ * Public channel controller used across UI modules.
+ */
 export let tele = {
-    add: (canal) => {
+    /**
+     * Adds a channel to the current view (grid or single view).
+     * @param {string} channelId - Channel identifier key in channelsList.
+     */
+    add: (channelId) => {
         try {
-            if (!canal || !channelsList?.[canal]) return console.error(`El canal "${canal}" proporcionado no es válido para ser añadido.`);
-            const DIV_CANAL = document.createElement('div');
-            DIV_CANAL.setAttribute('data-canal', canal);
-            const esVisionUnica = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
+            if (!channelId || !channelsList?.[channelId]) return console.error(`[teles] The channel "${channelId}" provided is not valid to be added.`);
+            const channelContainer = document.createElement('div');
+            channelContainer.setAttribute('data-canal', channelId);
+            const isSingleView = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
 
-            if (esVisionUnica) {
-                // En visión única debe existir como máximo un canal activo.
-                const canalEnUso = singleViewVideoContainerEl?.querySelector('div[data-canal]');
-                if (canalEnUso && canalEnUso.dataset.canal && canalEnUso.dataset.canal !== canal) {
-                    tele.remove(canalEnUso.dataset.canal);
+            if (isSingleView) {
+                // Single view must have at most one active channel.
+                const channelInUse = singleViewVideoContainer?.querySelector('div[data-canal]');
+                if (channelInUse && channelInUse.dataset.canal && channelInUse.dataset.canal !== channelId) {
+                    tele.remove(channelInUse.dataset.canal);
                 }
 
-                DIV_CANAL.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
-                DIV_CANAL.append(crearFragmentCanal(canal));
-                singleViewVideoContainerEl.append(DIV_CANAL);
-                singleViewNoSignalIconEl.classList.add('d-none');
+                channelContainer.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
+                channelContainer.append(crearFragmentCanal(channelId));
+                singleViewVideoContainer.append(channelContainer);
+                singleViewNoSignalIcon.classList.add('d-none');
             } else {
-                DIV_CANAL.classList.add('position-relative', 'shadow');
-                DIV_CANAL.append(crearFragmentCanal(canal));
-                gridViewContainerEl.append(DIV_CANAL);
+                channelContainer.classList.add('position-relative', 'shadow');
+                channelContainer.append(crearFragmentCanal(channelId));
+                gridViewContainer.append(channelContainer);
                 saveChannelsToLocalStorage();
             }
-            adjustChannelButtonClass(canal, true);
+            adjustChannelButtonClass(channelId, true);
             initializeBootstrapTooltips();
             hideOverlayButtonText();
             registerManualChannelChange();
             adjustBootstrapColumnClasses();
         } catch (error) {
-            console.error(`Error durante creación div de canal con id: ${canal}. Error: ${error}`);
+            console.error(`[teles] Error while creating channel container id: ${channelId}. Error: ${error}`);
             showToast({
-                title: `Ha ocurrido un error durante la creación canal para ser insertado - ID: ${canal}.`,
+                title: `Ha ocurrido un error durante la creación canal para ser insertado - ID: ${channelId}.`,
                 body: `Error: ${error}`,
                 type: 'danger',
                 autohide: false,
@@ -1066,38 +1076,42 @@ export let tele = {
             return
         }
     },
-    remove: (canal) => {
+    /**
+     * Removes a channel from the current view.
+     * @param {string} channelId - Channel identifier key in channelsList.
+     */
+    remove: (channelId) => {
         try {
-            if (!canal) return console.error(`El canal "${canal}" proporcionado no es válido para su eliminación.`);
-            let transmisionPorRemover = document.querySelector(`div[data-canal="${canal}"]`);
+            if (!channelId) return console.error(`[teles] The channel "${channelId}" provided is not valid for removal.`);
+            let transmissionToRemove = document.querySelector(`div[data-canal="${channelId}"]`);
 
-            if (!transmisionPorRemover) {
-                adjustChannelButtonClass(canal, false);
+            if (!transmissionToRemove) {
+                adjustChannelButtonClass(channelId, false);
                 return;
             }
 
-            // Limpiar recursos antes de eliminar el contenedor; iframe, videojs, clappr, oplayer
-            cleanTransmissionResources(transmisionPorRemover);
-            // Remover tooltips; botones flotantes overlay
+            // Clean resources before removing the container; iframe, videojs, clappr, oplayer
+            cleanTransmissionResources(transmissionToRemove);
+            // Remove tooltips; floating overlay buttons
             disposeBootstrapTooltips();
-            // Eliminar el contenedor del DOM
-            transmisionPorRemover.remove();
+            // Remove container from DOM
+            transmissionToRemove.remove();
 
 
-            // Si es visión única, mostrar el icono de sin señal activa
+            // If single view, show the no-signal icon
             if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
-                singleViewNoSignalIconEl.classList.remove('d-none');
+                singleViewNoSignalIcon.classList.remove('d-none');
             } else {
                 saveChannelsToLocalStorage();
             }
 
-            adjustChannelButtonClass(canal, false);
+            adjustChannelButtonClass(channelId, false);
             initializeBootstrapTooltips();
             registerManualChannelChange();
         } catch (error) {
-            console.error(`Error durante eliminación div de canal con id: ${canal}. Error: ${error}`);
+            console.error(`[teles] Error while removing channel container id: ${channelId}. Error: ${error}`);
             showToast({
-                title: `Ha ocurrido un error durante la eliminación canal - ID: ${canal}.`,
+                title: `Ha ocurrido un error durante la eliminación canal - ID: ${channelId}.`,
                 body: `Error: ${error}`,
                 type: 'danger',
                 autohide: false,
@@ -1107,31 +1121,34 @@ export let tele = {
             return
         }
     },
-    cargaCanalesPredeterminados: () => {
-        let lsCanales = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
+    /**
+     * Loads default channels either from stored state or the predefined list.
+     */
+    loadDefaultChannels: () => {
+        let savedChannels = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
         // Default
-        if (Object.keys(lsCanales).length === 0 && localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY) !== 'hide') {
-            obtenerCanalesPredeterminados(isMobile.any).forEach(canal => tele.add(canal));
+        if (Object.keys(savedChannels).length === 0 && localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY) !== 'hide') {
+            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId));
             new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
             // Check saved    
         } else {
             try {
-                Object.keys(lsCanales).forEach(canal => {
-                    if (areAllSignalsEmpty(canal)) {
-                        document.querySelectorAll(`button[data-canal="${canal}"]`).forEach(boton => {
-                            boton.classList.add('d-none');
+                Object.keys(savedChannels).forEach(channelId => {
+                    if (areAllSignalsEmpty(channelId)) {
+                        document.querySelectorAll(`button[data-canal="${channelId}"]`).forEach(buttonEl => {
+                            buttonEl.classList.add('d-none');
                         });
                         showToast({
-                            title: `Canal ${canal} sin señales activas.`,
+                            title: `Canal ${channelId} sin señales activas.`,
                             body: 'Se eliminará del listado.',
                             type: 'warning'
                         });
                     } else {
-                        tele.add(canal);
+                        tele.add(channelId);
                     }
                 });
             } catch (error) {
-                console.error(`Error durante carga canales predeterminados. Error: ${error}`);
+                console.error(`[teles] Error while loading default channels. Error: ${error}`);
                 showToast({
                     title: `Ha ocurrido un error durante la carga de canales predeterminados.`,
                     body: `Error: ${error}`,

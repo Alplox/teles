@@ -1,5 +1,5 @@
 import { LS_KEY_FLOATING_BUTTONS_POSITION } from "../constants/localStorageKeys.js";
-import { buttonsPositionFloatingButtons } from "../main.js";
+import { floatingButtonsPositionButtons } from "../main.js";
 
 /** @type {readonly string[]} Position classes to be removed before applying new ones */
 const POSITION_CLASSES = Object.freeze([
@@ -94,7 +94,7 @@ const isRepositionButton = (button, top, start, margin, translate) => {
 export const updateFloatingButtons = (top, start, margin, translate) => {
     toggleFloatingButtonsPosition(top, start, margin, translate);
 
-    buttonsPositionFloatingButtons.forEach(btn => {
+    floatingButtonsPositionButtons.forEach(btn => {
         btn.checked = isRepositionButton(btn, top, start, margin, translate);
     });
 };

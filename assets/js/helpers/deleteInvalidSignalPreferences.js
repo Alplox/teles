@@ -12,7 +12,7 @@ export const deleteInvalidSignalPreferences = () => {
             if (!areAllSignalsEmpty(SAVED_CHANNEL_ID)) {
                 if (signalType === 'iframe_url' || signalType === 'm3u8_url') {
                     if (channelsList?.[SAVED_CHANNEL_ID]?.señales?.[signalType][signalIndex] === undefined) {
-                        console.error(`Señal preferida para ${SAVED_CHANNEL_ID} (${signalType}[${signalIndex}]) no disponible.`);
+                        console.error(`[teles] Prefer signal for ${SAVED_CHANNEL_ID} (${signalType}[${signalIndex}]) not available.`);
                         showToast({
                             title: `Señal preferida para ${SAVED_CHANNEL_ID} (${signalType}[${signalIndex}]) no disponible.`,
                             body: 'Utilizará siguiente señal disponible.',
@@ -23,7 +23,7 @@ export const deleteInvalidSignalPreferences = () => {
                     }
                 } else {
                     if (channelsList?.[SAVED_CHANNEL_ID]?.señales?.[signalType] === '') {
-                        console.error(`Señal preferida para ${SAVED_CHANNEL_ID} (${signalType}) no disponible.`);
+                        console.error(`[teles] Prefer signal for ${SAVED_CHANNEL_ID} (${signalType}) not available.`);
                         showToast({
                             title: `Señal preferida para ${SAVED_CHANNEL_ID} (${signalType}) no disponible.`,
                             body: 'Utilizará siguiente señal disponible.',

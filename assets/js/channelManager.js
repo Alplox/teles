@@ -56,7 +56,7 @@ let initialChannelsListBackup = null;
 export async function fetchLoadChannels() {
     try {
         if (isBackupValid()) {
-            console.info('Loading channels from localStorage backup');
+            console.info('[teles] Loading channels from localStorage backup');
             channelsList = readChannelBackup();
             if (channelsList) {
                 // Save in-memory copy for fast restoration
@@ -64,7 +64,7 @@ export async function fetchLoadChannels() {
                 return;
             }
         }
-        console.info('Attempting to load main channel file');
+        console.info('[teles] Attempting to load main channel file');
         const response = await fetch(URL_JSON_MAIN_CHANNELS);
         try {
             channelsList = await response.json();
@@ -74,7 +74,7 @@ export async function fetchLoadChannels() {
             // Save in-memory copy
             initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
         } catch (parseError) {
-            console.error('Error parsing main JSON:', parseError);
+            console.error('[teles] Error parsing main JSON', parseError);
             // Try loading backup if exists
             if (isBackupValid()) {
                 console.warn('[teles] Using channel list backup from localStorage due to parsing error');
@@ -101,7 +101,7 @@ export function restoreChannelsFromMemory() {
         channelsList = JSON.parse(JSON.stringify(initialChannelsListBackup));
     } else {
         // Fallback in case there is no memory backup (rare)
-        console.warn('No memory backup found, fetching channels again...');
+        console.warn('[teles] No memory backup found, fetching channels again...');
         return fetchLoadChannels();
     }
 }
@@ -251,7 +251,7 @@ export async function loadPersonalizedM3UList(url) {
         throw new Error('Debes proporcionar una URL válida a un archivo .m3u');
     }
 
-    console.info(`Loading personalized list from: ${url}`);
+    console.info(`[teles] Loading personalized list from: ${url}`);
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`No se pudo cargar la lista personalizada (estado ${response.status})`);
@@ -324,7 +324,7 @@ export function restorePersonalizedLists() {
             });
             restoredCount++;
         } catch (error) {
-            console.error(`Could not restore personalized list ${url}`, error);
+            console.error(`[teles][m3u] Could not restore personalized list ${url}`, error);
         }
     });
 
@@ -403,9 +403,10 @@ export function updatePersonalizedList(url, changes = {}) {
  */
 export function deletePersonalizedList(url) {
     const lists = readPersonalizedLists();
-    if (!lists[url]) return;
+    if (!lists[url]) return false;
     delete lists[url];
     localStorage.setItem(LS_KEY_PERSONALIZED_LISTS, JSON.stringify(lists));
+    return true;
 }
 
 /**

@@ -42,7 +42,7 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
             registerManualChannelChange();
         }
     } catch (error) {
-        console.error(`Error intentar cambiar canal con id: ${existingChannelId} por canal: ${replacementChannelId}. Error: ${error}`);
+        console.error(`Error at attempt to replace ${existingChannelId} with ${replacementChannelId}. Error: ${error}`);
         showToast({
             title: `Ha ocurrido un error al intentar cambiar canal: ${existingChannelId} por canal: ${replacementChannelId}.`,
             body: `Error: ${error}`,

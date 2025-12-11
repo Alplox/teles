@@ -3,8 +3,8 @@ import { showToast } from "./index.js";
 import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
 
 import {
-    buttonsNumberChannelsPerRow,
-    gridViewContainerEl
+    numberChannelsPerRowButtons,
+    gridViewContainer
 } from "../main.js";
 
 /**
@@ -27,9 +27,9 @@ const assignColumnClasses = (transmissionElement, classesToAdd) => {
  */
 export const adjustBootstrapColumnClasses = () => {
     try {
-        if (typeof isMobile === 'undefined' || !gridViewContainerEl) return;
+        if (typeof isMobile === 'undefined' || !gridViewContainer) return;
 
-        const activeTransmissions = gridViewContainerEl.querySelectorAll('div[data-canal]');
+        const activeTransmissions = gridViewContainer.querySelectorAll('div[data-canal]');
         const storedColNumber = JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER));
 
         if (!storedColNumber || isNaN(Number(storedColNumber))) return;
@@ -38,9 +38,9 @@ export const adjustBootstrapColumnClasses = () => {
         const fullHeightClasses = isFullHeightMode ? ['vh-100', 'overflow-hidden'] : [];
 
         if (isFullHeightMode) {
-            gridViewContainerEl.classList.add('h-100');
+            gridViewContainer.classList.add('h-100');
         } else {
-            gridViewContainerEl.classList.remove('h-100');
+            gridViewContainer.classList.remove('h-100');
         }
 
         const channelsPerRow = obtainNumberOfChannelsPerRow();
@@ -91,7 +91,7 @@ export const adjustBootstrapColumnClasses = () => {
         }
 
     } catch (error) {
-        console.error('Error adjusting "col" classes for active channels: ', error);
+        console.error('[teles] Error adjusting "col" classes for active channels: ', error);
         showToast({
             title: 'Ha ocurrido un error al intentar ajustar el numero de canales por fila.',
             body: `Error: ${error}`,
@@ -112,7 +112,7 @@ export const updateGridColumnConfiguration = (columnValue) => {
     const activeButton = document.querySelector(`#container-botones-personalizar-transmisiones-por-fila button[value='${columnValue}']`);
 
     if (activeButton) {
-        buttonsNumberChannelsPerRow.forEach(btn => {
+        numberChannelsPerRowButtons.forEach(btn => {
             btn.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
         });
         activeButton.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);

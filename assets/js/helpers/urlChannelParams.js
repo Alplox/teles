@@ -1,6 +1,6 @@
 import { channelsList } from "../channelManager.js";
 import { LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
-import { estaCargandoDesdeUrlCompartida, isDynamicUrlMode } from "../main.js";
+import { isLoadingFromSharedUrl, isDynamicUrlMode } from "../main.js";
 
 let sharedParameterCleaned = false;
 
@@ -31,7 +31,17 @@ export const getActiveChannelIds = () => {
         if (!payload) return [];
         const data = JSON.parse(payload);
         if (!data || typeof data !== 'object') return [];
-        return Object.keys(data);
+        let activeChannels = Object.keys(data);
+
+        // Fallback to DOM if localStorage is empty or invalid
+        if (!activeChannels.length) {
+            const activeTransmissions = document.querySelectorAll('div[data-canal]');
+            activeChannels = Array.from(activeTransmissions)
+              .map(transmission => transmission.getAttribute('data-canal'))
+              .filter(channelId => channelId);
+        }
+
+        return activeChannels;
     } catch (error) {
         console.error('[teles] Error getting active channels for dynamic URL:', error);
         return [];
@@ -68,7 +78,7 @@ export const syncActiveChannelsParameter = () => {
  * @returns {void}
  */
 export const registerManualChannelChange = ({ force = false } = {}) => {
-    if (!force && estaCargandoDesdeUrlCompartida) return;
+    if (!force && isLoadingFromSharedUrl) return;
 
     // In "single view" mode we don't use dynamic URL or `c` parameter.
     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') return;

@@ -16,7 +16,7 @@ export const cleanTransmissionResources = (transmissionContainer) => {
                 player.dispose();
             }
         } catch (errorVideojs) {
-            console.error(`Error destroying Video.js for channel "${channelId}":`, errorVideojs);
+            console.error(`[teles] Error destroying Video.js for channel "${channelId}":`, errorVideojs);
         }
     }
 
@@ -24,7 +24,7 @@ export const cleanTransmissionResources = (transmissionContainer) => {
         try {
             changeContainer._clapprPlayer.destroy();
         } catch (errorClappr) {
-            console.error(`Error destroying Clappr for channel "${channelId}":`, errorClappr);
+            console.error(`[teles] Error destroying Clappr for channel"${channelId}":`, errorClappr);
         }
     }
 
@@ -32,7 +32,7 @@ export const cleanTransmissionResources = (transmissionContainer) => {
         try {
             changeContainer._oplayerPlayer.destroy();
         } catch (errorOplayer) {
-            console.error(`Error destroying OPlayer for channel "${channelId}":`, errorOplayer);
+            console.error(`[teles] Error destroying OPlayer for channel"${channelId}":`, errorOplayer);
         }
     }
 
@@ -42,7 +42,7 @@ export const cleanTransmissionResources = (transmissionContainer) => {
             changeContainer._iframeElement.removeAttribute('srcdoc');
             changeContainer._iframeElement.remove();
         } catch (error) {
-            console.error(`Error destroying iframe for channel "${channelId}":`, error);
+            console.error(`[teles] Error destroying iframe for channel"${channelId}":`, error);
         }
     }
 };
