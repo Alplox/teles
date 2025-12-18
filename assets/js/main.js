@@ -1,5 +1,5 @@
 /* 
-  main v0.22
+  main v0.23
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -97,7 +97,7 @@ export let singleViewContainer;
 export let singleViewGrid;
 export let singleViewVideoContainer;
 
-let singleViewNoSignalIcon;
+export let singleViewNoSignalIcon;
 
 // URL dinámica
 export let isDynamicUrlMode = false;

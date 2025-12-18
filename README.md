@@ -1,180 +1,51 @@
 # ¿Qué es teles?
 
-teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).
+teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionados canales IPTV de noticias provenientes de Chile (y el mundo).
 
-# Enlace teles
+## Enlace teles
 
 🔗 Enlace: <https://alplox.github.io/teles/>
 
-# Tabla de contenido
+## Tabla de contenido
 
 - [¿Qué es teles?](#qué-es-teles)
 - [Enlace teles](#enlace-teles)
 - [Tabla de contenido](#tabla-de-contenido)
+- [Características](#características)
 - [Canales disponibles junto a su origen](#canales-disponibles-junto-a-su-origen)
-- [Variaciones Creadas por Terceros](#variaciones-creadas-por-terceros)
-- [Prensa Alternativa](#prensa-alternativa)
-- [Enlaces Complementarios](#enlaces-complementarios)
 - [Descargo de responsabilidad](#descargo-de-responsabilidad)
 - [Licencia](#licencia)
 - [Contribuciones](#contribuciones)
 
-[![](/assets/img/previews/shots_teles_v0-18_temas.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-18_personalizar.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-21_offcanvas_canales.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-18_dark_canales.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-21_dark_listas-m3u.webp)](https://alplox.github.io/teles/)
-[![](/assets/img/previews/shots_teles_v0-18.webp)](https://alplox.github.io/teles/)
+[![Temas](/assets/img/previews/shots_teles_v0-18_temas.webp)](/assets/img/previews/shots_teles_v0-18_temas.webp)
+[![Personalizar](/assets/img/previews/shots_teles_v0-18_personalizar.webp)](/assets/img/previews/shots_teles_v0-18_personalizar.webp)
+[![Offcanvas canales](/assets/img/previews/shots_teles_v0-21_offcanvas_canales.webp)](/assets/img/previews/shots_teles_v0-21_offcanvas_canales.webp)
+[![Dark canales](/assets/img/previews/shots_teles_v0-18_dark_canales.webp)](/assets/img/previews/shots_teles_v0-18_dark_canales.webp)
+[![Listas M3U](/assets/img/previews/shots_teles_v0-21_dark_listas-m3u.webp)](/assets/img/previews/shots_teles_v0-21_dark_listas-m3u.webp)
+[![Preview](/assets/img/previews/shots_teles_v0-18.webp)](/assets/img/previews/shots_teles_v0-18.webp)
 
-# Canales disponibles junto a su origen
+## Características
+
+[↑ Volver arriba ↑](#tabla-de-contenido)
+
+- 📺 **Canales de televisión en vivo** - Acceso a múltiples canales de noticias en streaming
+- 🌍 **Filtrado por país** - Visualiza canales por región geográfica
+- 📂 **Importación de listas M3U** - Carga tus propias listas de canales en formato M3U
+- 🎨 **Temas personalizables** - Elige entre tema claro, oscuro y automático
+- 📱 **PWA instalable** - Descarga "teles" como aplicación en tu dispositivo
+- 🔍 **Búsqueda y filtrado** - Encuentra canales rápidamente por nombre o categoría (Noticias, Deportes, etc.)
+- 💾 **Almacenamiento local** - Tus preferencias se guardan automáticamente en tu dispositivo
+- 📡 **Múltiples reproductores** - Soporta VideoJS, OPlayer y Clappr
+- ⚡ **Aplicación rápida y ligera** - Funciona incluso con conexiones lentas
+- 🔒 **Código abierto** - Contribuye y verifica la seguridad del código
+
+## Canales disponibles junto a su origen
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
 <https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junto-a-su-origen>
 
-# Variaciones Creadas por Terceros
-
-[↑ Volver arriba ↑](#tabla-de-contenido)
-
-| Enlaces Variaciones                                    | Por:                                                     | Fuente                                                                                                                 |
-|--------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| <https://www.viendotele.cl/>                             | [@pottersys](https://twitter.com/pottersys)              | [Fuente](https://github.com/PotterSys/canales-tele) - [x](https://twitter.com/pottersys/status/1187710925182255104)    |
-| <https://tele.0x00.cl/> (RIP)                            | [u/0x00cl](https://old.reddit.com/user/0x00cl)           | [Fuente](https://old.reddit.com/r/chile/comments/dx76yi/megathread_jornada_de_protestas_d%C3%ADa_30_70k_subs/f7p0vjn/) |
-| <https://whywelove.news/love/country/chile/envivo> (RIP) | [u/sebastianrw](https://old.reddit.com/user/sebastianrw) | [Fuente](https://old.reddit.com/r/chile/comments/dwba7u/monitorea_las_noticias_de_chile_en_tiempo_real/)               |
-| <https://ainmcl.github.io/MonitorTV/Monitores/Home.html> | [AINMcl](https://github.com/AINMcl)                      | [Fuente](https://github.com/AINMcl/MonitorTV)                                                                          |
-| <https://ver-tele.vercel.app/monitor>              | [martinsantibanez](https://github.com/martinsantibanez)  | [Fuente](https://github.com/martinsantibanez/tele-react)                                                               |
-| <https://sanguinet.github.io/tele/>                      | [SanguiNET](https://github.com/SanguiNET)                | [Fuente](https://github.com/SanguiNET/tele)                                                                            |
-| <https://alplox.github.io/la-tele/>                      | [Alplox](https://github.com/Alplox/)                     | [Fuente](https://github.com/Alplox/la-tele)                                                                            |
-
-<details>
-<summary>Visores distintos/ajenos proyecto</summary>
-
-| Enlaces visores distintos/ajenos proyecto          | Por:                                                                  | Fuente                                                                                     |
-|----------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| <https://m3u.cl/lista-iptv-chile.php>                | [Nicolás](https://whois.domaintools.com/m3u.cl)                       | ❌                                                                                          |
-| <http://tv-online.cl/tv-chile-en-vivo.php>           | ["Baidu, Inc"](https://whois.domaintools.com/tv-online.cl)            | ❌                                                                                          |
-| <http://www.cxtvlive.com/tv/country/chile>           | [Felipe](https://whois.domaintools.com/cxweb.com.br)                  | ❌                                                                                          |
-| <https://vivotvhd.com/4/Chile.htm>                   | ["nuevarena.com" Hernan](https://whois.domaintools.com/nuevarena.com) | ❌                                                                                          |
-| <https://www.tdtchannels.com/television>             | [LaQuay](https://github.com/LaQuay)                                   | [Fuente](https://github.com/LaQuay/TDTChannels/)                                           |
-| <https://farina00.github.io/tele.donut/>             | [farina00](https://github.com/farina00)                               | [Fuente](https://github.com/farina00/tele.donut)                                           |
-| <https://donchelox.github.io/tv-viewer/>             | [Donchelox](https://github.com/Donchelox)                             | [Fuente](https://github.com/Donchelox/tv-viewer)                                           |
-| <https://asdlars.github.io/teveando/>                | [asdlars](https://github.com/asdlars)                                 | [Fuente](https://github.com/asdlars/teveando/)                                             |
-| <https://joelpurra.com/projects/multi-video-frames/> | [joelpurra](https://github.com/joelpurra)                             | [Fuente](https://github.com/joelpurra/multi-video-frames)                                  |
-| <http://reloltv.com/>                                | [Popelysh](https://whois.domaintools.com/reloltv.com)                 | ❌                                                                                          |
-| <https://www.multi-stream.tv>                        | ???                                                                   | ❌                                                                                          |
-| <https://www.tvonlinechile.cl>                       | [Arturo Infante](https://whois.domaintools.com/tvonlinechile.cl)      | ❌                                                                                          |
-| <https://ar.teleringa.com/>                          | ???                                                                   | ❌                                                                                          |
-| <https://cablegratis.online/tv-chile-en-vivo/>       | ???                                                                   | ❌                                                                                          |
-| <https://vidgrid.tk.gg/>                             | [MattieTK](https://twitter.com/MattieTK)                              | [Fuente](https://twitter.com/MattieTK/status/1496815557198315521?cxt=HHwWgoCs0bP04MUpAAAA) |
-| <https://alienxproject.github.io/X/>                 | [alienxproject](https://github.com/alienxproject)                     | [Fuente](https://github.com/alienxproject/X) |
-| <https://navezjt.github.io/JCN-TV/>                  | [Navezjt](https://github.com/Navezjt)                                 | [Fuente](https://github.com/Navezjt/JCN-TV) |
-
-</details>
-
-___
-
-# Prensa Alternativa
-
-[↑ Volver arriba ↑](#tabla-de-contenido)
-
-*No porque un sitio sea "alternativo" lo convierte en verídico, recuerde aplicar el mismo nivel de criterio que con los medios televisivos o cualquier medio de prensa venga el caso
-
-[(¿Cómo detectar un Fake News?)](https://aam.cl/noticias-aam/social-media/como-detectar-un-fake-news/).
-
-[(¿Cómo detectar un Fake News? (BBC)](https://www.bbc.com/mundo/noticias-45561204)
-
-[(¿Cómo detectar un Fake News? (AMM)](https://web.archive.org/web/20200326172545/https://aam.cl/noticias-aam/social-media/como-detectar-un-fake-news/)
-
-| Enlace/Nombre                                                                                                                                               | Twitter                                        | Facebook                                                                                     | Instagram                                                    |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [Canal 3 La Victoria](https://canal3lavictoria.cl/)                                                                                                         | [Twitter](https://twitter.com/tv_piola)        |                                                                                              |                                                              |
-| [Ciper](https://ciperchile.cl/)                                                                                                                             | [Twitter](https://twitter.com/ciper)           | [Facebook](https://www.facebook.com/ciperchile)                                              | [Instagram](https://www.instagram.com/ciper_chile/)          |
-| [El Ciudadano](https://www.elciudadano.com/)                                                                                                                | [Twitter](https://twitter.com/El_Ciudadano)    | [Facebook](https://www.facebook.com/PeriodicoElCiudadano)                                    | [Instagram](https://www.instagram.com/el.ciudadano/)         |
-| [El Desconcierto](https://www.eldesconcierto.cl/)                                                                                                           | [Twitter](https://twitter.com/eldesconcierto)  | [Facebook](https://www.facebook.com/eldesconciertocl/)                                       | [Instagram](https://www.instagram.com/eldesconcierto/)       |
-| [El Dínamo](https://www.eldinamo.cl/)                                                                                                                       | [Twitter](https://twitter.com/el_dinamo)       | [Facebook](https://www.facebook.com/el.dinamo)                                               | [Instagram](https://www.instagram.com/el_dinamo/)            |
-| [El Líbero](https://ellibero.cl/)                                                                                                                           | [Twitter](https://twitter.com/elliberocl)      | [Facebook](https://www.facebook.com/ElLibero)                                                | [Instagram](https://www.instagram.com/elliberocl/)           |
-| [ElObservatodo.cl](https://www.elobservatodo.cl/)                                                                                                           | [Twitter](https://twitter.com/elobservatodo)   | [Facebook](https://www.facebook.com/elobservatodo.cl/)                                       | [Instagram](https://www.instagram.com/elobservatodo.cl/)     |
-| [El Periscopio.c](https://www.elperiscopio.cl/)                                                                                                             | [Twitter](https://twitter.com/GrupoPeriscopio) | [Facebook](https://www.facebook.com/periscopiochile/)                                        | [Instagram](https://www.instagram.com/elperiscopionoticias/) |
-| [El Universal Chile](https://eluniversal.cl/)                                                                                                               | [Twitter](https://twitter.com/ElUniversalCL)   | [Facebook](https://www.facebook.com/ElUniversalCL)                                           |                                                              |
-| [Fast Check CL](https://www.fastcheck.cl/)                                                                                                                  | [Twitter](https://twitter.com/fastcheckcl)     | [Facebook](https://www.facebook.com/fastcheckcl/)                                            | [Instagram](https://www.instagram.com/fastcheckcl/)          |
-| [Gamba](https://www.gamba.cl/)                                                                                                                              | [Twitter](https://twitter.com/gamba_cl)        | [Facebook](https://www.facebook.com/gambanoticias/)                                          | [Instagram](https://www.instagram.com/gamba.cl/)             |
-| [Interferencia.cl](https://interferencia.cl/)                                                                                                               | [Twitter](https://twitter.com/InterferenciaCL) | [Facebook](https://www.facebook.com/InterferenciaChile)                                      | [Instagram](https://www.instagram.com/interferencia.cl/)     |
-| [La Izquierda Diario Chile](https://www.laizquierdadiario.cl/)                                                                                              | [Twitter](https://twitter.com/lid_chile)       | [Facebook](https://www.facebook.com/Laizquierdadiariochile/)                                 | [Instagram](https://www.instagram.com/laizquierdadiariocl/)  |
-| [Mapuexpress](https://www.mapuexpress.org/)                                                                                                                 | [Twitter](https://twitter.com/mapuexpress)     | [Facebook](https://www.facebook.com/Mapuexpress.org/)                                        | [Instagram](https://instagram.com/mapuexpress/)              |
-| [OPAL prensa](https://prensaopal.cl)                                                                                                                        | [Twitter](https://twitter.com/prensaopal)      |                                                                                              | [Instagram](https://www.instagram.com/prensaopalchile/)      |
-| [Puranoticia.cl](https://puranoticia.pnt.cl/)                                                                                                               | [Twitter](https://twitter.com/puranoticia)     | [Facebook](https://www.facebook.com/puranoticiaweb/)                                         | [Instagram](https://www.instagram.com/puranoticia_chile/)    |
-| [Resumen](https://resumen.cl/)                                                                                                                              | [Twitter](https://twitter.com/rsumen)          | [Facebook](https://www.facebook.com/PeriodicoResumenConcepcion)                              | [Instagram](https://www.instagram.com/resumen.cl/)           |
-| [Revista De Frente](https://www.revistadefrente.cl/)                                                                                                        |                                                | [Facebook](https://www.facebook.com/DeFrente.cl)                                             |                                                              |
-| [Viaconectados](http://viaconectados.cl/)                                                                                                                   | [Twitter](https://twitter.com/viaconectados)   | [Facebook](https://www.facebook.com/Viaconectados/)                                          | [Instagram](https://www.instagram.com/viaconectados/)        |
-| [Radio Humedales – Concepción](https://www.radiohumedales.org/)                                                                                             | [Twitter](https://twitter.com/radiohumedales)  | [Facebook](https://www.facebook.com/culturayexistencialesbica/)                              | [Instagram](https://www.instagram.com/radio_humedales/)      |
-| [Radio Kurruf Concepción/Santiago](https://radiokurruf.org/)                                                                                                | [Twitter](https://twitter.com/radiokurruf)     | [Facebook](https://www.facebook.com/radiokurruf/)                                            | [Instagram](https://www.instagram.com/radiokurruf/)          |
-| [Radio La Base](http://radiolabase.cl/)                                                                                                                     | [Twitter](https://twitter.com/radiolabase)     | [Facebook](https://www.facebook.com/radiolabase/)                                            | [Instagram](https://www.instagram.com/radiolabase/)          |
-| [Radio Placeres – Valparaíso](https://emisora.cl/placeres-valparaiso/) / [Opción](https://onlineradiobox.com/cl/placeres/)                                  | [Twitter](https://twitter.com/radioplaceres)   | [Facebook](https://www.facebook.com/Radio-Placeres-a-la-Izquierda-del-Dial-257617057586511/) | [Instagram](https://www.instagram.com/radio.placeres/)       |
-| [Radio Villa Francia](http://www.radiovillafrancia.cl/) / [Opción](https://emisora.cl/villa-francia/)                                                       | [Twitter](https://twitter.com/rvfradiopopular) |                                                                                              |                                                              |
-| [Periódicos Chile](https://www.prensaescrita.com/america/chile.php) / [Opción](https://sitios.cl/directorio/diarios.htm) / [Opción2](http://kiosko.net/cl/) |                                                |                                                                                              |                                                              |
-| [soychile.cl](https://www.soychile.cl/)                                                                                                                     |                                                |                                                                                              |                                                              |
-| [GOB Noticias](https://www.gob.cl/noticias/)                                                                                                                | [Twitter](https://twitter.com/gobiernodechile) | [Facebook](https://www.facebook.com/gobiernodechile)                                         | [Instagram](https://www.instagram.com/gobiernodechile/)      |
-| [Google News](https://news.google.com/)                                                                                                                     |                                                |                                                                                              |                                                              |
-| [Microsoft News](https://microsoftnews.msn.com/)                                                                                                            |                                                |                                                                                              |                                                              |
-| [Yahoo News](https://news.yahoo.com/)                                                                                                                       |                                                |                                                                                              |                                                              |
-| [Bing News](https://www.bing.com/news)                                                                                                                      |                                                |                                                                                              |                                                              |
-
-___
-
-# Enlaces Complementarios
-
-[↑ Volver arriba ↑](#tabla-de-contenido)
-
-Sitios que poseen información útil en cuanto a diversos temas que no sabía dónde añadir para compartirlos:
-
-| Sitio                                                                                                                                                                                                                                  | Mirror                                     | RRSS                                                                                                                                                                                                                                                                      |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Prevención y cuidado**                                                                                                                                                                                                               |                                            |                                                                                                                                                                                                                                                                           |
-| [Salud Mental                                        (psiconecta.org)](https://www.psiconecta.org/)                                                                                                                                    |                                            | [Facebook](https://www.facebook.com/psiconectacl?_fb_noscript=1) - [Twitter](https://twitter.com/psiconectacl)                                    - [Instagram](https://www.instagram.com/psiconecta_chile)                                                               |
-| [Salud Mental                                        (linealibre.cl)](https://linealibre.cl/)                                                                                                                                          |                                            | [Instagram](https://www.instagram.com/lalinealibre)                                                                                                                                                                                                                       |
-| [Saludablemente                                        (gob.cl)](https://www.gob.cl/saludablemente/)                                                                                                                                   |                                            |                                                                                                                                                                                                                                                                           |
-| [Líneas gratuitas de apoyo psicológico en Chile](https://reddit.com/r/chile/comments/hsl6p6/l%C3%ADneas_gratuitas_de_apoyo_psicol%C3%B3gico_en_chile/)                                                                                 | [mirror](https://kvak.io/?n=trf2pc71y2f3)  |                                                                                                                                                                                                                                                                           |
-| [Hablemos                                        de Todo (INJUV)](https://hablemosdetodo.injuv.gob.cl/)                                                                                                                                |                                            |                                                                                                                                                                                                                                                                           |
-| [*4141 Línea Prevención del Suicidio                                         (portalsaluddigital.minsal.cl)](https://portalsaluddigital.minsal.cl/4141-linea-prevencion-del-suicidio/)                                                 |                                            |                                                                                                                                                                                                                                                                           |
-| [Guía para cuidarse los ojos en                                        manifestaciones](https://www.reddit.com/r/chile/comments/du4hn0/gu%C3%ADa_para_cuidarse_los_ojos_en_estas/)                                                     | [mirror](https://kvak.io/?n=d1gd1i1j1l120) |                                                                                                                                                                                                                                                                           |
-| [Uso de Tecnologías y Privacidad en Internet](https://old.reddit.com/r/chile/comments/dt4s2u/uso_de_tecnolog%C3%ADas_y_privacidad_en_internet/)                                                                                        | [mirror](https://kvak.io/?n=s0gd1i1g2i1l5) |                                                                                                                                                                                                                                                                           |
-| [Autoprotección Digital Contra La Vigilancia](https://ssd.eff.org/es/module/asistir-una-protesta)                                                                                                                                      |                                            |                                                                                                                                                                                                                                                                           |
-| **Denunciar Violación a los derechos humanos**                                                                                                                                                                                         |                                            |                                                                                                                                                                                                                                                                           |
-| [Indh.cl](https://www.indh.cl/)                                                                                                                                                                                                        |                                            | [Facebook](https://www.facebook.com/indhchile)                                    -                                    [Twitter](https://twitter.com/inddhh) - [Instagram](https://www.instagram.com/indhchile/)                                                          |
-| [Testigoenlinea.cl](https://www.testigoenlinea.cl/)                                                                                                                                                                                    |                                            | [Twitter](https://twitter.com/testigoenlinea)                                    - [Instagram](https://www.instagram.com/testigoenlinea/)                                                                                                                                 |
-| [Amnistia.cl](https://amnistia.cl/) - [x](https://amnistia.cl/noticia/donde-denunciar-si-sufro-una-violacion-de-derechos-humanos/)                                                                                                     |                                            | [Facebook](https://www.facebook.com/pages/Amnist%C3%ADa-Internacional-Chile/126170624336) - [Twitter](https://twitter.com/amnistiachile/status/1186667715047624710) - [Instagram](https://www.instagram.com/amnistiachile/)                                               |
-| [Observadoresddhh.org](https://observadoresddhh.org/)                                                                                                                                                                                  |                                            | [Facebook](https://www.facebook.com/oddhchile/)                                    -                                    [Twitter](https://twitter.com/obsDDHHcl) -                                    [Instagram](https://www.instagram.com/observadoresddhhcasamemoria/) |
-| [HumanRightsWatch.org](https://www.hrw.org/es)                                                                                                                                                                                         |                                            | [Facebook](http://www.facebook.com/humanrightswatchenespanol) - [Twitter](https://twitter.com/hrw_espanol)                                                                                                                                                                |
-| **Ayuda/Donaciones incendios**                                                                                                                                                                                                         |                                            |                                                                                                                                                                                                                                                                           |
-| [Donar a Bomberos (ayudabomberos.cl)](https://www.ayudabomberos.cl/)                                                                                                                                                                   |                                            |                                                                                                                                                                                                                                                                           |
-| * Bomberos de Chile                                                                                                                                                                                                                    |                                            |                                                                                                                                                                                                                                                                           |
-| * Cuenta corriente Banco Estado 13-2                                                                                                                                                                                                   |                                            |                                                                                                                                                                                                                                                                           |
-| * RUT 70.073.800-0                                                                                                                                                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
-| [Donar a Hogar de Cristo (hcstore.org/dona)](https://hcstore.org/dona)                                                                                                                                                                 |                                            |                                                                                                                                                                                                                                                                           |
-| * Hogar de Cristo                                                                                                                                                                                                                      |                                            |                                                                                                                                                                                                                                                                           |
-| * Cuenta corriente BancoEstado 1000-6                                                                                                                                                                                                  |                                            |                                                                                                                                                                                                                                                                           |
-| * RUT 81.496.800-6                                                                                                                                                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
-| [Donar a Cruz Roja chilena (cruzroja.cl)](https://www.cruzroja.cl/)                                                                                                                                                                    |                                            |                                                                                                                                                                                                                                                                           |
-| * Cruz Roja chilena                                                                                                                                                                                                                    |                                            |                                                                                                                                                                                                                                                                           |
-| * Cuenta corriente BancoEstado 29222-2                                                                                                                                                                                                 |                                            |                                                                                                                                                                                                                                                                           |
-| * RUT 70.512.100-1                                                                                                                                                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
-| **Información incendios**                                                                                                                                                                                                              |                                            |                                                                                                                                                                                                                                                                           |
-| [Recomendaciones en caso de tener que evacuar por un incendio forestal](https://www.gob.cl/noticias/siga-las-siguientes-recomendaciones-en-caso-de-tener-que-evacuar-por-un-incendio-forestal/)                                        |                                            |                                                                                                                                                                                                                                                                           |
-| [Alertas SENAPRED](https://senapred.cl/informate/alertas)                                                                                                                                                                              |                                            |                                                                                                                                                                                                                                                                           |
-| **Mapas dirección albergues**                                                                                                                                                                                                          |                                            |                                                                                                                                                                                                                                                                           |
-| [geoportal.cl](https://www.geoportal.cl/emergencia/dashboard/57) [[Fuente](https://twitter.com/IDE_Chile/status/1753751278113489136)]                                                                                                  |                                            |                                                                                                                                                                                                                                                                           |
-| [idechile.maps.arcgis.com](https://idechile.maps.arcgis.com/apps/dashboards/0e8889288d5548e6ad73c6ab17db8b3a) [[Fuente](https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/)]                      |                                            |                                                                                                                                                                                                                                                                           |
-| **Mapas focos incendiarios**                                                                                                                                                                                                           |                                            |                                                                                                                                                                                                                                                                           |
-| [storymaps.arcgis.com](https://storymaps.arcgis.com/stories/c3abb6aeb9fe443cbb4bff3efc6b0d08) [[Fuente](https://twitter.com/reddeemergencia/status/1752693887531880893)]                                                               |                                            |                                                                                                                                                                                                                                                                           |
-| [idechile.maps.arcgis.com](https://idechile.maps.arcgis.com/apps/instant/nearby/index.html?appid=b08c5745c4c74242a4dd72ec24c7bbaa) [[Fuente](https://www.chvnoticias.cl/nacional/mapa-incendio-forestal-valparaiso-en-vivo_20240203/)] |                                            |                                                                                                                                                                                                                                                                           |
-| [geamap.com](https://www.geamap.com/es/incendios#zoom=11&lat=-33.0789&lon=-71.3569&layer=2&overlays=TFFFFFFFFFFFFFFF)                                                                                                                  |                                            |                                                                                                                                                                                                                                                                           |
-| [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@-71.24,-33.13,10.50z)                                                                                                                                |                                            |                                                                                                                                                                                                                                                                           |
-| [google.com/maps](https://www.google.com/maps/@-33.0993464,-71.4870313,12z/data=!3m1!4b1!4m2!21m1!1s%2Fg%2F11y2ty3bn9!5m1!1e8?hl=es-419&entry=ttu)                                                                                     |                                            |                                                                                                                                                                                                                                                                           |
-| [star.nesdis.noaa.gov](https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G16&sector=ssa)                                                                                                                                            |                                            |                                                                                                                                                                                                                                                                           |
-
-___
-
-# Descargo de responsabilidad
+## Descargo de responsabilidad
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
@@ -189,40 +60,15 @@ ___
 - El usuario por defecto tiene la capacidad de dirigirse al sitio oficial de cada transmisión en todo momento.
 - Si posees los derechos de algún canal y deseas que sea retirado, [contáctame](https://github.com/Alplox/json-teles/issues).
 
-___
-
-# Licencia
+## Licencia
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-[MIT License ⚖️](/LICENSE)
+[MIT License](/LICENSE)
+
 [NOTICE](/NOTICE.md)
 
-```
-MIT License
-
-Copyright (c) 2022 Alplox
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-# Contribuciones
+## Contribuciones
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 

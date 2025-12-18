@@ -22,7 +22,8 @@ import {
     applyDynamicUrlState,
     isDynamicUrlMode,
     dynamicUrlCheckbox,
-    dynamicUrlValueSpan
+    dynamicUrlValueSpan,
+    singleViewNoSignalIcon
 } from "../main.js";
 
 import {
@@ -67,6 +68,8 @@ const disableGridViewControls = () => {
 
     // Disable share setup controls
     COPY_SHARE_LINK_BUTTON?.setAttribute('disabled', 'disabled');
+    COPY_SHARE_LINK_BUTTON.innerHTML= '[solo en visión cuadrícula]';
+
     SHARE_LINK_INPUT?.setAttribute('disabled', 'disabled');
 
     // Disable width range controls
@@ -103,6 +106,7 @@ const enableGridViewControls = () => {
 
     // Enable share setup controls
     COPY_SHARE_LINK_BUTTON?.removeAttribute('disabled');
+    COPY_SHARE_LINK_BUTTON.innerHTML= 'Copiar setup <i class="bi bi-clipboard"></i>';
     SHARE_LINK_INPUT?.removeAttribute('disabled');
 
     // Enable width range controls
@@ -306,6 +310,8 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
                 disposeBootstrapTooltips();
                 activeChannelInSingleView.remove();
             }
+
+            singleViewNoSignalIcon.classList.remove('d-none');
 
             adjustChannelButtonClass(activeChannelId, false);
             initializeBootstrapTooltips();

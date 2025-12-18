@@ -1,7 +1,5 @@
 # AVISOS E INFORMACIÓN
 
-Este software utiliza los siguientes paquetes de código abierto:
-
 Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 ## Menciones
@@ -10,11 +8,9 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * Sitio inspirado en <http://pslabs.cl/tele.html> (actualmente <https://www.viendotele.cl/>) por @pottersys - (No licencia)
 
-* Basado en variación <https://tele.0x00.cl/> por u/0x00cl - (No licencia)
+* Basado en variación <https://tele.0x00.cl/> / <https://web.archive.org/web/20200326172720/https://tele.0x00.cl/> por u/0x00cl - (No licencia)
 
 * Sidepanel personalizaciones inspirado en Theme Toggler - #049 of #100Days100Projects por Florin Pop <https://codepen.io/FlorinPop17/pen/XWWZYYG> - [(MIT)](https://codepen.io/FlorinPop17/pen/XWWZYYG)
-
-* Botón tema claro/oscuro <https://www.cssscript.com/dark-mode-switcher-for-bootstrap-5/> - (No licencia, articulo menciona MIT)
 
 * Efecto flicker para fondo tras borrado localStorage <https://codepen.io/frbarbre/pen/BaObOXL> - [(MIT)](https://codepen.io/frbarbre/pen/BaObOXL)
 
@@ -44,13 +40,23 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * SorteableJS <https://sortablejs.github.io/Sortable/> - [(MIT)](https://github.com/SortableJS/Sortable/blob/master/LICENSE)
 
-* Video.js <https://videojs.com/> - [(Apache License, Version 2.0)](https://github.com/videojs/video.js/blob/main/LICENSE)
-
 * PWABuilder <https://www.pwabuilder.com/> - [(MIT)](https://github.com/pwa-builder/PWABuilder/blob/main/LICENSE.txt)
 
 * Workbox - [(MIT)](https://github.com/GoogleChrome/workbox/blob/v7/LICENSE)
 
+* pwa-install <https://github.com/khmyznikov/pwa-install> - [(MIT)](https://github.com/khmyznikov/pwa-install/blob/main/LICENSE)
+
+* Video.js <https://videojs.com/> - [(Apache License, Version 2.0)](https://github.com/videojs/video.js/blob/main/LICENSE)
+
+* Clappr <https://github.com/clappr/clappr> - [(MIT)](https://github.com/clappr/clappr/blob/master/LICENSE)
+
+* OPlayer <https://github.com/shiyiya/oplayer> - [(MIT)](https://github.com/shiyiya/oplayer/blob/master/LICENSE)
+
+* isMobile <https://github.com/kaimallea/isMobile> - [(MIT)](https://github.com/kaimallea/isMobile/blob/main/LICENSE)
+
 * contributors-img <https://contrib.rocks/> - [(No Licencia)](https://github.com/lacolaco/contributors-img)
+
+## Audios
 
 * [Audio] button-pressed por Pixabay <https://pixabay.com/sound-effects/button-pressed-38129/> - [(Licencia)](https://pixabay.com/service/license-summary/)
 
@@ -62,16 +68,8 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * [Audio] User Interface Clicks and Buttons 1 por original_sound <https://freesound.org/people/original_sound/sounds/493551/> - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)
 
-* isMobile <https://github.com/kaimallea/isMobile> - [(MIT)](https://github.com/kaimallea/isMobile/blob/main/LICENSE)
-
-* pwa-install <https://github.com/khmyznikov/pwa-install> - [(MIT)](https://github.com/khmyznikov/pwa-install/blob/main/LICENSE)
-
 * [Audio] CRT turn on notification por Coolshows101sound <https://freesound.org/people/Coolshows101sound/sounds/709461/> - [(CC BY 4.0 DEED)](https://creativecommons.org/licenses/by/4.0/)
-
-* Clappr <https://github.com/clappr/clappr> - [(MIT)](https://github.com/clappr/clappr/blob/master/LICENSE)
-
-* OPlayer <https://github.com/shiyiya/oplayer> - [(MIT)](https://github.com/shiyiya/oplayer/blob/master/LICENSE)
 
 * [Audio] Pop 8 por D.S.G. <https://freesound.org/people/D.S.G./sounds/328117/> - [(Creative Commons 0)](https://creativecommons.org/public-domain/cc0/)
 
-* [Audio] Weather Forecast Type Beat por YellowTree <https://freesound.org/people/YellowTree/sounds/693384/> - [(Attribution 4.0)](https://creativecommons.org/licenses/by/4.0/)
+* [Música] Weather Forecast Type Beat por YellowTree <https://freesound.org/people/YellowTree/sounds/693384/> - [(Attribution 4.0)](https://creativecommons.org/licenses/by/4.0/)

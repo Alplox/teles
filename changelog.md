@@ -4,6 +4,19 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.23]
+
+### Changed
+
+- Remueven la mayor parte de enlaces a sitios externos. #25
+- Añade seccion "Características" a README
+
+### Fixed
+
+- Vision unica pierde icono sin señal #22
+- .modal-content tiene gap en navegadores chromium #23 (Gap solo se presentaba en Edge)
+- Lógica botón compartir configuración actual #24
+
 ## [v0.22]
 
 ### Refactored

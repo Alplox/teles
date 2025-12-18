@@ -368,7 +368,7 @@ BOTON_COPIAR_ENLACE_COMPARTIR?.addEventListener('click', async () => {
 });
 
 // MARK: Botón copiar enlace configuración de canales
-const BOTON_COPIAR_ENLACE_COMPARTIR_SETUP = document.querySelector('#boton-copiar-enlace-compartir-setup');
+export const BOTON_COPIAR_ENLACE_COMPARTIR_SETUP = document.querySelector('#boton-copiar-enlace-compartir-setup');
 const INPUT_ENLACE_COMPARTIR_SETUP = document.querySelector('#input-enlace-compartir-setup');
 
 /**

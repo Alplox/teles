@@ -1,5 +1,5 @@
 /* 
-    style v0.22
+    style v0.23
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -513,6 +513,11 @@ pwa-update {
   -ms-grid-column-span: 3;
   grid-column: span 3;
 }
+
+.modal-content {
+  gap: 0 !important;
+}
+
 
 .close-sidepanel {
   -webkit-box-sizing: content-box;

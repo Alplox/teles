@@ -2,7 +2,8 @@ import {
     BUTTON_MODAL_REMOVE_ALL_ACTIVE_CHANNELS,
     BUTTON_OFFCANVAS_REMOVE_ALL_ACTIVE_CHANNELS,
     BUTTON_MODAL_LOAD_DEFAULT_CHANNELS,
-    BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS
+    BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS,
+    BOTON_COPIAR_ENLACE_COMPARTIR_SETUP
 } from '../botones.js'
 import { AMBIENT_MUSIC, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY } from '../constants/index.js';
 import { musicIcon } from '../main.js';
@@ -18,6 +19,9 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
     [BUTTON_MODAL_REMOVE_ALL_ACTIVE_CHANNELS, BUTTON_OFFCANVAS_REMOVE_ALL_ACTIVE_CHANNELS].forEach(btn => {
         btn?.classList.toggle('d-none', !hasActiveChannels);
     });
+
+    BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.disabled = !hasActiveChannels;
+    BOTON_COPIAR_ENLACE_COMPARTIR_SETUP.innerHTML = hasActiveChannels ? 'Copiar setup <i class="bi bi-clipboard"></i>' : 'Activa primero canales';
 
     // si es vision cuadrícula
     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view' && localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) !== 'hide') {
