@@ -43,7 +43,8 @@ import {
     LS_KEY_SAVED_CHANNELS_GRID_VIEW,
     OVERLAY_BUTTONS_CONFIG,
     CSS_CLASS_BUTTON_PRIMARY,
-    AMBIENT_MUSIC
+    AMBIENT_MUSIC,
+    ID_PREFIX_CONTAINERS_CHANNELS
 } from './constants/index.js';
 
 import {
@@ -593,7 +594,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 createButtonsForChangeChannelModal(channelsList);
                 createButtonsForSingleView(channelsList);
 
-                saveOriginalOrder(); // Update base order for sorting features
+                // Update base order for sorting features
+                for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
+                    saveOriginalOrder(`${PREFIX}-channels-buttons-container`);
+                }
 
                 // 4. Refresh active channels (Grid View)
                 if (activeGridChannels.length > 0) {
