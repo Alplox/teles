@@ -1031,22 +1031,30 @@ button[aria-expanded="false"] .icono-filtros-estado {
 
 /* MARK: Shaka Player Custom Theme */
 .shaka-video-container {
-  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   /* Efecto para áreas de letterboxing (espacios arriba/abajo) */
   background-color: rgba(0, 0, 0, 0.2) !important;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+
+  &:hover {
+    .shaka-bottom-controls {
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.3);
+      transition: all 0.5s ease-in-out;
+    }
+  }
 }
 
 .shaka-video-container video {
   background-color: transparent !important;
 }
 
-.shaka-controls-container {
+/* .shaka-controls-container {
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%) !important;
-}
+} */
 
 .shaka-range-element {
   color: var(--bs-indigo) !important;
@@ -1080,9 +1088,9 @@ button[aria-expanded="false"] .icono-filtros-estado {
 
 .shaka-bottom-controls {
   padding: 0 1rem 0.5rem 1rem !important;
-  backdrop-filter: blur(5px);
+  /* backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.3); */
   border-radius: 0 0 12px 12px;
 }
 
