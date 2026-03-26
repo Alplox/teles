@@ -1,5 +1,5 @@
 import { channelsList, DEFAULT_SOURCE_ORIGIN } from "../channelManager.js";
-import { CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS } from "../constants/index.js";
+import { CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_SHOW_CHANNELS_LOGO } from "../constants/index.js";
 import { singleViewVideoContainer, tele } from "../main.js";
 import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel } from "./index.js";
 
@@ -261,8 +261,14 @@ const createChannelButton = (channelId, channelData) => {
         ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1">`
         : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${countryName}]">${SVG_UNKNOWN_COUNTRY}</span>`;
 
+    const showLogos = localStorage.getItem(LS_KEY_SHOW_CHANNELS_LOGO) === 'show';
+    const logoHtml = showLogos && channelData.logo
+        ? `<img src="${channelData.logo}" alt="logo ${nombre}" class="logo-canal-boton rounded-1 me-1" onerror="this.style.display='none'">`
+        : '';
+
     button.innerHTML = `
-        <span class="flex-grow-1">${nombre}</span>
+        ${logoHtml}
+        <span class="flex-grow-1 text-truncate">${nombre}</span>
         ${flagHtml}
         ${categoryIcon}
         ${combinedBadge}`;
@@ -384,7 +390,16 @@ const executeScenario = (scenarioKey, context) => {
 };
 
 /** @type {Set<string>} Tracks containers that have already been rendered. */
-const renderedContainers = new Set();
+let renderedContainers = new Set();
+
+/**
+ * Clears the tracking of rendered containers.
+ * Use this when a full re-render of all channel buttons is required.
+ * @returns {void}
+ */
+export const clearRenderedContainers = () => {
+    renderedContainers.clear();
+};
 
 /**
  * Renders channel buttons grouped by M3U list origin.

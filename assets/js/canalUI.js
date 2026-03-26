@@ -104,6 +104,62 @@ export function crearVideoJs(canalId, urlCarga) {
 
         return DIV_ELEMENT;
     }
+    if (tipoReproductor === 'shaka' && typeof shaka !== 'undefined') {
+        const DIV_ELEMENT = document.createElement('div');
+        DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
+        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        const videoElement = document.createElement('video');
+        videoElement.setAttribute('contenedor-canal-cambio', canalId);
+        videoElement.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
+        videoElement.autoplay = true;
+        videoElement.muted = true;
+        // La interfaz de Shaka manejará los controles
+        videoElement.controls = false;
+        DIV_ELEMENT.append(videoElement);
+
+        setTimeout(async () => {
+            try {
+                shaka.polyfill.installAll();
+                if (shaka.Player.isBrowserSupported()) {
+                    const player = new shaka.Player(videoElement);
+
+                    // Inicializar Shaka UI
+                    const ui = new shaka.ui.Overlay(player, DIV_ELEMENT, videoElement);
+                    const config = {
+                        'controlPanelElements': ['play_pause', 'time_and_duration', 'spacer', 'mute', 'volume', 'fullscreen', 'overflow_menu'],
+                        'addSeekBar': true,
+                        'seekBarColors': {
+                            'base': 'rgba(255, 255, 255, 0.3)',
+                            'buffered': 'rgba(255, 255, 255, 0.5)',
+                            'played': 'rgb(75, 1, 195)', // Indigo
+                        }
+                    };
+                    ui.configure(config);
+
+                    player.addEventListener('error', (event) => {
+                        console.error('[teles] Shaka Player error:', event.detail);
+                    });
+                    await player.load(urlCarga);
+                    DIV_ELEMENT._shakaPlayer = player;
+                    DIV_ELEMENT._shakaUi = ui; // Guardamos la UI también por si es necesaria
+                } else {
+                    throw new Error('Browser not supported by Shaka Player');
+                }
+            } catch (error) {
+                console.error(`[teles] Error at attempt to initialize Shaka Player for channel with id: ${canalId}. Error: ${error}`);
+                showToast({
+                    title: `Error al inicializar Shaka Player para canal ${canalId}. Se usará Video.js.`,
+                    body: `Error: ${error.message || error}`,
+                    type: 'danger',
+                    autohide: false,
+                    delay: 0,
+                    showReloadOnError: true
+                });
+            }
+        }, 0);
+
+        return DIV_ELEMENT;
+    }
     if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
@@ -427,6 +483,10 @@ export function cambiarSoloSeñalActiva(canalId) {
         if (!canalId) return console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
 
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
+        if (!divPadreACambiar) {
+            console.warn(`[teles] Could not find container for channel "${canalId}" to change its signal.`);
+            return;
+        }
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
         let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
 
@@ -434,8 +494,8 @@ export function cambiarSoloSeñalActiva(canalId) {
 
         cleanTransmissionResources(divPadreACambiar);
 
-        divExistenteACambiar.remove();
-        barraOverlayDeCanalACambiar.remove();
+        if (divExistenteACambiar) divExistenteACambiar.remove();
+        if (barraOverlayDeCanalACambiar) barraOverlayDeCanalACambiar.remove();
 
         divPadreACambiar.append(crearFragmentCanal(canalId));
 

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.24
+    teles v0.25
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -114,7 +114,7 @@
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.24</i>
+                            <i class="badge bg-secondary">v0.25</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -1000,6 +1000,24 @@
                     </div>
                 </li>
                 <li class="w-100">
+                    <div class="w-100 py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow mt-2">
+                        <div class="form-check form-switch d-flex align-items-center gap-2"
+                            title="mostrar logos en botones de canales">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                id="checkbox-mostrar-logos-botones">
+                            <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
+                                for="checkbox-mostrar-logos-botones">
+                                Mostrar logos canales
+                                <div class="fs-smaller text-secondary">
+                                    <span id="span-valor-mostrar-logos-botones"></span>
+                                </div>
+                                <i class="bi bi-image ms-auto bg-light-subtle px-2 py-1 rounded-circle"
+                                    id="icono-mostrar-logos-botones"></i>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+                <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <div class="form-check form-switch d-flex align-items-center gap-2" title="ocultar overlay">
                             <input class="form-check-input" type="checkbox" role="switch"
@@ -1082,6 +1100,11 @@
                                 data-descripcion="OPlayer">
                             <label class="btn btn-outline-indigo rounded-4 w-100"
                                 for="reproductor-m3u8-oplayer">OPlayer</label>
+                            <input type="radio" class="btn-check" name="btnradio-reproductor-m3u8"
+                                id="reproductor-m3u8-shaka" value="shaka" autocomplete="off"
+                                data-descripcion="Shaka Player">
+                            <label class="btn btn-outline-indigo rounded-4 w-100"
+                                for="reproductor-m3u8-shaka">Shaka</label>
                         </div>
                         <div class="fs-smaller text-secondary mt-1">
                             Actual: <span id="span-valor-reproductor-m3u8"></span>
@@ -1480,6 +1503,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/shaka-player@5.0.8/dist/shaka-player.ui.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.8/dist/controls.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"
         defer></script>

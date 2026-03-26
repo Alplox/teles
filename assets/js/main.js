@@ -1,5 +1,5 @@
 /* 
-  main v0.24
+  main v0.25
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -33,6 +33,7 @@ import {
     LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED,
     LS_KEY_FLOATING_BUTTONS_TEXT_VISIBILITY,
     LS_KEY_M3U8_PLAYER_CHOICE,
+    LS_KEY_SHOW_CHANNELS_LOGO,
     LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY,
     LS_KEY_DYNAMIC_URL,
     LS_KEY_FLOATING_BUTTONS_POSITION,
@@ -432,6 +433,48 @@ window.addEventListener('DOMContentLoaded', () => {
     fullHeightCheckbox = document.querySelector('#checkbox-personalizar-altura-canales');
     fullHeightSpan = document.querySelector('#span-valor-altura-canales');
     const iconElFullHeight = document.querySelector('#icono-personalizar-altura-canales');
+
+    // MARK: Show channels logo in buttons
+    const showLogosCheckbox = document.querySelector('#checkbox-mostrar-logos-botones');
+    const showLogosSpan = document.querySelector('#span-valor-mostrar-logos-botones');
+    const showLogosIcon = document.querySelector('#icono-mostrar-logos-botones');
+
+    if (showLogosCheckbox && showLogosSpan) {
+        showLogosCheckbox.addEventListener('click', () => {
+            const isEnabled = showLogosCheckbox.checked;
+            syncCheckboxState({
+                checkbox: showLogosCheckbox,
+                statusElement: showLogosSpan,
+                storageKey: LS_KEY_SHOW_CHANNELS_LOGO,
+                isVisible: isEnabled
+            });
+
+            isEnabled ? showLogosIcon.classList.replace('bi-image', 'bi-image-fill') : showLogosIcon.classList.replace('bi-image-fill', 'bi-image');
+
+            // Re-render buttons to apply changes
+            clearChannelListContainers();
+            createChannelButtons();
+            createCountryButtons();
+            createCategoryButtons();
+            resyncActiveChannelsVisualState();
+            initializeBootstrapTooltips();
+
+            showToast({
+                body: `Logos en botones ${isEnabled ? 'habilitados' : 'deshabilitados'}`,
+                type: 'info',
+                duration: 2000
+            });
+        });
+
+        const isShowLogosEnabled = localStorage.getItem(LS_KEY_SHOW_CHANNELS_LOGO) === 'show';
+        syncCheckboxState({
+            checkbox: showLogosCheckbox,
+            statusElement: showLogosSpan,
+            storageKey: LS_KEY_SHOW_CHANNELS_LOGO,
+            isVisible: isShowLogosEnabled
+        });
+        isShowLogosEnabled ? showLogosIcon.classList.replace('bi-image', 'bi-image-fill') : showLogosIcon.classList.replace('bi-image-fill', 'bi-image');
+    }
 
     fullHeightCheckbox.addEventListener('click', () => {
         fullHeightCheckbox.checked

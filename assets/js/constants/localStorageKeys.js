@@ -45,6 +45,8 @@ export const LS_KEY_DYNAMIC_URL = 'use-dynamic-url';
 export const LS_KEY_PERSONALIZED_LISTS = 'personalized-lists-m3u';
 export const LS_KEY_COMBINE_PERSONALIZED_CHANNELS = 'combine-personalized-channels';
 
+export const LS_KEY_SHOW_CHANNELS_LOGO = 'show-channels-logo';
+
 export const LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY = 'logo-card-background-visibility';
 
 /////////

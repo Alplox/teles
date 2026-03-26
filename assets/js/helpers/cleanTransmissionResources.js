@@ -36,6 +36,17 @@ export const cleanTransmissionResources = (transmissionContainer) => {
         }
     }
 
+    if (changeContainer?._shakaPlayer && typeof changeContainer._shakaPlayer.destroy === 'function') {
+        try {
+            if (changeContainer._shakaUi && typeof changeContainer._shakaUi.destroy === 'function') {
+                changeContainer._shakaUi.destroy();
+            }
+            changeContainer._shakaPlayer.destroy();
+        } catch (errorShaka) {
+            console.error(`[teles] Error destroying Shaka Player/UI for channel"${channelId}":`, errorShaka);
+        }
+    }
+
     if (changeContainer?._iframeElement && typeof changeContainer._iframeElement.remove === 'function') {
         try {
             changeContainer._iframeElement.src = 'about:blank';
