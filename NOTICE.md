@@ -52,6 +52,8 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * OPlayer <https://github.com/shiyiya/oplayer> - [(MIT)](https://github.com/shiyiya/oplayer/blob/master/LICENSE)
 
+* Shaka Player <https://github.com/shaka-project/shaka-player> - [(Apache License, Version 2.0)](https://github.com/shaka-project/shaka-player/blob/main/LICENSE)
+
 * isMobile <https://github.com/kaimallea/isMobile> - [(MIT)](https://github.com/kaimallea/isMobile/blob/main/LICENSE)
 
 * contributors-img <https://contrib.rocks/> - [(No Licencia)](https://github.com/lacolaco/contributors-img)
