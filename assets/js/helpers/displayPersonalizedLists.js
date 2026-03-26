@@ -2,7 +2,7 @@ import { updatePersonalizedList, applySavedPersonalizedList, channelsList, delet
 import { ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
 import { tele } from "../main.js";
 import { formatDate } from "../utils/index.js";
-import { adjustChannelButtonClass, createCategoryButtons, createCountryButtons, createChannelButtons, createButtonsForSingleView, showToast, getActiveChannelIds, clearRenderedContainers } from "./index.js";
+import { adjustChannelButtonClass, createCategoryButtons, createCountryButtons, createChannelButtons, createButtonsForSingleView, showToast, getActiveChannelIds, clearRenderedContainers, clearCountryRenderedContainers, clearCategoryRenderedContainers } from "./index.js";
 
 
 /**
@@ -27,6 +27,8 @@ export const clearChannelListContainers = () => {
 
     // Always clear the internal rendering state cache to allow full re-renders
     clearRenderedContainers();
+    clearCountryRenderedContainers();
+    clearCategoryRenderedContainers();
 
     // If the view mode is 'single-view' reload so the channels-buttons-container 
     // doesn't end up empty after loading/unloading a personalized M3U list

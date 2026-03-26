@@ -11,6 +11,14 @@ import { syncCategoriesWithCountry } from "./syncFilters.js";
 const renderedContainers = new Set();
 
 /**
+ * Clears the tracking of rendered country containers.
+ * @returns {void}
+ */
+export const clearCountryRenderedContainers = () => {
+    renderedContainers.clear();
+};
+
+/**
  * Creates and renders country filter buttons for all configured channel containers.
  * Counts available channels per country and ensures consistent ordering.
  * Configures event listeners for country selection and synchronization with category filters.

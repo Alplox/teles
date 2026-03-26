@@ -11,6 +11,14 @@ import { syncCountriesWithCategory } from "./syncFilters.js";
 const renderedContainers = new Set();
 
 /**
+ * Clears the tracking of rendered category containers.
+ * @returns {void}
+ */
+export const clearCategoryRenderedContainers = () => {
+    renderedContainers.clear();
+};
+
+/**
  * Creates and registers category filter buttons for all container prefixes.
  * Uses `channelsList` data to count channels per category and hooks up combined filtering
  * of text, country, and category via `filterChannelsByInput`.
