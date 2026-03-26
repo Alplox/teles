@@ -1,7 +1,7 @@
 import { channelsList, DEFAULT_SOURCE_ORIGIN } from "../channelManager.js";
-import { CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_SHOW_CHANNELS_LOGO } from "../constants/index.js";
+import { CSS_CLASS_BUTTON_PRIMARY, CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_SHOW_CHANNELS_LOGO } from "../constants/index.js";
 import { singleViewVideoContainer, tele } from "../main.js";
-import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel } from "./index.js";
+import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel, getActiveChannelIds } from "./index.js";
 
 import { changeChannelModalEl } from "../canalUI.js";
 
@@ -138,16 +138,17 @@ const groupChannelsByOrigin = () => {
  * Renders channel groups into one or more containers.
  * @param {[string, {id: string, data: Object}[]][]} groups - Grouped channels by origin
  * @param {string[]} selectors - CSS selectors for target containers
+ * @param {string[]} activeChannelIds - List of currently active channel IDs
  * @returns {void}
  */
-const renderButtonsInContainers = (groups, selectors = []) => {
+const renderButtonsInContainers = (groups, selectors = [], activeChannelIds = []) => {
     selectors.forEach(selector => {
         const container = document.querySelector(selector);
         if (!container) return;
 
         container.innerHTML = '';
         const baseId = container.id || selector.replace('#', '') || 'grupo-canales';
-        const fragment = buildChannelsFragment(groups, { baseId });
+        const fragment = buildChannelsFragment(groups, { baseId }, activeChannelIds);
         container.append(fragment);
     });
 };
@@ -157,9 +158,10 @@ const renderButtonsInContainers = (groups, selectors = []) => {
  * @param {[string, {id: string, data: Object}[]][]} groups - Grouped channels
  * @param {Object} [options={}] - Configuration options
  * @param {string} [options.baseId='grupo-canales'] - Base ID for collapse elements
+ * @param {string[]} activeChannelIds - List of currently active channel IDs
  * @returns {DocumentFragment} Fragment ready to be appended
  */
-const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}) => {
+const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, activeChannelIds = []) => {
     const fragment = document.createDocumentFragment();
 
     groups.forEach(([origin, channels], index) => {
@@ -185,11 +187,11 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}) => {
         const list = document.createElement('div');
         list.classList.add('modal-body-canales');
         channels.forEach(({ id, data }) => {
-            list.append(createChannelButton(id, data));
+            list.append(createChannelButton(id, data, activeChannelIds));
         });
 
         const collapse = document.createElement('div');
-        collapse.classList.add('mt-1', 'show');
+        collapse.classList.add('mt-1', 'show', 'collapse');
         collapse.id = collapseId;
         collapse.append(list);
 
@@ -216,9 +218,10 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}) => {
  * Creates an individual button element for a channel.
  * @param {string} channelId - Unique channel identifier
  * @param {Object} channelData - Channel data object
+ * @param {string[]} activeChannelIds - List of currently active channel IDs
  * @returns {HTMLButtonElement} The created button element
  */
-const createChannelButton = (channelId, channelData) => {
+const createChannelButton = (channelId, channelData, activeChannelIds = []) => {
     const { nombre, país } = channelData;
     const category = (channelData.categoría ?? '').toLowerCase();
     const categoryIcon = category && category in CATEGORIES_ICONS
@@ -251,7 +254,10 @@ const createChannelButton = (channelId, channelData) => {
         button.dataset.fuentesCombinadas = sourcesDescription;
     }
 
-    button.classList.add('btn', CSS_CLASS_BUTTON_SECONDARY, 'd-flex', 'justify-content-between', 'align-items-center', 'gap-2', 'text-start', 'rounded-3');
+    button.type = 'button';
+    const isActive = activeChannelIds.includes(channelId);
+    const initialClass = isActive ? CSS_CLASS_BUTTON_PRIMARY : CSS_CLASS_BUTTON_SECONDARY;
+    button.classList.add('btn', 'btn-sm', initialClass, 'd-flex', 'align-items-center', 'gap-2', 'rounded-3', 'w-100', 'text-start', 'btn-canal');
 
     if (areAllSignalsEmpty(channelId)) {
         button.classList.add('d-none');
@@ -412,12 +418,13 @@ export const createChannelButtons = (specificPrefix) => {
     try {
         const groupedChannels = groupChannelsByOrigin();
         const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        const activeChannelIds = getActiveChannelIds();
 
         targets.forEach(prefix => {
             const containerId = `${prefix}-channels-buttons-container`;
             if (renderedContainers.has(containerId)) return;
 
-            renderButtonsInContainers(groupedChannels, [`#${containerId}`]);
+            renderButtonsInContainers(groupedChannels, [`#${containerId}`], activeChannelIds);
             renderedContainers.add(containerId);
             saveOriginalOrder(containerId);
         });

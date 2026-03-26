@@ -27,23 +27,32 @@ export const clearSharedUrlParameter = (force = false) => {
 
 export const getActiveChannelIds = () => {
     try {
-        const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
-        if (!payload) return [];
-        const data = JSON.parse(payload);
-        if (!data || typeof data !== 'object') return [];
-        let activeChannels = Object.keys(data);
+        const isSingleView = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
+        let activeChannels = [];
 
-        // Fallback to DOM if localStorage is empty or invalid
+        // In grid view we prefer the saved list (for sync and persistence)
+        if (!isSingleView) {
+            const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
+            if (payload) {
+                const data = JSON.parse(payload);
+                if (data && typeof data === 'object') {
+                    activeChannels = Object.keys(data);
+                }
+            }
+        }
+
+        // Fallback to DOM if localStorage is empty or if we are in single-view
+        // This ensures that in single-view, only the currently played channel is "active"
         if (!activeChannels.length) {
             const activeTransmissions = document.querySelectorAll('div[data-canal]');
             activeChannels = Array.from(activeTransmissions)
-              .map(transmission => transmission.getAttribute('data-canal'))
-              .filter(channelId => channelId);
+                .map(transmission => transmission.getAttribute('data-canal'))
+                .filter(channelId => channelId && !channelId.startsWith('no-'));
         }
 
         return activeChannels;
     } catch (error) {
-        console.error('[teles] Error getting active channels for dynamic URL:', error);
+        console.error('[teles] Error getting active channels:', error);
         return [];
     }
 };
