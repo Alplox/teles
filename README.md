@@ -1,6 +1,6 @@
 # ¿Qué es teles?
 
-teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionados canales IPTV de noticias provenientes de Chile (y el mundo).
+teles es una PWA (sitio web que se puede instalar como aplicación) de Código Abierto para ver/comparar preseleccionados canales IPTV provenientes de Chile y el mundo.
 
 ## Enlace teles
 
@@ -28,14 +28,14 @@ teles es una PWA (sitio web que se puede instalar como aplicación) de Código A
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-- 📺 **Canales de televisión en vivo** - Acceso a múltiples canales de noticias en streaming
+- 📺 **Canales de televisión en vivo** - Acceso a múltiples canales de noticias y otros en streaming
 - 🌍 **Filtrado por país** - Visualiza canales por región geográfica
 - 📂 **Importación de listas M3U** - Carga tus propias listas de canales en formato M3U
 - 🎨 **Temas personalizables** - Elige entre tema claro, oscuro y automático
 - 📱 **PWA instalable** - Descarga "teles" como aplicación en tu dispositivo
-- 🔍 **Búsqueda y filtrado** - Encuentra canales rápidamente por nombre o categoría (Noticias, Deportes, etc.)
+- 🔍 **Búsqueda y filtrado** - Encuentra canales rápidamente por nombre, país o categorías (Noticias, Deportes, etc.)
 - 💾 **Almacenamiento local** - Tus preferencias se guardan automáticamente en tu dispositivo
-- 📡 **Múltiples reproductores** - Soporta VideoJS, OPlayer y Clappr
+- 📡 **Múltiples reproductores** - Soporta VideoJS, OPlayer, Clappr y Shaka Player
 - ⚡ **Aplicación rápida y ligera** - Funciona incluso con conexiones lentas
 - 🔒 **Código abierto** - Contribuye y verifica la seguridad del código
 
