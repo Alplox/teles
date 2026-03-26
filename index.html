@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.23
+    teles v0.24
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -11,6 +11,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <base target="_blank">
     <title>Teles - Noticias de Chile (y el mundo)</title>
+    <!-- flash of light theme  -->
+    <script id="theme-loader">
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedTheme === 'dark' || (savedTheme === null && prefersDark);
+            document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+        })();
+    </script>
     <meta name="description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo)." />
     <!-- bootstrap -->
@@ -20,12 +29,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- video-js -->
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/core@latest/dist/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/hls@latest/dist/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/ui@latest/dist/index.min.js"></script>
+    <script src="https://unpkg.com/video.js/dist/video.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@oplayer/core@latest/dist/index.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@oplayer/hls@latest/dist/index.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@oplayer/ui@latest/dist/index.min.js" defer></script>
     <!-- Clappr -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js" defer></script>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
     <!-- Open Graph -->
@@ -49,7 +58,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
     <!-- isMobile -->
-    <script src="https://cdn.jsdelivr.net/npm/ismobilejs@1.1.1/dist/isMobile.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ismobilejs@1.1.1/dist/isMobile.min.js" defer></script>
     <!-- Service worker -->
     <meta name="theme-color" content="#212529" />
     <link rel="manifest" href="site.webmanifest">
@@ -69,9 +78,9 @@
         });
     </script>
     <!-- Sortable -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
     <!-- pwa-install -->
-    <script src="https://unpkg.com/@khmyznikov/pwa-install@0.3.5/dist/pwa-install.bundle.js"></script>
+    <script src="https://unpkg.com/@khmyznikov/pwa-install@0.3.5/dist/pwa-install.bundle.js" defer></script>
 </head>
 
 <body>
@@ -105,7 +114,7 @@
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.23</i>
+                            <i class="badge bg-secondary">v0.24</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -221,11 +230,11 @@
                                         class="bi bi-box-arrow-up-right"></i>
                                 </a>
                             </li>
- <li>
+                            <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li class="navbar-text dropdown-item user-select-none text-wrap">
-                               Variaciones de código abierto:
+                                Variaciones de código abierto:
                             </li>
                             <li>
                                 <a class='dropdown-item' href='https://monitortv.vercel.app/Monitores/Home'
@@ -692,7 +701,7 @@
     <div class="offcanvas offcanvas-start bg-transparent bg-blur border border-start-0 border-2 border-light-subtle rounded-end-5"
         id="offcanvas-canales" tabindex="-1" data-bs-scroll="true" aria-labelledby="offcanvas canales">
         <header class="offcanvas-header bg-transparent">
-            <h5 class="offcanvas-title text-light" id="offcanvas-canales">Selecciona tus canales</h5>
+            <h5 class="offcanvas-title text-light">Selecciona tus canales</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </header>
 
@@ -1310,7 +1319,7 @@
                             <input class="form-control fs-small" type="text"
                                 value="https://alplox.github.io/teles/#setup" aria-label="enlace configuración canales"
                                 readonly id="input-enlace-compartir-setup">
-                            <button type="button" class="btn btn-outline-indigo"
+                            <button type="button" class="btn btn-outline-indigo text-light"
                                 id="boton-copiar-enlace-compartir-setup">Copiar setup <i
                                     class="bi bi-clipboard"></i></button>
                         </div>
@@ -1472,8 +1481,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"
+        defer></script>
     <script src="assets/js/main.js" type="module"></script>
     <script src="assets/js/botones.js" type="module"></script>
 </body>

@@ -7,14 +7,18 @@ import {
 import { filterChannelsByInput, showToast } from "./index.js";
 import { syncCategoriesWithCountry } from "./syncFilters.js";
 
+/** @type {Set<string>} Tracks containers that have already been rendered. */
+const renderedContainers = new Set();
+
 /**
  * Creates and renders country filter buttons for all configured channel containers.
  * Counts available channels per country and ensures consistent ordering.
  * Configures event listeners for country selection and synchronization with category filters.
  *
+ * @param {string} [specificPrefix] - Optional prefix to render only one container.
  * @returns {void}
  */
-export function createCountryButtons() {
+export function createCountryButtons(specificPrefix) {
     try {
         const CHANNELS_WITH_COUNTRY = Object.values(channelsList).map(channel => {
             if (channel?.país !== '') {
@@ -68,8 +72,12 @@ export function createCountryButtons() {
             });
         }
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
-            const countryFilterContainer = document.querySelector(`#${PREFIX}-collapse-botones-listado-filtro-paises`);
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        for (const PREFIX of targets) {
+            const containerId = `${PREFIX}-collapse-botones-listado-filtro-paises`;
+            if (renderedContainers.has(containerId)) continue;
+
+            const countryFilterContainer = document.querySelector(`#${containerId}`);
             if (!countryFilterContainer) continue;
 
             const dropdownWrapper = document.createElement('div');
@@ -203,6 +211,7 @@ export function createCountryButtons() {
             dropdownWrapper.append(toggleButton, dropdownMenu);
             countryFilterContainer.innerHTML = '';
             countryFilterContainer.append(dropdownWrapper);
+            renderedContainers.add(containerId);
         }
     } catch (error) {
         console.error(`[teles] Error creating buttons for country filter: ${error}`);
@@ -222,7 +231,8 @@ export function createCountryButtons() {
             return div;
         };
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        for (const PREFIX of targets) {
             document.querySelector(`#${PREFIX}-channels-buttons-container`)?.insertAdjacentElement('afterend', insertErrorDiv(error, 'Ha ocurrido un error durante la creación de botones para filtro paises'));
         }
     }

@@ -7,13 +7,17 @@ import {
 import { filterChannelsByInput, showToast } from "./index.js";
 import { syncCountriesWithCategory } from "./syncFilters.js";
 
+/** @type {Set<string>} Tracks containers that have already been rendered. */
+const renderedContainers = new Set();
+
 /**
  * Creates and registers category filter buttons for all container prefixes.
  * Uses `channelsList` data to count channels per category and hooks up combined filtering
  * of text, country, and category via `filterChannelsByInput`.
+ * @param {string} [specificPrefix] - Optional prefix to render only one container.
  * @returns {void}
  */
-export function createCategoryButtons() {
+export function createCategoryButtons(specificPrefix) {
     try {
         const RAW_CATEGORIES = Object.values(channelsList).map(channel => {
             const categoryValue = channel?.categoría;
@@ -62,10 +66,12 @@ export function createCategoryButtons() {
             });
         }
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
-            const categoryFilterContainer = document.querySelector(
-                `#${PREFIX}-collapse-botones-listado-filtro-categorias`
-            );
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        for (const PREFIX of targets) {
+            const containerId = `${PREFIX}-collapse-botones-listado-filtro-categorias`;
+            if (renderedContainers.has(containerId)) continue;
+
+            const categoryFilterContainer = document.querySelector(`#${containerId}`);
             if (!categoryFilterContainer) continue;
 
             const dropdownWrapper = document.createElement("div");
@@ -206,6 +212,7 @@ export function createCategoryButtons() {
             dropdownWrapper.append(toggleButton, dropdownMenu);
             categoryFilterContainer.innerHTML = "";
             categoryFilterContainer.append(dropdownWrapper);
+            renderedContainers.add(containerId);
         }
     } catch (error) {
         console.error(`[teles] Error creating category filter buttons. ${error}`);
@@ -226,7 +233,8 @@ export function createCategoryButtons() {
             return div;
         };
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        for (const PREFIX of targets) {
             const channelButtonsContainer = document.querySelector(`#${PREFIX}-channels-buttons-container`);
             if (channelButtonsContainer) {
                 channelButtonsContainer.insertAdjacentElement(

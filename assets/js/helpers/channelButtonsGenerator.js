@@ -383,20 +383,31 @@ const executeScenario = (scenarioKey, context) => {
     scenario.onSelect(context);
 };
 
+/** @type {Set<string>} Tracks containers that have already been rendered. */
+const renderedContainers = new Set();
+
 /**
  * Renders channel buttons grouped by M3U list origin.
- * This is the main entry point for creating channel buttons on initial load.
+ * This is the main entry point for creating channel buttons.
+ * Optional param allows rendering only for a specific container (lazy load).
+ * @param {string} [specificPrefix] - Optional prefix to render only one container.
  * @returns {void}
  */
-export const createChannelButtons = () => {
+export const createChannelButtons = (specificPrefix) => {
     try {
         const groupedChannels = groupChannelsByOrigin();
-        renderButtonsInContainers(groupedChannels, MAIN_BUTTON_CONTAINER_IDS);
-        assignButtonEvents();
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
-            saveOriginalOrder(`${PREFIX}-channels-buttons-container`);
-        }
+        targets.forEach(prefix => {
+            const containerId = `${prefix}-channels-buttons-container`;
+            if (renderedContainers.has(containerId)) return;
+
+            renderButtonsInContainers(groupedChannels, [`#${containerId}`]);
+            renderedContainers.add(containerId);
+            saveOriginalOrder(containerId);
+        });
+
+        assignButtonEvents();
     } catch (error) {
         console.error(`[teles] Error creating channel buttons. Error: ${error}`);
         showToast({
@@ -408,26 +419,27 @@ export const createChannelButtons = () => {
             showReloadOnError: true
         });
 
-        for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
+        const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+        for (const PREFIX of targets) {
             document.querySelector(`#${PREFIX}-channels-buttons-container`)
                 ?.insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
         }
     }
 };
 
+const insertarDivError = (error, message) => {
+    const div = document.createElement('div');
+    div.className = 'alert alert-danger';
+    div.textContent = `${message}: ${error}`;
+    return div;
+}
+
 /**
  * Renders channel buttons in the "Change channel" modal container on demand.
  * @returns {void}
  */
 export const createButtonsForChangeChannelModal = () => {
-    try {
-        const groupedChannels = groupChannelsByOrigin();
-        renderButtonsInContainers(groupedChannels, ['#modal-cambiar-canal-channels-buttons-container']);
-        assignButtonEvents();
-        saveOriginalOrder('modal-cambiar-canal-channels-buttons-container');
-    } catch (error) {
-        console.error('[teles] Error creating buttons for "Change channel" modal:', error);
-    }
+    createChannelButtons('modal-cambiar-canal');
 };
 
 /**
@@ -435,12 +447,5 @@ export const createButtonsForChangeChannelModal = () => {
  * @returns {void}
  */
 export const createButtonsForSingleView = () => {
-    try {
-        const groupedChannels = groupChannelsByOrigin();
-        renderButtonsInContainers(groupedChannels, ['#single-view-channels-buttons-container']);
-        assignButtonEvents();
-        saveOriginalOrder('single-view-channels-buttons-container');
-    } catch (error) {
-        console.error('[teles] Error creating buttons for Single View:', error);
-    }
+    createChannelButtons('single-view');
 };

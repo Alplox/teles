@@ -1,5 +1,5 @@
 /* 
-  main v0.23
+  main v0.24
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -848,9 +848,17 @@ window.addEventListener('DOMContentLoaded', () => {
             await fetchLoadChannels();
             if (channelsList) {
                 const restoredLists = restorePersonalizedLists();
-                createChannelButtons();
-                createCountryButtons();
-                createCategoryButtons();
+
+                // Lazy load: Initial load OR Single View.
+                // Grid view active channels are handled by tele.add() individually.
+                // Selection lists in modals/offcanvas will be loaded on-demand.
+
+                if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+                    createChannelButtons('single-view');
+                    createCountryButtons('single-view');
+                    createCategoryButtons('single-view');
+                }
+
                 deleteInvalidSignalPreferences();
 
                 const currentUrl = new URL(window.location.href);
@@ -910,7 +918,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     (isMobile.any ? BOOTSTRAP_COL_NUMBER_MOBILE : BOOTSTRAP_COL_NUMBER_DESKTOP);
                 updateGridColumnConfiguration(lsBootstrapColNumber);
                 hideOverlayButtonText()
-                initializeBootstrapTooltips();
+
+                // Defer non-critical tooltips
+                requestAnimationFrame(() => {
+                    initializeBootstrapTooltips();
+                });
 
                 if (restoredLists > 0) {
                     renderPersonalizedListsUI();
@@ -1027,6 +1039,24 @@ window.addEventListener('DOMContentLoaded', () => {
     if (gridViewContainer) {
         OBSERVER.observe(gridViewContainer, OBSERVER_CONFIG);
     }
+
+    // MARK: 🚀 Lazy Loading Triggers
+    /**
+     * Set up lazy loading for modals and offcanvas elements.
+     * This avoids rendering hundreds of buttons on initial load.
+     */
+    ID_PREFIX_CONTAINERS_CHANNELS.filter(containerId => containerId !== 'single-view').forEach(containerId => {
+        const element = document.getElementById(containerId);
+        if (!element) return;
+
+        const eventName = containerId.startsWith('offcanvas') ? 'show.bs.offcanvas' : 'show.bs.modal';
+
+        element.addEventListener(eventName, () => {
+            createChannelButtons(containerId);
+            createCountryButtons(containerId);
+            createCategoryButtons(containerId);
+        });
+    });
 });
 
 // MARK: 📺 Channel management

@@ -4,6 +4,16 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.24]
+
+### Changed
+
+- Optimiza la carga inicial con renderizado diferido y scripts diferidos
+
+### Fixed
+
+- Se elimina el flash of light theme (FOUC)
+
 ## [v0.23]
 
 ### Changed
