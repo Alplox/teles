@@ -1,6 +1,7 @@
 import { crearFragmentCanal } from "../canalUI.js";
 import { tele } from "../main.js";
 import { showToast, adjustChannelButtonClass, saveChannelsToLocalStorage, registerManualChannelChange } from "../helpers/index.js";
+import { LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 
 /**
  * Replaces an active channel in the grid with a new one selected from the modal.
@@ -29,7 +30,19 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
             existingOverlayBar?.remove();
 
             // Insert new content
-            parentContainer.append(crearFragmentCanal(replacementChannelId));
+            const activeViewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+            const fragment = crearFragmentCanal(replacementChannelId, activeViewMode);
+
+            if (activeViewMode === 'free-view') {
+                const contentContainer = parentContainer.querySelector('.grid-stack-item-content');
+                if (contentContainer) {
+                    contentContainer.append(fragment);
+                } else {
+                    parentContainer.append(fragment);
+                }
+            } else {
+                parentContainer.append(fragment);
+            }
 
             // Update parent attribute to reflect the new channel
             parentContainer.setAttribute('data-canal', replacementChannelId);

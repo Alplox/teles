@@ -40,6 +40,8 @@ Para licencia del proyecto "teles" referirse al archivo LICENSE.
 
 * SorteableJS <https://sortablejs.github.io/Sortable/> - [(MIT)](https://github.com/SortableJS/Sortable/blob/master/LICENSE)
 
+* Gridstack.js <https://gridstackjs.com/> - [(MIT)](https://github.com/gridstack/gridstack.js/blob/master/LICENSE)
+
 * PWABuilder <https://www.pwabuilder.com/> - [(MIT)](https://github.com/pwa-builder/PWABuilder/blob/main/LICENSE.txt)
 
 * Workbox - [(MIT)](https://github.com/GoogleChrome/workbox/blob/v7/LICENSE)

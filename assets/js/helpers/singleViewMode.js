@@ -23,7 +23,8 @@ import {
     isDynamicUrlMode,
     dynamicUrlCheckbox,
     dynamicUrlValueSpan,
-    singleViewNoSignalIcon
+    singleViewNoSignalIcon,
+    freeViewContainer
 } from "../main.js";
 
 import {
@@ -36,7 +37,9 @@ import {
     cleanTransmissionResources,
     createButtonsForSingleView,
     loadSingleViewOrder,
-    adjustVisibilityButtonsRemoveAllActiveChannels
+    adjustVisibilityButtonsRemoveAllActiveChannels,
+    createCountryButtons,
+    createCategoryButtons
 } from "./index.js";
 
 import {
@@ -52,37 +55,56 @@ const COPY_SHARE_LINK_BUTTON = document.querySelector('#boton-copiar-enlace-comp
 const SHARE_LINK_INPUT = document.querySelector('#input-enlace-compartir-setup');
 
 /**
+ * Disables grid view-specific controls when switching to single view mode or free view mode.
+ * Updates UI elements to indicate they are unavailable in single view or free view mode.
+ * @returns {void}
+ */
+export const toggleGridViewControls = (isFreeOrSingleView) => {
+    if (isFreeOrSingleView) {
+        // Disable width range controls
+        widthRangeInput.disabled = true;
+        widthRangeValue.textContent = 'solo en visión cuadrícula';
+        // Disable full height controls
+        fullHeightCheckbox.disabled = true;
+
+        // Disable channels per row buttons
+        numberChannelsPerRowButtons.forEach(btn => { btn.disabled = true; });
+        numberChannelsPerRowSpan.innerHTML = 'solo en visión cuadrícula';
+    } else {
+        // Enable width range controls
+        widthRangeInput.disabled = false;
+        widthRangeValue.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
+        // Enable full height controls
+        fullHeightCheckbox.disabled = false;
+
+        // Enable channels per row buttons
+        numberChannelsPerRowButtons.forEach(btn => { btn.disabled = false; });
+        numberChannelsPerRowSpan.innerHTML = `${obtainNumberOfChannelsPerRow()}`;
+    }
+};
+
+/**
  * Disables grid view-specific controls when switching to single view mode.
  * Updates UI elements to indicate they are unavailable in single view.
  * @returns {void}
  */
-const disableGridViewControls = () => {
+const disableGridAndFreeViewControls = () => {
     // Disable dynamic URL controls
     if (dynamicUrlCheckbox) {
         dynamicUrlCheckbox.disabled = true;
     }
     if (dynamicUrlValueSpan) {
         dynamicUrlValueSpan.dataset.textoPrevio = dynamicUrlValueSpan.textContent || '';
-        dynamicUrlValueSpan.textContent = '[solo en visión cuadrícula]';
+        dynamicUrlValueSpan.textContent = '[solo en visión cuadrícula/libre]';
     }
 
     // Disable share setup controls
     COPY_SHARE_LINK_BUTTON?.setAttribute('disabled', 'disabled');
-    COPY_SHARE_LINK_BUTTON.innerHTML= '[solo en visión cuadrícula]';
+    COPY_SHARE_LINK_BUTTON.innerHTML = '[solo en visión cuadrícula/libre]';
 
     SHARE_LINK_INPUT?.setAttribute('disabled', 'disabled');
 
-    // Disable width range controls
-    widthRangeInput.disabled = true;
-    widthRangeValue.textContent = 'Deshabilitado';
-
-    // Disable full height controls
-    fullHeightCheckbox.disabled = true;
-    fullHeightSpan.textContent = 'Deshabilitado';
-
-    // Disable channels per row buttons
-    numberChannelsPerRowButtons.forEach(btn => { btn.disabled = true; });
-    numberChannelsPerRowSpan.innerHTML = 'Deshabilitado';
+    toggleGridViewControls(true);
 };
 
 /**
@@ -106,7 +128,7 @@ const enableGridViewControls = () => {
 
     // Enable share setup controls
     COPY_SHARE_LINK_BUTTON?.removeAttribute('disabled');
-    COPY_SHARE_LINK_BUTTON.innerHTML= 'Copiar setup <i class="bi bi-clipboard"></i>';
+    COPY_SHARE_LINK_BUTTON.innerHTML = 'Copiar setup <i class="bi bi-clipboard"></i>';
     SHARE_LINK_INPUT?.removeAttribute('disabled');
 
     // Enable width range controls
@@ -173,6 +195,8 @@ const backupActiveChannels = () => {
     const activeChannelsInDOM = gridViewContainer.querySelectorAll('div[data-canal]');
 
     activeChannelsInDOM.forEach(channelDiv => {
+        // Clear resources before clearing HTML
+        cleanTransmissionResources(channelDiv);
         // Clear HTML instead of removing to avoid triggering observer
         channelDiv.innerHTML = '';
         channelDiv.dataset.respaldo = channelDiv.dataset.canal;
@@ -252,19 +276,22 @@ export function activateSingleView() {
         const singleViewButtonsContainer = document.querySelector('#single-view-channels-buttons-container');
         if (singleViewButtonsContainer && !singleViewButtonsContainer.querySelector('button[data-canal]')) {
             createButtonsForSingleView();
+            createCountryButtons('single-view');
+            createCategoryButtons('single-view');
         }
 
         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'single-view');
 
         // In single view, clear any shared parameter `c` and disable grid-specific controls
         clearSharedUrlParameter(true);
-        disableGridViewControls();
+        disableGridAndFreeViewControls();
 
         resetChannelButtonStyles();
         backupActiveChannels();
 
         // Toggle view containers visibility
         gridViewContainer.classList.add('d-none');
+        freeViewContainer.classList.add('d-none');
         singleViewContainer.classList.remove('d-none');
 
         updateNavigationForViewMode(true);
@@ -340,7 +367,10 @@ export function deactivateSingleView({ skipDefaultChannelsLoad = false } = {}) {
         }
 
         // Toggle view containers visibility
+        // Grid or Free view will be correctly activated afterwards if this function is called via toggle switch.
+        // If returning naturally from single view closure, grid view triggers.
         gridViewContainer.classList.remove('d-none');
+        freeViewContainer.classList.add('d-none');
         singleViewContainer.classList.add('d-none');
 
         updateNavigationForViewMode(false);

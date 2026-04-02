@@ -27,10 +27,12 @@ export const clearSharedUrlParameter = (force = false) => {
 
 export const getActiveChannelIds = () => {
     try {
-        const isSingleView = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
+        const activeMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        const isSingleView = activeMode === 'single-view';
         let activeChannels = [];
 
-        // In grid view we prefer the saved list (for sync and persistence)
+        // In both grid view and free view we prefer the saved list (for sync and persistence).
+        // LS_KEY_SAVED_CHANNELS_GRID_VIEW safely holds active channels for both modes.
         if (!isSingleView) {
             const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
             if (payload) {

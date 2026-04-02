@@ -37,6 +37,8 @@ export const clearChannelListContainers = () => {
         if (singleViewContainer) {
             try {
                 createButtonsForSingleView();
+                createCountryButtons('single-view');
+                createCategoryButtons('single-view');
             } catch (error) {
                 console.error('[teles] Error recreating Single View buttons after updating list', error);
             }

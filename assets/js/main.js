@@ -1,5 +1,5 @@
 /* 
-  main v0.25
+  main v0.26
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -45,7 +45,8 @@ import {
     OVERLAY_BUTTONS_CONFIG,
     CSS_CLASS_BUTTON_PRIMARY,
     AMBIENT_MUSIC,
-    ID_PREFIX_CONTAINERS_CHANNELS
+    ID_PREFIX_CONTAINERS_CHANNELS,
+    LS_KEY_TELES_GRIDSTACK_LAYOUT
 } from './constants/index.js';
 
 import {
@@ -81,7 +82,8 @@ import {
     clearChannelListContainers,
     resyncActiveChannelsVisualState,
     renderPersonalizedListsUI,
-    getActiveChannelIds
+    getActiveChannelIds,
+    toggleGridViewControls
 } from './helpers/index.js';
 
 import {
@@ -94,6 +96,38 @@ import {
 
 // MARK: 📦 Exports
 export let gridViewContainer;
+export let freeViewContainer;
+export let gridStackInstance;
+
+export const saveGridStackLayout = () => {
+    if (!gridStackInstance) return;
+
+    // Read the prior saved state to prevent sequential loading from erasing inactive configurations
+    const savedPayload = localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT);
+    let layout = {};
+    if (savedPayload) {
+        try {
+            layout = JSON.parse(savedPayload);
+        } catch (e) {
+            console.error('[teles] Error loading prior gridstack layout:', e);
+        }
+    }
+
+    const items = freeViewContainer.querySelectorAll('.grid-stack-item');
+    items.forEach(item => {
+        const id = item.getAttribute('data-canal');
+        if (id && item.gridstackNode) {
+            layout[id] = {
+                x: item.gridstackNode.x,
+                y: item.gridstackNode.y,
+                w: item.gridstackNode.w,
+                h: item.gridstackNode.h
+            };
+        }
+    });
+
+    localStorage.setItem(LS_KEY_TELES_GRIDSTACK_LAYOUT, JSON.stringify(layout));
+};
 
 export let singleViewContainer;
 export let singleViewGrid;
@@ -162,6 +196,17 @@ window.addEventListener('DOMContentLoaded', () => {
     singleViewContainer = document.querySelector('#container-single-view');
     singleViewVideoContainer = document.querySelector('#container-video-single-view');
     gridViewContainer = document.querySelector('#container-vision-cuadricula');
+    freeViewContainer = document.querySelector('#container-vision-libre');
+
+    // plugin to move channels in grid using Sortable
+    new Sortable(gridViewContainer, {
+        animation: 150,
+        ghostClass: 'clase-fantasma-arrastre-sortable',
+        handle: '.clase-para-mover',
+        onEnd: function () {
+            saveChannelsToLocalStorage();
+        },
+    });
 
     dynamicUrlCheckbox = document.querySelector('#checkbox-url-dinamica')
     dynamicUrlValueSpan = document.querySelector('#span-valor-url-dinamica');
@@ -195,32 +240,104 @@ window.addEventListener('DOMContentLoaded', () => {
     // MARK: View mode
     const gridViewActivateButtonEl = document.querySelector('#boton-activar-diseño-vision-grid');
     const singleViewActivateButtonEl = document.querySelector('#boton-activar-diseño-single-view');
+    const freeViewActivateButtonEl = document.querySelector('#boton-activar-diseño-free-view');
+
+    const updateViewButtonsState = (activeId) => {
+        const toggleMap = {
+            'grid-view': gridViewActivateButtonEl,
+            'single-view': singleViewActivateButtonEl,
+            'free-view': freeViewActivateButtonEl
+        };
+        Object.keys(toggleMap).forEach(mode => {
+            if (activeId === mode && toggleMap[mode]) {
+                toggleMap[mode].classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
+            } else if (toggleMap[mode]) {
+                toggleMap[mode].classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+            }
+        });
+    };
+
+    // Initialize UI on load
+    updateViewButtonsState(localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view');
+
+
+
+
+
+
+    const switchGridToFreeViewAndBack = (targetMode) => {
+        if (targetMode === 'single-view') return;
+
+        // Limpieza exhaustiva antes de cambiar modo
+        const activeIds = Object.keys(JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {});
+
+        // 1. Limpiar recursos de Gridstack (Vista Libre)
+        if (freeViewContainer) {
+            const currentLibreItems = freeViewContainer.querySelectorAll('div[data-canal]');
+            currentLibreItems.forEach(item => cleanTransmissionResources(item));
+        }
+
+        // 2. Limpiar recursos de Grid (Vista Cuadrícula)
+        if (gridViewContainer) {
+            const currentGridItems = gridViewContainer.querySelectorAll('div[data-canal]');
+            currentGridItems.forEach(item => cleanTransmissionResources(item));
+        }
+
+        // 3. Vaciar contenedores
+        gridViewContainer.innerHTML = '';
+        if (gridStackInstance) gridStackInstance.removeAll(true); // remove widgets and DOM nodes
+
+        localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, targetMode);
+
+        gridViewContainer.classList.toggle('d-none', targetMode !== 'grid-view');
+        freeViewContainer.classList.toggle('d-none', targetMode !== 'free-view');
+
+        toggleGridViewControls(targetMode === 'free-view');
+
+        // Unmount and reload channels using tele.add
+        activeIds.forEach(id => {
+            if (channelsList[id]) tele.add(id);
+        });
+    };
 
     singleViewActivateButtonEl.addEventListener('click', () => {
-        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') {
+        const currentMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE);
+        if (currentMode !== 'single-view') {
             activateSingleView();
-            singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
-            gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+            updateViewButtonsState('single-view');
         } else {
-            showToast({
-                title: 'Ya estas en modo visión única',
-                type: 'info'
-            });
+            showToast({ title: 'Ya estas en modo visión única', type: 'info' });
         }
-    })
+    });
 
     gridViewActivateButtonEl.addEventListener('click', () => {
-        if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
-            deactivateSingleView();
-            singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
-            gridViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
+        const currentMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        if (currentMode !== 'grid-view') {
+            if (currentMode === 'single-view') {
+                deactivateSingleView();
+            } else {
+                switchGridToFreeViewAndBack('grid-view');
+            }
+            updateViewButtonsState('grid-view');
         } else {
-            showToast({
-                title: 'Ya estas en modo visión cuadrícula',
-                type: 'info'
-            });
+            showToast({ title: 'Ya estas en modo visión cuadrícula', type: 'info' });
         }
-    })
+    });
+
+    freeViewActivateButtonEl.addEventListener('click', () => {
+        const currentMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        if (currentMode !== 'free-view') {
+            if (currentMode === 'single-view') {
+                deactivateSingleView({ skipDefaultChannelsLoad: true });
+                switchGridToFreeViewAndBack('free-view');
+            } else {
+                switchGridToFreeViewAndBack('free-view');
+            }
+            updateViewButtonsState('free-view');
+        } else {
+            showToast({ title: 'Ya estas en modo visión libre', type: 'info' });
+        }
+    });
 
 
     // MARK: Overlay buttons 
@@ -923,6 +1040,10 @@ window.addEventListener('DOMContentLoaded', () => {
                         deactivateSingleView({ skipDefaultChannelsLoad: true });
                         singleViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
                         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, 'grid-view');
+                    } else if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'free-view') {
+                        // Ensure containers are correctly toggled before loading channels from URL
+                        gridViewContainer.classList.add('d-none');
+                        freeViewContainer.classList.remove('d-none');
                     }
                     sharedChannels.forEach(canalId => tele.add(canalId));
                     isLoadingFromSharedUrl = false;
@@ -949,6 +1070,12 @@ window.addEventListener('DOMContentLoaded', () => {
                         activateSingleView();
                         singleViewActivateButtonEl.classList.replace('btn-light-subtle', CSS_CLASS_BUTTON_PRIMARY);
                         gridViewActivateButtonEl.classList.replace(CSS_CLASS_BUTTON_PRIMARY, 'btn-light-subtle');
+                    } else if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'free-view') {
+                        // Free View: restore saved channel IDs the same way Grid View does
+                        gridViewContainer.classList.add('d-none');
+                        freeViewContainer.classList.remove('d-none');
+                        toggleGridViewControls(true);
+                        tele.loadDefaultChannels();
                     } else {
                         tele.loadDefaultChannels();
                     }
@@ -982,9 +1109,7 @@ window.addEventListener('DOMContentLoaded', () => {
             return
         }
     }
-    initialLoad();
-
-    adjustVisibilityButtonsRemoveAllActiveChannels()
+    // initialLoad() moved down after Gridstack initialization
 
     // Glow effect on background logo hover
     const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
@@ -1005,21 +1130,54 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // MARK: others
-    // plugin to move channels in grid
-    new Sortable(gridViewContainer, {
-        animation: 350,
+    // plugin to move channels in grid using GridStack
+    gridStackInstance = GridStack.init({
+        margin: 0,
+        cellHeight: '10rem',
+        animate: true,
         handle: '.clase-para-mover',
-        easing: "cubic-bezier(.17,.67,.83,.67)",
-        ghostClass: 'marca-al-mover',
-        onStart: () => {
-            disposeBootstrapTooltips(); // evitamos tooltips flotando al mover
-        },
-        onEnd: () => {
-            initializeBootstrapTooltips();
-            saveChannelsToLocalStorage();
-            registerManualChannelChange();
+        cancel: 'input, textarea, select, option', // overrides default blocking on .btn
+        float: true,  // Permite que los elementos “floten” y se reorganicen libremente. Si está en false, los widgets se ajustan rígidamente a la grilla sin dejar huecos.
+        column: 12,   // Número de columnas de la grilla. Es similar a sistemas como Bootstrap (12 columnas).
+
+        resizable: {
+            handles: 'all',
+            autoHide: true
         }
+    }, freeViewContainer);
+
+    gridStackInstance.on('change', () => {
+        saveGridStackLayout();
     });
+    gridStackInstance.on('resizestop', () => {
+        saveGridStackLayout();
+    });
+    gridStackInstance.on('dragstop', () => {
+        saveGridStackLayout();
+        initializeBootstrapTooltips();
+        registerManualChannelChange();
+        saveChannelsToLocalStorage();
+    });
+    gridStackInstance.on('dragstart', () => {
+        disposeBootstrapTooltips();
+    });
+    gridStackInstance.on('removed', (event, items) => {
+        items.forEach(item => {
+            const channelId = item.el?.getAttribute('data-canal');
+            if (channelId) {
+                // Limpieza de recursos (videojs, iframes, etc)
+                cleanTransmissionResources(item.el);
+                // tele.remove se encarga de actualizar el localStorage y el estado de los botones
+                tele.remove(channelId);
+            }
+        });
+        saveGridStackLayout();
+        saveChannelsToLocalStorage();
+        adjustVisibilityButtonsRemoveAllActiveChannels();
+    });
+
+    initialLoad();
+    adjustVisibilityButtonsRemoveAllActiveChannels();
 
 
     singleViewGrid = document.querySelector('.single-view-grid');
@@ -1082,6 +1240,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (gridViewContainer) {
         OBSERVER.observe(gridViewContainer, OBSERVER_CONFIG);
     }
+    if (freeViewContainer) {
+        OBSERVER.observe(freeViewContainer, OBSERVER_CONFIG);
+    }
 
     // MARK: 🚀 Lazy Loading Triggers
     /**
@@ -1114,9 +1275,17 @@ export let tele = {
     add: (channelId) => {
         try {
             if (!channelId || !channelsList?.[channelId]) return console.error(`[teles] The channel "${channelId}" provided is not valid to be added.`);
+
+            const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+            const isSingleView = viewMode === 'single-view';
+            const isFreeView = viewMode === 'free-view';
+
+            if (isSingleView && singleViewVideoContainer?.querySelector(`div[data-canal="${channelId}"]`)) return;
+            if (!isSingleView && !isFreeView && gridViewContainer.querySelector(`div[data-canal="${channelId}"]`)) return;
+            if (isFreeView && freeViewContainer.querySelector(`div[data-canal="${channelId}"]`)) return;
+
             const channelContainer = document.createElement('div');
             channelContainer.setAttribute('data-canal', channelId);
-            const isSingleView = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view';
 
             if (isSingleView) {
                 // Single view must have at most one active channel.
@@ -1124,14 +1293,39 @@ export let tele = {
                 if (channelInUse && channelInUse.dataset.canal && channelInUse.dataset.canal !== channelId) {
                     tele.remove(channelInUse.dataset.canal);
                 }
-
                 channelContainer.classList.add('position-relative', 'shadow', 'h-100', 'w-100');
-                channelContainer.append(crearFragmentCanal(channelId));
+                channelContainer.append(crearFragmentCanal(channelId, viewMode));
                 singleViewVideoContainer.append(channelContainer);
                 singleViewNoSignalIcon.classList.add('d-none');
+            } else if (isFreeView) {
+                channelContainer.classList.add('grid-stack-item');
+                const fragmentContainer = document.createElement('div');
+                fragmentContainer.classList.add('grid-stack-item-content', 'position-relative', 'shadow', 'h-100', 'w-100', 'overflow-hidden');
+                fragmentContainer.append(crearFragmentCanal(channelId, viewMode));
+                channelContainer.append(fragmentContainer);
+
+                const layouts = JSON.parse(localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT)) || {};
+                const optimalW = Math.max(2, Math.floor(12 / obtainNumberOfChannelsPerRow()));
+                const layout = layouts[channelId] || { w: optimalW, h: 3 };
+
+                channelContainer.setAttribute('gs-id', channelId);
+
+                gridStackInstance.addWidget({
+                    el: channelContainer,
+                    id: channelId,
+                    w: layout.w,
+                    h: layout.h,
+                    x: layout.x,
+                    y: layout.y,
+                    minW: 2,
+                    minH: 1
+                });
+                saveChannelsToLocalStorage();
+                // Note: saveGridStackLayout() is triggered automatically via the 'change' event
+                // Calling it here again would reset partially-loaded layouts during batch initialization
             } else {
                 channelContainer.classList.add('position-relative', 'shadow');
-                channelContainer.append(crearFragmentCanal(channelId));
+                channelContainer.append(crearFragmentCanal(channelId, viewMode));
                 gridViewContainer.append(channelContainer);
                 saveChannelsToLocalStorage();
             }
@@ -1139,7 +1333,8 @@ export let tele = {
             initializeBootstrapTooltips();
             hideOverlayButtonText();
             registerManualChannelChange();
-            adjustBootstrapColumnClasses();
+            adjustVisibilityButtonsRemoveAllActiveChannels?.();
+            if (!isSingleView) adjustBootstrapColumnClasses();
         } catch (error) {
             console.error(`[teles] Error while creating channel container id: ${channelId}. Error: ${error}`);
             showToast({
@@ -1160,31 +1355,50 @@ export let tele = {
     remove: (channelId) => {
         try {
             if (!channelId) return console.error(`[teles] The channel "${channelId}" provided is not valid for removal.`);
-            let transmissionToRemove = document.querySelector(`div[data-canal="${channelId}"]`);
+
+            const currentMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE);
+            const isSingleView = currentMode === 'single-view';
+            const isFreeView = currentMode === 'free-view';
+
+            let activeContainer;
+            if (isSingleView) activeContainer = singleViewContainer;
+            else if (isFreeView) activeContainer = freeViewContainer;
+            else activeContainer = gridViewContainer;
+
+            let transmissionToRemove = activeContainer.querySelector(`div[data-canal="${channelId}"]`);
 
             if (!transmissionToRemove) {
-                adjustChannelButtonClass(channelId, false);
-                return;
+                // Secondary check for ghost nodes in case of unexpected state
+                transmissionToRemove = document.querySelector(`div[data-canal="${channelId}"]`);
+                if (!transmissionToRemove) {
+                    adjustChannelButtonClass(channelId, false);
+                    return;
+                }
             }
 
             // Clean resources before removing the container; iframe, videojs, clappr, oplayer
             cleanTransmissionResources(transmissionToRemove);
             // Remove tooltips; floating overlay buttons
             disposeBootstrapTooltips();
-            // Remove container from DOM
-            transmissionToRemove.remove();
 
-
-            // If single view, show the no-signal icon
-            if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) === 'single-view') {
+            const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+            if (viewMode === 'single-view') {
+                transmissionToRemove.remove();
                 singleViewNoSignalIcon.classList.remove('d-none');
-            } else {
+            } else if (viewMode === 'free-view') {
+                gridStackInstance.removeWidget(transmissionToRemove, true);
                 saveChannelsToLocalStorage();
+                saveGridStackLayout();
+            } else {
+                transmissionToRemove.remove();
+                saveChannelsToLocalStorage();
+                adjustBootstrapColumnClasses();
             }
 
             adjustChannelButtonClass(channelId, false);
             initializeBootstrapTooltips();
             registerManualChannelChange();
+            adjustVisibilityButtonsRemoveAllActiveChannels?.();
         } catch (error) {
             console.error(`[teles] Error while removing channel container id: ${channelId}. Error: ${error}`);
             showToast({

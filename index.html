@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.25
+    teles v0.26
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -77,6 +77,9 @@
             Santiago_z179: {}
         });
     </script>
+    <!-- Gridstack -->
+    <link href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack-all.js" defer></script>
     <!-- Sortable -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
     <!-- pwa-install -->
@@ -114,14 +117,13 @@
                     <div class="position-relative bg-light-subtle p-3 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.25</i>
+                            <i class="badge bg-secondary">v0.26</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
 
                     <!-- Controles de audio para música ambiente -->
-                    <div id="audio-controls"
-                        class="z-3 d-flex flex-column gap-2 align-items-center bg-info-subtle p-2 rounded-4">
+                    <div id="audio-controls" class="z-3 d-flex flex-column gap-2 align-items-center p-2 rounded-4">
                         <button id="ambient-music-toggle"
                             class="btn btn-sm rounded-pill d-flex align-items-center gap-2"
                             title="Reproducir música ambiente">
@@ -187,7 +189,7 @@
                     <i class="bi bi-collection-play"></i> Canales
                 </button>
             </div>
-            <span class="reloj px-4" title="Hora Santiago, Chile" data-bs-toggle="tooltip"
+            <span class="reloj px-2 px-md-4" title="Hora Santiago, Chile" data-bs-toggle="tooltip"
                 data-bs-title="Hora Santiago, Chile">
                 <time id="Santiago_z179" tabindex="-1">
                     <span onclick="location='http://time.is/'" title="http://time.is/" tabindex="-1"></span>
@@ -269,7 +271,11 @@
 
     <!-- Grid canales -->
     <main class='vh-100'>
-        <!-- version vision cuadricula -->
+        <!-- version vision libre (gridstack) -->
+        <div class="grid-stack grid-stack-background d-none h-100" id="container-vision-libre">
+        </div>
+
+        <!-- version vision cuadricula (bootstrap grid) -->
         <div class="row g-0 h-100" id="container-vision-cuadricula">
         </div>
 
@@ -984,36 +990,24 @@
                     </div>
                 </li>
                 <li class="w-100">
-                    <div class="py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                    <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
+                        <p class="mb-1"><i class="bi bi-display"></i> Diseño de visualización</p>
                         <div class="d-flex gap-2 justify-content-evenly align-items-center">
                             <button type="button" id="boton-activar-diseño-vision-grid"
                                 class="focus-outline-blue btn btn-sm btn-indigo rounded-start-5 shadow-sm d-flex gap-1 border-0 w-100 h-100 justify-content-center align-items-center"
-                                tabindex="0">
-                                <span class="w-100 h-100"><i class="bi bi-grid-3x2"></i> Visión cuadrícula</span>
+                                tabindex="0" title="Visión cuadrícula (Sortable)">
+                                <span class="w-100 h-100"><i class="bi bi-grid-3x2"></i> Cuadrícula</span>
                             </button>
                             <button type="button" id="boton-activar-diseño-single-view"
-                                class="focus-outline-blue btn btn-sm btn-light-subtle rounded-end-5 shadow-sm d-flex gap-1 border-0 w-100 h-100 justify-content-center align-items-center"
-                                tabindex="0">
-                                <span class="w-100 h-100"><i class="bi bi-layout-sidebar"></i> Visión única</span>
+                                class="focus-outline-blue btn btn-sm btn-light-subtle rounded-0 shadow-sm d-flex gap-1 border-0 w-100 h-100 justify-content-center align-items-center"
+                                tabindex="0" title="Visión única">
+                                <span class="w-100 h-100"><i class="bi bi-layout-sidebar"></i> Única</span>
                             </button>
-                        </div>
-                    </div>
-                </li>
-                <li class="w-100">
-                    <div class="w-100 py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow mt-2">
-                        <div class="form-check form-switch d-flex align-items-center gap-2"
-                            title="mostrar logos en botones de canales">
-                            <input class="form-check-input" type="checkbox" role="switch"
-                                id="checkbox-mostrar-logos-botones">
-                            <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
-                                for="checkbox-mostrar-logos-botones">
-                                Mostrar logos canales
-                                <div class="fs-smaller text-secondary">
-                                    <span id="span-valor-mostrar-logos-botones"></span>
-                                </div>
-                                <i class="bi bi-image ms-auto bg-light-subtle px-2 py-1 rounded-circle"
-                                    id="icono-mostrar-logos-botones"></i>
-                            </label>
+                            <button type="button" id="boton-activar-diseño-free-view"
+                                class="focus-outline-blue btn btn-sm btn-light-subtle rounded-end-5 shadow-sm d-flex gap-1 border-0 w-100 h-100 justify-content-center align-items-center"
+                                tabindex="0" title="Visión libre (Gridstack)">
+                                <span class="w-100 h-100"><i class="bi bi-aspect-ratio"></i> Libre</span>
+                            </button>
                         </div>
                     </div>
                 </li>
@@ -1122,6 +1116,24 @@
                                 </div>
                                 <i class="bi bi-sun bg-light-subtle px-2 py-1 rounded-circle ms-auto"
                                     id="icon-bootstrap-current-theme"></i>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+                <li class="w-100">
+                    <div class="w-100 py-2 px-3 bg-dark-subtle rounded-pill border border-light-subtle shadow">
+                        <div class="form-check form-switch d-flex align-items-center gap-2"
+                            title="mostrar logos en botones de canales">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                id="checkbox-mostrar-logos-botones">
+                            <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
+                                for="checkbox-mostrar-logos-botones">
+                                Mostrar logos canales
+                                <div class="fs-smaller text-secondary">
+                                    <span id="span-valor-mostrar-logos-botones"></span>
+                                </div>
+                                <i class="bi bi-image ms-auto bg-light-subtle px-2 py-1 rounded-circle"
+                                    id="icono-mostrar-logos-botones"></i>
                             </label>
                         </div>
                     </div>

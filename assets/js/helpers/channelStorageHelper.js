@@ -1,7 +1,7 @@
 import { channelsList } from "../channelManager.js";
 import { showToast } from "../helpers/index.js";
 import { LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
-import { gridViewContainer } from "../main.js";
+import { gridViewContainer, freeViewContainer } from "../main.js";
 
 /**
  * Saves the list of currently active channels in the grid view to local storage.
@@ -18,7 +18,10 @@ export const saveChannelsToLocalStorage = () => {
             return;
         }
 
-        const activeChannelsInDom = gridViewContainer.querySelectorAll('div[data-canal]');
+        // Use the correct container depending on current view mode
+        const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        const activeContainer = viewMode === 'free-view' ? freeViewContainer : gridViewContainer;
+        const activeChannelsInDom = activeContainer.querySelectorAll('div[data-canal]');
         const channelsToSave = {};
 
         activeChannelsInDom.forEach(channelDiv => {

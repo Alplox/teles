@@ -1,4 +1,4 @@
-import { CSS_CLASS_BUTTON_PRIMARY, LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, LS_KEY_BOOTSTRAP_COL_NUMBER } from "../constants/index.js";
+import { CSS_CLASS_BUTTON_PRIMARY, LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, LS_KEY_BOOTSTRAP_COL_NUMBER, LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { showToast } from "./index.js";
 import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
 
@@ -22,12 +22,16 @@ const assignColumnClasses = (transmissionElement, classesToAdd) => {
 
 /**
  * Adjusts the Bootstrap column classes for all active channels in the grid based on current settings.
- * Handles responsive behavior and full-height mode logic.
+ * Only applies to Grid View. Free View channels are managed exclusively by Gridstack.
  * @returns {void}
  */
 export const adjustBootstrapColumnClasses = () => {
     try {
         if (typeof isMobile === 'undefined' || !gridViewContainer) return;
+
+        // Skip entirely for Free View — Gridstack owns layout there
+        const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        if (viewMode === 'free-view') return;
 
         const activeTransmissions = gridViewContainer.querySelectorAll('div[data-canal]');
         const storedColNumber = JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER));
@@ -99,6 +103,7 @@ export const adjustBootstrapColumnClasses = () => {
         });
     }
 };
+
 
 /**
  * Updates the grid layout based on the user's selected column count (channels per row).

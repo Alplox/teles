@@ -1,5 +1,5 @@
 /* 
-    style v0.25
+    style v0.26
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -385,9 +385,9 @@ pwa-update {
 /* barra sobre canales */
 .barra-overlay {
   opacity: 0.5;
-  z-index: 10;
-  /* index 2, para casos error carga videojs */
+  z-index: 100; /* Asegurar que esté por encima de cualquier capa del reproductor */
   display: flex !important;
+  pointer-events: none; /* Permitir que clicks pasen al video por defecto, pero los hijos reactivaran pe */
 
   &:hover,
   &:focus-within {
@@ -421,15 +421,28 @@ pwa-update {
 #overlay-boton-cambiar,
 #overlay-boton-pagina-oficial,
 #overlay-boton-quitar {
-  display: inline;
+  display: inline-flex;
+  pointer-events: auto; /* Reactivar eventos para los botones de la barra */
 }
 
-.d-none__barras-overlay__overlay-boton-selecionar-señal #overlay-boton-selecionar-señal {
-  display: none !important;
+/* Evitar que iframes interfieran con el inicio del arrastre si el mouse está cerca del handle */
+.clase-para-mover {
+  cursor: move !important;
+  z-index: 110 !important;
 }
 
-.d-none__barras-overlay__overlay-boton-mover #overlay-boton-mover {
-  display: none !important;
+/* Escudo protector durante el arrastre (clase añadida por Gridstack o globalmente) */
+.grid-stack-item.ui-draggable-dragging .ratio iframe,
+.grid-stack-item.ui-resizable-resizing .ratio iframe {
+  pointer-events: none !important;
+}
+
+.grid-stack-item .ui-resizable-handle {
+  opacity: 0;
+}
+
+.grid-stack-item:hover .ui-resizable-handle {
+  opacity: 1;
 }
 
 .d-none__barras-overlay__overlay-boton-cambiar #overlay-boton-cambiar {
@@ -442,6 +455,14 @@ pwa-update {
 
 .d-none__barras-overlay__overlay-boton-quitar #overlay-boton-quitar {
   display: none !important;
+}
+
+.grid-stack-background {
+  pointer-events: none !important;
+}
+
+.grid-stack-item {
+  pointer-events: auto !important;
 }
 
 .single-view-grid {
@@ -1037,60 +1058,18 @@ button[aria-expanded="false"] .icono-filtros-estado {
   background-color: rgba(0, 0, 0, 0.2) !important;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-
-  &:hover {
-    .shaka-bottom-controls {
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      background: rgba(0, 0, 0, 0.3);
-      transition: all 0.5s ease-in-out;
-    }
-  }
 }
 
 .shaka-video-container video {
   background-color: transparent !important;
 }
 
-/* .shaka-controls-container {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%) !important;
-} */
-
 .shaka-range-element {
   color: var(--bs-indigo) !important;
 }
 
-.shaka-play-button-container {
-  background: rgba(75, 1, 195, 0.4) !important; /* Indigo con transparencia */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 50%;
-  transition: transform 0.2s ease;
-}
-
-.shaka-play-button-container:hover {
-  transform: scale(1.1);
-  background: rgba(75, 1, 195, 0.6) !important;
-}
-
-.shaka-settings-menu, .shaka-overflow-menu {
-  background: rgba(20, 20, 20, 0.85) !important;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-}
-
-.shaka-settings-menu button:hover, .shaka-overflow-menu button:hover {
-  background: rgba(75, 1, 195, 0.3) !important;
-}
-
 .shaka-bottom-controls {
   padding: 0 1rem 0.5rem 1rem !important;
-  /* backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.3); */
   border-radius: 0 0 12px 12px;
 }
 

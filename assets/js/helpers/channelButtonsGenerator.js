@@ -3,7 +3,6 @@ import { CSS_CLASS_BUTTON_PRIMARY, CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CA
 import { singleViewVideoContainer, tele } from "../main.js";
 import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel, getActiveChannelIds } from "./index.js";
 
-import { changeChannelModalEl } from "../canalUI.js";
 
 /** @type {string} SVG placeholder for channels with unknown country */
 const SVG_UNKNOWN_COUNTRY = `
@@ -13,12 +12,6 @@ const SVG_UNKNOWN_COUNTRY = `
     <text x="8" y="11" text-anchor="middle" font-size="8" fill="#757575">?</text>
 </svg>
 `;
-
-/** @type {string[]} Container IDs that are populated during initial load */
-const MAIN_BUTTON_CONTAINER_IDS = [
-    '#modal-canales-channels-buttons-container',
-    '#offcanvas-canales-channels-buttons-container'
-];
 
 /**
  * @typedef {Object} ButtonScenario
@@ -46,7 +39,8 @@ const BUTTON_SCENARIOS = {
     change: {
         description: 'Replaces the active signal from the "Change channel" modal.',
         onSelect: ({ channelId }) => {
-            const previousChannel = changeChannelModalEl?.dataset.channelSource;
+            const modal = document.querySelector('#modal-cambiar-canal');
+            const previousChannel = modal?.dataset.channelSource;
             if (!previousChannel) {
                 console.warn('[teles] There is no channel selected to replace in the "Change channel" modal.');
                 return;

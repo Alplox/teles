@@ -8,6 +8,7 @@ import {
     TWITCH_PARENT,
     LS_KEY_M3U8_PLAYER_CHOICE,
     LS_KEY_CHANNEL_SIGNAL_PREFERENCE,
+    LS_KEY_ACTIVE_VIEW_MODE,
     CSS_CLASS_BUTTON_SECONDARY
 } from './constants/index.js';
 import {
@@ -30,10 +31,14 @@ function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtiliza
     localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
 }
 
-export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
+export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewMode = 'grid-view') {
     valorIndex = Number(valorIndex)
     const DIV_ELEMENT = document.createElement('div');
-    DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+    if (viewMode === 'free-view') {
+        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'w-100', 'h-100');
+    } else {
+        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+    }
     DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
     const { nombre, señales } = channelsList[canalId];
 
@@ -52,7 +57,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
     IFRAME_ELEMENT.allowFullscreen = true;
     IFRAME_ELEMENT.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
     IFRAME_ELEMENT.title = nombre;
-    if (tipoSeñalParaIframe === 'yt_id' || tipoSeñalParaIframe === 'yt_embed' || tipoSeñalParaIframe === 'yt_playlist' 
+    if (tipoSeñalParaIframe === 'yt_id' || tipoSeñalParaIframe === 'yt_embed' || tipoSeñalParaIframe === 'yt_playlist'
         || (tipoSeñalParaIframe === 'iframe_url' && URL_POR_TIPO_SEÑAL[tipoSeñalParaIframe]?.includes('youtube', 'youtu.be', 'youtube-nocookie'))) {
         IFRAME_ELEMENT.referrerPolicy = 'strict-origin-when-cross-origin';  // Debido a Error 153 con Youtube. Rompe otras señales iframe_url por eso lo filtramos antes.
     } else {
@@ -66,12 +71,19 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0) {
 }
 
 
-export function crearVideoJs(canalId, urlCarga) {
+export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
     const tipoReproductor = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) || 'videojs';
     if (tipoReproductor === 'clappr' && typeof Clappr !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
-        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+
+        if (viewMode === 'free-view') {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'w-100', 'h-100');
+        } else {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        }
+
+
         const playerContainer = document.createElement('div');
         playerContainer.setAttribute('contenedor-canal-cambio', canalId);
         playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
@@ -108,7 +120,11 @@ export function crearVideoJs(canalId, urlCarga) {
     if (tipoReproductor === 'shaka' && typeof shaka !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
-        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        if (viewMode === 'free-view') {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'w-100', 'h-100');
+        } else {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        }
         const videoElement = document.createElement('video');
         videoElement.setAttribute('contenedor-canal-cambio', canalId);
         videoElement.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
@@ -147,15 +163,26 @@ export function crearVideoJs(canalId, urlCarga) {
                     throw new Error('Browser not supported by Shaka Player');
                 }
             } catch (error) {
-                console.error(`[teles] Error at attempt to initialize Shaka Player for channel with id: ${canalId}. Error: ${error}`);
-                showToast({
-                    title: `Error al inicializar Shaka Player para canal ${canalId}. Se usará Video.js.`,
-                    body: `Error: ${error.message || error}`,
-                    type: 'danger',
-                    autohide: false,
-                    delay: 0,
-                    showReloadOnError: true
-                });
+                // Si el error es REQUEST_FAILED (1002), fallar silenciosamente en consola.
+                const isShakaError1002 = error && (error.code === 1002 || (error.detail && error.detail.code === 1002));
+
+                // Shaka Error 1001: No se puede reproducir el contenido.
+                const isShakaError1001 = error && (error.code === 1001 || (error.detail && error.detail.code === 1001));
+
+                console.error(`[teles] Error at attempt to initialize Shaka Player for channel with id: ${canalId}. Error:`, error);
+
+                if (error) {
+                    showToast({
+                        title: `Error al inicializar Shaka Player para canal ${canalId}. 
+                        ${isShakaError1001 ? 'No se puede reproducir el contenido, por favor intente con otro reproductor. (Posible señal inactiva)' : ''}
+                        ${isShakaError1002 ? 'Error al solicitar el contenido, por favor intente de nuevo. (Posible señal inactiva)' : ''}`,
+                        body: `Error: ${error.message || error}`,
+                        type: 'warning',
+                        delay: 10000,
+
+
+                    });
+                }
             }
         }, 0);
 
@@ -164,7 +191,11 @@ export function crearVideoJs(canalId, urlCarga) {
     if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
-        DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        if (viewMode === 'free-view') {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'w-100', 'h-100');
+        } else {
+            DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
+        }
         const playerContainer = document.createElement('div');
         const oplayerId = `oplayer-${canalId}-${Date.now()}`;
         playerContainer.id = oplayerId;
@@ -326,9 +357,9 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
             }
         }
 
-        const BOTON_MOVER_CANAL = document.createElement('button');
+        const BOTON_MOVER_CANAL = document.createElement('div');
         BOTON_MOVER_CANAL.id = 'overlay-boton-mover';
-        BOTON_MOVER_CANAL.setAttribute('type', 'button');
+        BOTON_MOVER_CANAL.setAttribute('role', 'button');
         BOTON_MOVER_CANAL.setAttribute('title', 'Arrastrar y mover este canal');
         BOTON_MOVER_CANAL.setAttribute('data-bs-toggle', 'tooltip');
         BOTON_MOVER_CANAL.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
@@ -347,7 +378,14 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_CAMBIAR_CANAL.addEventListener('click', () => {
             changeChannelModalLabelEl.textContent = nombre;
             changeChannelModalEl.dataset.channelSource = canalId;
-            new bootstrap.Modal(changeChannelModalEl).show();
+
+            // Asegurar que los botones estén creados antes de mostrar el modal (lazy load preventivo)
+            const contenedorCambiar = document.querySelector('#modal-cambiar-canal-channels-buttons-container');
+            if (contenedorCambiar && !contenedorCambiar.querySelector('button[data-canal]')) {
+                createButtonsForChangeChannelModal();
+            }
+
+            bootstrap.Modal.getOrCreateInstance(changeChannelModalEl).show();
         });
 
         const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
@@ -409,7 +447,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
 
 
 
-export function crearFragmentCanal(canalId) {
+export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
     if (channelsList[canalId]?.señales) {
         let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = channelsList[canalId].señales;
         let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
@@ -455,13 +493,13 @@ export function crearFragmentCanal(canalId) {
         const FRAGMENT_CANAL = document.createDocumentFragment();
         if (señalUtilizar === 'm3u8_url') {
             FRAGMENT_CANAL.append(
-                crearVideoJs(canalId, m3u8_url[valorIndexArraySeñal]),
+                crearVideoJs(canalId, m3u8_url[valorIndexArraySeñal], viewMode),
                 crearOverlay(canalId, 'm3u8_url', valorIndexArraySeñal)
             );
             return FRAGMENT_CANAL;
         } else {
             FRAGMENT_CANAL.append(
-                crearIframe(canalId, señalUtilizar, valorIndexArraySeñal),
+                crearIframe(canalId, señalUtilizar, valorIndexArraySeñal, viewMode),
                 crearOverlay(canalId, señalUtilizar, valorIndexArraySeñal)
             );
             return FRAGMENT_CANAL;
@@ -481,7 +519,7 @@ export function crearFragmentCanal(canalId) {
 
 export function cambiarSoloSeñalActiva(canalId) {
     try {
-        if (!canalId) return console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);
+        if (!canalId) return console.error(`[teles] Error at attempt to change signal: canalId is missing.`);
 
         let divPadreACambiar = document.querySelector(`div[data-canal="${canalId}"]`);
         if (!divPadreACambiar) {
@@ -498,7 +536,14 @@ export function cambiarSoloSeñalActiva(canalId) {
         if (divExistenteACambiar) divExistenteACambiar.remove();
         if (barraOverlayDeCanalACambiar) barraOverlayDeCanalACambiar.remove();
 
-        divPadreACambiar.append(crearFragmentCanal(canalId));
+        const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+        let containerToAppend = divPadreACambiar;
+        const innerGridstackContent = divPadreACambiar.querySelector('.grid-stack-item-content');
+        if (innerGridstackContent) {
+            containerToAppend = innerGridstackContent;
+        }
+
+        containerToAppend.append(crearFragmentCanal(canalId, viewMode));
 
         if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
         if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();

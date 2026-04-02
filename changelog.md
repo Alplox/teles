@@ -4,6 +4,20 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.26]
+
+### Added
+- Modo "Visión libre" impulsado por Gridstack.js, permite arrastrar y dimensionar canales de forma individual.
+
+### Fixed
+
+- Modificada alerta (toast) para errores "Shaka Error 1002" (REQUEST_FAILED) y "Shaka Error 1001" (BAD_HTTP_STATUS). Añaden explicaciones breves para usuarios no técnicos. #27
+- Corregido error donde los filtros de país y categoría no se mostraban al activar el modo "Visión Única".
+
+### Removed
+
+- Removido el efecto de desenfoque de controles de Shaka Player. #28
+
 ## [v0.25]
 
 ### Added
