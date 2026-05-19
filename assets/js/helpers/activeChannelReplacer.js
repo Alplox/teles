@@ -1,7 +1,8 @@
 import { crearFragmentCanal } from "../canalUI.js";
 import { tele } from "../main.js";
-import { showToast, adjustChannelButtonClass, saveChannelsToLocalStorage, registerManualChannelChange } from "../helpers/index.js";
+import { showToast, adjustChannelButtonClass, saveChannelsToLocalStorage, registerManualChannelChange, hideOverlayButtonText } from "../helpers/index.js";
 import { LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
+import { initializeBootstrapTooltips, disposeBootstrapTooltips } from "../utils/index.js";
 
 /**
  * Replaces an active channel in the grid with a new one selected from the modal.
@@ -53,6 +54,13 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
 
             saveChannelsToLocalStorage();
             registerManualChannelChange();
+
+            // Re-initialize tooltips for the new overlay buttons inserted by crearFragmentCanal.
+            // disposeBootstrapTooltips() clears any lingering instances before re-init,
+            // since the modal that triggered this action may have left tooltip instances active.
+            disposeBootstrapTooltips();
+            initializeBootstrapTooltips();
+            hideOverlayButtonText();
         }
     } catch (error) {
         console.error(`Error at attempt to replace ${existingChannelId} with ${replacementChannelId}. Error: ${error}`);

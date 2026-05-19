@@ -1,5 +1,7 @@
 /**
  * Hides text in overlay buttons if the content exceeds the container size.
+ * Performance: each overlay is processed in two separate phases to avoid layout
+ * thrashing - all DOM reads happen before any style writes within each overlay.
  * @returns {void}
  */
 export const hideOverlayButtonText = () => {
@@ -16,12 +18,10 @@ export const hideOverlayButtonText = () => {
             if (span && span.style.display !== 'inline') span.style.display = 'inline';
         });
 
+        // READ PHASE (batch all layout-triggering reads before any writes)
         const overlayWidth = Math.floor(overlay.clientWidth);
         const contentWidth = Math.floor(overlay.scrollWidth);
         const overlayHeight = Math.floor(overlay.clientHeight);
-        const safetyMarginPx = 2; // Prevents false positives when measurements are nearly identical
-        const horizontalOverflow = (contentWidth - overlayWidth) > safetyMarginPx;
-        const wrapMarginPx = 8; // Tolerance for paddings/gaps before considering it wrapped
 
         // Detects if the bar occupies more than one line (wraps) by comparing its height vs base element height
         // Must use a VISIBLE element to get a valid height reference
@@ -32,10 +32,14 @@ export const hideOverlayButtonText = () => {
             ? Math.floor(firstVisibleInteractiveElement.getBoundingClientRect().height)
             : overlayHeight;
 
+        // COMPUTE (pure logic, no DOM access)
+        const safetyMarginPx = 2; // Prevents false positives when measurements are nearly identical
+        const wrapMarginPx = 8;   // Tolerance for paddings/gaps before considering it wrapped
+        const horizontalOverflow = (contentWidth - overlayWidth) > safetyMarginPx;
         const wrapActive = (overlayHeight - baseElementHeight) > wrapMarginPx;
-
         const shouldHide = horizontalOverflow || wrapActive;
 
+        // WRITE PHASE (batch all style mutations after reads are done)
         TEXT_IN_OVERLAY.forEach(span => {
             if (!span) return;
             if (shouldHide && span.style.display !== 'none') {
@@ -46,3 +50,4 @@ export const hideOverlayButtonText = () => {
         });
     });
 }
+

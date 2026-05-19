@@ -253,13 +253,13 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
     videoElement.toggleAttribute('controls');
     DIV_ELEMENT.append(videoElement);
     try {
-        videojs(videoElement).src({
-            src: urlCarga,
-        });
-        videojs(videoElement).autoplay(true);
-        videojs(videoElement).muted(true);
+        // Performance: call videojs() once and reuse the instance (avoids 3 redundant registry lookups)
+        const vjsPlayer = videojs(videoElement);
+        vjsPlayer.src({ src: urlCarga });
+        vjsPlayer.autoplay(true);
+        vjsPlayer.muted(true);
         // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
-        DIV_ELEMENT._videojsPlayer = videojs(videoElement);
+        DIV_ELEMENT._videojsPlayer = vjsPlayer;
     } catch (error) {
         console.error(`[teles] Error at attempt to initialize Video.js for channel with id: ${canalId}. Error: ${error}`);
         showToast({
@@ -529,25 +529,32 @@ export function cambiarSoloSeñalActiva(canalId) {
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
         let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
 
-        disposeBootstrapTooltips();
+        // Defer the dispose+rebuild to the next frame so Bootstrap can close any
+        // currently-visible tooltip popup before we dispose its instance.
+        // Without this, clicking a dropdown item while a tooltip is visible leaves
+        // an orphaned .tooltip <div> floating in <body>.
+        requestAnimationFrame(() => {
+            disposeBootstrapTooltips();
 
-        cleanTransmissionResources(divPadreACambiar);
+            cleanTransmissionResources(divPadreACambiar);
 
-        if (divExistenteACambiar) divExistenteACambiar.remove();
-        if (barraOverlayDeCanalACambiar) barraOverlayDeCanalACambiar.remove();
+            if (divExistenteACambiar) divExistenteACambiar.remove();
+            if (barraOverlayDeCanalACambiar) barraOverlayDeCanalACambiar.remove();
 
-        const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
-        let containerToAppend = divPadreACambiar;
-        const innerGridstackContent = divPadreACambiar.querySelector('.grid-stack-item-content');
-        if (innerGridstackContent) {
-            containerToAppend = innerGridstackContent;
-        }
+            const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
+            let containerToAppend = divPadreACambiar;
+            const innerGridstackContent = divPadreACambiar.querySelector('.grid-stack-item-content');
+            if (innerGridstackContent) {
+                containerToAppend = innerGridstackContent;
+            }
 
-        containerToAppend.append(crearFragmentCanal(canalId, viewMode));
+            containerToAppend.append(crearFragmentCanal(canalId, viewMode));
 
-        if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
-        if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();
-        if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
+            if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
+            if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();
+            if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
+        });
+
 
     } catch (error) {
         console.error(`[teles] Error at attempt to change signal for channel with id: ${canalId}. Error: ${error}`);

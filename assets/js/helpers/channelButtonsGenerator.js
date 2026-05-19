@@ -157,6 +157,8 @@ const renderButtonsInContainers = (groups, selectors = [], activeChannelIds = []
  */
 const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, activeChannelIds = []) => {
     const fragment = document.createDocumentFragment();
+    // Performance: read localStorage once here instead of once per button (N reads → 1 read)
+    const showLogos = localStorage.getItem(LS_KEY_SHOW_CHANNELS_LOGO) === 'show';
 
     groups.forEach(([origin, channels], index) => {
         const wrapper = document.createElement('div');
@@ -181,7 +183,7 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, active
         const list = document.createElement('div');
         list.classList.add('modal-body-canales');
         channels.forEach(({ id, data }) => {
-            list.append(createChannelButton(id, data, activeChannelIds));
+            list.append(createChannelButton(id, data, activeChannelIds, showLogos));
         });
 
         const collapse = document.createElement('div');
@@ -213,9 +215,10 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, active
  * @param {string} channelId - Unique channel identifier
  * @param {Object} channelData - Channel data object
  * @param {string[]} activeChannelIds - List of currently active channel IDs
+ * @param {boolean} [showLogos=false] - Whether to show channel logos (read once by caller)
  * @returns {HTMLButtonElement} The created button element
  */
-const createChannelButton = (channelId, channelData, activeChannelIds = []) => {
+const createChannelButton = (channelId, channelData, activeChannelIds = [], showLogos = false) => {
     const { nombre, país } = channelData;
     const category = (channelData.categoría ?? '').toLowerCase();
     const categoryIcon = category && category in CATEGORIES_ICONS
@@ -261,7 +264,6 @@ const createChannelButton = (channelId, channelData, activeChannelIds = []) => {
         ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1">`
         : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${countryName}]">${SVG_UNKNOWN_COUNTRY}</span>`;
 
-    const showLogos = localStorage.getItem(LS_KEY_SHOW_CHANNELS_LOGO) === 'show';
     const logoHtml = showLogos && channelData.logo
         ? `<img src="${channelData.logo}" alt="logo ${nombre}" class="logo-canal-boton rounded-1 me-1" onerror="this.style.display='none'">`
         : '';

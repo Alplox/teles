@@ -4,9 +4,35 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.27]
+
+### Changed
+
+- `style.css`:
+  - Se añade `-webkit-font-smoothing: antialiased` en `:root` para texto más nítido en macOS/WebKit.
+  - Se aplica `font-variant-numeric: tabular-nums` a los `<span>` del reloj y a `.shaka-current-time` para evitar layout shift al actualizar dígitos.
+  - Se reemplaza `transition: opacity 500ms` por `transition: opacity 500ms cubic-bezier(0.2, 0, 0, 1)` en `.tarjeta-logo-background::before/::after` (regla: nunca `transition: all`).
+  - Se especifica `transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1)` en `.icono-filtros-estado` en lugar de `ease` genérico.
+  - Se añade `transition: opacity 0.2s ease` a `.barra-overlay` para suavizar la aparición al hacer hover/focus.
+  - Se añade `transition: opacity 0.15s ease` a `.grid-stack-item .ui-resizable-handle` para entrada suave del handle.
+  - `.shaka-video-container` ahora usa sombras en capas (`box-shadow` múltiple) en lugar de una única sombra plana, para profundidad natural.
+  - Se añade `outline: 1px solid rgba(0,0,0,0.08)` a `.logo-canal-boton` y a `.tarjeta-logo-background img`; se invierte a `rgba(255,255,255,0.08)` en modo oscuro.
+  - Se eliminan los tres punto-y-coma espurios en `.btn-dark-subtle`.
+  - Se eliminan prefijos vendor obsoletos de `.reloj` (flexbox prefijado de IE 10) que ya no son necesarios.
+
+### Performance
+
+- `main.js`:
+  - `onmousemove` en `.tarjeta-logo-background` ahora cachea `getBoundingClientRect()` y usa `requestAnimationFrame` como gate - elimina el forced reflow en cada evento del ratón (~60/seg).
+  - `tele.add()` acepta flag `skipBatchExpensiveOps` - durante `loadDefaultChannels()` suprime las llamadas a `initializeBootstrapTooltips()` y `hideOverlayButtonText()` por cada canal, ejecutándolas una sola vez al terminar el batch.
+  - `channelButtonsGenerator.js`: `localStorage.getItem(LS_KEY_SHOW_CHANNELS_LOGO)` movido fuera del loop de creación de botones - pasa de N lecturas a 1 lectura por render.
+  - `overlayButtonTextHider.js`: Separada la fase de reads (medidas de layout) de la fase de writes (mutaciones de `style.display`) por overlay - elimina layout thrashing causado por intercalar lecturas y escrituras de DOM.
+  - `canalUI.js`: `videojs(videoElement)` consolidado en una sola llamada - elimina 3 lookups redundantes en el registro interno de Video.js por canal m3u8.
+
 ## [v0.26]
 
 ### Added
+
 - Modo "Visión libre" impulsado por Gridstack.js, permite arrastrar y dimensionar canales de forma individual.
 
 ### Fixed

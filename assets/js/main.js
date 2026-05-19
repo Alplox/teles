@@ -1,5 +1,5 @@
 /* 
-  main v0.26
+  main v0.27
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -1112,13 +1112,25 @@ window.addEventListener('DOMContentLoaded', () => {
     // initialLoad() moved down after Gridstack initialization
 
     // Glow effect on background logo hover
+    // Performance: cache getBoundingClientRect (forces reflow) and throttle via RAF.
+    // The cached rect is invalidated on resize since the element may have shifted.
     const TARJETA_LOGO_BACKGROUND = document.querySelector('.tarjeta-logo-background');
+    let _logoRect = null;
+    let _logoRafScheduled = false;
+    window.addEventListener('resize', () => { _logoRect = null; }, { passive: true });
+
     TARJETA_LOGO_BACKGROUND.onmousemove = e => {
-        let rect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect(),
-            x = e.clientX - rect.left,
-            y = e.clientY - rect.top;
-        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
-        TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
+        if (_logoRafScheduled) return;
+        _logoRafScheduled = true;
+        requestAnimationFrame(() => {
+            _logoRafScheduled = false;
+            // Lazily read rect; stays cached until next resize
+            if (!_logoRect) _logoRect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect();
+            const x = e.clientX - _logoRect.left;
+            const y = e.clientY - _logoRect.top;
+            TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
+            TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
+        });
     };
 
     screen.orientation.addEventListener('change', () => {
@@ -1271,8 +1283,14 @@ export let tele = {
     /**
      * Adds a channel to the current view (grid or single view).
      * @param {string} channelId - Channel identifier key in channelsList.
+     * @param {Object} [options={}] - Optional flags.
+     * @param {boolean} [options.skipBatchExpensiveOps=false] - When true, skips
+     *   initializeBootstrapTooltips() and hideOverlayButtonText() for this call.
+     *   Only safe to pass true during add-only batch loading (e.g. loadDefaultChannels),
+     *   where no DOM elements are being removed so no orphaned tooltips can exist.
+     *   The caller is responsible for running both functions once after the batch.
      */
-    add: (channelId) => {
+    add: (channelId, { skipBatchExpensiveOps = false } = {}) => {
         try {
             if (!channelId || !channelsList?.[channelId]) return console.error(`[teles] The channel "${channelId}" provided is not valid to be added.`);
 
@@ -1330,8 +1348,11 @@ export let tele = {
                 saveChannelsToLocalStorage();
             }
             adjustChannelButtonClass(channelId, true);
-            initializeBootstrapTooltips();
-            hideOverlayButtonText();
+            // Skip expensive DOM-wide ops during add-only batch loading (see JSDoc above)
+            if (!skipBatchExpensiveOps) {
+                initializeBootstrapTooltips();
+                hideOverlayButtonText();
+            }
             registerManualChannelChange();
             adjustVisibilityButtonsRemoveAllActiveChannels?.();
             if (!isSingleView) adjustBootstrapColumnClasses();
@@ -1415,11 +1436,17 @@ export let tele = {
     /**
      * Loads default channels either from stored state or the predefined list.
      */
+    /**
+     * Loads default channels either from stored state or the predefined list.
+     * Passes skipBatchExpensiveOps=true to tele.add() during the batch so that
+     * initializeBootstrapTooltips() and hideOverlayButtonText() only run once
+     * after all channels are loaded - safe because no removals happen here.
+     */
     loadDefaultChannels: () => {
         let savedChannels = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
         // Default
         if (Object.keys(savedChannels).length === 0 && localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY) !== 'hide') {
-            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId));
+            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId, { skipBatchExpensiveOps: true }));
             new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
             // Check saved    
         } else {
@@ -1435,7 +1462,7 @@ export let tele = {
                             type: 'warning'
                         });
                     } else {
-                        tele.add(channelId);
+                        tele.add(channelId, { skipBatchExpensiveOps: true });
                     }
                 });
             } catch (error) {
@@ -1450,6 +1477,10 @@ export let tele = {
                 })
                 return
             }
-        };
+        }
+        // Run once after the batch: safe because no removals occurred above,
+        // so no orphaned Bootstrap tooltips can exist at this point.
+        initializeBootstrapTooltips();
+        hideOverlayButtonText();
     }
 };

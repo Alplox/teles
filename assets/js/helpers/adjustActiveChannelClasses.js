@@ -29,7 +29,7 @@ export const adjustBootstrapColumnClasses = () => {
     try {
         if (typeof isMobile === 'undefined' || !gridViewContainer) return;
 
-        // Skip entirely for Free View — Gridstack owns layout there
+        // Skip entirely for Free View - Gridstack owns layout there
         const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
         if (viewMode === 'free-view') return;
 
