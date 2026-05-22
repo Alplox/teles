@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.27
+    teles v0.28
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -117,7 +117,7 @@
                     <div class="position-relative bg-light-subtle p-1 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.27</i>
+                            <i class="badge bg-secondary">v0.28</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -695,13 +695,17 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between w-100">
+                    <div class="d-flex justify-content-between w-100 gap-2 flex-wrap">
                         <button class="btn btn-danger rounded-pill d-none" id="boton-modal-quitar-todo-canal-activo">
                             <i class="bi bi-power"></i> Quitar todos
                         </button>
+                        <button class="btn btn-warning rounded-pill d-none" id="boton-modal-cargar-favoritos"
+                            data-bs-dismiss="modal">
+                            <i class="bi bi-star-fill"></i> Favoritos
+                        </button>
                         <button class="btn btn-light rounded-pill d-none" id="boton-modal-cargar-canales-por-defecto"
                             data-bs-dismiss="modal">
-                            <i class="bi bi-arrow-clockwise"></i> Cargar predeterminados
+                            <i class="bi bi-arrow-clockwise"></i> Predeterminados
                         </button>
                         <button type="button" class="btn btn-secondary ms-auto rounded-pill"
                             data-bs-dismiss="modal">Cerrar</button>
@@ -834,12 +838,15 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between mt-2">
+            <div class="d-flex justify-content-between mt-2 gap-2 flex-wrap">
                 <button class="btn btn-danger rounded-pill d-none" id="boton-offcanvas-quitar-todo-canal-activo">
                     <i class="bi bi-power"></i> Quitar todos
                 </button>
+                <button class="btn btn-warning rounded-pill d-none" id="boton-offcanvas-cargar-favoritos">
+                    <i class="bi bi-star-fill"></i> Favoritos
+                </button>
                 <button class="btn btn-light rounded-pill d-none" id="boton-offcanvas-cargar-canales-por-defecto">
-                    <i class="bi bi-arrow-clockwise"></i> Cargar predeterminados
+                    <i class="bi bi-arrow-clockwise"></i> Predeterminados
                 </button>
                 <button type="button" class="btn btn-secondary ms-auto rounded-pill"
                     data-bs-dismiss="offcanvas">Cerrar</button>

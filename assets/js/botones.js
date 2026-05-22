@@ -6,6 +6,7 @@ import {
     restoreOriginalChannelButtonsOrder,
     filterChannelsByInput,
     getActiveChannelIds,
+    getFavoriteChannels,
 } from './helpers/index.js'
 import {
     AUDIO_STATIC,
@@ -151,6 +152,49 @@ export const BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS = document.querySelector('#b
 
 BUTTON_MODAL_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPredeterminados);
 BUTTON_OFFCANVAS_LOAD_DEFAULT_CHANNELS?.addEventListener('click', cargarCanalesPredeterminados);
+
+// MARK: Buttons to load favorite channels
+const loadFavoriteChannels = () => {
+    try {
+        const favorites = getFavoriteChannels();
+        if (!favorites || favorites.length === 0) {
+            showToast({
+                title: 'No hay favoritos guardados',
+                body: 'Añade canales a favoritos haciendo click en la estrella',
+                type: 'warning',
+                autohide: true,
+                delay: 3000
+            });
+            return;
+        }
+        removeAllChannels(false);
+        playAudio(AUDIO_TURN_ON);
+        favorites.forEach(canal => tele.add(canal));
+        showToast({
+            title: 'Favoritos cargados',
+            body: `Se cargaron ${favorites.length} canal${favorites.length !== 1 ? 'es' : ''} favorito${favorites.length !== 1 ? 's' : ''}`,
+            type: 'success',
+            autohide: true,
+            delay: 2000
+        });
+    } catch (error) {
+        showToast({
+            title: 'Error al cargar favoritos',
+            body: `Error: ${error}`,
+            type: 'danger',
+            autohide: false,
+            delay: 0,
+            showReloadOnError: true
+        });
+        return
+    }
+};
+
+export const BUTTON_MODAL_LOAD_FAVORITE_CHANNELS = document.querySelector('#boton-modal-cargar-favoritos');
+export const BUTTON_OFFCANVAS_LOAD_FAVORITE_CHANNELS = document.querySelector('#boton-offcanvas-cargar-favoritos');
+
+BUTTON_MODAL_LOAD_FAVORITE_CHANNELS?.addEventListener('click', loadFavoriteChannels);
+BUTTON_OFFCANVAS_LOAD_FAVORITE_CHANNELS?.addEventListener('click', loadFavoriteChannels);
 
 // MARK: Botones quitar
 const removeAllChannels = (withAudio = true) => {

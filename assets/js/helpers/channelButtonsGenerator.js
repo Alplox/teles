@@ -2,6 +2,7 @@ import { channelsList, DEFAULT_SOURCE_ORIGIN } from "../channelManager.js";
 import { CSS_CLASS_BUTTON_PRIMARY, CSS_CLASS_BUTTON_SECONDARY, COUNTRY_CODES, CATEGORIES_ICONS, ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_SHOW_CHANNELS_LOGO } from "../constants/index.js";
 import { singleViewVideoContainer, tele } from "../main.js";
 import { showToast, areAllSignalsEmpty, saveOriginalOrder, replaceActiveChannel, getActiveChannelIds } from "./index.js";
+import { getFavoriteChannels, isFavoritedChannel, toggleFavoriteChannel } from "./favoritesManager.js";
 
 
 /** @type {string} SVG placeholder for channels with unknown country */
@@ -109,23 +110,49 @@ const BUTTON_CONTAINER_CONFIG = [
 
 /**
  * Groups channels by their list origin for creating visible blocks.
+ * Favorites are shown first as a special group.
  * @returns {[string, {id: string, data: Object}[]][]} Array of [origin, channels] tuples
  */
 const groupChannelsByOrigin = () => {
     const groups = new Map();
+    const favoriteChannels = getFavoriteChannels();
+    const favoriteChannelsSet = new Set(favoriteChannels);
+
+    // First pass: separate favorites from regular channels
+    const favorites = [];
+    const regularChannels = {};
 
     for (const channelId of Object.keys(channelsList)) {
         const data = channelsList[channelId];
-        const origin = data?.origenLista ?? DEFAULT_SOURCE_ORIGIN;
-
-        if (!groups.has(origin)) {
-            groups.set(origin, []);
+        
+        if (favoriteChannelsSet.has(channelId)) {
+            // Add to favorites maintaining the saved order
+            favorites.push({ id: channelId, data });
+        } else {
+            // Group by origin
+            const origin = data?.origenLista ?? DEFAULT_SOURCE_ORIGIN;
+            if (!regularChannels[origin]) {
+                regularChannels[origin] = [];
+            }
+            regularChannels[origin].push({ id: channelId, data });
         }
-        groups.get(origin).push({ id: channelId, data });
     }
 
-    return Array.from(groups.entries())
-        .sort((a, b) => a[0].localeCompare(b[0], 'es', { sensitivity: 'base' }));
+    // If there are favorites, add them as the first group
+    if (favorites.length > 0) {
+        groups.set('<i class="bi bi-star-fill" style="color: #ffc107;"></i> Favoritos', favorites);
+    }
+
+    // Add regular channels grouped by origin
+    const sortedOrigins = Object.keys(regularChannels).sort((a, b) => 
+        a.localeCompare(b, 'es', { sensitivity: 'base' })
+    );
+
+    sortedOrigins.forEach(origin => {
+        groups.set(origin, regularChannels[origin]);
+    });
+
+    return Array.from(groups.entries());
 };
 
 /**
@@ -241,6 +268,11 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
         ? `<span class="badge badge-señal-combinada" data-bs-toggle="tooltip" data-bs-title="Señales desde: ${sourcesDescription}"><i class="bi bi-shuffle"></i> Mix</span>`
         : '';
 
+    const isFavorited = isFavoritedChannel(channelId);
+    const starIcon = isFavorited
+        ? '<i class="bi bi-star-fill" style="color: #ffc107;"></i>'
+        : '<i class="bi bi-star" style="opacity: 0.5;"></i>';
+
     const button = document.createElement('button');
     button.setAttribute('data-canal', channelId);
     button.setAttribute('data-country', countryName);
@@ -273,6 +305,9 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
         <span class="flex-grow-1 text-truncate">${nombre}</span>
         ${flagHtml}
         ${categoryIcon}
+        <span class="btn-favorite p-1 ms-auto" data-canal-favorite="${channelId}" title="${isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'}" style="cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            ${starIcon}
+        </span>
         ${combinedBadge}`;
 
     return button;
@@ -283,6 +318,9 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
  * Ensures no duplicate listeners are registered on the same container.
  * @returns {void}
  */
+/** @type {boolean} Tracks if favorite button handlers have been initialized */
+let favoritesHandlersInitialized = false;
+
 const assignButtonEvents = () => {
     BUTTON_CONTAINER_CONFIG.forEach(config => {
         const container = document.querySelector(config.selector);
@@ -298,6 +336,54 @@ const assignButtonEvents = () => {
             });
         }
     });
+
+    // Initialize favorite button handlers (only once)
+    if (!favoritesHandlersInitialized) {
+        initializeFavoriteButtonHandlers();
+        favoritesHandlersInitialized = true;
+    }
+};
+
+/**
+ * Initializes event handlers for favorite star buttons.
+ * Uses event delegation to handle dynamically created buttons.
+ * @returns {void}
+ */
+const initializeFavoriteButtonHandlers = () => {
+    // Event delegation for all favorite buttons in all containers
+    document.addEventListener('click', (event) => {
+        const favoriteButton = event.target.closest('span.btn-favorite');
+        if (!favoriteButton) return;
+
+        // Prevent event from bubbling to parent button/container
+        event.stopPropagation();
+        event.preventDefault();
+        
+        const channelId = favoriteButton.dataset.canalFavorite;
+        if (!channelId) return;
+
+        const wasAdded = toggleFavoriteChannel(channelId);
+        
+        // Update the star icon
+        const icon = favoriteButton.querySelector('i');
+        if (icon) {
+            icon.className = wasAdded 
+                ? 'bi bi-star-fill' 
+                : 'bi bi-star';
+            icon.style.color = wasAdded ? '#ffc107' : '';
+            icon.style.opacity = wasAdded ? '1' : '0.5';
+        }
+
+        // Update title
+        favoriteButton.title = wasAdded 
+            ? 'Quitar de favoritos' 
+            : 'Añadir a favoritos';
+
+        // Re-render channel buttons to update the favorites section
+        // This ensures the channel appears/disappears from the favorites group
+        clearRenderedContainers();
+        createChannelButtons();
+    }, { capture: true });
 };
 
 /**

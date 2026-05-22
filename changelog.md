@@ -4,6 +4,12 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.28]
+
+### Added
+
+- Sistema de favoritos: Marca canales como favoritos con icono de estrella en el boton de estos y seran desplazados al inicio de listado a nuevo grupo "favoritos".
+
 ## [v0.27]
 
 ### Changed

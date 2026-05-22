@@ -49,6 +49,8 @@ export const LS_KEY_COMBINE_PERSONALIZED_CHANNELS = 'combine-personalized-channe
 
 export const LS_KEY_SHOW_CHANNELS_LOGO = 'show-channels-logo';
 
+export const LS_KEY_FAVORITE_CHANNELS = 'favorite-channels';
+
 export const LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY = 'logo-card-background-visibility';
 
 /////////
