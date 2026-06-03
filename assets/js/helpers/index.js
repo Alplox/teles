@@ -1,4 +1,5 @@
 export * from './activeChannelReplacer.js';
+export * from './activeChannelsStorage.js';
 export * from './adjustActiveChannelClasses.js';
 export * from './adjustVisibilityButtonsRemoveAllActiveChannels.js';
 export * from './applyTheme.js';
@@ -16,6 +17,7 @@ export * from './displayPersonalizedLists.js'
 export * from './favoritesManager.js';
 export * from './filterRelations.js';
 export * from './floatingButtonsPosition.js';
+export * from './loadPlayer.js';
 export * from './m3uHelper.js';
 export * from './overlayButtonTextHider.js';
 export * from './showBootstrapToast.js';

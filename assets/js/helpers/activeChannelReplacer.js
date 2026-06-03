@@ -1,6 +1,6 @@
 import { crearFragmentCanal } from "../canalUI.js";
 import { tele } from "../main.js";
-import { showToast, adjustChannelButtonClass, saveChannelsToLocalStorage, registerManualChannelChange, hideOverlayButtonText } from "../helpers/index.js";
+import { showToast, adjustChannelButtonClass, saveChannelsToLocalStorageDebounced, registerManualChannelChange, hideOverlayButtonText } from "../helpers/index.js";
 import { LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { initializeBootstrapTooltips, disposeBootstrapTooltips } from "../utils/index.js";
 
@@ -52,7 +52,7 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
             adjustChannelButtonClass(existingChannelId, false);
             adjustChannelButtonClass(replacementChannelId, true);
 
-            saveChannelsToLocalStorage();
+            saveChannelsToLocalStorageDebounced();
             registerManualChannelChange();
 
             // Re-initialize tooltips for the new overlay buttons inserted by crearFragmentCanal.

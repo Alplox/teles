@@ -16,7 +16,8 @@ import {
     hideOverlayButtonText,
     registerManualChannelChange,
     cleanTransmissionResources,
-    createButtonsForChangeChannelModal
+    createButtonsForChangeChannelModal,
+    loadPlayer
 } from './helpers/index.js';
 import { tele } from './main.js';
 import {
@@ -79,7 +80,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewM
 
 export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
     const tipoReproductor = localStorage.getItem(LS_KEY_M3U8_PLAYER_CHOICE) || 'videojs';
-    if (tipoReproductor === 'clappr' && typeof Clappr !== 'undefined') {
+    if (tipoReproductor === 'clappr') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
 
@@ -95,9 +96,10 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
         DIV_ELEMENT.append(playerContainer);
         // Diferimos la inicialización para asegurar que el contenedor exista en el DOM
-        setTimeout(() => {
+        setTimeout(async () => {
             if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
+                await loadPlayer('clappr');
                 const clapprPlayer = new Clappr.Player({
                     source: urlCarga,
                     parent: playerContainer,
@@ -124,7 +126,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
 
         return DIV_ELEMENT;
     }
-    if (tipoReproductor === 'shaka' && typeof shaka !== 'undefined') {
+    if (tipoReproductor === 'shaka') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
         if (viewMode === 'free-view') {
@@ -144,6 +146,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         setTimeout(async () => {
             if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
+                await loadPlayer('shaka');
                 shaka.polyfill.installAll();
                 if (shaka.Player.isBrowserSupported()) {
                     const player = new shaka.Player(videoElement);
@@ -196,7 +199,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
 
         return DIV_ELEMENT;
     }
-    if (tipoReproductor === 'oplayer' && typeof OPlayer !== 'undefined') {
+    if (tipoReproductor === 'oplayer') {
         const DIV_ELEMENT = document.createElement('div');
         DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
         if (viewMode === 'free-view') {
@@ -212,9 +215,10 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         DIV_ELEMENT.append(playerContainer);
 
         // Diferimos la inicialización de OPlayer para asegurar que el contenedor exista en el DOM
-        setTimeout(() => {
+        setTimeout(async () => {
             if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
+                await loadPlayer('oplayer');
                 let instancia = OPlayer.make(`#${oplayerId}`, {
                     source: {
                         src: urlCarga,
@@ -226,7 +230,6 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                 if (typeof OHls !== 'undefined') {
                     instancia = instancia.use([
                         OHls({
-                            library: 'https://cdn.jsdelivr.net/npm/hls.js@0.14.17/dist/hls.min.js',
                             forceHLS: true
                         })
                     ]);

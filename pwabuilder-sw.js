@@ -51,11 +51,12 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
   ({event}) => event.request.destination === 'image',
-  new workbox.strategies.NetworkFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: IMAGE_CACHE,
     plugins: [
       new workbox.expiration.ExpirationPlugin({
-        maxEntries: 15,
+        maxEntries: 200,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
       }),
     ],
   })

@@ -1,5 +1,5 @@
 /* 
-    style v0.31
+    style v0.32
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -1097,10 +1097,10 @@ pwa-update {
   text-shadow:
     0.06rem 0 0.06rem #ea36af,
     -0.125rem 0 0.06rem #75fa69;
-  animation: textflicker 0.01s infinite;
+  animation: textflicker 1.5s infinite;
   -webkit-animation-direction: alternate;
   animation-direction: alternate;
-  -webkit-animation: textflicker 0.01s infinite;
+  -webkit-animation: textflicker 1.5s infinite;
 }
 
 @-webkit-keyframes textflicker {

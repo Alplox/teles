@@ -1,5 +1,5 @@
 import { updatePersonalizedList, applySavedPersonalizedList, channelsList, deletePersonalizedList, getPersonalizedLists } from "../channelManager.js";
-import { ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
+import { ID_PREFIX_CONTAINERS_CHANNELS, LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { tele } from "../main.js";
 import { formatDate } from "../utils/index.js";
 import { adjustChannelButtonClass, createCategoryButtons, createCountryButtons, createChannelButtons, createButtonsForSingleView, showToast, getActiveChannelIds, clearRenderedContainers, clearCountryRenderedContainers, clearCategoryRenderedContainers } from "./index.js";

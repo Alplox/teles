@@ -2,10 +2,13 @@
  * Hides text in overlay buttons if the content exceeds the container size.
  * Performance: each overlay is processed in two separate phases to avoid layout
  * thrashing - all DOM reads happen before any style writes within each overlay.
+ * @param {HTMLElement} [container] - Optional container to scope the query (avoids full DOM scan).
  * @returns {void}
  */
-export const hideOverlayButtonText = () => {
-    const OVERLAY_BARS = document.querySelectorAll('.barra-overlay');
+export const hideOverlayButtonText = (container) => {
+    const root = (container instanceof HTMLElement) ? container : document;
+    const OVERLAY_BARS = root.querySelectorAll('.barra-overlay');
+    if (!OVERLAY_BARS.length) return;
     OVERLAY_BARS.forEach(overlay => {
         if (!overlay) return;
 

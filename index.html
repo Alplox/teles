@@ -1,13 +1,21 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.31
+    teles v0.32
     by Alplox 
     https://github.com/Alplox/teles
 -->
 
 <head>
     <meta charset="utf-8">
+    <script type="importmap">
+    {
+        "imports": {
+            "hls.js": "https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js",
+            "hls.js/dist/hls.min.js": "https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"
+        }
+    }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <base target="_blank">
     <title>Teles - Noticias de Chile (y el mundo)</title>
@@ -25,16 +33,15 @@
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <!-- bootstrap icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- bootstrap icons (non-critical: preload then apply) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
     <!-- video-js -->
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
     <script src="https://unpkg.com/video.js/dist/video.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/core@latest/dist/index.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/hls@latest/dist/index.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@oplayer/ui@latest/dist/index.min.js" defer></script>
-    <!-- Clappr -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js" defer></script>
+    <!-- shaka-player (non-critical: preload then apply) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.16/dist/controls.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.16/dist/controls.min.css"></noscript>
     <!-- teles -->
     <link href="assets/css/style.css" rel="stylesheet">
     <!-- Open Graph -->
@@ -71,17 +78,20 @@
         document.body.appendChild(el);
     </script>
     <!-- reloj -->
-    <script src="https://widget.time.is/t.js"></script>
+    <script src="https://widget.time.is/t.js" defer></script>
     <script>
-        time_is_widget.init({
-            Santiago_z179: {}
+        document.addEventListener('DOMContentLoaded', function () {
+            time_is_widget.init({
+                Santiago_z179: {}
+            });
         });
     </script>
-    <!-- Gridstack -->
-    <link href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css" rel="stylesheet">
+    <!-- Gridstack (non-critical: preload then apply) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css"></noscript>
     <script src="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack-all.js" defer></script>
     <!-- Sortable -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js" defer></script>
     <!-- pwa-install -->
     <script src="https://unpkg.com/@khmyznikov/pwa-install@0.3.5/dist/pwa-install.bundle.js" defer></script>
 </head>
@@ -117,7 +127,7 @@
                     <div class="position-relative bg-light-subtle p-1 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.31</i>
+                            <i class="badge bg-secondary">v0.32</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -225,7 +235,7 @@
                     <li class="nav-item dropdown">
                         <button type="button" class="nav-link btn dropdown-toggle" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" aria-expanded="false" id="dropdown-about">
-                            <i class="bi bi-"></i> Variaciones de código abierto
+                            <i class="bi bi-code-square"></i> Variaciones de código abierto
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
                             <li>
@@ -427,7 +437,7 @@
     <!-- Modal solo cambio canal activo -->
     <div class="modal fade" id="modal-cambiar-canal" tabindex="-1" aria-labelledby="modal exclusivo cambio"
         aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable">
+        <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable" style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content bg-transparent bg-blur border-0">
                 <div class="modal-header bg-transparent border-0 d-flex flex-column pb-0">
                     <h2 class="text-light m-0">Cambiando canal [<span class="modal-title fs-5"
@@ -554,7 +564,7 @@
     <!-- Modal listado canales -->
     <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="Modal con Listado de Canales"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content text-center bg-transparent bg-blur border-0 shadow">
                 <div class="modal-header border-0">
                     <h5 class="modal-title text-light">Selecciona tus canales</h5>
@@ -847,7 +857,7 @@
     <!-- Modal bienvenida/Descargo de responsabilidad -->
     <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="Modal de Bienvenida" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down" style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content bg-transparent border-0 shadow">
                 <div class="modal-header bg-body">
                     <h5 class="modal-title text-flicker">Descargo de responsabilidad</h5>
@@ -1520,8 +1530,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/shaka-player@5.0.8/dist/shaka-player.ui.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.8/dist/controls.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"
         defer></script>

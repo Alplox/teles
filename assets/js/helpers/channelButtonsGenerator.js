@@ -47,6 +47,9 @@ const BUTTON_SCENARIOS = {
                 return;
             }
             replaceActiveChannel(channelId, previousChannel);
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getInstance(modal)?.hide();
+            }
         }
     },
     'single-view': {
@@ -98,13 +101,12 @@ const BUTTON_CONTAINER_CONFIG = [
     {
         selector: '#modal-cambiar-canal-channels-buttons-container',
         scenario: 'change',
-        delegateEvents: false,
-        applyDismissAttribute: true
+        delegateEvents: true
     },
     {
         selector: '#single-view-channels-buttons-container',
         scenario: 'single-view',
-        delegateEvents: false
+        delegateEvents: true
     }
 ];
 
@@ -298,11 +300,11 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
     }
 
     const flagHtml = countryLower && COUNTRY_CODES[countryLower]
-        ? `<img src="https://flagcdn.com/${countryLower}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1">`
+        ? `<img src="https://flagcdn.com/${countryLower}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1" loading="lazy">`
         : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${countryName}]">${SVG_UNKNOWN_COUNTRY}</span>`;
 
     const logoHtml = showLogos && channelData.logo
-        ? `<img src="${channelData.logo}" alt="logo ${name}" class="logo-canal-boton rounded-1 me-1" onerror="this.style.display='none'">`
+        ? `<img src="${channelData.logo}" alt="logo ${name}" class="logo-canal-boton rounded-1 me-1" loading="lazy" onerror="this.style.display='none'">`
         : '';
 
     button.innerHTML = `
@@ -332,14 +334,7 @@ const assignButtonEvents = () => {
         if (!container || container.dataset.eventsInitialized === 'true') return;
 
         container.dataset.eventsInitialized = 'true';
-
-        if (config.delegateEvents) {
-            registerDelegatedEvents(container, config.scenario);
-        } else {
-            registerStaticEvents(container, config.scenario, {
-                applyDismissAttribute: config.applyDismissAttribute
-            });
-        }
+        registerDelegatedEvents(container, config.scenario);
     });
 
     // Initialize favorite button handlers (only once)
@@ -537,41 +532,6 @@ const registerDelegatedEvents = (container, scenarioKey) => {
 
         handleButtonSelection(button, scenarioKey);
     });
-};
-
-/**
- * Configures direct listeners and observes changes for static containers.
- * @param {HTMLElement} container - Container element
- * @param {keyof typeof BUTTON_SCENARIOS} scenarioKey - Scenario identifier
- * @param {Object} [options={}] - Configuration options
- * @param {boolean} [options.applyDismissAttribute=false] - Whether to add dismiss attribute
- * @returns {void}
- */
-const registerStaticEvents = (container, scenarioKey, { applyDismissAttribute = false } = {}) => {
-    const updateEvents = () => {
-        const buttons = Array.from(container.querySelectorAll('button[data-canal]'));
-
-        buttons.forEach(button => {
-            const clonedButton = button.cloneNode(true);
-
-            if (applyDismissAttribute) {
-                clonedButton.setAttribute('data-bs-dismiss', 'modal');
-            }
-
-            clonedButton.addEventListener('click', () => handleButtonSelection(clonedButton, scenarioKey));
-            button.replaceWith(clonedButton);
-        });
-    };
-
-    updateEvents();
-
-    const observer = new MutationObserver(() => {
-        observer.disconnect();
-        updateEvents();
-        observer.observe(container, { childList: true, subtree: true });
-    });
-
-    observer.observe(container, { childList: true, subtree: true });
 };
 
 /**

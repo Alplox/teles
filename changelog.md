@@ -4,6 +4,30 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.32]
+
+### Fixed
+
+- Agrega loading="lazy" a los <img> de logos y banderas
+- Aumenta maxEntries de 15 a un valor mayor + estrategia CacheFirst para imágenes externas con caché del service worker.
+- CSS render-blocking: Bootstrap Icons, Gridstack y Shaka Player CSS ahora usan `rel="preload" as="style"` para descarga en paralelo sin bloquear rendering.
+- time.is widget script carga con `defer` e init en `DOMContentLoaded` para no bloquear parsing HTML.
+- `initializeBootstrapTooltips()` acepta parámetro opcional `container` para acotar búsqueda a un contenedor específico en vez de escanear TODO el DOM.
+- `hideOverlayButtonText()` acepta parámetro opcional `container` + early return si no hay overlays, evitando querySelectorAll innecesario.
+- `saveChannelsToLocalStorage()` ahora tiene versión debounced (300ms) para llamadas per-action (add, remove, drag, sort). Las llamadas batch mantienen escritura síncrona.
+- `adjustBootstrapColumnClasses()` cachea lecturas de localStorage (`viewMode`, `colNumber`, `fullHeight`) y se invalida automáticamente tras cada `localStorage.setItem` relevante vía `invalidateCachedColumnSettings()`.
+- `registerStaticEvents()` clonaba y reemplazaba CADA botón en cada cambio de DOM via MutationObserver. Ahora todos los contenedores usan event delegation (`registerDelegatedEvents`), eliminando clonado innecesario.
+- Player libraries (Clappr, OPlayer, Shaka) se cargaban estáticamente en `<head>` aunque solo se usara uno. Ahora se cargan dinámicamente bajo demanda vía `loadPlayer()`, reduciendo bundle inicial ~60%.
+- Clappr migrado de paquete deprecado `clappr@latest` a `@clappr/player@0.11.16`.
+- OPlayer pineado a versiones estables: `@oplayer/core@1.2.37`, `@oplayer/hls@1.2.27`, `@oplayer/ui@1.3.3`.
+- Shaka Player pineado a `shaka-player@5.0.16` (CSS movido a head con preload).
+- El modal "Cambiar canal" ahora se cierra vía `bootstrap.Modal.getInstance().hide()` en el scenario `change` en vez de `data-bs-dismiss="modal"` en cada botón.
+- `adjustChannelButtonClass()` realizaba `querySelectorAll` sobre TODO el documento por cada canal. Ahora se buscan botones dentro de los contenedores conocidos (`ID_PREFIX_CONTAINERS_CHANNELS`), reduciendo alcance de búsqueda.
+- Sortable.js pineado a `1.15.7` (era `@latest`, invalidaba caché del navegador).
+- Animación `textflicker` reducida de `0.01s` (100fps) a `1.5s`, eliminando repaints innecesarios en el logo "teles".
+- Modales ocultos (`modal-cambiar-canal`, `modal-canales`, `modal-bienvenida`) ahora usan `content-visibility: auto` para saltar rendering/paint cuando están cerrados.
+- El orden de canales activos ahora se persiste con un array `order`, evitando que IDs numericos de listas personalizadas salten al inicio tras recargar por la enumeracion de claves de objetos en JavaScript.
+
 ## [v0.31]
 
 ### Fixed

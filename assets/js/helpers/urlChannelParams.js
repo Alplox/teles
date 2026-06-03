@@ -1,6 +1,7 @@
 import { channelsList } from "../channelManager.js";
-import { LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
+import { LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { isLoadingFromSharedUrl, isDynamicUrlMode } from "../main.js";
+import { getSavedActiveChannelIds } from "./activeChannelsStorage.js";
 
 let sharedParameterCleaned = false;
 
@@ -32,15 +33,8 @@ export const getActiveChannelIds = () => {
         let activeChannels = [];
 
         // In both grid view and free view we prefer the saved list (for sync and persistence).
-        // LS_KEY_SAVED_CHANNELS_GRID_VIEW safely holds active channels for both modes.
         if (!isSingleView) {
-            const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
-            if (payload) {
-                const data = JSON.parse(payload);
-                if (data && typeof data === 'object') {
-                    activeChannels = Object.keys(data);
-                }
-            }
+            activeChannels = getSavedActiveChannelIds();
         }
 
         // Fallback to DOM if localStorage is empty or if we are in single-view
