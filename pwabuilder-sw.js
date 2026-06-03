@@ -5,6 +5,7 @@ const JS_CACHE = "javascript";
 const STYLE_CACHE = "stylesheets";
 const IMAGE_CACHE = "images";
 const FONT_CACHE = "fonts";
+const JSON_CACHE = "json";
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
@@ -67,6 +68,18 @@ workbox.routing.registerRoute(
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 15,
+      }),
+    ],
+  })
+);
+
+workbox.routing.registerRoute(
+  ({event}) => event.request.destination === 'json',
+  new workbox.strategies.NetworkFirst({
+    cacheName: JSON_CACHE,
+    plugins: [
+      new workbox.expiration.ExpirationPlugin({
+        maxEntries: 10,
       }),
     ],
   })

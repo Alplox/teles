@@ -4,6 +4,35 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.31]
+
+### Fixed
+
+- Corregido que al marcar/desmarcar un canal como favorito se perdían los filtros activos y se reconstruían todos los botones de canal. `moveChannelButton()` realiza actualizaciones quirúrgicas del DOM moviendo solo el botón afectado entre grupos, preservando estado de filtros de país, categoría y búsqueda.
+- `isFavoritedChannel()` se ejecutaba por cada botón, parseando `localStorage` N veces por render. Ahora se construye un `Set` una sola vez en `groupChannelsByOrigin()` y se pasa a `createChannelButton()`, reduciendo N lecturas a 1.
+- `activeChannelIds.includes()` era O(N) por botón. Convertido a `Set` con `.has()` para búsquedas O(1).
+- `filterRelations.js` reconstruía los mapas de país-categoría en cada cambio de filtro. Ahora se cachea el resultado y se invalida solo cuando cambia `channelsList`.
+- `crearFragmentCanal()` filtraba `signals` redundantly para iframe/m3u8, y luego `crearIframe()` y `crearOverlay()` filtraban de nuevo. Ahora se computa una vez y se pasa como parámetro.
+- Clappr, Shaka y OPlayer se inicializaban con `setTimeout(0)`. Si el elemento DOM se eliminaba antes del timeout, el reproductor se inicializaba en un elemento desconectado y nunca se limpiaba. Ahora se verifica `DIV_ELEMENT.isConnected` antes de inicializar.
+- Eliminados wrappers `JSON.stringify(localStorage.setItem(...))` que eran no-op (localStorage.setItem retorna `undefined`).
+- Objetos `Audio` se instanciaban eager al cargar el módulo (8 fetches HTTP + memoria permanente). Ahora se usa Proxy lazy-loading: el `Audio` solo se crea en la primera reproducción.
+- `audio.play()` retorna Promise pero el rejection no se manejaba (política de autoplay del navegador). Ahora se captura con `.catch()`.
+- `tele.add()` parseaba `JSON.parse(localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT))` por cada canal añadido en free-view. Ahora se cachea y se invalida en `saveGridStackLayout()`.
+- `saveChannelsToLocalStorage()` se ejecutaba por cada `tele.add()` durante carga por lotes (N serializaciones + writes). Ahora se añade opción `skipSaveChannels` y se escribe una sola vez al final del lote.
+- `saveGridStackLayout()` se ejecutaba en `change` + `resizestop` + `dragstop` (duplicado). Ahora solo `change` ejecuta el guardado; `resizestop` y `dragstop` se eliminan.
+- `normalizeInput()` se ejecutaba por cada botón en cada keystroke del filtro (N normalizaciones por tecla). Ahora se precomputa una vez al crear el botón y se almacena en `data-normalized`.
+- `filterChannelsByInput()` consultaba el DOM para filters de país/categoría en cada keystroke. Ahora se cachea el estado activo en un `Map` y solo se actualiza cuando el usuario cambia el filtro.
+- `initializeBootstrapTooltips()` se ejecutaba dentro de `forEach` en `restoreBackedUpChannels()` — O(N²). Ahora se ejecuta una sola vez después del loop.
+- `country.toLowerCase()` se computaba 4 veces por botón. Ahora se calcula una sola vez.
+- `createCountryButtons()` y `createCategoryButtons()` hacían 4 pasadas sobre `channelsList` (map→Set→reduce→filter+sort). Ahora se consolida en una sola pasada con `for...of` + `reduce`.
+- Corregido XSS en `crearOverlay()`: `name` y `COUNTRY_CODES[country]` se interpolaban directamente en `innerHTML` sin escapar. Ahora se usa `escapeHtml()` para prevenir inyección de HTML.
+
+### Changed
+
+- Eliminado mecanismo de caché en localStorage para `channels.json` (`backup-json-channels`, `backup-json-channels-date`, `backup-json-channels-version`). `fetchLoadChannels()` ahora siempre obtiene datos frescos de la red. El caché offline lo maneja el service worker con estrategia NetworkFirst.
+- Añadida ruta NetworkFirst para archivos JSON en `pwabuilder-sw.js` — permite acceso offline a `channels.json` desde la caché del service worker sin ventanas de expiración de 24h.
+- Renombra `NOTICE.md` a `ACKNOWLEDGMENTS.md` y traduce a inglés.
+
 ## [v0.30]
 
 ### Fixed

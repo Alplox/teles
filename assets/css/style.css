@@ -1,5 +1,5 @@
 /* 
-    style v0.30
+    style v0.31
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -488,6 +488,14 @@ pwa-update {
 }
 
 .d-none__barras-overlay__overlay-boton-quitar #overlay-boton-quitar {
+  display: none !important;
+}
+
+.d-none__barras-overlay__overlay-boton-selecionar-señal #overlay-boton-selecionar-señal {
+  display: none !important;
+}
+
+.d-none__barras-overlay__overlay-boton-mover #overlay-boton-mover {
   display: none !important;
 }
 

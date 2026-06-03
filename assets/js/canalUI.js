@@ -25,13 +25,20 @@ import {
     playAudio
 } from './utils/index.js';
 
+/** Escapes HTML special characters to prevent XSS when interpolating into innerHTML. */
+const escapeHtml = (str) => String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
     let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
     lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
     localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
 }
 
-export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewMode = 'grid-view') {
+export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewMode = 'grid-view', iframeSignals = []) {
     valorIndex = Number(valorIndex)
     const DIV_ELEMENT = document.createElement('div');
     if (viewMode === 'free-view') {
@@ -42,7 +49,6 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewM
     DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
     const { name, signals = [], youtube, twitch, last_youtube_livestreams } = channelsList[canalId];
 
-    const iframeSignals = signals.filter(s => s.type === 'iframe');
     const EMBED_URLS = {
         'iframe':       iframeSignals[valorIndex]?.url,
         'youtube':      youtube ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${youtube}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0` : undefined,
@@ -90,6 +96,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         DIV_ELEMENT.append(playerContainer);
         // Diferimos la inicialización para asegurar que el contenedor exista en el DOM
         setTimeout(() => {
+            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
                 const clapprPlayer = new Clappr.Player({
                     source: urlCarga,
@@ -135,6 +142,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         DIV_ELEMENT.append(videoElement);
 
         setTimeout(async () => {
+            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
                 shaka.polyfill.installAll();
                 if (shaka.Player.isBrowserSupported()) {
@@ -205,6 +213,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
 
         // Diferimos la inicialización de OPlayer para asegurar que el contenedor exista en el DOM
         setTimeout(() => {
+            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
             try {
                 let instancia = OPlayer.make(`#${oplayerId}`, {
                     source: {
@@ -285,7 +294,7 @@ changeChannelModalEl.addEventListener('shown.bs.modal', () => {
 
 
 const changeChannelModalLabelEl = document.querySelector('#label-para-nombre-canal-cambiar');
-export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
+export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeSignals = [], m3u8Signals = []) {
     try {
         let { name = 'Nombre Canal', signals = [], website, country, category, youtube, twitch, last_youtube_livestreams } = channelsList[canalId];
 
@@ -311,17 +320,15 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         const DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL = document.createElement("ul");
         DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.classList.add('dropdown-menu');
 
-        // Build signal options from signals array + youtube/twitch fields
+        // Build signal options from pre-filtered arrays (no redundant .filter())
         const signalOptions = [];
 
-        // iframe signals
-        const iframeSignals = signals.filter(s => s.type === 'iframe');
+        // iframe signals (pre-filtered, passed from crearFragmentCanal)
         iframeSignals.forEach((sig, index) => {
             signalOptions.push({ key: 'iframe', index, url: sig.url, icon: '<i class="bi bi-globe"></i>', label: iframeSignals.length === 1 ? 'iframe' : `iframe ${index}` });
         });
 
-        // m3u8 signals
-        const m3u8Signals = signals.filter(s => s.type === 'm3u8');
+        // m3u8 signals (pre-filtered, passed from crearFragmentCanal)
         m3u8Signals.forEach((sig, index) => {
             signalOptions.push({ key: 'm3u8', index, url: sig.url, icon: '<i class="bi bi-play-btn"></i>', label: m3u8Signals.length === 1 ? 'm3u8' : `m3u8 ${index}` });
         });
@@ -399,9 +406,9 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_SITIO_OFICIAL_CANAL.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
         BOTON_SITIO_OFICIAL_CANAL.rel = 'noopener nofollow noreferrer';
         BOTON_SITIO_OFICIAL_CANAL.innerHTML = `<span>
-                ${name}
+                ${escapeHtml(name)}
                 ${country
-                ? ` <img src="https://flagcdn.com/${country.toLowerCase()}.svg" alt="bandera ${COUNTRY_CODES[country]}" title="${COUNTRY_CODES[country]}" class="svg-bandera">`
+                ? ` <img src="https://flagcdn.com/${country.toLowerCase()}.svg" alt="bandera ${escapeHtml(COUNTRY_CODES[country])}" title="${escapeHtml(COUNTRY_CODES[country])}" class="svg-bandera">`
                 : ''}
                 ${iconoCategoria
                 ? ` ${iconoCategoria}`
@@ -500,13 +507,13 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
         if (señalUtilizar === 'm3u8') {
             FRAGMENT_CANAL.append(
                 crearVideoJs(canalId, m3u8Signals[valorIndexArraySeñal].url, viewMode),
-                crearOverlay(canalId, 'm3u8', valorIndexArraySeñal)
+                crearOverlay(canalId, 'm3u8', valorIndexArraySeñal, iframeSignals, m3u8Signals)
             );
             return FRAGMENT_CANAL;
         } else {
             FRAGMENT_CANAL.append(
-                crearIframe(canalId, señalUtilizar, valorIndexArraySeñal, viewMode),
-                crearOverlay(canalId, señalUtilizar, valorIndexArraySeñal)
+                crearIframe(canalId, señalUtilizar, valorIndexArraySeñal, viewMode, iframeSignals),
+                crearOverlay(canalId, señalUtilizar, valorIndexArraySeñal, iframeSignals, m3u8Signals)
             );
             return FRAGMENT_CANAL;
         }

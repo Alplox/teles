@@ -10,7 +10,7 @@ import { showToast } from './index.js';
  * @param {string} input - The string to normalize.
  * @returns {string} The normalized string.
  */
-function normalizeInput(input) {
+export function normalizeInput(input) {
     return input?.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase() ?? '';
 }
 
@@ -26,6 +26,42 @@ function toggleNoMatchesAlert(element, shouldHide, textNotFound) {
     element.classList.toggle('d-none', shouldHide);
     const span = element.querySelector('span');
     if (span) span.textContent = textNotFound;
+}
+
+/**
+ * Cached active filter state per container prefix.
+ * Updated by setCountryFilter() / setCategoryFilter() (called from filter handlers).
+ * Read by filterChannelsByInput() to avoid DOM queries per keystroke.
+ * @type {Map<string, {country: string, category: string}>}
+ */
+const activeFilterState = new Map();
+
+/**
+ * Sets the active country filter for a container prefix.
+ * Called from countryButtonCreator when the user selects a country.
+ * @param {string} prefix - Container prefix (e.g. 'modal-canales').
+ * @param {string} countryCode - ISO country code or 'all'.
+ * @returns {void}
+ */
+export function setCountryFilter(prefix, countryCode) {
+    if (!activeFilterState.has(prefix)) {
+        activeFilterState.set(prefix, { country: 'all', category: 'all' });
+    }
+    activeFilterState.get(prefix).country = countryCode;
+}
+
+/**
+ * Sets the active category filter for a container prefix.
+ * Called from categoryButtonCreator when the user selects a category.
+ * @param {string} prefix - Container prefix.
+ * @param {string} category - Category name or 'all'.
+ * @returns {void}
+ */
+export function setCategoryFilter(prefix, category) {
+    if (!activeFilterState.has(prefix)) {
+        activeFilterState.set(prefix, { country: 'all', category: 'all' });
+    }
+    activeFilterState.get(prefix).category = category;
 }
 
 /**
@@ -47,32 +83,19 @@ export function filterChannelsByInput(inputValue, channelButtonsContainer) {
         for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
             if (CONTAINER_ID.startsWith(PREFIX)) {
                 let hasMatch = false;
-                let activeCountryFilter = 'all';
-                let activeCategoryFilter = 'all';
 
-                // Determine active Country Filter
-                const countryFilterElements = document.querySelectorAll(`#${PREFIX}-collapse-botones-listado-filtro-paises [data-country]`);
-                countryFilterElements.forEach(element => {
-                    if (element.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
-                        const datasetValue = element.dataset.country ?? 'all';
-                        activeCountryFilter = COUNTRY_CODES[datasetValue] ?? datasetValue;
-                    }
-                });
-
-                // Determine active Category Filter
-                const categoryFilterElements = document.querySelectorAll(`#${PREFIX}-collapse-botones-listado-filtro-categorias [data-category]`);
-                categoryFilterElements.forEach(element => {
-                    if (element.classList.contains(CSS_CLASS_BUTTON_PRIMARY)) {
-                        activeCategoryFilter = element.dataset.category ?? 'all';
-                    }
-                });
+                // Use cached filter state instead of querying DOM on every keystroke
+                const state = activeFilterState.get(PREFIX);
+                const activeCountryFilter = state?.country ?? 'all';
+                const activeCategoryFilter = state?.category ?? 'all';
 
                 const groupVisibilityMap = new Map();
 
                 CHANNEL_BUTTONS.forEach(button => {
                     if (!button) return;
 
-                    const normalizedButtonContent = normalizeInput(`${button.dataset.country} - ${button.textContent}`);
+                    // Use precomputed normalized text from data attribute (set at button creation)
+                    const normalizedButtonContent = button.dataset.normalized ?? normalizeInput(`${button.dataset.country} - ${button.textContent}`);
                     const channelCategory = (button.dataset.category ?? 'undefined').toLowerCase();
                     const textMatches = normalizedButtonContent.includes(NORMALIZED_INPUT);
                     const groupContainer = button.closest('.grupo-canales-origen');

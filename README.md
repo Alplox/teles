@@ -37,13 +37,13 @@ teles es una PWA (sitio web que se puede instalar como aplicación) de Código A
 - 💾 **Almacenamiento local** - Tus preferencias se guardan automáticamente en tu dispositivo
 - 📡 **Múltiples reproductores** - Soporta VideoJS, OPlayer, Clappr y Shaka Player
 - ⚡ **Aplicación rápida y ligera** - Funciona incluso con conexiones lentas
-- 🔒 **Código abierto** - Contribuye y verifica la seguridad del código
+- 🔒 **Código abierto** - Contribuye y verifica el código
 
 ## Canales disponibles junto a su origen
 
 [↑ Volver arriba ↑](#tabla-de-contenido)
 
-<https://github.com/Alplox/json-teles?tab=readme-ov-file#canales-disponibles-junto-a-su-origen>
+<https://github.com/Alplox/json-teles?tab=readme-ov-file#available-channels>
 
 ## Descargo de responsabilidad
 
@@ -66,7 +66,7 @@ teles es una PWA (sitio web que se puede instalar como aplicación) de Código A
 
 [MIT License](/LICENSE)
 
-[NOTICE](/NOTICE.md)
+[ACKNOWLEDGMENTS](/ACKNOWLEDGMENTS.md)
 
 ## Contribuciones
 

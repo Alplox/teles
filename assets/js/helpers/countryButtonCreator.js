@@ -4,7 +4,7 @@ import {
     COUNTRY_CODES,
     ID_PREFIX_CONTAINERS_CHANNELS,
 } from "../constants/index.js";
-import { filterChannelsByInput, showToast } from "./index.js";
+import { filterChannelsByInput, showToast, setCountryFilter } from "./index.js";
 import { syncCategoriesWithCountry } from "./syncFilters.js";
 
 /** @type {Set<string>} Tracks containers that have already been rendered. */
@@ -28,26 +28,19 @@ export const clearCountryRenderedContainers = () => {
  */
 export function createCountryButtons(specificPrefix) {
     try {
-        const CHANNELS_WITH_COUNTRY = Object.values(channelsList).map(channel => {
-            if (channel?.country) {
-                return channel.country.toLowerCase();
-            } else {
-                return 'Desconocido';
-            }
-        });
+        // Single pass: build counts, collect unique countries, and filter in one reduce
+        const CHANNEL_COUNT_BY_COUNTRY = {};
+        const uniqueCountriesRaw = new Set();
+        for (const channel of Object.values(channelsList)) {
+            const raw = channel?.country?.toLowerCase() || 'Desconocido';
+            const resolved = COUNTRY_CODES[raw] ?? 'Desconocido';
+            CHANNEL_COUNT_BY_COUNTRY[resolved] = (CHANNEL_COUNT_BY_COUNTRY[resolved] || 0) + 1;
+            uniqueCountriesRaw.add(raw);
+        }
 
-        const UNIQUE_COUNTRIES = [...new Set(CHANNELS_WITH_COUNTRY)];
-
-        const CHANNEL_COUNT_BY_COUNTRY = CHANNELS_WITH_COUNTRY.reduce((count, country) => {
-            count[COUNTRY_CODES[country] ?? 'Desconocido'] = (count[COUNTRY_CODES[country] ?? 'Desconocido'] || 0) + 1;
-            return count;
-        }, {});
-
-        const SORTED_COUNTRIES = UNIQUE_COUNTRIES.filter(country => COUNTRY_CODES[country]).sort((a, b) => {
-            const codeA = COUNTRY_CODES[a].toLowerCase();
-            const codeB = COUNTRY_CODES[b].toLowerCase();
-            return codeA.localeCompare(codeB);
-        });
+        const SORTED_COUNTRIES = [...uniqueCountriesRaw]
+            .filter(c => COUNTRY_CODES[c])
+            .sort((a, b) => (COUNTRY_CODES[a] ?? '').localeCompare(COUNTRY_CODES[b] ?? ''));
 
         const COUNTRY_OPTIONS = [];
 
@@ -147,9 +140,11 @@ export function createCountryButtons(specificPrefix) {
                     const filterInput = document.querySelector(`#${PREFIX}-input-filtro`);
                     const searchValue = filterInput?.value ?? '';
                     const selectedCountryValue = selectedLabel?.dataset.country ?? 'all';
+                    const resolvedCountry = COUNTRY_CODES[selectedCountryValue] ?? selectedCountryValue;
 
                     clearSelection();
                     activateLabel(selectedLabel);
+                    setCountryFilter(PREFIX, resolvedCountry);
                     syncCategoriesWithCountry(PREFIX, selectedCountryValue);
                     filterChannelsByInput(searchValue, channelButtonsContainer);
                 } catch (error) {

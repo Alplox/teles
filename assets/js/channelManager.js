@@ -1,65 +1,17 @@
 import { URL_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
-import { LS_KEY_CHANNELS_BACKUP, LS_KEY_CHANNELS_BACKUP_DATE, LS_KEY_CHANNELS_BACKUP_VERSION, LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
+import { LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
 import { m3uToJson, validateM3UContent } from "./helpers/index.js";
 
-// Backup and channel fetch management
+// Channel fetch management
 export const DEFAULT_CHANNELS_ARRAY = ['24-horas', 'meganoticias', 't13'];
 export const EXTRA_DEFAULT_CHANNELS_ARRAY = ['chv-noticias', 'cnn-cl', 'lofi-girl'];
 
 export let channelsList;
 
-export const BACKUP_EXPIRATION_HOURS = 24;
-export const BACKUP_FORMAT_VERSION = 1;
 export const DEFAULT_SOURCE_ORIGIN = 'Canales predeterminados (github.com/Alplox/json-teles)';
 
-/**
- * Checks if the stored backup is valid based on expiration time.
- * @returns {boolean} True if backup is valid, false otherwise.
- */
-export function isBackupValid() {
-    const dateStr = localStorage.getItem(LS_KEY_CHANNELS_BACKUP_DATE);
-    if (!dateStr) return false;
-    const version = localStorage.getItem(LS_KEY_CHANNELS_BACKUP_VERSION);
-    if (version !== String(BACKUP_FORMAT_VERSION)) return false;
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffHours = (now - date) / (1000 * 60 * 60);
-    return diffHours < BACKUP_EXPIRATION_HOURS;
-}
-
-/**
- * Saves channel data to local storage backup.
- * @param {Object} json - The channel data to save.
- */
-export function saveChannelBackup(json) {
-    localStorage.setItem(LS_KEY_CHANNELS_BACKUP, JSON.stringify(json));
-    localStorage.setItem(LS_KEY_CHANNELS_BACKUP_DATE, new Date().toISOString());
-    localStorage.setItem(LS_KEY_CHANNELS_BACKUP_VERSION, String(BACKUP_FORMAT_VERSION));
-}
-
-/**
- * Reads channel data from local storage backup.
- * @returns {Object|null} The channel data or null if invalid/error.
- */
-export function readChannelBackup() {
-    try {
-        return JSON.parse(localStorage.getItem(LS_KEY_CHANNELS_BACKUP));
-    } catch {
-        return null;
-    }
-}
-
-// Variable to store a clean copy of base channels (without M3Us)
+// In-memory backup of base channels (without M3Us) — used by restoreChannelsFromMemory()
 let initialChannelsListBackup = null;
-
-/**
- * Clears all channel backup data from localStorage.
- */
-function clearChannelBackup() {
-    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP);
-    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP_DATE);
-    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP_VERSION);
-}
 
 /**
  * Detects if channel data uses the pre-v0.29 format (Spanish field names).
@@ -115,62 +67,43 @@ function migrateOldFormatChannels(channels) {
 }
 
 /**
- * Fetches the main channel list from the remote source or backup.
+ * Fetches the main channel list from the remote source.
+ * Always fetches fresh data from the network. Falls back to the in-memory
+ * backup (initialChannelsListBackup) if the network request or JSON parse fails.
+ * Offline caching is handled by the service worker (NetworkFirst strategy).
  * @async
  * @returns {Promise<void>}
  */
 export async function fetchLoadChannels() {
     try {
-        if (isBackupValid()) {
-            console.info('[teles] Loading channels from localStorage backup');
-            channelsList = readChannelBackup();
-            if (channelsList) {
-                if (isOldFormat(channelsList)) {
-                    console.warn('[teles] Detected outdated backup format (pre-v0.29), clearing and re-fetching');
-                    clearChannelBackup();
-                    channelsList = null;
-                } else {
-                    initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
-                    return;
-                }
-            }
-        }
-        console.info('[teles] Attempting to load main channel file');
+        console.info('[teles] Fetching channels from network');
         const response = await fetch(URL_JSON_MAIN_CHANNELS);
-        try {
-            const raw = await response.json();
-            // New format: { version, generated, total, channels: [...] }
-            // Index channels array by id into a flat object for internal use
-            if (Array.isArray(raw.channels)) {
-                const indexed = {};
-                for (const ch of raw.channels) {
-                    if (ch.id) indexed[ch.id] = ch;
-                }
-                channelsList = indexed;
-            } else {
-                // Fallback: assume old format (already flat object)
-                channelsList = raw;
+        const raw = await response.json();
+        // New format: { version, generated, total, channels: [...] }
+        // Index channels array by id into a flat object for internal use
+        if (Array.isArray(raw.channels)) {
+            const indexed = {};
+            for (const ch of raw.channels) {
+                if (ch.id) indexed[ch.id] = ch;
             }
-            saveChannelBackup(channelsList);
-            assignBaseOrigin();
-
-            // Save in-memory copy
-            initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
-        } catch (parseError) {
-            console.error('[teles] Error parsing main JSON', parseError);
-            // Try loading backup if exists
-            if (isBackupValid()) {
-                console.warn('[teles] Using channel list backup from localStorage due to parsing error');
-                channelsList = readChannelBackup();
-                if (channelsList) {
-                    initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
-                    return;
-                }
-            }
-            throw parseError;
+            channelsList = indexed;
+        } else {
+            // Fallback: assume old format (already flat object)
+            channelsList = raw;
         }
+        assignBaseOrigin();
+
+        // Save in-memory copy for restoreChannelsFromMemory()
+        initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
     } catch (error) {
-        throw error;
+        console.error('[teles] Error fetching channels from network:', error);
+        // Fall back to in-memory backup if available
+        if (initialChannelsListBackup) {
+            console.warn('[teles] Using in-memory channel backup due to network error');
+            channelsList = JSON.parse(JSON.stringify(initialChannelsListBackup));
+        } else {
+            throw error;
+        }
     }
 }
 

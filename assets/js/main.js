@@ -1,5 +1,5 @@
 /* 
-  main v0.30
+  main v0.31
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -62,6 +62,7 @@ import {
     createChannelButtons,
     createButtonsForChangeChannelModal,
     createButtonsForSingleView,
+    clearRenderedContainers,
     adjustVisibilityButtonsRemoveAllActiveChannels,
     saveOriginalOrder,
     adjustBootstrapColumnClasses,
@@ -99,6 +100,9 @@ export let gridViewContainer;
 export let freeViewContainer;
 export let gridStackInstance;
 
+/** @type {Object|null} Cached grid layout — invalidated on saveGridStackLayout() */
+let _cachedGridLayout = null;
+
 export const saveGridStackLayout = () => {
     if (!gridStackInstance) return;
 
@@ -127,6 +131,7 @@ export const saveGridStackLayout = () => {
     });
 
     localStorage.setItem(LS_KEY_TELES_GRIDSTACK_LAYOUT, JSON.stringify(layout));
+    _cachedGridLayout = layout; // Update cache so tele.add() reads the fresh value
 };
 
 export let singleViewContainer;
@@ -597,11 +602,11 @@ window.addEventListener('DOMContentLoaded', () => {
     fullHeightCheckbox.addEventListener('click', () => {
         fullHeightCheckbox.checked
             ? (iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
-                JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true)),
+                localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true),
                 fullHeightSpan.textContent = 'Expandido'
             )
             : (iconElFullHeight.classList.replace('bi-arrows-vertical', 'bi-arrows-collapse'),
-                JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, false)),
+                localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, false),
                 fullHeightSpan.textContent = 'Reducido'
             );
         adjustBootstrapColumnClasses()
@@ -611,7 +616,7 @@ window.addEventListener('DOMContentLoaded', () => {
     try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)) ?? true; } catch { }
 
     if (isFullHeightMode) {
-        JSON.stringify(localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true));
+        localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true);
         fullHeightCheckbox.checked = true;
         iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical');
         fullHeightSpan.textContent = 'Expandido';
@@ -749,11 +754,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 restorePersonalizedLists();
 
                 // 3. Re-render UI
-                createChannelButtons(channelsList);
+                clearRenderedContainers();
+                createChannelButtons();
 
                 // Update additional lists to ensure consistency
-                createButtonsForChangeChannelModal(channelsList);
-                createButtonsForSingleView(channelsList);
+                createButtonsForChangeChannelModal();
+                createButtonsForSingleView();
 
                 // Update base order for sorting features
                 for (const PREFIX of ID_PREFIX_CONTAINERS_CHANNELS) {
@@ -1163,10 +1169,10 @@ window.addEventListener('DOMContentLoaded', () => {
         saveGridStackLayout();
     });
     gridStackInstance.on('resizestop', () => {
-        saveGridStackLayout();
+        // saveGridStackLayout() already handled by 'change' event
     });
     gridStackInstance.on('dragstop', () => {
-        saveGridStackLayout();
+        // saveGridStackLayout() already handled by 'change' event
         initializeBootstrapTooltips();
         registerManualChannelChange();
         saveChannelsToLocalStorage();
@@ -1290,8 +1296,12 @@ export let tele = {
      *   Only safe to pass true during add-only batch loading (e.g. loadDefaultChannels),
      *   where no DOM elements are being removed so no orphaned tooltips can exist.
      *   The caller is responsible for running both functions once after the batch.
+     * @param {boolean} [options.skipSaveChannels=false] - When true, skips
+     *   saveChannelsToLocalStorage() for this call. Use during batch loading
+     *   to avoid N redundant localStorage writes; call saveChannelsToLocalStorage()
+     *   once after the batch completes.
      */
-    add: (channelId, { skipBatchExpensiveOps = false } = {}) => {
+    add: (channelId, { skipBatchExpensiveOps = false, skipSaveChannels = false } = {}) => {
         try {
             if (!channelId || !channelsList?.[channelId]) return console.error(`[teles] The channel "${channelId}" provided is not valid to be added.`);
 
@@ -1323,7 +1333,8 @@ export let tele = {
                 fragmentContainer.append(crearFragmentCanal(channelId, viewMode));
                 channelContainer.append(fragmentContainer);
 
-                const layouts = JSON.parse(localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT)) || {};
+                const layouts = _cachedGridLayout ?? JSON.parse(localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT) || '{}');
+                _cachedGridLayout = layouts;
                 const optimalW = Math.max(2, Math.floor(12 / obtainNumberOfChannelsPerRow()));
                 const layout = layouts[channelId] || { w: optimalW, h: 3 };
 
@@ -1339,14 +1350,14 @@ export let tele = {
                     minW: 2,
                     minH: 1
                 });
-                saveChannelsToLocalStorage();
+                if (!skipSaveChannels) saveChannelsToLocalStorage();
                 // Note: saveGridStackLayout() is triggered automatically via the 'change' event
                 // Calling it here again would reset partially-loaded layouts during batch initialization
             } else {
                 channelContainer.classList.add('position-relative', 'shadow');
                 channelContainer.append(crearFragmentCanal(channelId, viewMode));
                 gridViewContainer.append(channelContainer);
-                saveChannelsToLocalStorage();
+                if (!skipSaveChannels) saveChannelsToLocalStorage();
             }
             adjustChannelButtonClass(channelId, true);
             // Skip expensive DOM-wide ops during add-only batch loading (see JSDoc above)
@@ -1447,7 +1458,8 @@ export let tele = {
         let savedChannels = JSON.parse(localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW)) || {};
         // Default
         if (Object.keys(savedChannels).length === 0 && localStorage.getItem(LS_KEY_WELCOME_MODAL_VISIBILITY) !== 'hide') {
-            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId, { skipBatchExpensiveOps: true }));
+            getDefaultChannels(isMobile.any).forEach(channelId => tele.add(channelId, { skipBatchExpensiveOps: true, skipSaveChannels: true }));
+            saveChannelsToLocalStorage(); // Single write after batch
             new bootstrap.Modal(document.querySelector('#modal-bienvenida')).show();
             // Check saved    
         } else {
@@ -1463,9 +1475,10 @@ export let tele = {
                             type: 'warning'
                         });
                     } else {
-                        tele.add(channelId, { skipBatchExpensiveOps: true });
+                        tele.add(channelId, { skipBatchExpensiveOps: true, skipSaveChannels: true });
                     }
                 });
+                saveChannelsToLocalStorage(); // Single write after batch
             } catch (error) {
                 console.error(`[teles] Error while loading default channels. Error: ${error}`);
                 showToast({

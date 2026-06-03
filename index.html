@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.30
+    teles v0.31
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -117,7 +117,7 @@
                     <div class="position-relative bg-light-subtle p-1 rounded-4 shadow" tabindex="-1">
                         <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.30</i>
+                            <i class="badge bg-secondary">v0.31</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -177,7 +177,7 @@
 
     <!-- Navbar -->
     <nav class='navbar navbar-expand-lg bg-dark-subtle shadow-sm p-1' id="navbar">
-        <div class="container-fluid">
+        <div class="container-fluid gap-4">
             <a href="./" target="_self" class="gradient-text me-2 fs-4 d-none">teles</a>
             <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
                 <button type="button" class="btn btn-sm btn-indigo rounded-start-pill" data-bs-toggle="offcanvas"
@@ -205,41 +205,31 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar-toggler">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="offcanvas"
+                            data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal"
+                            data-bs-target="#modal-creditos"><i class="bi bi-c-circle"></i> Créditos</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal"
+                            data-bs-target="#modal-bienvenida"><i class="bi bi-info-circle"></i> Descargo</a>
+                    </li> -->
+                   <!--  <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Alplox/teles"
+                            rel="nofollow noreferrer"><i class="bi bi-github"></i> Repositorio <i
+                                class="bi bi-box-arrow-up-right"></i></a>
+                    </li> -->
                     <li class="nav-item dropdown">
-                        <button type="button" class='nav-link btn dropdown-toggle' data-bs-toggle="dropdown"
+                        <button type="button" class="nav-link btn dropdown-toggle" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" aria-expanded="false" id="dropdown-about">
-                            Acerca de
+                            <i class="bi bi-"></i> Variaciones de código abierto
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-about">
                             <li>
-                                <a class='dropdown-item' href='#' data-bs-toggle="offcanvas"
-                                    data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización
-                                </a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href="#" data-bs-toggle="modal"
-                                    data-bs-target="#modal-creditos"><i class="bi bi-c-circle"></i> Créditos
-                                </a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href='#' data-bs-toggle="modal"
-                                    data-bs-target="#modal-bienvenida"><i class="bi bi-info-circle"></i> Descargo de
-                                    responsabilidad</a>
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href="https://github.com/Alplox/teles"
-                                    rel="nofollow noreferrer"><i class="bi bi-github"></i> Repositorio <i
-                                        class="bi bi-box-arrow-up-right"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li class="navbar-text dropdown-item user-select-none text-wrap">
-                                Variaciones de código abierto:
-                            </li>
-                            <li>
-                                <a class='dropdown-item' href='https://monitortv.vercel.app/Monitores/Home'
+                                <a class="dropdown-item" href="https://monitortv.vercel.app/Monitores/Home"
                                     rel="nofollow noreferrer">
                                     <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
@@ -247,7 +237,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class='dropdown-item' href='https://ver-tele.vercel.app/monitor'
+                                <a class="dropdown-item" href="https://ver-tele.vercel.app/monitor"
                                     rel="nofollow noreferrer">
                                     <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
@@ -255,7 +245,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class='dropdown-item' href='https://interneto.github.io/tv-multiview/'
+                                <a class="dropdown-item" href="https://interneto.github.io/tv-multiview/"
                                     rel="nofollow noreferrer">
                                     <img src="https://flagcdn.com/es.svg" alt="bandera España" title="España"
                                         class="svg-bandera" />
@@ -263,7 +253,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class='dropdown-item' href='https://alplox.github.io/la-tele/'
+                                <a class="dropdown-item" href="https://alplox.github.io/la-tele/"
                                     rel="nofollow noreferrer">
                                     <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
@@ -937,8 +927,8 @@
                     <p>
                         <a href="https://github.com/Alplox/teles/blob/master/LICENSE" rel="nofollow noreferrer">
                             Licencia MIT <i class="bi bi-box-arrow-up-right"></i></a> — <a
-                            href="https://github.com/Alplox/teles/blob/master/NOTICE.md"
-                            rel="nofollow noreferrer">Notice <i class="bi bi-box-arrow-up-right"></i></a>
+                            href="https://github.com/Alplox/teles/blob/master/ACKNOWLEDGMENTS.md"
+                            rel="nofollow noreferrer">Agradecimientos <i class="bi bi-box-arrow-up-right"></i></a>
                     </p>
                     <hr>
                     <h5>Contribuciones</h5>

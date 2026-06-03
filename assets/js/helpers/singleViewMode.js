@@ -215,10 +215,12 @@ const restoreBackedUpChannels = () => {
         channelDiv.dataset.canal = channelDiv.dataset.respaldo;
         channelDiv.append(crearFragmentCanal(channelDiv.dataset.canal));
         adjustChannelButtonClass(channelDiv.dataset.canal, true);
-        initializeBootstrapTooltips();
-        hideOverlayButtonText();
         channelDiv.removeAttribute('data-respaldo');
     });
+
+    // Initialize once after all channels are restored (was O(N²) inside forEach)
+    initializeBootstrapTooltips();
+    hideOverlayButtonText();
 
     return activeChannelsInDOM.length;
 };
