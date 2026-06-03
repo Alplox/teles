@@ -190,7 +190,7 @@ const removeChannelsBySource = (fuente) => {
     let eliminados = 0;
 
     Object.keys(channelsList).forEach(canalId => {
-        if (channelsList[canalId]?.fuenteLista === fuente) {
+        if (channelsList[canalId]?.sourceList === fuente) {
             try {
                 tele.remove?.(canalId);
             } catch (error) {

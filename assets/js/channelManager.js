@@ -67,7 +67,19 @@ export async function fetchLoadChannels() {
         console.info('[teles] Attempting to load main channel file');
         const response = await fetch(URL_JSON_MAIN_CHANNELS);
         try {
-            channelsList = await response.json();
+            const raw = await response.json();
+            // New format: { version, generated, total, channels: [...] }
+            // Index channels array by id into a flat object for internal use
+            if (Array.isArray(raw.channels)) {
+                const indexed = {};
+                for (const ch of raw.channels) {
+                    if (ch.id) indexed[ch.id] = ch;
+                }
+                channelsList = indexed;
+            } else {
+                // Fallback: assume old format (already flat object)
+                channelsList = raw;
+            }
             saveChannelBackup(channelsList);
             assignBaseOrigin();
 
@@ -113,16 +125,16 @@ function assignBaseOrigin() {
     if (!channelsList) return;
     for (const canalId of Object.keys(channelsList)) {
         const canal = channelsList[canalId];
-        if (!canal.origenLista) {
-            canal.origenLista = DEFAULT_SOURCE_ORIGIN;
+        if (!canal.listOrigin) {
+            canal.listOrigin = DEFAULT_SOURCE_ORIGIN;
         }
-        if (!canal.origenListaOriginal) {
-            canal.origenListaOriginal = canal.origenLista;
+        if (!canal.originalListOrigin) {
+            canal.originalListOrigin = canal.listOrigin;
         }
-        if (!Array.isArray(canal.fuentesCombinadas) || canal.fuentesCombinadas.length === 0) {
-            canal.fuentesCombinadas = [canal.origenListaOriginal];
+        if (!Array.isArray(canal.combinedSources) || canal.combinedSources.length === 0) {
+            canal.combinedSources = [canal.originalListOrigin];
         }
-        canal.esSeñalCombinada = Array.isArray(canal.fuentesCombinadas) && canal.fuentesCombinadas.length > 1;
+        canal.isCombinedSignal = Array.isArray(canal.combinedSources) && canal.combinedSources.length > 1;
     }
 }
 
@@ -160,7 +172,7 @@ function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', sourc
     const channelMap = {};
     if (shouldCombineMatches) {
         for (const canal of Object.keys(channelsList)) {
-            const listName = channelsList[canal].nombre ?? 'Canal sin nombre';
+            const listName = channelsList[canal].name ?? 'Canal sin nombre';
             channelMap[listName] = channelsList[canal];
         }
     }
@@ -169,7 +181,7 @@ function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', sourc
     console.groupCollapsed(`[teles][m3u] Processing ${m3uKeys.length} channels from ${origin}`);
     for (const channelName of m3uKeys) {
         const newData = parseM3u[channelName];
-        const parsedM3uName = newData.nombre ?? 'Canal sin nombre';
+        const parsedM3uName = newData.name ?? 'Canal sin nombre';
         let existingChannel = null;
 
         if (shouldCombineMatches) {
@@ -182,33 +194,35 @@ function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', sourc
         }
 
         if (shouldCombineMatches && existingChannel) {
-            existingChannel.señales = existingChannel.señales || {};
-            const currentM3u8s = Array.isArray(existingChannel.señales.m3u8_url)
-                ? existingChannel.señales.m3u8_url
-                : (existingChannel.señales.m3u8_url ? [existingChannel.señales.m3u8_url] : []);
+            existingChannel.signals = Array.isArray(existingChannel.signals) ? existingChannel.signals : [];
+            const currentM3u8s = existingChannel.signals
+                .filter(s => s.type === 'm3u8')
+                .map(s => s.url);
 
-            existingChannel.señales.m3u8_url = currentM3u8s;
-
-            const newUrls = (newData.señales?.m3u8_url ?? [])
+            const newUrls = (newData.signals ?? [])
+                .filter(s => s.type === 'm3u8')
+                .map(s => s.url)
                 .filter(url => url && !currentM3u8s.includes(url));
-            existingChannel.señales.m3u8_url.push(...newUrls);
-
-            const baseOrigin = existingChannel.origenListaOriginal ?? existingChannel.origenLista ?? DEFAULT_SOURCE_ORIGIN;
-            existingChannel.origenListaOriginal = baseOrigin;
-            existingChannel.origenLista = baseOrigin;
-
-            if (source && !existingChannel.fuenteLista) {
-                existingChannel.fuenteLista = source;
+            for (const url of newUrls) {
+                existingChannel.signals.push({ type: 'm3u8', url });
             }
 
-            const previousSources = Array.isArray(existingChannel.fuentesCombinadas) && existingChannel.fuentesCombinadas.length > 0
-                ? existingChannel.fuentesCombinadas
+            const baseOrigin = existingChannel.originalListOrigin ?? existingChannel.listOrigin ?? DEFAULT_SOURCE_ORIGIN;
+            existingChannel.originalListOrigin = baseOrigin;
+            existingChannel.listOrigin = baseOrigin;
+
+            if (source && !existingChannel.sourceList) {
+                existingChannel.sourceList = source;
+            }
+
+            const previousSources = Array.isArray(existingChannel.combinedSources) && existingChannel.combinedSources.length > 0
+                ? existingChannel.combinedSources
                 : [baseOrigin];
             if (origin && !previousSources.includes(origin)) {
                 previousSources.push(origin);
             }
-            existingChannel.fuentesCombinadas = previousSources;
-            existingChannel.esSeñalCombinada = existingChannel.fuentesCombinadas.length > 1;
+            existingChannel.combinedSources = previousSources;
+            existingChannel.isCombinedSignal = existingChannel.combinedSources.length > 1;
 
             console.info('[teles][m3u] Existing channel updated', {
                 origin,
@@ -216,14 +230,14 @@ function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', sourc
                 name: parsedM3uName,
                 prevUrls: currentM3u8s,
                 addedUrls: newUrls,
-                totalSignals: existingChannel.señales.m3u8_url.length
+                totalSignals: existingChannel.signals.length
             });
         } else {
-            newData.origenLista = origin;
-            newData.origenListaOriginal = origin;
-            if (source) newData.fuenteLista = source;
-            newData.fuentesCombinadas = origin ? [origin] : [];
-            newData.esSeñalCombinada = false;
+            newData.listOrigin = origin;
+            newData.originalListOrigin = origin;
+            if (source) newData.sourceList = source;
+            newData.combinedSources = origin ? [origin] : [];
+            newData.isCombinedSignal = false;
             const resultId = getAvailableChannelId(channelName, parsedM3uName, origin);
             channelsList[resultId] = newData;
 
@@ -231,9 +245,9 @@ function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', sourc
                 origin,
                 internalId: resultId,
                 name: parsedM3uName,
-                signals: newData.señales,
-                country: newData.país,
-                category: newData.categoría
+                signals: newData.signals,
+                country: newData.country,
+                category: newData.category
             });
         }
     }

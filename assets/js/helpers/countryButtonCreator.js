@@ -29,8 +29,8 @@ export const clearCountryRenderedContainers = () => {
 export function createCountryButtons(specificPrefix) {
     try {
         const CHANNELS_WITH_COUNTRY = Object.values(channelsList).map(channel => {
-            if (channel?.país !== '') {
-                return channel.país.toLowerCase();
+            if (channel?.country) {
+                return channel.country.toLowerCase();
             } else {
                 return 'Desconocido';
             }

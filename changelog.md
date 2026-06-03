@@ -4,6 +4,25 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.29]
+
+### Changed
+
+- Migrado frontend para compatibilidad con `json-teles` v2.0.0:
+  - URL remota cambia de `canales.json` a `channels.json`.
+  - `channels` se indexa por `id` en un objeto plano para uso interno.
+  - Señales: de objeto `señales` (`iframe_url[]`, `m3u8_url[]`, `yt_id`, `yt_embed`, `yt_playlist`, `twitch_id`) a array `signals[{type, url}]` + campos `youtube`, `twitch`, `last_youtube_livestreams`.
+  - Campos de datos: `nombre` → `name`, `país` → `country`, `categoría` → `category`, `sitio_oficial` → `website`.
+  - Campos metadata internos: `origenLista` → `listOrigin`, `origenListaOriginal` → `originalListOrigin`, `fuentesCombinadas` → `combinedSources`, `esSeñalCombinada` → `isCombinedSignal`, `fuenteLista` → `sourceList`.
+  - Dropdown de selección de señales ahora muestra YouTube Canal ID y YouTube Último Live como opciones separadas.
+  - `m3uToJson()` produce el nuevo formato.
+
+### Fixed
+
+- Corregido `.includes()` con múltiples argumentos que solo validaba el primero (referrer policy para YouTube).
+- Corregido `website !== ''` que no manejaba `null`/`undefined`, resultando en hrefs `"null"`.
+- Corregido `countryButtonCreator` que fallaba con `country` nulo.
+
 ## [v0.28]
 
 ### Added

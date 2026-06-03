@@ -1,5 +1,5 @@
 /* 
-  main v0.28
+  main v0.29
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -473,8 +473,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 getActiveChannelIds().forEach(channelId => {
                     if (channelId) {
-                        const channelData = channelsList?.[channelId]?.señales;
-                        if (!channelData) return;
+                        const channel = channelsList?.[channelId];
+                        if (!channel) return;
 
                         let signalToUse;
 
@@ -483,17 +483,18 @@ window.addEventListener('DOMContentLoaded', () => {
                             signalToUse = Object.keys(channelSignalPreferences[channelId])[0];
                         } else {
                             // 2. Default: signal priority
-                            const { iframe_url, m3u8_url, yt_id, yt_embed, yt_playlist, twitch_id } = channelData;
+                            const signals = channel.signals ?? [];
+                            const hasIframe = signals.some(s => s.type === 'iframe');
+                            const hasM3u8 = signals.some(s => s.type === 'm3u8');
 
-                            if (iframe_url?.length) signalToUse = 'iframe_url';
-                            else if (m3u8_url?.length) signalToUse = 'm3u8_url';
-                            else if (yt_id) signalToUse = 'yt_id';
-                            else if (yt_embed) signalToUse = 'yt_embed';
-                            else if (yt_playlist) signalToUse = 'yt_playlist';
-                            else if (twitch_id) signalToUse = 'twitch_id';
+                            if (hasIframe) signalToUse = 'iframe';
+                            else if (hasM3u8) signalToUse = 'm3u8';
+                            else if (channel.youtube) signalToUse = 'youtube';
+                            else if (channel.last_youtube_livestreams?.[0]) signalToUse = 'youtube_embed';
+                            else if (channel.twitch) signalToUse = 'twitch';
                         }
 
-                        if (signalToUse === 'm3u8_url') {
+                        if (signalToUse === 'm3u8') {
                             cambiarSoloSeñalActiva(channelId);
                         }
 

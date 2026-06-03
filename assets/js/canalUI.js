@@ -40,26 +40,26 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewM
         DIV_ELEMENT.classList.add('ratio', 'ratio-16x9', 'h-100');
     }
     DIV_ELEMENT.setAttribute('data-canal-cambio', canalId);
-    const { nombre, señales } = channelsList[canalId];
+    const { name, signals = [], youtube, twitch, last_youtube_livestreams } = channelsList[canalId];
 
-    const URL_POR_TIPO_SEÑAL = {
-        'iframe_url': señales.iframe_url && señales.iframe_url[valorIndex],
-        'yt_id': señales.yt_id && `https://www.youtube-nocookie.com/embed/live_stream?channel=${señales.yt_id}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0`,
-        'yt_embed': señales.yt_embed && `https://www.youtube-nocookie.com/embed/${señales.yt_embed}?autoplay=1&mute=1&modestbranding=1&showinfo=0`,
-        'yt_playlist': señales.yt_playlist && `https://www.youtube-nocookie.com/embed/videoseries?list=${señales.yt_playlist}&autoplay=0&mute=0&modestbranding=1&showinfo=0`,
-        'twitch_id': señales.twitch_id && `https://player.twitch.tv/?channel=${señales.twitch_id}&parent=${TWITCH_PARENT}`
+    const iframeSignals = signals.filter(s => s.type === 'iframe');
+    const EMBED_URLS = {
+        'iframe':       iframeSignals[valorIndex]?.url,
+        'youtube':      youtube ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${youtube}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0` : undefined,
+        'youtube_embed': last_youtube_livestreams?.[0] ? `https://www.youtube-nocookie.com/embed/${last_youtube_livestreams[0]}?autoplay=1&mute=1&modestbranding=1&showinfo=0` : undefined,
+        'twitch':       twitch ? `https://player.twitch.tv/?channel=${twitch}&parent=${TWITCH_PARENT}` : undefined
     };
 
     const IFRAME_ELEMENT = document.createElement('iframe');
-    IFRAME_ELEMENT.src = URL_POR_TIPO_SEÑAL[tipoSeñalParaIframe];
+    IFRAME_ELEMENT.src = EMBED_URLS[tipoSeñalParaIframe];
     IFRAME_ELEMENT.classList.add('pe-auto');
     IFRAME_ELEMENT.setAttribute('contenedor-canal-cambio', canalId);
     IFRAME_ELEMENT.allowFullscreen = true;
     IFRAME_ELEMENT.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-    IFRAME_ELEMENT.title = nombre;
-    if (tipoSeñalParaIframe === 'yt_id' || tipoSeñalParaIframe === 'yt_embed' || tipoSeñalParaIframe === 'yt_playlist'
-        || (tipoSeñalParaIframe === 'iframe_url' && URL_POR_TIPO_SEÑAL[tipoSeñalParaIframe]?.includes('youtube', 'youtu.be', 'youtube-nocookie'))) {
-        IFRAME_ELEMENT.referrerPolicy = 'strict-origin-when-cross-origin';  // Debido a Error 153 con Youtube. Rompe otras señales iframe_url por eso lo filtramos antes.
+    IFRAME_ELEMENT.title = name;
+    if (tipoSeñalParaIframe === 'youtube' || tipoSeñalParaIframe === 'youtube_embed'
+        || (tipoSeñalParaIframe === 'iframe' && /youtube\.com|youtu\.be|youtube-nocookie\.com/.test(EMBED_URLS[tipoSeñalParaIframe]))) {
+        IFRAME_ELEMENT.referrerPolicy = 'strict-origin-when-cross-origin';  // For Error 153 with Youtube. Breaks other iframe_url signals so we filter them before.
     } else {
         IFRAME_ELEMENT.referrerPolicy = 'no-referrer';
     }
@@ -287,11 +287,11 @@ changeChannelModalEl.addEventListener('shown.bs.modal', () => {
 const changeChannelModalLabelEl = document.querySelector('#label-para-nombre-canal-cambiar');
 export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
     try {
-        let { nombre = 'Nombre Canal', señales, sitio_oficial, país, categoría } = channelsList[canalId];
+        let { name = 'Nombre Canal', signals = [], website, country, category, youtube, twitch, last_youtube_livestreams } = channelsList[canalId];
 
         valorIndex = Number(valorIndex);
-        categoría = categoría.toLowerCase();
-        let iconoCategoria = categoría in CATEGORIES_ICONS ? CATEGORIES_ICONS[categoría] : '<i class="bi bi-tv"></i>';
+        category = (category ?? '').toLowerCase();
+        let iconoCategoria = category in CATEGORIES_ICONS ? CATEGORIES_ICONS[category] : '<i class="bi bi-tv"></i>';
 
         const FRAGMENT_OVERLAY = document.createDocumentFragment();
         const DIV_ELEMENT = document.createElement('div');
@@ -311,50 +311,50 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         const DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL = document.createElement("ul");
         DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.classList.add('dropdown-menu');
 
-        for (const key in señales) {
-            let iconoSeñal = '<i class="bi bi-globe"></i>'
-            if (key.startsWith('iframe_')) {
-                iconoSeñal = '<i class="bi bi-globe"></i>'
-            } else if (key.startsWith('m3u8_')) {
-                iconoSeñal = '<i class="bi bi-play-btn"></i>'
-            } else if (key.startsWith('yt_')) {
-                iconoSeñal = '<i class="bi bi-youtube"></i>'
-            } else if (key.startsWith('twitch_')) {
-                iconoSeñal = '<i class="bi bi-twitch"></i>'
-            }
+        // Build signal options from signals array + youtube/twitch fields
+        const signalOptions = [];
 
-            const value = señales[key];
-            if (Array.isArray(value) && value.length > 0) {
-                value.forEach((url, index) => {
-                    const listItem = document.createElement("li");
-                    listItem.classList.add('dropdown-item', 'pe-auto', 'py-2', 'user-select-none');
-                    if (tipoSeñalCargada === key && valorIndex === index) listItem.classList.add('bg-indigo', 'fw-bold');
-                    listItem.innerHTML = value.length === 1 ? `${iconoSeñal} ${key.split('_')[0]}` : `${iconoSeñal} ${key.split('_')[0]} <span class="fst-italic">${index}</span>`;
-                    listItem.addEventListener("click", () => {
-                        DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.querySelectorAll('.dropdown-item').forEach(item => {
-                            item.classList.remove('bg-indigo', 'fw-bold');
-                        });
-                        listItem.classList.add('bg-indigo', 'fw-bold');
-                        guardarSeñalPreferida(canalId, key.toString(), Number(index));
-                        cambiarSoloSeñalActiva(canalId);
-                    });
-                    DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.append(listItem);
+        // iframe signals
+        const iframeSignals = signals.filter(s => s.type === 'iframe');
+        iframeSignals.forEach((sig, index) => {
+            signalOptions.push({ key: 'iframe', index, url: sig.url, icon: '<i class="bi bi-globe"></i>', label: iframeSignals.length === 1 ? 'iframe' : `iframe ${index}` });
+        });
+
+        // m3u8 signals
+        const m3u8Signals = signals.filter(s => s.type === 'm3u8');
+        m3u8Signals.forEach((sig, index) => {
+            signalOptions.push({ key: 'm3u8', index, url: sig.url, icon: '<i class="bi bi-play-btn"></i>', label: m3u8Signals.length === 1 ? 'm3u8' : `m3u8 ${index}` });
+        });
+
+        // youtube channel
+        if (youtube) {
+            signalOptions.push({ key: 'youtube', index: 0, url: `https://www.youtube.com/channel/${youtube}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Canal ID' });
+        }
+
+        // youtube embed (last livestream)
+        if (last_youtube_livestreams?.[0]) {
+            signalOptions.push({ key: 'youtube_embed', index: 0, url: `https://www.youtube.com/watch?v=${last_youtube_livestreams[0]}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Último Live' });
+        }
+
+        // twitch
+        if (twitch) {
+            signalOptions.push({ key: 'twitch', index: 0, url: `https://www.twitch.tv/${twitch}`, icon: '<i class="bi bi-twitch"></i>', label: 'Twitch' });
+        }
+
+        for (const opt of signalOptions) {
+            const listItem = document.createElement("li");
+            listItem.classList.add('dropdown-item', 'pe-auto', 'py-2', 'user-select-none');
+            if (tipoSeñalCargada === opt.key && valorIndex === opt.index) listItem.classList.add('bg-indigo', 'fw-bold');
+            listItem.innerHTML = `${opt.icon} ${opt.label}`;
+            listItem.addEventListener("click", () => {
+                DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.classList.remove('bg-indigo', 'fw-bold');
                 });
-            } else if (typeof value === "string" && value !== "") {
-                const listItem = document.createElement("li");
-                listItem.classList.add('dropdown-item', 'pe-auto', 'py-2', 'user-select-none');
-                if (tipoSeñalCargada === key) listItem.classList.add('bg-indigo', 'fw-bold');
-                listItem.innerHTML = `${iconoSeñal} ${key.replace('_', ' ')}`;
-                listItem.addEventListener("click", () => {
-                    DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.querySelectorAll('.dropdown-item').forEach(item => {
-                        item.classList.remove('bg-indigo', 'fw-bold');
-                    });
-                    listItem.classList.add('bg-indigo', 'fw-bold');
-                    guardarSeñalPreferida(canalId, key.toString());
-                    cambiarSoloSeñalActiva(canalId);
-                });
-                DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.append(listItem);
-            }
+                listItem.classList.add('bg-indigo', 'fw-bold');
+                guardarSeñalPreferida(canalId, opt.key, opt.index);
+                cambiarSoloSeñalActiva(canalId);
+            });
+            DROPDOWN_MENU_SELECCIONAR_SEÑAL_CANAL.append(listItem);
         }
 
         const BOTON_MOVER_CANAL = document.createElement('div');
@@ -376,7 +376,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         BOTON_CAMBIAR_CANAL.innerHTML = '<span>Cambiar</span><i class="bi bi-arrow-repeat"></i>';
         BOTON_CAMBIAR_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3');
         BOTON_CAMBIAR_CANAL.addEventListener('click', () => {
-            changeChannelModalLabelEl.textContent = nombre;
+            changeChannelModalLabelEl.textContent = name;
             changeChannelModalEl.dataset.channelSource = canalId;
 
             // Asegurar que los botones estén creados antes de mostrar el modal (lazy load preventivo)
@@ -391,17 +391,17 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
         const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
         BOTON_SITIO_OFICIAL_CANAL.id = 'overlay-boton-pagina-oficial';
         BOTON_SITIO_OFICIAL_CANAL.title = 'Ir a la página oficial de esta transmisión';
-        if (tipoSeñalCargada === 'yt_id') sitio_oficial = `https://www.youtube.com/channel/${señales.yt_id}`;
-        if (tipoSeñalCargada === 'twitch_id') sitio_oficial = `https://www.twitch.tv/${señales.twitch_id}`;
-        BOTON_SITIO_OFICIAL_CANAL.href = sitio_oficial !== '' ? sitio_oficial : `https://www.duckduckgo.com/?q=${nombre}+en+vivo`;
+        if (tipoSeñalCargada === 'youtube') website = `https://www.youtube.com/channel/${youtube}`;
+        if (tipoSeñalCargada === 'twitch') website = `https://www.twitch.tv/${twitch}`;
+        BOTON_SITIO_OFICIAL_CANAL.href = website ? website : `https://www.duckduckgo.com/?q=${name}+en+vivo`;
         BOTON_SITIO_OFICIAL_CANAL.setAttribute('role', 'button');
         BOTON_SITIO_OFICIAL_CANAL.setAttribute('data-bs-toggle', 'tooltip');
         BOTON_SITIO_OFICIAL_CANAL.setAttribute('data-bs-title', 'Ir a la página oficial de esta transmisión');
         BOTON_SITIO_OFICIAL_CANAL.rel = 'noopener nofollow noreferrer';
         BOTON_SITIO_OFICIAL_CANAL.innerHTML = `<span>
-                ${nombre}
-                ${país
-                ? ` <img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${COUNTRY_CODES[país]}" title="${COUNTRY_CODES[país]}" class="svg-bandera">`
+                ${name}
+                ${country
+                ? ` <img src="https://flagcdn.com/${country.toLowerCase()}.svg" alt="bandera ${COUNTRY_CODES[country]}" title="${COUNTRY_CODES[country]}" class="svg-bandera">`
                 : ''}
                 ${iconoCategoria
                 ? ` ${iconoCategoria}`
@@ -448,37 +448,43 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0) {
 
 
 export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
-    if (channelsList[canalId]?.señales) {
-        let { iframe_url = [], m3u8_url = [], yt_id = '', yt_embed = '', yt_playlist = '', twitch_id = '' } = channelsList[canalId].señales;
+    if (channelsList[canalId]) {
+        const channel = channelsList[canalId];
+        const signals = channel.signals ?? [];
+        const iframeSignals = signals.filter(s => s.type === 'iframe');
+        const m3u8Signals = signals.filter(s => s.type === 'm3u8');
         let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
 
         let señalUtilizar;
         let valorIndexArraySeñal = 0;
 
-        if (Array.isArray(iframe_url) && iframe_url.length > 0) {
-            señalUtilizar = 'iframe_url';
-        } else if (Array.isArray(m3u8_url) && m3u8_url.length > 0) {
-            señalUtilizar = 'm3u8_url';
-        } else if (yt_id !== '') {
-            señalUtilizar = 'yt_id';
-        } else if (yt_embed !== '') {
-            señalUtilizar = 'yt_embed';
-        } else if (yt_playlist !== '') {
-            señalUtilizar = 'yt_playlist';
-        } else if (twitch_id !== '') {
-            señalUtilizar = 'twitch_id';
+        if (iframeSignals.length > 0) {
+            señalUtilizar = 'iframe';
+        } else if (m3u8Signals.length > 0) {
+            señalUtilizar = 'm3u8';
+        } else if (channel.youtube) {
+            señalUtilizar = 'youtube';
+        } else if (channel.last_youtube_livestreams?.[0]) {
+            señalUtilizar = 'youtube_embed';
+        } else if (channel.twitch) {
+            señalUtilizar = 'twitch';
         }
 
         if (lsPreferenciasSeñalCanales[canalId]) {
             const tipoPreferido = Object.keys(lsPreferenciasSeñalCanales[canalId])[0].toString();
             const indicePreferido = Number(Object.values(lsPreferenciasSeñalCanales[canalId]));
-            const valorPreferido = channelsList?.[canalId]?.señales?.[tipoPreferido];
 
             let preferenciaValida = false;
-            if (Array.isArray(valorPreferido)) {
-                preferenciaValida = valorPreferido[indicePreferido] !== undefined;
-            } else if (typeof valorPreferido === 'string') {
-                preferenciaValida = valorPreferido.trim() !== '';
+            if (tipoPreferido === 'iframe') {
+                preferenciaValida = iframeSignals[indicePreferido] !== undefined;
+            } else if (tipoPreferido === 'm3u8') {
+                preferenciaValida = m3u8Signals[indicePreferido] !== undefined;
+            } else if (tipoPreferido === 'youtube') {
+                preferenciaValida = !!channel.youtube;
+            } else if (tipoPreferido === 'youtube_embed') {
+                preferenciaValida = !!channel.last_youtube_livestreams?.[0];
+            } else if (tipoPreferido === 'twitch') {
+                preferenciaValida = !!channel.twitch;
             }
 
             if (preferenciaValida) {
@@ -491,10 +497,10 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
         }
 
         const FRAGMENT_CANAL = document.createDocumentFragment();
-        if (señalUtilizar === 'm3u8_url') {
+        if (señalUtilizar === 'm3u8') {
             FRAGMENT_CANAL.append(
-                crearVideoJs(canalId, m3u8_url[valorIndexArraySeñal], viewMode),
-                crearOverlay(canalId, 'm3u8_url', valorIndexArraySeñal)
+                crearVideoJs(canalId, m3u8Signals[valorIndexArraySeñal].url, viewMode),
+                crearOverlay(canalId, 'm3u8', valorIndexArraySeñal)
             );
             return FRAGMENT_CANAL;
         } else {
@@ -505,10 +511,10 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
             return FRAGMENT_CANAL;
         }
     } else {
-        console.error(`[teles] Error at attempt to create fragment for channel with id: ${canalId}. Error: ${error}`);
+        console.error(`[teles] Error at attempt to create fragment for channel with id: ${canalId}. Channel not found in channelsList.`);
         showToast({
             title: `Canal ${canalId} no tiene señales definidas. Se procesará el siguiente canal.`,
-            body: `Error: ${error}`,
+            body: `Canal no encontrado en channelsList.`,
             type: 'danger',
             autohide: false,
             delay: 0,

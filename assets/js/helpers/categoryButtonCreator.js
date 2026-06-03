@@ -28,7 +28,7 @@ export const clearCategoryRenderedContainers = () => {
 export function createCategoryButtons(specificPrefix) {
     try {
         const RAW_CATEGORIES = Object.values(channelsList).map(channel => {
-            const categoryValue = channel?.categoría;
+            const categoryValue = channel?.category;
             if (!categoryValue || categoryValue === "") return "undefined";
             return `${categoryValue}`.toLowerCase();
         });

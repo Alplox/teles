@@ -19,11 +19,11 @@ function buildRelations() {
     const channels = channelsList ? Object.values(channelsList) : [];
 
     for (const channel of channels) {
-        const countryCode = channel?.país?.trim()
-            ? channel.país.toLowerCase()
+        const countryCode = channel?.country?.trim()
+            ? channel.country.toLowerCase()
             : UNKNOWN_COUNTRY_VALUE;
-        const category = channel?.categoría?.trim()
-            ? channel.categoría.toLowerCase()
+        const category = channel?.category?.trim()
+            ? channel.category.toLowerCase()
             : UNDEFINED_CATEGORY_VALUE;
 
         if (!categoriesByCountryMap.has(countryCode)) {

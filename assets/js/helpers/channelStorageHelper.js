@@ -27,10 +27,10 @@ export const saveChannelsToLocalStorage = () => {
         activeChannelsInDom.forEach(channelDiv => {
             const channelId = channelDiv.dataset.canal;
             const channelData = channelId && channelsList[channelId];
-            if (!channelData || !channelData.nombre) {
+            if (!channelData || !channelData.name) {
                 return; // Ignore channels not defined in channelsList
             }
-            channelsToSave[channelId] = channelData.nombre;
+            channelsToSave[channelId] = channelData.name;
         });
 
         // If there are active channels in DOM but nothing valid to save, do not save (prevents saving empty state incorrectly)

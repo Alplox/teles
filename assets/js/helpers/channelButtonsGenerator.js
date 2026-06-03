@@ -130,7 +130,7 @@ const groupChannelsByOrigin = () => {
             favorites.push({ id: channelId, data });
         } else {
             // Group by origin
-            const origin = data?.origenLista ?? DEFAULT_SOURCE_ORIGIN;
+            const origin = data?.listOrigin ?? DEFAULT_SOURCE_ORIGIN;
             if (!regularChannels[origin]) {
                 regularChannels[origin] = [];
             }
@@ -246,20 +246,20 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, active
  * @returns {HTMLButtonElement} The created button element
  */
 const createChannelButton = (channelId, channelData, activeChannelIds = [], showLogos = false) => {
-    const { nombre, país } = channelData;
-    const category = (channelData.categoría ?? '').toLowerCase();
+    const { name, country } = channelData;
+    const category = (channelData.category ?? '').toLowerCase();
     const categoryIcon = category && category in CATEGORIES_ICONS
         ? CATEGORIES_ICONS[category]
         : '<i class="bi bi-tv"></i>';
 
-    const countryName = país && COUNTRY_CODES[país.toLowerCase()]
-        ? COUNTRY_CODES[país.toLowerCase()]
+    const countryName = country && COUNTRY_CODES[country.toLowerCase()]
+        ? COUNTRY_CODES[country.toLowerCase()]
         : 'Desconocido';
 
-    const combinedSources = Array.isArray(channelData?.fuentesCombinadas)
-        ? channelData.fuentesCombinadas.filter(Boolean)
+    const combinedSources = Array.isArray(channelData?.combinedSources)
+        ? channelData.combinedSources.filter(Boolean)
         : [];
-    const isCombinedSignal = channelData?.esSeñalCombinada === true && combinedSources.length > 1;
+    const isCombinedSignal = channelData?.isCombinedSignal === true && combinedSources.length > 1;
     const sourcesDescription = combinedSources.length > 0
         ? combinedSources.join(', ')
         : 'fuentes múltiples';
@@ -280,7 +280,7 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
 
     if (isCombinedSignal) {
         button.classList.add('canal-combinado');
-        button.dataset.fuentesCombinadas = sourcesDescription;
+        button.dataset.combinedSources = sourcesDescription;
     }
 
     button.type = 'button';
@@ -292,17 +292,17 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
         button.classList.add('d-none');
     }
 
-    const flagHtml = país && COUNTRY_CODES[país.toLowerCase()]
-        ? `<img src="https://flagcdn.com/${país.toLowerCase()}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1">`
+    const flagHtml = country && COUNTRY_CODES[country.toLowerCase()]
+        ? `<img src="https://flagcdn.com/${country.toLowerCase()}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1">`
         : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${countryName}]">${SVG_UNKNOWN_COUNTRY}</span>`;
 
     const logoHtml = showLogos && channelData.logo
-        ? `<img src="${channelData.logo}" alt="logo ${nombre}" class="logo-canal-boton rounded-1 me-1" onerror="this.style.display='none'">`
+        ? `<img src="${channelData.logo}" alt="logo ${name}" class="logo-canal-boton rounded-1 me-1" onerror="this.style.display='none'">`
         : '';
 
     button.innerHTML = `
         ${logoHtml}
-        <span class="flex-grow-1 text-truncate">${nombre}</span>
+        <span class="flex-grow-1 text-truncate">${name}</span>
         ${flagHtml}
         ${categoryIcon}
         <span class="btn-favorite p-1 ms-auto" data-canal-favorite="${channelId}" title="${isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'}" style="cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">

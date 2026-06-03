@@ -1,9 +1,9 @@
 
 export const URL_JSON_MAIN_CHANNELS =
-    // 'https://raw.githubusercontent.com/Alplox/json-teles/refs/heads/main/canales.json';
-    'https://cdn.jsdelivr.net/gh/Alplox/json-teles@refs/heads/main/canales.json';
-// 'https://cdn.statically.io/gh/Alplox/json-teles/refs/heads/main/canales.json';
-// 'https://rawcdn.githack.com/Alplox/json-teles/58a7135df1ff54ee72a08b60698850b135f8a5be/canales.json';
+    // 'https://raw.githubusercontent.com/Alplox/json-teles/refs/heads/main/channels.json';
+    'https://cdn.jsdelivr.net/gh/Alplox/json-teles@refs/heads/main/channels.json';
+// 'https://cdn.statically.io/gh/Alplox/json-teles/refs/heads/main/channels.json';
+// 'https://rawcdn.githack.com/Alplox/json-teles/refs/heads/main/channels.json';
 
 export const TWITCH_PARENT = 'alplox.github.io' /* window.location.hostname */;
 
