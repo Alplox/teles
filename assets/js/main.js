@@ -1,5 +1,5 @@
 /* 
-  main v0.29
+  main v0.30
   by Alplox 
   https://github.com/Alplox/teles
 */

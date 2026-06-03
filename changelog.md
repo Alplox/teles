@@ -4,6 +4,16 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.30]
+
+### Fixed
+
+- Corregido backup de canales en localStorage con formato antiguo (pre-v0.29) que causaba señales vacías. Ahora `isBackupValid()` verifica la versión del formato y `isOldFormat()` detecta campos heredados (`señales`, `nombre`, `país`, `categoría`), descartando automáticamente backups obsoletos y forzando carga fresca desde la red.
+
+### Changed
+
+- Añadida constante `BACKUP_FORMAT_VERSION` para invalidar backups de formatos anteriores de forma automática en futuras migraciones de datos.
+
 ## [v0.29]
 
 ### Changed

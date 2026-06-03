@@ -1,5 +1,5 @@
 import { URL_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
-import { LS_KEY_CHANNELS_BACKUP, LS_KEY_CHANNELS_BACKUP_DATE, LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
+import { LS_KEY_CHANNELS_BACKUP, LS_KEY_CHANNELS_BACKUP_DATE, LS_KEY_CHANNELS_BACKUP_VERSION, LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
 import { m3uToJson, validateM3UContent } from "./helpers/index.js";
 
 // Backup and channel fetch management
@@ -9,6 +9,7 @@ export const EXTRA_DEFAULT_CHANNELS_ARRAY = ['chv-noticias', 'cnn-cl', 'lofi-gir
 export let channelsList;
 
 export const BACKUP_EXPIRATION_HOURS = 24;
+export const BACKUP_FORMAT_VERSION = 1;
 export const DEFAULT_SOURCE_ORIGIN = 'Canales predeterminados (github.com/Alplox/json-teles)';
 
 /**
@@ -18,6 +19,8 @@ export const DEFAULT_SOURCE_ORIGIN = 'Canales predeterminados (github.com/Alplox
 export function isBackupValid() {
     const dateStr = localStorage.getItem(LS_KEY_CHANNELS_BACKUP_DATE);
     if (!dateStr) return false;
+    const version = localStorage.getItem(LS_KEY_CHANNELS_BACKUP_VERSION);
+    if (version !== String(BACKUP_FORMAT_VERSION)) return false;
     const date = new Date(dateStr);
     const now = new Date();
     const diffHours = (now - date) / (1000 * 60 * 60);
@@ -31,6 +34,7 @@ export function isBackupValid() {
 export function saveChannelBackup(json) {
     localStorage.setItem(LS_KEY_CHANNELS_BACKUP, JSON.stringify(json));
     localStorage.setItem(LS_KEY_CHANNELS_BACKUP_DATE, new Date().toISOString());
+    localStorage.setItem(LS_KEY_CHANNELS_BACKUP_VERSION, String(BACKUP_FORMAT_VERSION));
 }
 
 /**
@@ -49,6 +53,26 @@ export function readChannelBackup() {
 let initialChannelsListBackup = null;
 
 /**
+ * Clears all channel backup data from localStorage.
+ */
+function clearChannelBackup() {
+    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP);
+    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP_DATE);
+    localStorage.removeItem(LS_KEY_CHANNELS_BACKUP_VERSION);
+}
+
+/**
+ * Detects if channel data uses the pre-v0.29 format (Spanish field names).
+ * @param {Object} data - The channel data to check.
+ * @returns {boolean} True if the data is in the old format.
+ */
+function isOldFormat(data) {
+    if (!data || typeof data !== 'object') return false;
+    const sample = Object.values(data)[0];
+    return !!(sample && (sample.señales || sample.nombre || sample['país'] || sample.categoría));
+}
+
+/**
  * Fetches the main channel list from the remote source or backup.
  * @async
  * @returns {Promise<void>}
@@ -59,9 +83,14 @@ export async function fetchLoadChannels() {
             console.info('[teles] Loading channels from localStorage backup');
             channelsList = readChannelBackup();
             if (channelsList) {
-                // Save in-memory copy for fast restoration
-                initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
-                return;
+                if (isOldFormat(channelsList)) {
+                    console.warn('[teles] Detected outdated backup format (pre-v0.29), clearing and re-fetching');
+                    clearChannelBackup();
+                    channelsList = null;
+                } else {
+                    initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
+                    return;
+                }
             }
         }
         console.info('[teles] Attempting to load main channel file');
