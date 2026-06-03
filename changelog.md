@@ -9,6 +9,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - Corregido backup de canales en localStorage con formato antiguo (pre-v0.29) que causaba señales vacías. Ahora `isBackupValid()` verifica la versión del formato y `isOldFormat()` detecta campos heredados (`señales`, `nombre`, `país`, `categoría`), descartando automáticamente backups obsoletos y forzando carga fresca desde la red.
+- Corregido listas personalizadas M3U guardadas en `personalized-lists-m3u` con formato antiguo (pre-v0.29) que ocultaba todos los botones de canales. `migrateOldFormatChannels()` convierte campos `señales` → `signals`, `nombre` → `name`, `país` → `country`, etc. La migración se aplica al restaurar listas fijadas y se persiste en localStorage para futuras cargas.
 
 ### Changed
 

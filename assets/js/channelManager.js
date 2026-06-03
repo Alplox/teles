@@ -73,6 +73,48 @@ function isOldFormat(data) {
 }
 
 /**
+ * Migrates a collection of channels from pre-v0.29 format (Spanish fields)
+ * to the current format (English fields + signals array).
+ * @param {Object} channels - Collection of channels keyed by ID.
+ * @returns {Object} Migrated channels in the new format.
+ */
+function migrateOldFormatChannels(channels) {
+    const migrated = {};
+    for (const [id, ch] of Object.entries(channels)) {
+        if (!ch || typeof ch !== 'object') {
+            migrated[id] = ch;
+            continue;
+        }
+        const hasOldSignals = ch.señales && typeof ch.señales === 'object';
+        const signals = [];
+        if (hasOldSignals) {
+            const s = ch.señales;
+            if (Array.isArray(s.iframe_url)) {
+                s.iframe_url.filter(u => u).forEach(url => signals.push({ type: 'iframe', url }));
+            }
+            if (Array.isArray(s.m3u8_url)) {
+                s.m3u8_url.filter(u => u).forEach(url => signals.push({ type: 'm3u8', url }));
+            }
+        }
+        migrated[id] = {
+            id,
+            name: ch.nombre ?? ch.name ?? '',
+            logo: ch.logo ?? '',
+            signals,
+            youtube: ch.señales?.yt_id || ch.youtube || null,
+            last_youtube_livestreams: ch.señales?.yt_embed
+                ? [ch.señales.yt_embed].filter(Boolean)
+                : (ch.last_youtube_livestreams ?? null),
+            twitch: ch.señales?.twitch_id || ch.twitch || null,
+            website: ch.sitio_oficial ?? ch.website ?? '',
+            country: ch['país'] ?? ch.country ?? '',
+            category: ch.categoría ?? ch.category ?? '',
+        };
+    }
+    return migrated;
+}
+
+/**
  * Fetches the main channel list from the remote source or backup.
  * @async
  * @returns {Promise<void>}
@@ -190,6 +232,10 @@ const areNamesSimilar = (name1, name2) => {
  */
 function combineChannelsWithList(parseM3u = {}, { origin = 'unknown-list', source = null, combineMatches } = {}) {
     if (!parseM3u || typeof parseM3u !== 'object') return;
+
+    if (isOldFormat(parseM3u)) {
+        parseM3u = migrateOldFormatChannels(parseM3u);
+    }
 
     if (!channelsList) {
         channelsList = {};
@@ -356,11 +402,18 @@ export function restorePersonalizedLists() {
     if (!urls.length) return 0;
     console.info(`[teles][m3u] Restoring ${urls.length} pinned personalized lists`);
     let restoredCount = 0;
+    let anyMigrated = false;
     urls.forEach(url => {
         try {
             const { etiqueta = url, canales } = lists[url];
             if (!canales) return;
-            combineChannelsWithList(canales, {
+            let channelsData = canales;
+            if (isOldFormat(canales)) {
+                console.info(`[teles][m3u] Migrating old format list: ${etiqueta}`);
+                channelsData = migrateOldFormatChannels(canales);
+                anyMigrated = true;
+            }
+            combineChannelsWithList(channelsData, {
                 origin: etiqueta,
                 source: url,
                 combineMatches: getCombineChannelsPreference()
@@ -370,6 +423,16 @@ export function restorePersonalizedLists() {
             console.error(`[teles][m3u] Could not restore personalized list ${url}`, error);
         }
     });
+
+    if (anyMigrated) {
+        const allLists = readPersonalizedLists();
+        for (const url of Object.keys(allLists)) {
+            if (allLists[url]?.canales && isOldFormat(allLists[url].canales)) {
+                allLists[url].canales = migrateOldFormatChannels(allLists[url].canales);
+            }
+        }
+        localStorage.setItem(LS_KEY_PERSONALIZED_LISTS, JSON.stringify(allLists));
+    }
 
     return restoredCount;
 }
