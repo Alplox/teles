@@ -472,10 +472,12 @@ pwa-update {
 .grid-stack-item .ui-resizable-handle {
   opacity: 0;
   transition: opacity 0.15s ease;
+  pointer-events: none; /* Prevent interference with drag handle */
 }
 
 .grid-stack-item:hover .ui-resizable-handle {
   opacity: 1;
+  pointer-events: auto; /* Re-enable pointer events when actively resizing */
 }
 
 .d-none__barras-overlay__overlay-boton-cambiar #overlay-boton-cambiar {
