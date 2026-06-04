@@ -60,6 +60,8 @@ For the project license of "teles" refer to the LICENSE file.
 
 * contributors-img <https://contrib.rocks/> - [(No License)](https://github.com/lacolaco/contributors-img)
 
+* star-history <https://github.com/star-history/star-history> - [(MIT)](https://github.com/star-history/star-history/blob/main/LICENSE)
+
 ## Audio
 
 * [Audio] button-pressed by Pixabay <https://pixabay.com/sound-effects/button-pressed-38129/> - [(License)](https://pixabay.com/service/license-summary/)
