@@ -336,15 +336,15 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
             signalOptions.push({ key: 'm3u8', index, url: sig.url, icon: '<i class="bi bi-play-btn"></i>', label: m3u8Signals.length === 1 ? 'm3u8' : `m3u8 ${index}` });
         });
 
-        // youtube channel
-        if (youtube) {
-            signalOptions.push({ key: 'youtube', index: 0, url: `https://www.youtube.com/channel/${youtube}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Canal ID' });
-        }
-
         // youtube embed (last livestreams)
         last_youtube_livestreams?.forEach((ytId, i) => {
             signalOptions.push({ key: 'youtube_embed', index: i, url: `https://www.youtube.com/watch?v=${ytId}`, icon: '<i class="bi bi-youtube"></i>', label: last_youtube_livestreams.length === 1 ? 'YouTube Último Live' : `YouTube Live ${i + 1}` });
         });
+
+        // youtube channel
+        if (youtube) {
+            signalOptions.push({ key: 'youtube', index: 0, url: `https://www.youtube.com/channel/${youtube}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Canal ID' });
+        }
 
         // twitch
         if (twitch) {
