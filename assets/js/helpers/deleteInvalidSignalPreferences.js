@@ -23,7 +23,7 @@ export const deleteInvalidSignalPreferences = () => {
                 } else if (signalType === 'youtube') {
                     isValid = !!channel?.youtube;
                 } else if (signalType === 'youtube_embed') {
-                    isValid = !!channel?.last_youtube_livestreams?.[0];
+                    isValid = !!channel?.last_youtube_livestreams?.[signalIndex];
                 } else if (signalType === 'twitch') {
                     isValid = !!channel?.twitch;
                 }

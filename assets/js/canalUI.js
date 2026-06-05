@@ -53,7 +53,7 @@ export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewM
     const EMBED_URLS = {
         'iframe':       iframeSignals[valorIndex]?.url,
         'youtube':      youtube ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${youtube}&autoplay=1&mute=1&modestbranding=1&vq=medium&showinfo=0` : undefined,
-        'youtube_embed': last_youtube_livestreams?.[0] ? `https://www.youtube-nocookie.com/embed/${last_youtube_livestreams[0]}?autoplay=1&mute=1&modestbranding=1&showinfo=0` : undefined,
+        'youtube_embed': last_youtube_livestreams?.[valorIndex] ? `https://www.youtube-nocookie.com/embed/${last_youtube_livestreams[valorIndex]}?autoplay=1&mute=1&modestbranding=1&showinfo=0` : undefined,
         'twitch':       twitch ? `https://player.twitch.tv/?channel=${twitch}&parent=${TWITCH_PARENT}` : undefined
     };
 
@@ -341,10 +341,10 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
             signalOptions.push({ key: 'youtube', index: 0, url: `https://www.youtube.com/channel/${youtube}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Canal ID' });
         }
 
-        // youtube embed (last livestream)
-        if (last_youtube_livestreams?.[0]) {
-            signalOptions.push({ key: 'youtube_embed', index: 0, url: `https://www.youtube.com/watch?v=${last_youtube_livestreams[0]}`, icon: '<i class="bi bi-youtube"></i>', label: 'YouTube Último Live' });
-        }
+        // youtube embed (last livestreams)
+        last_youtube_livestreams?.forEach((ytId, i) => {
+            signalOptions.push({ key: 'youtube_embed', index: i, url: `https://www.youtube.com/watch?v=${ytId}`, icon: '<i class="bi bi-youtube"></i>', label: last_youtube_livestreams.length === 1 ? 'YouTube Último Live' : `YouTube Live ${i + 1}` });
+        });
 
         // twitch
         if (twitch) {
@@ -492,7 +492,7 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
             } else if (tipoPreferido === 'youtube') {
                 preferenciaValida = !!channel.youtube;
             } else if (tipoPreferido === 'youtube_embed') {
-                preferenciaValida = !!channel.last_youtube_livestreams?.[0];
+                preferenciaValida = !!channel.last_youtube_livestreams?.[indicePreferido];
             } else if (tipoPreferido === 'twitch') {
                 preferenciaValida = !!channel.twitch;
             }
