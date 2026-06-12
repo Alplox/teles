@@ -27,6 +27,10 @@ export const clearCountryRenderedContainers = () => {
  * @returns {void}
  */
 export function createCountryButtons(specificPrefix) {
+    if (!channelsList) {
+        console.warn('[teles] Cannot create country buttons: channelsList is not loaded');
+        return;
+    }
     try {
         // Single pass: build counts, collect unique countries, and filter in one reduce
         const CHANNEL_COUNT_BY_COUNTRY = {};

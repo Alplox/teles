@@ -5,7 +5,7 @@ import { LS_KEY_SAVED_CHANNELS_GRID_VIEW } from "../constants/index.js";
  * Supports the current ordered format and the legacy `{ [id]: name }` format.
  * @returns {Object|null} Parsed payload, or null when unavailable/invalid.
  */
-export const readActiveChannelsStorage = () => {
+const readActiveChannelsStorage = () => {
     try {
         const payload = localStorage.getItem(LS_KEY_SAVED_CHANNELS_GRID_VIEW);
         if (!payload) return null;

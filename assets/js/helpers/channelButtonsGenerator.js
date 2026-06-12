@@ -14,6 +14,35 @@ const SVG_UNKNOWN_COUNTRY = `
 </svg>
 `;
 
+const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+
+const FLAG_CACHE_PREFIX = '_tflag_';
+
+const fetchingFlags = new Set();
+
+const resolveFlagSrc = (countryLower) => {
+    const key = `${FLAG_CACHE_PREFIX}${countryLower}`;
+    try {
+        const cached = localStorage.getItem(key);
+        if (cached) return cached;
+    } catch { }
+    if (!fetchingFlags.has(countryLower)) {
+        fetchingFlags.add(countryLower);
+        const url = `https://flagcdn.com/${countryLower}.svg`;
+        const doFetch = () => {
+            try { if (localStorage.getItem(key)) return; } catch { return; }
+            fetch(url).then(r => { if (r.ok) return r.text() }).then(svg => {
+                if (!svg) return;
+                const dataUri = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+                try { localStorage.setItem(key, dataUri) } catch { }
+            }).catch(() => { });
+        };
+        if (document.readyState === 'complete') doFetch();
+        else addEventListener('load', doFetch, { once: true });
+    }
+    return `https://flagcdn.com/${countryLower}.svg`;
+};
+
 /**
  * @typedef {Object} ButtonScenario
  * @property {string} description - Description of the scenario behavior
@@ -300,22 +329,34 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
     }
 
     const flagHtml = countryLower && COUNTRY_CODES[countryLower]
-        ? `<img src="https://flagcdn.com/${countryLower}.svg" alt="bandera ${countryName}" title="${countryName}" class="svg-bandera rounded-1" loading="lazy">`
-        : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${countryName}]">${SVG_UNKNOWN_COUNTRY}</span>`;
+        ? `<img src="${resolveFlagSrc(countryLower)}" alt="bandera ${escapeHtml(countryName)}" title="${escapeHtml(countryName)}" class="svg-bandera rounded-1" loading="lazy" decoding="async" fetchpriority="low">`
+        : `<span class="svg-bandera rounded-1 h-100" title="Sin bandera para país [${escapeHtml(countryName)}]">${SVG_UNKNOWN_COUNTRY}</span>`;
 
-    const logoHtml = showLogos && channelData.logo
-        ? `<img src="${channelData.logo}" alt="logo ${name}" class="logo-canal-boton rounded-1 me-1" loading="lazy" onerror="this.style.display='none'">`
+    const logoHtml = channelData.logo
+        ? `<img src="${channelData.logo}" alt="logo ${escapeHtml(name)}" class="logo-canal-boton rounded-1 me-1" loading="lazy" onerror="this.style.display='none'">`
         : '';
 
     button.innerHTML = `
         ${logoHtml}
-        <span class="flex-grow-1 text-truncate">${name}</span>
+        <span class="flex-grow-1 text-truncate">${escapeHtml(name)}</span>
         ${flagHtml}
         ${categoryIcon}
         <span class="btn-favorite p-1 ms-auto" data-canal-favorite="${channelId}" title="${isFavorited ? 'Quitar de favoritos' : 'Añadir a favoritos'}" style="cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             ${starIcon}
         </span>
         ${combinedBadge}`;
+
+    const flagImg = button.querySelector('img.svg-bandera');
+    if (flagImg) {
+        flagImg.addEventListener('error', () => {
+            if (!flagImg.isConnected) return;
+            const fallback = document.createElement('span');
+            fallback.className = 'svg-bandera rounded-1 h-100';
+            fallback.title = flagImg.title;
+            fallback.innerHTML = SVG_UNKNOWN_COUNTRY;
+            flagImg.replaceWith(fallback);
+        }, { once: true });
+    }
 
     return button;
 };
@@ -325,8 +366,6 @@ const createChannelButton = (channelId, channelData, activeChannelIds = [], show
  * Ensures no duplicate listeners are registered on the same container.
  * @returns {void}
  */
-/** @type {boolean} Tracks if favorite button handlers have been initialized */
-let favoritesHandlersInitialized = false;
 
 const assignButtonEvents = () => {
     BUTTON_CONTAINER_CONFIG.forEach(config => {
@@ -336,12 +375,6 @@ const assignButtonEvents = () => {
         container.dataset.eventsInitialized = 'true';
         registerDelegatedEvents(container, config.scenario);
     });
-
-    // Initialize favorite button handlers (only once)
-    if (!favoritesHandlersInitialized) {
-        initializeFavoriteButtonHandlers();
-        favoritesHandlersInitialized = true;
-    }
 };
 
 /**
@@ -484,41 +517,6 @@ const updateGroupCount = (group) => {
  * Uses event delegation to handle dynamically created buttons.
  * @returns {void}
  */
-const initializeFavoriteButtonHandlers = () => {
-    // Event delegation for all favorite buttons in all containers
-    document.addEventListener('click', (event) => {
-        const favoriteButton = event.target.closest('span.btn-favorite');
-        if (!favoriteButton) return;
-
-        // Prevent event from bubbling to parent button/container
-        event.stopPropagation();
-        event.preventDefault();
-        
-        const channelId = favoriteButton.dataset.canalFavorite;
-        if (!channelId) return;
-
-        const wasAdded = toggleFavoriteChannel(channelId);
-        
-        // Update the star icon
-        const icon = favoriteButton.querySelector('i');
-        if (icon) {
-            icon.className = wasAdded 
-                ? 'bi bi-star-fill' 
-                : 'bi bi-star';
-            icon.style.color = wasAdded ? '#ffc107' : '';
-            icon.style.opacity = wasAdded ? '1' : '0.5';
-        }
-
-        // Update title
-        favoriteButton.title = wasAdded 
-            ? 'Quitar de favoritos' 
-            : 'Añadir a favoritos';
-
-        // Surgical DOM update: move button between groups without full rebuild
-        moveChannelButton(channelId, wasAdded);
-    }, { capture: true });
-};
-
 /**
  * Configures event delegation for dynamic containers.
  * @param {HTMLElement} container - Container element
@@ -527,6 +525,33 @@ const initializeFavoriteButtonHandlers = () => {
  */
 const registerDelegatedEvents = (container, scenarioKey) => {
     container.addEventListener('click', (event) => {
+        const favoriteButton = event.target.closest('span.btn-favorite');
+        if (favoriteButton && container.contains(favoriteButton)) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const channelId = favoriteButton.dataset.canalFavorite;
+            if (!channelId) return;
+
+            const wasAdded = toggleFavoriteChannel(channelId);
+
+            const icon = favoriteButton.querySelector('i');
+            if (icon) {
+                icon.className = wasAdded
+                    ? 'bi bi-star-fill'
+                    : 'bi bi-star';
+                icon.style.color = wasAdded ? '#ffc107' : '';
+                icon.style.opacity = wasAdded ? '1' : '0.5';
+            }
+
+            favoriteButton.title = wasAdded
+                ? 'Quitar de favoritos'
+                : 'Añadir a favoritos';
+
+            moveChannelButton(channelId, wasAdded);
+            return;
+        }
+
         const button = event.target.closest('button[data-canal]');
         if (!button || !container.contains(button)) return;
 
@@ -595,6 +620,11 @@ export const clearRenderedContainers = () => {
  * @returns {void}
  */
 export const createChannelButtons = (specificPrefix) => {
+    if (!channelsList) {
+        console.warn('[teles] Cannot create channel buttons: channelsList is not loaded');
+        renderChannelLoadError(specificPrefix);
+        return;
+    }
     try {
         const [groupedChannels, favoriteChannelsSet] = groupChannelsByOrigin();
         const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
@@ -627,6 +657,37 @@ export const createChannelButtons = (specificPrefix) => {
                 ?.insertAdjacentElement('afterend', insertarDivError(error, 'Ha ocurrido un error durante la creación de botones para los canales'));
         }
     }
+};
+
+const renderChannelLoadError = (specificPrefix) => {
+    const targets = specificPrefix ? [specificPrefix] : ID_PREFIX_CONTAINERS_CHANNELS;
+    targets.forEach(prefix => {
+        const container = document.getElementById(`${prefix}-channels-buttons-container`);
+        if (!container || renderedContainers.has(container.id)) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'd-flex flex-column align-items-center justify-content-center p-4 text-center text-wrap';
+        wrapper.style.minHeight = '200px';
+        wrapper.innerHTML = `
+            <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3"></i>
+            <h6 class="text-danger fw-bold mb-2">No se pudieron cargar los canales</h6>
+            <p class="text-secondary small mb-3">
+                Error al obtener la lista de canales desde el servidor.
+            </p>
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <button class="btn btn-outline-danger btn-sm rounded-pill reload-btn">
+                    <i class="bi bi-arrow-clockwise"></i> Recargar p&aacute;gina
+                </button>
+                <a class="btn btn-outline-secondary btn-sm rounded-pill"
+                   href="https://github.com/Alplox/teles/issues"
+                   target="_blank" rel="noopener">
+                    <i class="bi bi-github"></i> Reportar en GitHub
+                </a>
+            </div>`;
+        wrapper.querySelector('.reload-btn').addEventListener('click', () => location.reload());
+        container.appendChild(wrapper);
+        renderedContainers.add(container.id);
+    });
 };
 
 const insertarDivError = (error, message) => {

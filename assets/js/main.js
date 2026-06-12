@@ -1,5 +1,5 @@
 /* 
-  main v0.32
+  main v0.33
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -15,7 +15,8 @@ import {
     getCombineChannelsPreference,
     setCombineChannelsPreference,
     DEFAULT_CHANNELS_ARRAY,
-    EXTRA_DEFAULT_CHANNELS_ARRAY
+    EXTRA_DEFAULT_CHANNELS_ARRAY,
+    usedCdnFallback
 } from './channelManager.js';
 
 
@@ -44,6 +45,7 @@ import {
     OVERLAY_BUTTONS_CONFIG,
     CSS_CLASS_BUTTON_PRIMARY,
     AMBIENT_MUSIC,
+    AUDIO_FAIL,
     ID_PREFIX_CONTAINERS_CHANNELS,
     LS_KEY_TELES_GRIDSTACK_LAYOUT
 } from './constants/index.js';
@@ -94,18 +96,19 @@ import {
     obtainNumberOfChannelsPerRow,
     registerVideojsTranslation,
     initializeBootstrapTooltips,
-    disposeBootstrapTooltips
+    disposeBootstrapTooltips,
+    playAudio
 } from './utils/index.js';
 
 // MARK: 📦 Exports
 export let gridViewContainer;
 export let freeViewContainer;
-export let gridStackInstance;
+let gridStackInstance;
 
 /** @type {Object|null} Cached grid layout — invalidated on saveGridStackLayout() */
 let _cachedGridLayout = null;
 
-export const saveGridStackLayout = () => {
+const saveGridStackLayout = () => {
     if (!gridStackInstance) return;
 
     // Read the prior saved state to prevent sequential loading from erasing inactive configurations
@@ -119,6 +122,7 @@ export const saveGridStackLayout = () => {
         }
     }
 
+    if (!freeViewContainer) return;
     const items = freeViewContainer.querySelectorAll('.grid-stack-item');
     items.forEach(item => {
         const id = item.getAttribute('data-canal');
@@ -144,7 +148,7 @@ export let singleViewNoSignalIcon;
 
 // URL dinámica
 export let isDynamicUrlMode = false;
-try { isDynamicUrlMode = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch { }
+try { isDynamicUrlMode = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch (e) { console.warn('[teles] Failed to parse dynamic URL mode:', e); }
 
 export let isLoadingFromSharedUrl = false;
 
@@ -306,14 +310,14 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Vaciar contenedores
-        gridViewContainer.innerHTML = '';
-        if (gridStackInstance) gridStackInstance.removeAll(true); // remove widgets and DOM nodes
+        if (gridViewContainer) gridViewContainer.innerHTML = '';
+        if (gridStackInstance) gridStackInstance.removeAll(true);
 
         localStorage.setItem(LS_KEY_ACTIVE_VIEW_MODE, targetMode);
         invalidateCachedColumnSettings();
 
-        gridViewContainer.classList.toggle('d-none', targetMode !== 'grid-view');
-        freeViewContainer.classList.toggle('d-none', targetMode !== 'free-view');
+        gridViewContainer?.classList.toggle('d-none', targetMode !== 'grid-view');
+        freeViewContainer?.classList.toggle('d-none', targetMode !== 'free-view');
 
         toggleGridViewControls(targetMode === 'free-view');
 
@@ -559,7 +563,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const widthPercentage = `${widthValue}%`;
         widthRangeInput.value = widthValue;
         widthRangeValue.textContent = widthPercentage;
-        gridViewContainer.style.maxWidth = widthPercentage;
+        if (gridViewContainer) gridViewContainer.style.maxWidth = widthPercentage;
     };
 
     widthRangeInput.addEventListener('input', (event) => {
@@ -592,18 +596,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
             isEnabled ? showLogosIcon.classList.replace('bi-image', 'bi-image-fill') : showLogosIcon.classList.replace('bi-image-fill', 'bi-image');
 
-            // Re-render buttons to apply changes
-            clearChannelListContainers();
-            createChannelButtons();
-            createCountryButtons();
-            createCategoryButtons();
-            resyncActiveChannelsVisualState();
-            initializeBootstrapTooltips();
+            // Toggle logos via CSS class instead of full DOM re-render
+            document.documentElement.classList.toggle('hide-logos', !isEnabled);
 
             showToast({
                 body: `Logos en botones ${isEnabled ? 'habilitados' : 'deshabilitados'}`,
                 type: 'info',
-                duration: 2000
+                delay: 2000
             });
         });
 
@@ -615,9 +614,12 @@ window.addEventListener('DOMContentLoaded', () => {
             isVisible: isShowLogosEnabled
         });
         isShowLogosEnabled ? showLogosIcon.classList.replace('bi-image', 'bi-image-fill') : showLogosIcon.classList.replace('bi-image-fill', 'bi-image');
+
+        // Sync CSS class with the saved preference on initial load
+        document.documentElement.classList.toggle('hide-logos', !isShowLogosEnabled);
     }
 
-    fullHeightCheckbox.addEventListener('click', () => {
+    fullHeightCheckbox?.addEventListener('click', () => {
         fullHeightCheckbox.checked
             ? (iconElFullHeight.classList.replace('bi-arrows-collapse', 'bi-arrows-vertical'),
                 localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true),
@@ -632,7 +634,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     let isFullHeightMode = true;
-    try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)) ?? true; } catch { }
+    try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)) ?? true; } catch (e) { console.warn('[teles] Failed to parse full height preference:', e); }
 
     if (isFullHeightMode) {
         localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true);
@@ -684,7 +686,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const floatingButtonsSpans = document.querySelectorAll('#grupo-botones-flotantes button>span');
 
-    floatingButtonsTextCheckbox.addEventListener('click', () => {
+    floatingButtonsTextCheckbox?.addEventListener('click', () => {
         floatingButtonsSpans.forEach(button => {
             button.classList.toggle('d-none', !floatingButtonsTextCheckbox.checked);
         });
@@ -760,12 +762,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 showToast({
                     body: 'Actualizando listado de canales...',
                     type: 'dark',
-                    duration: 2000
+                delay: 2000
                 });
 
                 // 0. Capture active channels before the change (avoid duplicates)
                 const activeGridChannels = getActiveChannelIds();
-                const activeSingleChannel = singleViewVideoContainer.querySelector('div[data-canal]')?.dataset.canal;
+                const activeSingleChannel = singleViewVideoContainer?.querySelector('div[data-canal]')?.dataset.canal;
 
                 // 1. Reload base channels (resets defaults)
                 await restoreChannelsFromMemory();
@@ -1033,9 +1035,21 @@ window.addEventListener('DOMContentLoaded', () => {
      * Keeps user-facing strings in Spanish to avoid UX changes.
      */
     async function initialLoad() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const hideLoading = () => loadingIndicator?.classList.add('d-none');
+        loadingIndicator?.classList.remove('d-none');
+
         try {
             await fetchLoadChannels();
+            if (usedCdnFallback && channelsList) {
+                showToast({
+                    title: 'Fuente alternativa',
+                    body: 'La fuente principal no estuvo disponible. Se está usando una fuente CDN alternativa para cargar los canales.',
+                    type: 'warning'
+                });
+            }
             if (channelsList) {
+                hideLoading();
                 const restoredLists = restorePersonalizedLists();
 
                 // Lazy load: Initial load OR Single View.
@@ -1132,12 +1146,31 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('[teles] Error during initial load', error);
+            hideLoading();
+
+            const overlay = document.getElementById('alerta-error-carga-canales');
+            const spanError = document.getElementById('span-contenedor-error');
+            if (overlay && spanError) {
+                overlay.classList.remove('d-none');
+                overlay.style.zIndex = '9999';
+                spanError.textContent = error.message || String(error);
+                playAudio(AUDIO_FAIL);
+            }
             showToast({
                 title: 'Error durante carga inicial',
-                body: `Error: ${error}`,
+                body: `${error.message || error}`,
                 type: 'danger',
                 showReloadOnError: true
             });
+
+            const resetBtn = document.getElementById('boton-borrar-localstorage-no-carga-canales');
+            if (resetBtn) {
+                resetBtn.onclick = () => {
+                    localStorage.clear();
+                    window.location.reload();
+                };
+            }
+
             return
         }
     }
@@ -1151,21 +1184,22 @@ window.addEventListener('DOMContentLoaded', () => {
     let _logoRafScheduled = false;
     window.addEventListener('resize', () => { _logoRect = null; }, { passive: true });
 
-    TARJETA_LOGO_BACKGROUND.onmousemove = e => {
-        if (_logoRafScheduled) return;
-        _logoRafScheduled = true;
-        requestAnimationFrame(() => {
-            _logoRafScheduled = false;
-            // Lazily read rect; stays cached until next resize
-            if (!_logoRect) _logoRect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect();
-            const x = e.clientX - _logoRect.left;
-            const y = e.clientY - _logoRect.top;
-            TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
-            TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
-        });
-    };
+    if (TARJETA_LOGO_BACKGROUND) {
+        TARJETA_LOGO_BACKGROUND.addEventListener('mousemove', e => {
+            if (_logoRafScheduled) return;
+            _logoRafScheduled = true;
+            requestAnimationFrame(() => {
+                _logoRafScheduled = false;
+                if (!_logoRect) _logoRect = TARJETA_LOGO_BACKGROUND.getBoundingClientRect();
+                const x = e.clientX - _logoRect.left;
+                const y = e.clientY - _logoRect.top;
+                TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-x', `${x}px`);
+                TARJETA_LOGO_BACKGROUND.style.setProperty('--mouse-y', `${y}px`);
+            });
+        }, { passive: true });
+    }
 
-    screen.orientation.addEventListener('change', () => {
+    screen?.orientation?.addEventListener('change', () => {
         if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view') adjustBootstrapColumnClasses();
     });
 
@@ -1190,8 +1224,9 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }, freeViewContainer);
 
+    const saveGridStackLayoutDebounced = debounce(saveGridStackLayout, 300);
     gridStackInstance.on('change', () => {
-        saveGridStackLayout();
+        saveGridStackLayoutDebounced();
     });
     gridStackInstance.on('resizestop', () => {
         // saveGridStackLayout() already handled by 'change' event
@@ -1226,6 +1261,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     singleViewGrid = document.querySelector('.single-view-grid');
     scheduleAfterFirstPaint(() => {
+        if (!singleViewGrid) return;
         new Sortable(singleViewGrid, {
             animation: 350,
             handle: '.clase-para-mover',
@@ -1302,6 +1338,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const eventName = containerId.startsWith('offcanvas') ? 'show.bs.offcanvas' : 'show.bs.modal';
 
         element.addEventListener(eventName, () => {
+            if (!channelsList) return;
             createChannelButtons(containerId);
             createCountryButtons(containerId);
             createCategoryButtons(containerId);

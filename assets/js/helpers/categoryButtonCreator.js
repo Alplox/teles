@@ -26,6 +26,10 @@ export const clearCategoryRenderedContainers = () => {
  * @returns {void}
  */
 export function createCategoryButtons(specificPrefix) {
+    if (!channelsList) {
+        console.warn('[teles] Cannot create category buttons: channelsList is not loaded');
+        return;
+    }
     try {
         // Single pass: build counts and collect unique categories
         const CHANNEL_COUNT_BY_CATEGORY = {};

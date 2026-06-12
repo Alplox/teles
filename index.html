@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.32
+    teles v0.33
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Alerta error carga canales -->
-    <div class="position-fixed overflow-hidden vw-100 vh-100 bg-dark-subtle d-flex flex-column align-items-center justify-content-center p-5 d-none gap-3"
+    <div class="position-fixed overflow-hidden vw-100 vh-100 bg-dark-subtle d-flex flex-column align-items-center justify-content-center p-5 d-none gap-3 z-9999"
         id="alerta-error-carga-canales">
         <h1>(╥﹏╥)</h1>
         <h1>Ha ocurrido un error al intentar cargar el archivo que contiene los canales</h1>
@@ -125,9 +125,9 @@
                 <div
                     class="tarjeta-logo-background bg-transparent bg-blur px-5 pb-4 pt-5 d-flex flex-column justify-content-center align-items-center">
                     <div class="position-relative bg-light-subtle p-1 rounded-4 shadow" tabindex="-1">
-                        <img src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
+                        <img loading="lazy" src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.32</i>
+                            <i class="badge bg-secondary">v0.33</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -155,6 +155,16 @@
                 </div>
             </div>
         </section>
+
+        <div id="loading-indicator"
+             class="d-none position-absolute top-50 start-50 translate-middle text-center z-1">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-secondary mt-2 mb-0 fw-medium">
+                <small class="badge text-bg-info">Cargando canales...</small>
+            </p>
+        </div>
     </div>
 
     <!-- Alerta noscript -->
@@ -241,7 +251,7 @@
                             <li>
                                 <a class="dropdown-item" href="https://monitortv.vercel.app/Monitores/Home"
                                     rel="nofollow noreferrer">
-                                    <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
+                                    <img loading="lazy" src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
                                     Variación por AINMcl <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
@@ -249,7 +259,7 @@
                             <li>
                                 <a class="dropdown-item" href="https://ver-tele.vercel.app/monitor"
                                     rel="nofollow noreferrer">
-                                    <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
+                                    <img loading="lazy" src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
                                     Variación por martinsantibanez <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
@@ -257,7 +267,7 @@
                             <li>
                                 <a class="dropdown-item" href="https://interneto.github.io/tv-multiview/"
                                     rel="nofollow noreferrer">
-                                    <img src="https://flagcdn.com/es.svg" alt="bandera España" title="España"
+                                    <img loading="lazy" src="https://flagcdn.com/es.svg" alt="bandera España" title="España"
                                         class="svg-bandera" />
                                     Variación por David7ce <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
@@ -265,7 +275,7 @@
                             <li>
                                 <a class="dropdown-item" href="https://alplox.github.io/la-tele/"
                                     rel="nofollow noreferrer">
-                                    <img src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
+                                    <img loading="lazy" src="https://flagcdn.com/cl.svg" alt="bandera Chile" title="Chile"
                                         class="svg-bandera" />
                                     Variación por Alplox <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
@@ -943,7 +953,7 @@
                     <hr>
                     <h5>Contribuciones</h5>
                     <a href="https://github.com/Alplox/teles/graphs/contributors" rel="nofollow noreferrer">
-                        <img src="https://contrib.rocks/image?repo=Alplox/teles" class="w-25 h-25" />
+                        <img loading="lazy" src="https://contrib.rocks/image?repo=Alplox/teles" class="w-25 h-25" />
                     </a>
                 </div>
                 <div class="modal-footer bg-blur">

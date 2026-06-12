@@ -535,7 +535,7 @@ for (const PREFIJO of ID_PREFIX_CONTAINERS_CHANNELS) {
     document.querySelector(`#${PREFIJO}-btn-default-order`)?.addEventListener('click', () =>
         handleSortClick(PREFIJO, 'default', restoreOriginalChannelButtonsOrder));
 
-    let bodyBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`)
+    const bodyBotonesCanales = document.querySelector(`#${PREFIJO}-channels-buttons-container`)
     const inputFiltro = document.querySelector(`#${PREFIJO}-input-filtro`);
     if (!inputFiltro) continue;
 

@@ -1,5 +1,5 @@
 /* 
-    style v0.32
+    style v0.33
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -688,6 +688,7 @@ pwa-update {
   box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
   -webkit-animation: pulsate-3 1.75s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulsate-3 1.75s infinite cubic-bezier(0.66, 0, 0, 1);
+  will-change: box-shadow;
 
   &:focus,
   &:focus-visible {
@@ -735,6 +736,7 @@ pwa-update {
   border-radius: 38% 42%;
   -webkit-animation: spin 36s infinite linear;
   animation: spin 36s infinite linear;
+  will-change: transform;
 
   &::before,
   &::after {
@@ -819,6 +821,7 @@ pwa-update {
     pointer-events: none;
     animation: turn-off 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     -webkit-animation: turn-off 0.85s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: opacity;
   }
 
   &::before {
@@ -863,6 +866,7 @@ pwa-update {
       );
     animation: backgroundflicker 0.15s infinite;
     -webkit-animation: backgroundflicker 0.15s infinite;
+    will-change: opacity, background;
     background-size:
       100% 2px,
       3px 100%;
@@ -1103,6 +1107,7 @@ pwa-update {
   -webkit-animation-direction: alternate;
   animation-direction: alternate;
   -webkit-animation: textflicker 1.5s infinite;
+  will-change: text-shadow;
 }
 
 @-webkit-keyframes textflicker {
@@ -1200,4 +1205,8 @@ button[aria-expanded="false"] .icono-filtros-estado {
 
 html[data-bs-theme="dark"] .logo-canal-boton {
   outline-color: rgba(255, 255, 255, 0.08);
+}
+
+.hide-logos .logo-canal-boton {
+  display: none;
 }

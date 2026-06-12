@@ -65,7 +65,7 @@ export function toggleFavoriteChannel(channelId) {
  * Adds a channel to favorites
  * @param {string} channelId - Channel ID to add
  */
-export function addToFavorites(channelId) {
+function addToFavorites(channelId) {
     if (!isFavoritedChannel(channelId)) {
         const favorites = getFavoriteChannels();
         favorites.unshift(channelId);
@@ -77,7 +77,7 @@ export function addToFavorites(channelId) {
  * Removes a channel from favorites
  * @param {string} channelId - Channel ID to remove
  */
-export function removeFromFavorites(channelId) {
+function removeFromFavorites(channelId) {
     const favorites = getFavoriteChannels();
     const filtered = favorites.filter(id => id !== channelId);
     saveFavorites(filtered);
@@ -86,6 +86,6 @@ export function removeFromFavorites(channelId) {
 /**
  * Clears all favorites
  */
-export function clearAllFavorites() {
+function clearAllFavorites() {
     saveFavorites([]);
 }

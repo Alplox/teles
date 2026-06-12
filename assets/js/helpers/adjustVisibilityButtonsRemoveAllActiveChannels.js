@@ -34,13 +34,14 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
 
     // si es vision cuadrícula
     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view' && localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) !== 'hide') {
-        if (!hasActiveChannels && AMBIENT_MUSIC.paused && document.querySelector('#alerta-borrado-localstorage').classList.contains('d-none')) {
+        const alertaEl = document.querySelector('#alerta-borrado-localstorage');
+        if (!hasActiveChannels && AMBIENT_MUSIC.paused && alertaEl?.classList.contains('d-none')) {
             AMBIENT_MUSIC.loop = true;
             AMBIENT_MUSIC.play()
                 .then(() => {
                     musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
                 })
-                .catch(() => { });
+                .catch(err => console.warn('[teles] Ambient music play failed:', err));
 
         } else {
             AMBIENT_MUSIC.pause()

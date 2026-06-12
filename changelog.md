@@ -4,6 +4,45 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.33]
+
+### Added
+
+- CDN fallback para JSON de canales: `URLS_JSON_MAIN_CHANNELS` array con 4 URLs, `fetchLoadChannels()` itera en orden hasta obtener respuesta válida.
+- Flag `usedCdnFallback` exportado desde `channelManager.js` indicando si la fuente no fue la primaria o se usó backup en memoria.
+- Toast warning notificando uso de fuente alternativa cuando `usedCdnFallback && channelsList`.
+- Overlay de error global (`#alerta-error-carga-canales`) con `z-9999` cuando todas las URLs fallan durante carga inicial de canales.
+- Indicador de carga con spinner Bootstrap + texto en `.fondo-global`, visible al inicio de `initialLoad()`, desaparece con canales o error.
+- `renderChannelLoadError()` en `channelButtonsGenerator.js` inyecta mensaje de error en contenedores vacíos con `addEventListener` programático.
+- Guard `!channelsList` en listeners de offcanvas/modal y en los tres button creators.
+- Cache de banderas flagcdn en localStorage como data-URI (`_tflag_` prefix): primera carga descarga SVG, segunda carga cero red.
+- Set `fetchingFlags` para evitar duplicar background fetches del mismo país en un batch.
+
+### Fixed
+
+- Logo toggle ya no recrea todos los botones DOM: ahora usa CSS class `hide-logos` en `<html>`, el `<img>` siempre se crea si `channelData.logo` existe y la visibilidad la maneja CSS.
+- `saveGridStackLayout` ahora usa `debounce(300)` en el `change` event de GridStack.
+- Eliminado listener global en fase `{ capture: true }` para favoritos: movido a `registerDelegatedEvents` verificando `event.target.closest('.btn-favorite')`.
+- `onmousemove` reemplazado por `addEventListener('mousemove', { passive: true })` para mejor rendimiento.
+- `cachedSignalPreferences` cachea `JSON.parse` de `LS_KEY_CHANNEL_SIGNAL_PREFERENCE` al cargar módulo, evitando parsear en cada `crearFragmentCanal()`.
+- `setTimeout` IDs almacenados en `DIV_ELEMENT._channelTimeout`, limpiados en `cleanTransmissionResources()` con `finally { delete DIV_ELEMENT._channelTimeout; }`.
+- CSS `will-change` añadido a `.pulsate-3`, `.wave`, `.bg-flicker::after`, `.bg-flicker::before`, `.text-flicker` para optimizar animaciones.
+- Flag CDN: `decoding="async"` + `fetchpriority="low"` en `<img>` de bandera. `addEventListener('error', ..., { once: true })` reemplaza img roto con placeholder `SVG_UNKNOWN_COUNTRY` (guard `isConnected`).
+- XSS corregido: channel names escapados con `escapeHtml()` en innerHTML y alt del logo; `countryName` escapado en title y alt de la bandera.
+- Errores silenciosos corregidos: `catch { }` vacíos en `main.js:150,636` reemplazados por `console.warn`. `.catch(() => {})` en `adjustVisibilityButtonsRemoveAllActiveChannels.js` reemplazado por `console.warn`. `formatDate.js` catch → `console.warn`.
+- `duration:` corregido a `delay:` en 2 calls a `showToast` (líneas 604, 764) — los toasts ahora duran 2s como se pretendía.
+- Null guards añadidos en ~15 lugares en `main.js`: `freeViewContainer`, `gridViewContainer`, `fullHeightCheckbox`, `floatingButtonsTextCheckbox`, `singleViewVideoContainer`, `TARJETA_LOGO_BACKGROUND`, `singleViewGrid`, etc. Uso de `?.` en method calls y `if (container)` en assignments.
+- `obtainNumberOfChannelsPerRow.js`: `JSON.parse` envuelto en try/catch.
+- `cleanTransmissionResources.js`: inner redundante `if (player && typeof player.dispose...)` eliminado.
+- `screen.orientation` guardado con `screen?.orientation?.addEventListener(...)` para evitar error en entornos restringidos.
+- Logo toggle vía CSS class evita cientos de mutaciones DOM por clic (pasa de recrear N botones a una sola operación de clase en `<html>`).
+- Favoritos sin `{ capture: true }`: integrados en delegación por contenedor, elimina listener global en fase capture.
+- Flag CDN cacheada en localStorage como data-URI: elimina ~100 requests por open de offcanvas tras la primera carga.
+
+### Removed
+
+- Código muerto: `export` removido de `gridStackInstance`, `saveGridStackLayout` (main.js), `readActiveChannelsStorage` (activeChannelsStorage.js), `addToFavorites`, `removeFromFavorites`, `clearAllFavorites` (favoritesManager.js).
+
 ## [v0.32]
 
 ### Fixed

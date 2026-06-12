@@ -33,10 +33,11 @@ const escapeHtml = (str) => String(str ?? '')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+let cachedSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
-    let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
-    lsPreferenciasSeñalCanales[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
-    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
+    cachedSignalPreferences[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
+    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(cachedSignalPreferences));
 }
 
 export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewMode = 'grid-view', iframeSignals = []) {
@@ -95,9 +96,8 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         playerContainer.setAttribute('contenedor-canal-cambio', canalId);
         playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100');
         DIV_ELEMENT.append(playerContainer);
-        // Diferimos la inicialización para asegurar que el contenedor exista en el DOM
-        setTimeout(async () => {
-            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
+        DIV_ELEMENT._channelTimeout = setTimeout(async () => {
+            if (!DIV_ELEMENT.isConnected) { delete DIV_ELEMENT._channelTimeout; return; }
             try {
                 await loadPlayer('clappr');
                 const clapprPlayer = new Clappr.Player({
@@ -108,7 +108,6 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                     width: '100%',
                     height: '100%'
                 });
-                // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._clapprPlayer = clapprPlayer;
             } catch (error) {
                 console.error(`[teles] Error at attempt to initialize Clappr for channel with id: ${canalId}. Error: ${error}`);
@@ -120,7 +119,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                     delay: 0,
                     showReloadOnError: true
                 });
-            }
+            } finally { delete DIV_ELEMENT._channelTimeout; }
         }, 0);
 
 
@@ -143,15 +142,14 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         videoElement.controls = false;
         DIV_ELEMENT.append(videoElement);
 
-        setTimeout(async () => {
-            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
+        DIV_ELEMENT._channelTimeout = setTimeout(async () => {
+            if (!DIV_ELEMENT.isConnected) { delete DIV_ELEMENT._channelTimeout; return; }
             try {
                 await loadPlayer('shaka');
                 shaka.polyfill.installAll();
                 if (shaka.Player.isBrowserSupported()) {
                     const player = new shaka.Player(videoElement);
 
-                    // Inicializar Shaka UI
                     const ui = new shaka.ui.Overlay(player, DIV_ELEMENT, videoElement);
                     const config = {
                         'controlPanelElements': ['play_pause', 'time_and_duration', 'spacer', 'mute', 'volume', 'fullscreen', 'overflow_menu'],
@@ -169,7 +167,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                     });
                     await player.load(urlCarga);
                     DIV_ELEMENT._shakaPlayer = player;
-                    DIV_ELEMENT._shakaUi = ui; // Guardamos la UI también por si es necesaria
+                    DIV_ELEMENT._shakaUi = ui;
                 } else {
                     throw new Error('Browser not supported by Shaka Player');
                 }
@@ -194,7 +192,7 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
 
                     });
                 }
-            }
+            } finally { delete DIV_ELEMENT._channelTimeout; }
         }, 0);
 
         return DIV_ELEMENT;
@@ -214,9 +212,8 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
         playerContainer.classList.add('position-absolute', 'p-0', 'w-100', 'h-100', 'overflow-hidden');
         DIV_ELEMENT.append(playerContainer);
 
-        // Diferimos la inicialización de OPlayer para asegurar que el contenedor exista en el DOM
-        setTimeout(async () => {
-            if (!DIV_ELEMENT.isConnected) return; // Element removed before init — skip to avoid leak
+        DIV_ELEMENT._channelTimeout = setTimeout(async () => {
+            if (!DIV_ELEMENT.isConnected) { delete DIV_ELEMENT._channelTimeout; return; }
             try {
                 await loadPlayer('oplayer');
                 let instancia = OPlayer.make(`#${oplayerId}`, {
@@ -238,7 +235,6 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                     instancia = instancia.use([OUI()]);
                 }
                 instancia.create();
-                // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
                 DIV_ELEMENT._oplayerPlayer = instancia;
             } catch (error) {
                 console.error(`[teles] Error at attempt to initialize OPlayer for channel with id: ${canalId}. Error: ${error}`);
@@ -250,9 +246,8 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
                     delay: 0,
                     showReloadOnError: true
                 });
-            }
+            } finally { delete DIV_ELEMENT._channelTimeout; }
         }, 0);
-
 
         return DIV_ELEMENT;
     }
@@ -463,7 +458,7 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
         const signals = channel.signals ?? [];
         const iframeSignals = signals.filter(s => s.type === 'iframe');
         const m3u8Signals = signals.filter(s => s.type === 'm3u8');
-        let lsPreferenciasSeñalCanales = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+        let lsPreferenciasSeñalCanales = cachedSignalPreferences;
 
         let señalUtilizar;
         let valorIndexArraySeñal = 0;

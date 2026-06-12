@@ -1,4 +1,4 @@
-import { URL_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
+import { URLS_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
 import { LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
 import { m3uToJson, validateM3UContent } from "./helpers/index.js";
 
@@ -12,6 +12,13 @@ export const DEFAULT_SOURCE_ORIGIN = 'Canales predeterminados (github.com/Alplox
 
 // In-memory backup of base channels (without M3Us) — used by restoreChannelsFromMemory()
 let initialChannelsListBackup = null;
+
+/**
+ * Flag indicating the last fetchLoadChannels() call used a CDN fallback
+ * or in-memory backup rather than the primary URL.
+ * @type {boolean}
+ */
+export let usedCdnFallback = false;
 
 /**
  * Detects if channel data uses the pre-v0.29 format (Spanish field names).
@@ -75,36 +82,49 @@ function migrateOldFormatChannels(channels) {
  * @returns {Promise<void>}
  */
 export async function fetchLoadChannels() {
-    try {
-        console.info('[teles] Fetching channels from network');
-        const response = await fetch(URL_JSON_MAIN_CHANNELS);
-        const raw = await response.json();
-        // New format: { version, generated, total, channels: [...] }
-        // Index channels array by id into a flat object for internal use
-        if (Array.isArray(raw.channels)) {
-            const indexed = {};
-            for (const ch of raw.channels) {
-                if (ch.id) indexed[ch.id] = ch;
-            }
-            channelsList = indexed;
-        } else {
-            // Fallback: assume old format (already flat object)
-            channelsList = raw;
-        }
-        assignBaseOrigin();
+    const errors = [];
+    usedCdnFallback = false;
 
-        // Save in-memory copy for restoreChannelsFromMemory()
-        initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
-    } catch (error) {
-        console.error('[teles] Error fetching channels from network:', error);
-        // Fall back to in-memory backup if available
-        if (initialChannelsListBackup) {
-            console.warn('[teles] Using in-memory channel backup due to network error');
-            channelsList = JSON.parse(JSON.stringify(initialChannelsListBackup));
-        } else {
-            throw error;
+    for (const url of URLS_JSON_MAIN_CHANNELS) {
+        try {
+            console.info('[teles] Fetching channels from:', url);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const raw = await response.json();
+            if (Array.isArray(raw.channels)) {
+                const indexed = {};
+                for (const ch of raw.channels) {
+                    if (ch.id) indexed[ch.id] = ch;
+                }
+                channelsList = indexed;
+            } else {
+                channelsList = raw;
+            }
+            assignBaseOrigin();
+            initialChannelsListBackup = JSON.parse(JSON.stringify(channelsList));
+
+            if (url !== URLS_JSON_MAIN_CHANNELS[0]) {
+                usedCdnFallback = true;
+                console.warn(`[teles] Using CDN fallback: ${url}`);
+            }
+            return;
+        } catch (error) {
+            console.warn(`[teles] Failed to fetch from ${url}:`, error);
+            errors.push({ url, error: error.message || String(error) });
         }
     }
+
+    if (initialChannelsListBackup) {
+        usedCdnFallback = true;
+        console.warn('[teles] All URLs failed, using in-memory channel backup');
+        channelsList = JSON.parse(JSON.stringify(initialChannelsListBackup));
+        return;
+    }
+
+    const urlList = errors.map(e => `  - ${e.url}: ${e.error}`).join('\n');
+    throw new Error(`No se pudo cargar la lista de canales desde ninguna fuente.\nURLs intentadas:\n${urlList}`);
 }
 
 /**
