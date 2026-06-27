@@ -365,6 +365,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         const BOTON_MOVER_CANAL = document.createElement('div');
         BOTON_MOVER_CANAL.id = 'overlay-boton-mover';
         BOTON_MOVER_CANAL.setAttribute('role', 'button');
+        BOTON_MOVER_CANAL.setAttribute('aria-label', 'Arrastrar y mover este canal');
         BOTON_MOVER_CANAL.setAttribute('title', 'Arrastrar y mover este canal');
         BOTON_MOVER_CANAL.setAttribute('data-bs-toggle', 'tooltip');
         BOTON_MOVER_CANAL.setAttribute('data-bs-title', 'Arrastrar y mover este canal');
@@ -374,6 +375,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         const BOTON_CAMBIAR_CANAL = document.createElement('button');
         BOTON_CAMBIAR_CANAL.id = 'overlay-boton-cambiar';
         BOTON_CAMBIAR_CANAL.setAttribute('type', 'button');
+        BOTON_CAMBIAR_CANAL.setAttribute('aria-label', 'Cambiar este canal');
         BOTON_CAMBIAR_CANAL.setAttribute('title', 'Cambiar este canal');
         BOTON_CAMBIAR_CANAL.setAttribute('data-bs-toggle', 'tooltip');
         BOTON_CAMBIAR_CANAL.setAttribute('data-bs-title', 'Cambiar este canal');
@@ -396,6 +398,7 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
         BOTON_SITIO_OFICIAL_CANAL.id = 'overlay-boton-pagina-oficial';
         BOTON_SITIO_OFICIAL_CANAL.title = 'Ir a la página oficial de esta transmisión';
+        BOTON_SITIO_OFICIAL_CANAL.setAttribute('aria-label', 'Ir a la página oficial de esta transmisión');
         if (tipoSeñalCargada === 'youtube') website = `https://www.youtube.com/channel/${youtube}`;
         if (tipoSeñalCargada === 'twitch') website = `https://www.twitch.tv/${twitch}`;
         BOTON_SITIO_OFICIAL_CANAL.href = website ? website : `https://www.duckduckgo.com/?q=${name}+en+vivo`;

@@ -1,5 +1,5 @@
 /* 
-  main v0.33
+  main v0.34
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -199,17 +199,8 @@ export let fullHeightSpan;
 
 
 // MARK: 📫 DOMContentLoaded
-const scheduleIdleTask = (callback, { timeout = 1500 } = {}) => {
-    if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(callback, { timeout });
-        return;
-    }
-
-    window.setTimeout(callback, 0);
-};
-
-const scheduleAfterFirstPaint = (callback, options) => {
-    window.requestAnimationFrame(() => scheduleIdleTask(callback, options));
+const scheduleAfterFirstPaint = (callback) => {
+    requestAnimationFrame(() => setTimeout(callback, 0));
 };
 
 window.addEventListener('DOMContentLoaded', () => {

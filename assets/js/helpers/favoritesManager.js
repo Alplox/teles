@@ -61,31 +61,4 @@ export function toggleFavoriteChannel(channelId) {
     return index === -1; // Return true if added, false if removed
 }
 
-/**
- * Adds a channel to favorites
- * @param {string} channelId - Channel ID to add
- */
-function addToFavorites(channelId) {
-    if (!isFavoritedChannel(channelId)) {
-        const favorites = getFavoriteChannels();
-        favorites.unshift(channelId);
-        saveFavorites(favorites);
-    }
-}
 
-/**
- * Removes a channel from favorites
- * @param {string} channelId - Channel ID to remove
- */
-function removeFromFavorites(channelId) {
-    const favorites = getFavoriteChannels();
-    const filtered = favorites.filter(id => id !== channelId);
-    saveFavorites(filtered);
-}
-
-/**
- * Clears all favorites
- */
-function clearAllFavorites() {
-    saveFavorites([]);
-}

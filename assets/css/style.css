@@ -1,5 +1,5 @@
 /* 
-    style v0.33
+    style v0.34
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -402,7 +402,7 @@ pwa-update {
   }
 
   a {
-    color: var(--bs-gray);
+    color: var(--bs-link-color);
 
     &:hover {
       color: var(--bs-primary);
@@ -535,6 +535,10 @@ pwa-update {
   display: grid;
   gap: 0.375rem;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.modal-body a {
+  text-decoration: underline;
 }
 
 .one-column-grid {

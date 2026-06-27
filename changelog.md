@@ -4,6 +4,37 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.34]
+
+### Added
+
+- `aria-label` añadido a botones overlay: mover, cambiar, sitio oficial (`canalUI.js`).
+- Modal bienvenida: `aria-labelledby` corregido a `aria-label`.
+- Rango volumen música ambiente: añadido `<label>` asociado.
+- Botón personalización: `aria-label` incluye texto visible ("Personalización").
+- Contraste de color: `.reloj a` usa `var(--bs-link-color)` en vez de `--bs-gray`.
+- Enlaces en modal body: `text-decoration: underline` para distinguirlos sin color.
+
+### Changed
+
+- video-js CSS: cambiado de render-blocking a `rel="preload"` + `onload`.
+- Google Fonts: precarga con `display=swap` y `preconnect` a `fonts.gstatic.com`.
+
+### Removed
+
+- Over-engineering: Proxy en `audiosUI.js` → getter directo con lazy init.
+- Dead code: 3 funciones no exportadas en `favoritesManager.js`.
+- `validateUrl` inlined en `m3uHelper.js`.
+- Polling loop (`setTimeout(check, 0)`) reemplazado por una microtask en `loadPlayer.js`.
+- Cache manual de relaciones eliminado en `filterRelations.js`.
+- `cachedSettings` objeto → variables individuales con `??` lazy en `adjustActiveChannelClasses.js`.
+- `scheduleIdleTask` wrapper eliminado en `main.js`.
+- Vendor-prefixed fullscreen API (`webkit`, `moz`, `ms`) eliminado en `botones.js`.
+- Clipboard duplicado (~100 líneas) extraído a `copyToClipboard()` compartida en `botones.js`.
+- Wrappers `safe*` en localStorage handler eliminados en `botones.js`.
+- JSDoc redundante y layout thrashing reducido en `overlayButtonTextHider.js`.
+- `escapeHtml` duplicado alineado con el patrón de `canalUI.js` en `channelButtonsGenerator.js`.
+
 ## [v0.33]
 
 ### Added

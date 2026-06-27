@@ -14,7 +14,7 @@ const SVG_UNKNOWN_COUNTRY = `
 </svg>
 `;
 
-const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+const escapeHtml = (str) => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const FLAG_CACHE_PREFIX = '_tflag_';
 

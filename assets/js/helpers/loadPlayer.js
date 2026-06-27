@@ -55,15 +55,12 @@ export const loadPlayer = async (playerName) => {
     for (const url of config.urls) {
         await loadScript(url);
     }
-    // Wait for globals to be available (dynamic scripts may need a microtask)
+    // Wait for globals to be actually defined (onload fires before script execution in some cases)
     if (config.globals?.length) {
         await new Promise(resolve => {
             const check = () => {
-                if (config.globals.every(g => typeof window[g] !== 'undefined')) {
-                    resolve();
-                } else {
-                    setTimeout(check, 0);
-                }
+                if (config.globals.every(g => typeof window[g] !== 'undefined')) resolve();
+                else setTimeout(check, 0);
             };
             check();
         });
