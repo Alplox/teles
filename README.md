@@ -182,13 +182,7 @@ Toda contribución es bienvenida 😊
 
 ### Historial de Stars
 
-<a href="https://www.star-history.com/?repos=Alplox%2Fteles&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Alplox/teles&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Alplox/teles&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Alplox/teles&type=date&legend=top-left" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/chart?repos=Alplox/teles&type=date&legend=top-left&sealed_token=TTKb_x62sAFSR57V73GuqHIf0KrmNa6axa7U72Xu0ipBbTddg848poQuKYv_qi_F7rJgu3ETgQfc26Y14Nw-XcXYEPaJ9mKnuXorWOsOA7XcSn0v9oxwCg)](https://www.star-history.com/?repos=Alplox%2Fteles&type=date&legend=top-left)
 
 ---
 
