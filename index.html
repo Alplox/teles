@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <!--     
-    teles v0.34
+    teles v0.35
     by Alplox 
     https://github.com/Alplox/teles
 -->
@@ -43,22 +43,26 @@
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <!-- bootstrap icons (non-critical: preload then apply) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!--
+        Non-critical CSS below uses media="print" + onload swap. The rel="preload"
+        variant was discarded by the service worker, which then had to fetch each
+        file a second time as a stylesheet.
+    -->
+    <!-- bootstrap icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"
+        media="print" onload="this.media='all';this.onload=null">
     <noscript>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </noscript>
-    <!-- video-js -->
-    <link rel="preload" href="https://unpkg.com/video.js/dist/video-js.min.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+    <!-- video-js (script loaded on demand by helpers/loadPlayer.js) -->
+    <link rel="stylesheet" href="https://unpkg.com/video.js@8.24.1/dist/video-js.min.css" media="print"
+        onload="this.media='all';this.onload=null">
     <noscript>
-        <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+        <link href="https://unpkg.com/video.js@8.24.1/dist/video-js.min.css" rel="stylesheet">
     </noscript>
-    <script src="https://unpkg.com/video.js/dist/video.min.js" defer></script>
-    <!-- shaka-player (non-critical: preload then apply) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.16/dist/controls.min.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+    <!-- shaka-player -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.16/dist/controls.min.css" media="print"
+        onload="this.media='all';this.onload=null">
     <noscript>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@5.0.16/dist/controls.min.css">
     </noscript>
@@ -72,15 +76,19 @@
     <meta property="og:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta property="og:image" content="https://alplox.github.io/teles/assets/img/previews/example-teles-grid-view-v0-32.webp">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="teles - cuadrícula de canales de televisión en vivo">
     <meta property="og:locale" content="es_CL">
-    <!-- Twitter Card-->
+    <!-- Twitter Card. name=, not property=: X's card parser reads name for twitter:* tags. -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:domain" content="alplox.github.io">
-    <meta property="twitter:url" content="https://alplox.github.io/teles/">
+    <meta name="twitter:domain" content="alplox.github.io">
+    <meta name="twitter:url" content="https://alplox.github.io/teles/">
     <meta name="twitter:title" content="Teles - Noticias de Chile (y el mundo)">
     <meta name="twitter:description"
         content="PWA Código Abierto para ver/comparar preseleccionadas transmisiones de noticias provenientes de Chile (y el mundo).">
     <meta name="twitter:image" content="https://alplox.github.io/teles/assets/img/previews/example-teles-grid-view-v0-32.webp">
+    <meta name="twitter:image:alt" content="teles - cuadrícula de canales de televisión en vivo">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
@@ -106,9 +114,9 @@
             });
         });
     </script>
-    <!-- Gridstack (non-critical: preload then apply) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Gridstack (non-critical) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css" media="print"
+        onload="this.media='all';this.onload=null">
     <noscript>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@12.4.2/dist/gridstack.min.css">
     </noscript>
@@ -137,7 +145,7 @@
             <strong><i class="bi bi-trash3"></i> Reiniciar almacenamiento local</strong>
         </button>
 
-        <span class="text-secondary fs-6 mt-5" id="span-contenedor-error"></span>
+        <span class="text-secondary-emphasis fs-6 mt-5" id="span-contenedor-error"></span>
     </div>
 
     <!-- Imagen y logo del fondo -->
@@ -150,7 +158,7 @@
                     <div class="position-relative bg-light-subtle p-1 rounded-4 shadow" tabindex="-1">
                         <img loading="lazy" src="assets/favicon/android-chrome-512x512.png" alt="logo teles">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                            <i class="badge bg-secondary">v0.34</i>
+                            <i class="badge bg-secondary">v0.35</i>
                         </span>
                     </div>
                     <p class="display-1 gradient-text">teles</p>
@@ -184,7 +192,7 @@
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
-            <p class="text-secondary mt-2 mb-0 fw-medium">
+            <p class="text-secondary-emphasis mt-2 mb-0 fw-medium">
                 <small class="badge text-bg-info">Cargando canales...</small>
             </p>
         </div>
@@ -224,8 +232,8 @@
             <a href="./" target="_self" class="gradient-text me-2 fs-4 d-none">teles</a>
             <div class="btn-group" role="group" aria-label="grupo de botones para abrir selector canales">
                 <button type="button" class="btn btn-sm btn-indigo rounded-start-pill" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvas-canales" aria-controls="offcanvas-canales"><i class="bi bi-chevron-right"
-                        title="Sidepanel Canales"></i>
+                    data-bs-target="#offcanvas-canales" aria-controls="offcanvas-canales"
+                    aria-label="Abrir selector de canales" title="Sidepanel Canales"><i class="bi bi-chevron-right"></i>
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-indigo rounded-end-pill" data-bs-toggle="modal"
                     data-bs-target="#modal-canales">
@@ -249,12 +257,14 @@
             <div class="collapse navbar-collapse" id="navbar-toggler">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#sidepanel"><i
-                                class="bi bi-gear"></i> Personalización</a>
+                        <!-- Buttons, not href="#": with <base target="_blank"> an anchor
+                             would open a duplicate tab if Bootstrap JS failed to load. -->
+                        <button type="button" class="nav-link" data-bs-toggle="offcanvas"
+                            data-bs-target="#sidepanel"><i class="bi bi-gear"></i> Personalización</button>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-creditos"><i
-                                class="bi bi-c-circle"></i> Créditos</a>
+                        <button type="button" class="nav-link" data-bs-toggle="modal"
+                            data-bs-target="#modal-creditos"><i class="bi bi-c-circle"></i> Créditos</button>
                     </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-toggle="modal"
@@ -397,7 +407,8 @@
                                 <!-- Buscador siempre visible -->
                                 <div class="flex-grow-1">
                                     <input type="search" class="form-control form-control-sm rounded-4"
-                                        id="single-view-input-filtro" placeholder="Buscar por país o canal">
+                                        id="single-view-input-filtro" placeholder="Buscar por país o canal"
+                                        aria-label="Buscar canales por país o nombre">
                                 </div>
                             </div>
 
@@ -484,14 +495,14 @@
     </div>
 
     <!-- Modal solo cambio canal activo -->
-    <div class="modal fade" id="modal-cambiar-canal" tabindex="-1" aria-labelledby="modal exclusivo cambio"
+    <div class="modal fade" id="modal-cambiar-canal" tabindex="-1" aria-labelledby="modal-cambiar-canal-titulo"
         aria-hidden="true">
         <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable"
             style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content bg-transparent bg-blur border-0">
                 <div class="modal-header bg-transparent border-0 d-flex flex-column pb-0">
-                    <h2 class="text-light m-0">Cambiando canal [<span class="modal-title fs-5"
-                            id="label-para-nombre-canal-cambiar"></span>]</h2>
+                    <h2 class="text-light m-0" id="modal-cambiar-canal-titulo">Cambiando canal
+                        [<span class="modal-title fs-5" id="label-para-nombre-canal-cambiar"></span>]</h2>
                 </div>
 
                 <div class="modal-body vh-100 scrollbar-thin-gray bg-transparent rounded-bottom-3">
@@ -539,7 +550,8 @@
                             <!-- Buscador siempre visible -->
                             <div class="flex-grow-1">
                                 <input class="form-control form-control-sm rounded-4" type="search"
-                                    id="modal-cambiar-canal-input-filtro" placeholder="Escribe para buscar...">
+                                    id="modal-cambiar-canal-input-filtro" placeholder="Escribe para buscar..."
+                                    aria-label="Buscar canal para sustituir">
                             </div>
                         </div>
 
@@ -612,13 +624,13 @@
     </div>
 
     <!-- Modal listado canales -->
-    <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="Modal con Listado de Canales"
+    <div class="modal fade" id="modal-canales" tabindex="-1" aria-labelledby="modal-canales-titulo"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
             style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content text-center bg-transparent bg-blur border-0 shadow">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title text-light">Selecciona tus canales</h5>
+                    <h5 class="modal-title text-light" id="modal-canales-titulo">Selecciona tus canales</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
@@ -670,7 +682,8 @@
                             <!-- Buscador siempre visible -->
                             <div class="flex-grow-1">
                                 <input type="search" class="form-control form-control-sm rounded-4"
-                                    id="modal-canales-input-filtro" placeholder="Buscar por país o canal">
+                                    id="modal-canales-input-filtro" placeholder="Buscar por país o canal"
+                                    aria-label="Buscar canales por país o nombre">
                             </div>
                         </div>
 
@@ -768,9 +781,9 @@
 
     <!-- offcanvas canales -->
     <div class="offcanvas offcanvas-start bg-transparent bg-blur border border-start-0 border-2 border-light-subtle rounded-end-5"
-        id="offcanvas-canales" tabindex="-1" data-bs-scroll="true" aria-labelledby="offcanvas canales">
+        id="offcanvas-canales" tabindex="-1" data-bs-scroll="true" aria-labelledby="offcanvas-canales-titulo">
         <header class="offcanvas-header bg-transparent">
-            <h5 class="offcanvas-title text-light">Selecciona tus canales</h5>
+            <h5 class="offcanvas-title text-light" id="offcanvas-canales-titulo">Selecciona tus canales</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </header>
 
@@ -821,7 +834,8 @@
                         <!-- Buscador siempre visible -->
                         <div class="flex-grow-1">
                             <input type="search" class="form-control form-control-sm rounded-4"
-                                id="offcanvas-canales-input-filtro" placeholder="Buscar por país o canal">
+                                id="offcanvas-canales-input-filtro" placeholder="Buscar por país o canal"
+                                aria-label="Buscar canales por país o nombre">
                         </div>
                     </div>
 
@@ -907,12 +921,12 @@
 
     <!-- Modal bienvenida/Descargo de responsabilidad -->
     <div class="modal fade" id="modal-bienvenida" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-label="Modal de Bienvenida" aria-hidden="true">
+        aria-labelledby="modal-bienvenida-titulo" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-md-down"
             style="content-visibility: auto; contain-intrinsic-size: auto 80vh;">
             <div class="modal-content bg-transparent border-0 shadow">
                 <div class="modal-header bg-body">
-                    <h5 class="modal-title text-flicker">Descargo de responsabilidad</h5>
+                    <h5 class="modal-title text-flicker" id="modal-bienvenida-titulo">Descargo de responsabilidad</h5>
                 </div>
                 <div class="modal-body bg-body scrollbar-thin-gray">
                     <ul class="ps-3">
@@ -974,11 +988,11 @@
     </div>
 
     <!-- Modal Créditos -->
-    <div class="modal fade" id="modal-creditos" tabindex="-1" aria-labelledby="Modal Créditos" aria-hidden="true">
+    <div class="modal fade" id="modal-creditos" tabindex="-1" aria-labelledby="modal-creditos-titulo" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-transparent border-0 shadow">
                 <div class="modal-header bg-body">
-                    <h5 class="modal-title">Créditos</h5>
+                    <h5 class="modal-title" id="modal-creditos-titulo">Créditos</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-body">
@@ -1019,7 +1033,8 @@
         <div class="bg-light-subtle">
             <button type="button"
                 class="focus-outline-blue btn btn-sm btn-outline-indigo rounded-0 shadow-sm border-0 h-100"
-                data-bs-toggle="modal" data-bs-target="#modal-canales" title="boton modal canales flotante">
+                data-bs-toggle="modal" data-bs-target="#modal-canales" title="boton modal canales flotante"
+                aria-label="Abrir lista completa de canales">
                 <i class="bi bi-collection-play"></i>
             </button>
         </div>
@@ -1049,7 +1064,7 @@
                             <label class="form-check-label w-100 d-flex justify-content-between align-items-center"
                                 for="checkbox-personalizar-visualizacion-navbar">
                                 Navbar
-                                <span class="ps-1 fs-smaller text-secondary"
+                                <span class="ps-1 fs-smaller text-secondary-emphasis"
                                     id="span-valor-visualizacion-navbar"></span>
                                 <i class="bi bi-border-top ms-auto bg-light-subtle px-2 py-1 rounded-circle"></i>
                             </label>
@@ -1086,7 +1101,7 @@
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center"
                                 for="checkbox-personalizar-visualizacion-overlay">
                                 Overlay canales
-                                <span class="ps-1 fs-smaller text-secondary"
+                                <span class="ps-1 fs-smaller text-secondary-emphasis"
                                     id="span-valor-visualizacion-overlay"></span>
                                 <i class="bi bi-window-fullscreen flip-icon ms-auto bg-light-subtle px-2 py-1 rounded-circle"
                                     id="icono-personalizar-visualizacion-overlay"></i>
@@ -1103,7 +1118,7 @@
                                         data-botonOverlay="overlay-boton-selecionar-señal">
                                     <label class="btn btn-outline-indigo rounded-4" for="btnSelecionarSeñal"><i
                                             class="bi bi-collection"></i></label>
-                                    <span class="fs-smaller text-secondary"></span>
+                                    <span class="fs-smaller text-secondary-emphasis"></span>
                                 </div>
                                 <div class="d-flex flex-column overlay-toggle-item align-items-center"
                                     id="boton-personalizar-boton-mover-overlay">
@@ -1112,7 +1127,7 @@
                                         data-botonOverlay="overlay-boton-mover">
                                     <label class="btn btn-outline-indigo rounded-4" for="btnMover"><i
                                             class="bi bi-arrows-move"></i></label>
-                                    <span class="fs-smaller text-secondary"></span>
+                                    <span class="fs-smaller text-secondary-emphasis"></span>
                                 </div>
                                 <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
@@ -1120,7 +1135,7 @@
                                         data-botonOverlay="overlay-boton-cambiar">
                                     <label class="btn btn-outline-indigo rounded-4" for="btnCambiar"><i
                                             class="bi bi-arrow-repeat"></i></label>
-                                    <span class="fs-smaller text-secondary"></span>
+                                    <span class="fs-smaller text-secondary-emphasis"></span>
                                 </div>
                                 <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
@@ -1128,7 +1143,7 @@
                                         data-botonOverlay="overlay-boton-pagina-oficial">
                                     <label class="btn btn-outline-indigo rounded-4" for="btnFuente"><i
                                             class="bi bi-box-arrow-up-right"></i></label>
-                                    <span class="fs-smaller text-secondary"></span>
+                                    <span class="fs-smaller text-secondary-emphasis"></span>
                                 </div>
                                 <div class="d-flex flex-column overlay-toggle-item align-items-center">
                                     <input type="checkbox" class="btn-check" name="btncheckboxbotonesoverlay"
@@ -1136,7 +1151,7 @@
                                         data-botonOverlay="overlay-boton-quitar">
                                     <label class="btn btn-outline-indigo rounded-4" for="btnQuitar"><i
                                             class="bi bi-x-circle"></i></label>
-                                    <span class="fs-smaller text-secondary"></span>
+                                    <span class="fs-smaller text-secondary-emphasis"></span>
                                 </div>
                             </div>
                         </div>
@@ -1167,7 +1182,7 @@
                             <label class="btn btn-outline-indigo rounded-4 w-100"
                                 for="reproductor-m3u8-shaka">Shaka</label>
                         </div>
-                        <div class="fs-smaller text-secondary mt-1">
+                        <div class="fs-smaller text-secondary-emphasis mt-1">
                             Actual: <span id="span-valor-reproductor-m3u8"></span>
                         </div>
                     </div>
@@ -1178,7 +1193,7 @@
                             <input class="form-check-input" type="checkbox" id="checkbox-change-theme">
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
                                 for="checkbox-change-theme"> Tema
-                                <div class="fs-smaller text-secondary">
+                                <div class="fs-smaller text-secondary-emphasis">
                                     [<span id="span-current-theme">Claro</span>]
                                 </div>
                                 <i class="bi bi-sun bg-light-subtle px-2 py-1 rounded-circle ms-auto"
@@ -1196,7 +1211,7 @@
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
                                 for="checkbox-mostrar-logos-botones">
                                 Mostrar logos canales
-                                <div class="fs-smaller text-secondary">
+                                <div class="fs-smaller text-secondary-emphasis">
                                     <span id="span-valor-mostrar-logos-botones"></span>
                                 </div>
                                 <i class="bi bi-image ms-auto bg-light-subtle px-2 py-1 rounded-circle"
@@ -1209,7 +1224,7 @@
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <label for="input-range-tamaño-container-vision-cuadricula"
                             class="slider-label form-label d-flex align-items-center gap-1">Tamaño
-                            <div class="fs-smaller text-secondary">
+                            <div class="fs-smaller text-secondary-emphasis">
                                 [<span id="span-valor-input-range">100%</span>]
                             </div>
                         </label>
@@ -1225,7 +1240,7 @@
                                     class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
                                     for="checkbox-personalizar-altura-canales" id="status-altura-canales">
                                     100% altura
-                                    <div class="fs-smaller text-secondary">
+                                    <div class="fs-smaller text-secondary-emphasis">
                                         [<span id="span-valor-altura-canales"></span>]
                                     </div>
                                     <i class="bi bi-arrows-vertical ms-auto bg-light-subtle px-2 py-1 rounded-circle"
@@ -1239,7 +1254,7 @@
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         Número de canales por fila
-                        <div class="fs-smaller text-secondary d-inline">
+                        <div class="fs-smaller text-secondary-emphasis d-inline">
                             [<span id="span-valor-transmisiones-por-fila">3</span>]
                         </div>
 
@@ -1327,7 +1342,7 @@
                                     for="checkbox-personalizar-texto-botones-flotantes"
                                     id="status-texto-botones-flotantes">
                                     Texto botones
-                                    <span class="ps-1 fs-smaller text-secondary"
+                                    <span class="ps-1 fs-smaller text-secondary-emphasis"
                                         id="span-valor-texto-en-botones-flotante"></span>
                                     <i class="bi bi-info-square ms-auto bg-light-subtle px-2 py-1 rounded-circle"
                                         id="icono-personalizar-texto-botones-flotantes"></i>
@@ -1413,7 +1428,7 @@
                 <li class="w-100">
                     <div class="py-2 px-3 bg-dark-subtle rounded-4 border border-light-subtle shadow">
                         <p class="mb-1">Compartir configuración actual</p>
-                        <p class="fs-smaller text-secondary mb-2">
+                        <p class="fs-smaller text-secondary-emphasis mb-2">
                             Genera un enlace que intenta restaurar tu selección actual de canales activos en visión
                             cuadrícula.
                         </p>
@@ -1435,12 +1450,12 @@
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center gap-1"
                                 for="checkbox-url-dinamica">
                                 URL dinámica
-                                <span class="ps-1 fs-smaller text-secondary" id="span-valor-url-dinamica"></span>
+                                <span class="ps-1 fs-smaller text-secondary-emphasis" id="span-valor-url-dinamica"></span>
                                 <i class="bi bi-link-45deg ms-auto bg-light-subtle px-2 py-1 rounded-circle"
                                     id="icono-url-dinamica"></i>
                             </label>
                         </div>
-                        <small class="text-secondary">Cuando está activo, al añadir o quitar canales se actualiza el
+                        <small class="text-secondary-emphasis">Cuando está activo, al añadir o quitar canales se actualiza el
                             parámetro <code>c</code> en la barra de direcciones para que puedas compartir o recargar tu
                             vista actual sin depender de localStorage.</small>
                     </div>
@@ -1478,12 +1493,12 @@
                             <label class="form-check-label d-flex flex-column"
                                 for="checkbox-combinar-listas-personalizadas">
                                 <span class="fw-semibold">Combinar canales similares</span>
-                                <small class="text-secondary" id="span-valor-combinar-listas-personalizadas">Combinar
+                                <small class="text-secondary-emphasis" id="span-valor-combinar-listas-personalizadas">Combinar
                                     coincidencias</small>
                             </label>
                         </div>
 
-                        <p class="fs-smaller text-secondary mb-0 mt-2">
+                        <p class="fs-smaller text-secondary-emphasis mb-0 mt-2">
                             Los canales se añadirán al final del listado actual sin borrar los predeterminados. La
                             respuesta dependerá del origen de la lista (puede fallar por CORS).
                         </p>
@@ -1494,7 +1509,7 @@
                             <textarea class="form-control" id="textarea-lista-personalizada" rows="4"
                                 placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-id=..." spellcheck="false"></textarea>
                             <div class="d-flex flex-column flex-md-row gap-2 mt-2">
-                                <small class="text-secondary flex-grow-1">
+                                <small class="text-secondary-emphasis flex-grow-1">
                                     Pega el contenido completo del archivo. Se aplicará la misma preferencia de
                                     combinación de canales.
                                 </small>
@@ -1505,7 +1520,7 @@
                             </div>
                         </div>
                         <div class="mt-3" id="contenedor-listas-personalizadas">
-                            <p class="text-secondary fs-smaller mb-0">No hay listas guardadas aún.</p>
+                            <p class="text-secondary-emphasis fs-smaller mb-0">No hay listas guardadas aún.</p>
                         </div>
                     </div>
 
@@ -1518,7 +1533,7 @@
                             <label class="form-check-label w-100 d-flex justify-content-start align-items-center"
                                 for="checkbox-tarjeta-logo-background">
                                 Logo en fondo
-                                <span class="ps-1 fs-smaller text-secondary"
+                                <span class="ps-1 fs-smaller text-secondary-emphasis"
                                     id="span-valor-visualizacion-tarjeta-logo-background"></span>
                                 <i class="bi bi-eye ms-auto bg-light-subtle px-2 py-1 rounded-circle"
                                     id="icono-personalizar-visualizacion-tarjeta-logo-background"></i>
@@ -1551,11 +1566,13 @@
     </div>
 
     <!-- alerta previa borrado localstorage -->
-    <div class="modal modal-alert py-5" tabindex="-1" role="dialog" id="modal-reset">
+    <div class="modal modal-alert py-5" tabindex="-1" role="dialog" id="modal-reset"
+        aria-labelledby="modal-reset-titulo">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content rounded-4 shadow bg-danger-subtle border-0">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title">¿Estás seguro de que deseas reiniciar todas tus personalizaciones?</h5>
+                    <h5 class="modal-title" id="modal-reset-titulo">¿Estás seguro de que deseas reiniciar todas tus
+                        personalizaciones?</h5>
                 </div>
                 <div class="modal-body py-4">
                     <p>
@@ -1563,7 +1580,7 @@
                         de tu almacenamiento local (localStorage) serán eliminadas. Esto es equivalente a recargar la
                         página desde cero.
                     </p>
-                    <p class="text-secondary fst-italic">
+                    <p class="text-secondary-emphasis fst-italic">
                         Si estas presentando problemas con el funcionamiento de la página es recomendable proseguir y/o
                         borrar la caché del navegador.
                     </p>
@@ -1587,6 +1604,42 @@
         defer></script>
     <script src="assets/js/main.js" type="module"></script>
     <script src="assets/js/botones.js" type="module"></script>
+
+    <!--
+        Boot watchdog. A classic script, so it survives a module-level throw and
+        can still show the error UI plus the reset button.
+    -->
+    <script>
+        (function () {
+            const TIMEOUT_MS = 12000;
+            const timer = setTimeout(function () {
+                if (globalThis.__telesBootOk) return;
+                const loading = document.getElementById('loading-indicator');
+                if (loading) loading.classList.add('d-none');
+
+                const overlay = document.getElementById('alerta-error-carga-canales');
+                const detail = document.getElementById('span-contenedor-error');
+                if (detail) {
+                    detail.textContent =
+                        'La aplicación no pudo iniciarse. Suele deberse a datos corruptos en el ' +
+                        'almacenamiento local del navegador. Prueba a reiniciar el almacenamiento ' +
+                        'local o a recargar la página.';
+                }
+                if (overlay) overlay.classList.remove('d-none');
+
+                const resetBtn = document.getElementById('boton-borrar-localstorage-no-carga-canales');
+                if (resetBtn && !resetBtn.dataset.wired) {
+                    resetBtn.dataset.wired = 'true';
+                    resetBtn.addEventListener('click', function () {
+                        try { localStorage.clear(); } catch (e) { }
+                        window.location.reload();
+                    });
+                }
+            }, TIMEOUT_MS);
+
+            window.addEventListener('beforeunload', function () { clearTimeout(timer); });
+        })();
+    </script>
 </body>
 <!--
 ██╗    ██╗███████╗███╗   ██╗ █████╗     ██╗    ██╗███████╗███╗   ██╗ █████╗ 

@@ -2,6 +2,7 @@ import { crearFragmentCanal } from "../canalUI.js";
 import { channelsList } from "../channelManager.js";
 import {
     AMBIENT_MUSIC,
+    isAudioPlaying,
     CSS_CLASS_BUTTON_PRIMARY,
     CSS_CLASS_BUTTON_SECONDARY,
     LS_KEY_ACTIVE_VIEW_MODE,
@@ -46,7 +47,8 @@ import {
 import {
     obtainNumberOfChannelsPerRow,
     initializeBootstrapTooltips,
-    disposeBootstrapTooltips
+    disposeBootstrapTooltips,
+    readJson
 } from "../utils/index.js";
 
 /** @type {HTMLButtonElement|null} Button to copy share setup link */
@@ -74,7 +76,7 @@ export const toggleGridViewControls = (isFreeOrSingleView) => {
     } else {
         // Enable width range controls
         widthRangeInput.disabled = false;
-        widthRangeValue.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
+        widthRangeValue.textContent = readJson(LS_KEY_HORIZONTAL_WIDTH_VALUE, 100) ?? 100;
         // Enable full height controls
         fullHeightCheckbox.disabled = false;
 
@@ -134,7 +136,7 @@ const enableGridViewControls = () => {
 
     // Enable width range controls
     widthRangeInput.disabled = false;
-    widthRangeValue.textContent = JSON.parse(localStorage.getItem(LS_KEY_HORIZONTAL_WIDTH_VALUE)) ?? 100;
+    widthRangeValue.textContent = readJson(LS_KEY_HORIZONTAL_WIDTH_VALUE, 100) ?? 100;
 
     // Enable full height controls
     fullHeightCheckbox.disabled = false;
@@ -268,8 +270,8 @@ const loadFirstSavedChannel = () => {
  */
 export function activateSingleView() {
     try {
-        // Stop ambient music playback controls if music is playing
-        if (!AMBIENT_MUSIC.paused) {
+        // Stop ambient music playback controls if music is playing.
+        if (isAudioPlaying(AMBIENT_MUSIC)) {
             adjustVisibilityButtonsRemoveAllActiveChannels();
         }
 

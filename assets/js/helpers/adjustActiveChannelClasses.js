@@ -1,6 +1,6 @@
 import { CSS_CLASS_BUTTON_PRIMARY, LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, LS_KEY_BOOTSTRAP_COL_NUMBER, LS_KEY_ACTIVE_VIEW_MODE } from "../constants/index.js";
 import { showToast } from "./index.js";
-import { obtainNumberOfChannelsPerRow } from "../utils/index.js";
+import { obtainNumberOfChannelsPerRow, readJson } from "../utils/index.js";
 
 import {
     numberChannelsPerRowButtons,
@@ -46,10 +46,12 @@ export const adjustBootstrapColumnClasses = () => {
 
         const activeTransmissions = gridViewContainer.querySelectorAll('div[data-canal]');
 
-        const colNumber = colNumberCache ?? (colNumberCache = JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER)));
+        // readJson, not JSON.parse: this runs inside a MutationObserver callback,
+        // where a throw would be silent.
+        const colNumber = colNumberCache ?? (colNumberCache = readJson(LS_KEY_BOOTSTRAP_COL_NUMBER, null));
         if (!colNumber || isNaN(Number(colNumber))) return;
 
-        const isFullHeightMode = fullHeightCache ?? (fullHeightCache = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)));
+        const isFullHeightMode = fullHeightCache ?? (fullHeightCache = readJson(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, null));
         const fullHeightClasses = isFullHeightMode ? ['vh-100', 'overflow-hidden'] : [];
 
         if (isFullHeightMode) {

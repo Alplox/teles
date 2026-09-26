@@ -18,7 +18,9 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
 
         if (parentContainer) {
             const existingContentDiv = document.querySelector(`div[data-canal-cambio="${existingChannelId}"]`);
-            const existingOverlayBar = document.querySelector(`#overlay-de-canal-${existingChannelId}`);
+            // Matched by class: the overlay id is suffixed per channel and channel
+            // ids are not selector-safe.
+            const existingOverlayBar = parentContainer.querySelector('.barra-overlay');
 
             // Prevent duplicates: if the replacement channel is already active elsewhere in the grid or single view
             const duplicateChannelDiv = document.querySelector(`div[data-canal="${replacementChannelId}"]`);
@@ -55,12 +57,11 @@ export const replaceActiveChannel = (replacementChannelId, existingChannelId) =>
             saveChannelsToLocalStorageDebounced();
             registerManualChannelChange();
 
-            // Re-initialize tooltips for the new overlay buttons inserted by crearFragmentCanal.
-            // disposeBootstrapTooltips() clears any lingering instances before re-init,
-            // since the modal that triggered this action may have left tooltip instances active.
-            disposeBootstrapTooltips();
-            initializeBootstrapTooltips();
-            hideOverlayButtonText();
+            // Re-initialize tooltips for the new overlay buttons inserted by
+            // crearFragmentCanal, scoped to this container.
+            disposeBootstrapTooltips(parentContainer);
+            initializeBootstrapTooltips(parentContainer);
+            hideOverlayButtonText(parentContainer);
         }
     } catch (error) {
         console.error(`Error at attempt to replace ${existingChannelId} with ${replacementChannelId}. Error: ${error}`);

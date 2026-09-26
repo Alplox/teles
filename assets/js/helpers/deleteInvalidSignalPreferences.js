@@ -1,9 +1,13 @@
 import { channelsList } from "../channelManager.js";
 import { LS_KEY_CHANNEL_SIGNAL_PREFERENCE } from "../constants/localStorageKeys.js";
 import { areAllSignalsEmpty, showToast } from "./index.js";
+import { readJson, writeJson } from "../utils/safeStorage.js";
 
 export const deleteInvalidSignalPreferences = () => {
-    let lsSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+    let lsSignalPreferences = readJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, {});
+    if (typeof lsSignalPreferences !== 'object' || lsSignalPreferences === null || Array.isArray(lsSignalPreferences)) {
+        lsSignalPreferences = {};
+    }
     if (Object.keys(lsSignalPreferences).length !== 0) {
         for (const SAVED_CHANNEL_ID in lsSignalPreferences) {
             let signalType = Object.keys(lsSignalPreferences[SAVED_CHANNEL_ID])[0].toString();
@@ -36,7 +40,7 @@ export const deleteInvalidSignalPreferences = () => {
                         type: 'warning'
                     });
                     delete lsSignalPreferences[SAVED_CHANNEL_ID];
-                    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsSignalPreferences));
+                    writeJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, lsSignalPreferences);
                 }
             };
         }

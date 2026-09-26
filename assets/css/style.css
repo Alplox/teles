@@ -1,5 +1,5 @@
 /* 
-    style v0.34
+    style v0.35
     by Alplox 
     https://github.com/Alplox/teles
 */
@@ -139,7 +139,20 @@
   background-image: linear-gradient(45deg, #fd8829, #b98dff);
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* Declared as a var so forced-colors / Windows High Contrast can restore a
+     solid colour. With the literal `transparent` the wordmark rendered as
+     nothing at all, because -webkit-text-fill-color is not overridden in
+     forced-colors mode. */
+  --gradient-text-fill: transparent;
+  -webkit-text-fill-color: var(--gradient-text-fill);
+  color: var(--bs-body-color);
+}
+
+@media (forced-colors: active) {
+  .gradient-text {
+    --gradient-text-fill: currentColor;
+    background-image: none;
+  }
 }
 
 .marca-al-mover {
@@ -434,13 +447,45 @@ pwa-update {
   z-index: 1060 !important;
 }
 
+/* MARK: Signal-picker dropdown
+   The <ul> inherited `pointer-events: none` from .barra-overlay (which needs it
+   to let clicks through to the video) and had no height cap, so with 24+ signals
+   it spilled off-screen and the wheel scrolled the document. The cap is 50vh
+   rather than more because that is the room available in the best direction
+   when the button lands mid-viewport: Popper always has a side to fit into. */
+.barra-overlay .dropdown-menu {
+  --dropdown-senales-max-height: min(24rem, 50vh);
+  max-height: var(--dropdown-senales-max-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+/* Barra de scroll discreta dentro del menú de señales */
+.barra-overlay .dropdown-menu::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.barra-overlay .dropdown-menu::-webkit-scrollbar-thumb {
+  background-color: var(--bs-secondary);
+  border-radius: 1rem;
+}
+
+.barra-overlay .dropdown-menu::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* In single view the menu is positioned against the viewport, so Popper cannot
+   adjust it: the cap has to bound it on its own. */
 #container-single-view
   .barra-overlay
-  #overlay-boton-selecionar-señal
+  .overlay-boton-selecionar-señal
   + .dropdown-menu {
   position: fixed !important;
-  max-height: 400px;
+  max-height: min(400px, 50vh);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
   z-index: 1055 !important;
 }
 
@@ -448,11 +493,13 @@ pwa-update {
   display: none !important;
 }
 
-#overlay-boton-selecionar-señal,
-#overlay-boton-mover,
-#overlay-boton-cambiar,
-#overlay-boton-pagina-oficial,
-#overlay-boton-quitar {
+/* Overlay buttons are rendered once per active channel, so they are styled by
+   class. Ids are suffixed per channel and must stay unique. */
+.overlay-boton-selecionar-señal,
+.overlay-boton-mover,
+.overlay-boton-cambiar,
+.overlay-boton-pagina-oficial,
+.overlay-boton-quitar {
   display: inline-flex;
   pointer-events: auto; /* Reactivar eventos para los botones de la barra */
 }
@@ -480,24 +527,25 @@ pwa-update {
   pointer-events: auto; /* Re-enable pointer events when actively resizing */
 }
 
-.d-none__barras-overlay__overlay-boton-cambiar #overlay-boton-cambiar {
+.d-none__barras-overlay__overlay-boton-cambiar .overlay-boton-cambiar {
   display: none !important;
 }
 
 .d-none__barras-overlay__overlay-boton-pagina-oficial
-  #overlay-boton-pagina-oficial {
+  .overlay-boton-pagina-oficial {
   display: none !important;
 }
 
-.d-none__barras-overlay__overlay-boton-quitar #overlay-boton-quitar {
+.d-none__barras-overlay__overlay-boton-quitar .overlay-boton-quitar {
   display: none !important;
 }
 
-.d-none__barras-overlay__overlay-boton-selecionar-señal #overlay-boton-selecionar-señal {
+.d-none__barras-overlay__overlay-boton-selecionar-señal
+  .overlay-boton-selecionar-señal {
   display: none !important;
 }
 
-.d-none__barras-overlay__overlay-boton-mover #overlay-boton-mover {
+.d-none__barras-overlay__overlay-boton-mover .overlay-boton-mover {
   display: none !important;
 }
 
@@ -592,10 +640,52 @@ pwa-update {
   position: absolute;
   top: 10px;
   right: 10px;
-  -webkit-filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg)
-    brightness(112%) contrast(98%);
-  filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(29deg)
-    brightness(112%) contrast(98%);
+  /* currentColor en vez de una cadena invert(100%) sepia(...) sobre el glyph:
+     los filtros se descartan en forced-colors y el control quedaba invisible. */
+  color: var(--bs-body-color);
+  filter: none;
+  opacity: 0.75;
+  transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.close-sidepanel:hover,
+.close-sidepanel:focus-visible {
+  opacity: 1;
+}
+
+/* MARK: Reduced motion
+   Todo lo que se detiene aquí es decorativo: nada transmite información. */
+@media (prefers-reduced-motion: reduce) {
+  .text-flicker,
+  .pulsate-3,
+  .wave,
+  .wave::before,
+  .wave::after,
+  .bg-flicker::before,
+  .bg-flicker::after {
+    animation: none !important;
+    -webkit-animation: none !important;
+  }
+
+  .wave {
+    display: none;
+  }
+
+  .bg-flicker::before,
+  .bg-flicker::after {
+    opacity: 0;
+  }
+
+  .tarjeta-logo-background::before,
+  .tarjeta-logo-background::after {
+    opacity: 0;
+  }
+
+  .icono-filtros-estado,
+  .close-sidepanel,
+  .barra-overlay {
+    transition: none !important;
+  }
 }
 
 .mh-dropdown-filtros {
@@ -645,7 +735,7 @@ pwa-update {
       order: 1;
     }
 
-    #overlay-boton-mover,
+    .overlay-boton-mover,
     #boton-mover-panel-canales-single-view {
       display: none !important;
     }
@@ -692,7 +782,7 @@ pwa-update {
   box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
   -webkit-animation: pulsate-3 1.75s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulsate-3 1.75s infinite cubic-bezier(0.66, 0, 0, 1);
-  will-change: box-shadow;
+  /* No will-change: box-shadow is not compositable, so the hint bought nothing. */
 
   &:focus,
   &:focus-visible {
@@ -870,7 +960,8 @@ pwa-update {
       );
     animation: backgroundflicker 0.15s infinite;
     -webkit-animation: backgroundflicker 0.15s infinite;
-    will-change: opacity, background;
+    /* No will-change: neither opacity-with-painted-background nor background is
+       compositable here, so the hint only held resources. */
     background-size:
       100% 2px,
       3px 100%;
@@ -1111,7 +1202,9 @@ pwa-update {
   -webkit-animation-direction: alternate;
   animation-direction: alternate;
   -webkit-animation: textflicker 1.5s infinite;
-  will-change: text-shadow;
+  /* No will-change: text-shadow is not compositable, and this class is applied
+     to every <li> of the disclaimer modal, so a permanent layer hint per item
+     was especially costly. */
 }
 
 @-webkit-keyframes textflicker {

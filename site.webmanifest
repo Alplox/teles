@@ -16,8 +16,9 @@
     "display": "standalone",
     "orientation": "any",
 
-    "start_url": "/teles/",
-    "id": "/teles/",
+    "start_url": ".",
+    "scope": ".",
+    "id": "./",
     
     "icons": [
         {
@@ -84,27 +85,37 @@
         {
             "src": "./assets/img/PWA/1.jpg",
             "type": "image/jpeg",
-            "sizes": "1080x1920"
+            "sizes": "1080x1920",
+            "form_factor": "narrow",
+            "label": "Cuadrícula de canales con teles"
         },
         {
             "src": "./assets/img/PWA/2.jpg",
             "type": "image/jpeg",
-            "sizes": "1080x1920"
+            "sizes": "1080x1920",
+            "form_factor": "narrow",
+            "label": "Visión única de un canal"
         },
         {
             "src": "./assets/img/PWA/3.jpg",
             "type": "image/jpeg",
-            "sizes": "1080x1920"
+            "sizes": "1080x1920",
+            "form_factor": "narrow",
+            "label": "Visión libre con canales redimensionables"
         },
         {
             "src": "./assets/img/PWA/4.jpg",
             "type": "image/jpeg",
-            "sizes": "1080x1920"
+            "sizes": "1080x1920",
+            "form_factor": "narrow",
+            "label": "Panel de personalización"
         },
         {
             "src": "./assets/img/PWA/5.jpg",
             "type": "image/jpeg",
-            "sizes": "1080x1920"
+            "sizes": "1080x1920",
+            "form_factor": "narrow",
+            "label": "Selector de canales"
         }
     ],
     "edge_side_panel": {

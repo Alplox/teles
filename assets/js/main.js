@@ -1,5 +1,5 @@
 /* 
-  main v0.34
+  main v0.35
   by Alplox 
   https://github.com/Alplox/teles
 */
@@ -45,6 +45,8 @@ import {
     OVERLAY_BUTTONS_CONFIG,
     CSS_CLASS_BUTTON_PRIMARY,
     AMBIENT_MUSIC,
+    isAudioPlaying,
+    setAmbientEnabledByUser,
     AUDIO_FAIL,
     ID_PREFIX_CONTAINERS_CHANNELS,
     LS_KEY_TELES_GRIDSTACK_LAYOUT
@@ -97,7 +99,10 @@ import {
     registerVideojsTranslation,
     initializeBootstrapTooltips,
     disposeBootstrapTooltips,
-    playAudio
+    playAudio,
+    readJson,
+    writeJson,
+    patchPwaInstallAccessibility
 } from './utils/index.js';
 
 // MARK: 📦 Exports
@@ -112,15 +117,8 @@ const saveGridStackLayout = () => {
     if (!gridStackInstance) return;
 
     // Read the prior saved state to prevent sequential loading from erasing inactive configurations
-    const savedPayload = localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT);
-    let layout = {};
-    if (savedPayload) {
-        try {
-            layout = JSON.parse(savedPayload);
-        } catch (e) {
-            console.error('[teles] Error loading prior gridstack layout:', e);
-        }
-    }
+    let layout = readJson(LS_KEY_TELES_GRIDSTACK_LAYOUT, {});
+    if (typeof layout !== 'object' || layout === null || Array.isArray(layout)) layout = {};
 
     if (!freeViewContainer) return;
     const items = freeViewContainer.querySelectorAll('.grid-stack-item');
@@ -147,8 +145,7 @@ export let singleViewVideoContainer;
 export let singleViewNoSignalIcon;
 
 // URL dinámica
-export let isDynamicUrlMode = false;
-try { isDynamicUrlMode = JSON.parse(localStorage.getItem(LS_KEY_DYNAMIC_URL)) ?? false; } catch (e) { console.warn('[teles] Failed to parse dynamic URL mode:', e); }
+export let isDynamicUrlMode = readJson(LS_KEY_DYNAMIC_URL, false) === true;
 
 export let isLoadingFromSharedUrl = false;
 
@@ -201,6 +198,49 @@ export let fullHeightSpan;
 // MARK: 📫 DOMContentLoaded
 const scheduleAfterFirstPaint = (callback) => {
     requestAnimationFrame(() => setTimeout(callback, 0));
+};
+
+/**
+ * Wires the "Reiniciar almacenamiento local" button. Registered unconditionally
+ * at startup rather than from inside a catch block, so a failure raised before
+ * initialLoad() still leaves the user a way out.
+ */
+const registrarReinicioAlmacenamiento = () => {
+    const resetBtn = document.getElementById('boton-borrar-localstorage-no-carga-canales');
+    if (!resetBtn || resetBtn.dataset.wired === 'true') return;
+    resetBtn.dataset.wired = 'true';
+    resetBtn.addEventListener('click', () => {
+        try {
+            localStorage.clear();
+        } catch (error) {
+            console.error('[teles] No se pudo limpiar el almacenamiento local:', error);
+        }
+        window.location.reload();
+    });
+};
+
+/**
+ * Surfaces a channel-load failure to the user.
+ * @param {unknown} error
+ */
+const mostrarErrorCargaCanales = (error) => {
+    const overlay = document.getElementById('alerta-error-carga-canales');
+    const spanError = document.getElementById('span-contenedor-error');
+    const mensaje = error?.message || String(error);
+
+    registrarReinicioAlmacenamiento();
+
+    if (overlay && spanError) {
+        overlay.classList.remove('d-none');
+        spanError.textContent = mensaje;
+        playAudio(AUDIO_FAIL);
+    }
+    showToast({
+        title: 'Error durante carga inicial',
+        body: mensaje,
+        type: 'danger',
+        showReloadOnError: true
+    });
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -487,7 +527,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const channelSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+                const channelSignalPreferences = readJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, {});
 
                 getActiveChannelIds().forEach(channelId => {
                     if (channelId) {
@@ -624,8 +664,8 @@ window.addEventListener('DOMContentLoaded', () => {
         adjustBootstrapColumnClasses()
     });
 
-    let isFullHeightMode = true;
-    try { isFullHeightMode = JSON.parse(localStorage.getItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED)) ?? true; } catch (e) { console.warn('[teles] Failed to parse full height preference:', e); }
+    let isFullHeightMode = readJson(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true);
+    if (typeof isFullHeightMode !== 'boolean') isFullHeightMode = true;
 
     if (isFullHeightMode) {
         localStorage.setItem(LS_KEY_LAYOUT_FULL_HEIGHT_ENABLED, true);
@@ -662,9 +702,9 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    let floatingActionsPosition = localStorage.getItem(LS_KEY_FLOATING_BUTTONS_POSITION);
-    if (floatingActionsPosition !== null) {
-        const { top, start, margin, translate } = JSON.parse(floatingActionsPosition);
+    const parsedFloatingPosition = readJson(LS_KEY_FLOATING_BUTTONS_POSITION, null);
+    if (parsedFloatingPosition && typeof parsedFloatingPosition === 'object') {
+        const { top, start, margin, translate } = parsedFloatingPosition;
         updateFloatingButtons(top, start, margin, translate);
     } else {
         updateFloatingButtons('bottom-0', 'start-50', 'mb-3', 'translate-middle-x');
@@ -971,7 +1011,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         logoCardBackgroundCheckbox.checked ? logoCardBackgroundIcon.classList.replace('bi-eye-slash', 'bi-eye') : logoCardBackgroundIcon.classList.replace('bi-eye', 'bi-eye-slash');
 
-        if (!AMBIENT_MUSIC.paused && !logoCardBackgroundCheckbox.checked) {
+        if (isAudioPlaying(AMBIENT_MUSIC) && !logoCardBackgroundCheckbox.checked) {
             AMBIENT_MUSIC.pause();
             musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
@@ -1004,14 +1044,20 @@ window.addEventListener('DOMContentLoaded', () => {
     musicIcon = document.querySelector('#music-icon');
 
     toggleButton.addEventListener('click', () => {
-        if (AMBIENT_MUSIC.paused) {
-            AMBIENT_MUSIC.play().catch(e => console.error('[teles] Error playing audio:', e));
+        if (isAudioPlaying(AMBIENT_MUSIC)) {
+            AMBIENT_MUSIC.pause();
+            setAmbientEnabledByUser(false);
+            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+        } else {
             AMBIENT_MUSIC.loop = true;
             AMBIENT_MUSIC.volume = volumeSlider.value / 100;
             musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
-        } else {
-            AMBIENT_MUSIC.pause();
-            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+            AMBIENT_MUSIC.play().catch(e => {
+                console.error('[teles] Error playing audio:', e);
+                musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+            });
+            // Opt-in only, so a cold start never touches the track.
+            setAmbientEnabledByUser(true);
         }
     });
 
@@ -1119,7 +1165,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 /// actualizarBotonesPersonalizarOverlay()
 
                 const lsBootstrapColNumber =
-                    JSON.parse(localStorage.getItem(LS_KEY_BOOTSTRAP_COL_NUMBER)) ??
+                    readJson(LS_KEY_BOOTSTRAP_COL_NUMBER, null) ??
                     (isMobile.any ? BOOTSTRAP_COL_NUMBER_MOBILE : BOOTSTRAP_COL_NUMBER_DESKTOP);
                 updateGridColumnConfiguration(lsBootstrapColNumber);
                 hideOverlayButtonText()
@@ -1138,30 +1184,7 @@ window.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('[teles] Error during initial load', error);
             hideLoading();
-
-            const overlay = document.getElementById('alerta-error-carga-canales');
-            const spanError = document.getElementById('span-contenedor-error');
-            if (overlay && spanError) {
-                overlay.classList.remove('d-none');
-                overlay.style.zIndex = '9999';
-                spanError.textContent = error.message || String(error);
-                playAudio(AUDIO_FAIL);
-            }
-            showToast({
-                title: 'Error durante carga inicial',
-                body: `${error.message || error}`,
-                type: 'danger',
-                showReloadOnError: true
-            });
-
-            const resetBtn = document.getElementById('boton-borrar-localstorage-no-carga-canales');
-            if (resetBtn) {
-                resetBtn.onclick = () => {
-                    localStorage.clear();
-                    window.location.reload();
-                };
-            }
-
+            mostrarErrorCargaCanales(error);
             return
         }
     }
@@ -1249,6 +1272,10 @@ window.addEventListener('DOMContentLoaded', () => {
     initialLoad();
     adjustVisibilityButtonsRemoveAllActiveChannels();
 
+    // Disarms the boot watchdog in index.html.
+    registrarReinicioAlmacenamiento();
+    patchPwaInstallAccessibility();
+    globalThis.__telesBootOk = true;
 
     singleViewGrid = document.querySelector('.single-view-grid');
     scheduleAfterFirstPaint(() => {
@@ -1388,7 +1415,7 @@ export let tele = {
                 fragmentContainer.append(crearFragmentCanal(channelId, viewMode));
                 channelContainer.append(fragmentContainer);
 
-                const layouts = _cachedGridLayout ?? JSON.parse(localStorage.getItem(LS_KEY_TELES_GRIDSTACK_LAYOUT) || '{}');
+                const layouts = _cachedGridLayout ?? readJson(LS_KEY_TELES_GRIDSTACK_LAYOUT, {});
                 _cachedGridLayout = layouts;
                 const optimalW = Math.max(2, Math.floor(12 / obtainNumberOfChannelsPerRow()));
                 const layout = layouts[channelId] || { w: optimalW, h: 3 };
@@ -1417,8 +1444,10 @@ export let tele = {
             adjustChannelButtonClass(channelId, true);
             // Skip expensive DOM-wide ops during add-only batch loading (see JSDoc above)
             if (!skipBatchExpensiveOps) {
-                initializeBootstrapTooltips();
-                hideOverlayButtonText();
+                // Scoped to the new tile: re-running these document-wide on every
+                // add/remove re-instantiated every tooltip on the page.
+                initializeBootstrapTooltips(channelContainer);
+                hideOverlayButtonText(channelContainer);
             }
             registerManualChannelChange();
             adjustVisibilityButtonsRemoveAllActiveChannels?.();
@@ -1466,8 +1495,9 @@ export let tele = {
 
             // Clean resources before removing the container; iframe, videojs, clappr, oplayer
             cleanTransmissionResources(transmissionToRemove);
-            // Remove tooltips; floating overlay buttons
-            disposeBootstrapTooltips();
+            // Remove tooltips; floating overlay buttons. Scoped to the outgoing
+            // tile — this used to dispose every tooltip in the document.
+            disposeBootstrapTooltips(transmissionToRemove);
 
             const viewMode = localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) || 'grid-view';
             if (viewMode === 'single-view') {
@@ -1484,7 +1514,6 @@ export let tele = {
             }
 
             adjustChannelButtonClass(channelId, false);
-            initializeBootstrapTooltips();
             registerManualChannelChange();
             adjustVisibilityButtonsRemoveAllActiveChannels?.();
         } catch (error) {

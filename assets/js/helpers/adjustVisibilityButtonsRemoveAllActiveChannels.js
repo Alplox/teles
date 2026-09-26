@@ -7,7 +7,7 @@ import {
     BUTTON_OFFCANVAS_LOAD_FAVORITE_CHANNELS,
     BOTON_COPIAR_ENLACE_COMPARTIR_SETUP
 } from '../botones.js'
-import { AMBIENT_MUSIC, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY } from '../constants/index.js';
+import { AMBIENT_MUSIC, isAudioPlaying, isAmbientEnabledByUser, LS_KEY_ACTIVE_VIEW_MODE, LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY } from '../constants/index.js';
 import { musicIcon } from '../main.js';
 import { getFavoriteChannels } from './index.js';
 
@@ -35,7 +35,12 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
     // si es vision cuadrícula
     if (localStorage.getItem(LS_KEY_ACTIVE_VIEW_MODE) !== 'single-view' && localStorage.getItem(LS_KEY_LOGO_CARD_BACKGROUND_VISIBILITY) !== 'hide') {
         const alertaEl = document.querySelector('#alerta-borrado-localstorage');
-        if (!hasActiveChannels && AMBIENT_MUSIC.paused && alertaEl?.classList.contains('d-none')) {
+        // Requires explicit opt-in: this also runs before initialLoad() has
+        // created the tiles, so "no active channels" is briefly true on a cold
+        // start.
+        const ambientWanted = isAmbientEnabledByUser();
+        if (!hasActiveChannels && !isAudioPlaying(AMBIENT_MUSIC) && ambientWanted
+            && alertaEl?.classList.contains('d-none')) {
             AMBIENT_MUSIC.loop = true;
             AMBIENT_MUSIC.play()
                 .then(() => {
@@ -44,7 +49,7 @@ export const adjustVisibilityButtonsRemoveAllActiveChannels = () => {
                 .catch(err => console.warn('[teles] Ambient music play failed:', err));
 
         } else {
-            AMBIENT_MUSIC.pause()
+            isAudioPlaying(AMBIENT_MUSIC) && AMBIENT_MUSIC.pause();
             musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
     }

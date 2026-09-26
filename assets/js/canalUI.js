@@ -23,7 +23,10 @@ import { tele } from './main.js';
 import {
     initializeBootstrapTooltips,
     disposeBootstrapTooltips,
-    playAudio
+    playAudio,
+    registerVideojsTranslation,
+    readJson,
+    writeJson
 } from './utils/index.js';
 
 /** Escapes HTML special characters to prevent XSS when interpolating into innerHTML. */
@@ -33,11 +36,20 @@ const escapeHtml = (str) => String(str ?? '')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-let cachedSignalPreferences = JSON.parse(localStorage.getItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE)) || {};
+/**
+ * Builds an id/selector-safe token from a channel id. Ids come from a remote
+ * JSON and from user-supplied .m3u lists, so they can contain characters that
+ * are legal in an id attribute but break CSS selectors (`.`, `:`, `/`, ...).
+ * @param {string} canalId
+ * @returns {string}
+ */
+const sanitizeIdToken = (canalId) => String(canalId ?? '').replace(/[^A-Za-z0-9_-]/g, '-');
+
+let cachedSignalPreferences = readJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, {});
 
 function guardarSeñalPreferida(canalId, señalUtilizar = '', indexSeñalUtilizar = 0) {
     cachedSignalPreferences[canalId] = { [señalUtilizar]: indexSeñalUtilizar };
-    localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(cachedSignalPreferences));
+    writeJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, cachedSignalPreferences);
 }
 
 export function crearIframe(canalId, tipoSeñalParaIframe, valorIndex = 0, viewMode = 'grid-view', iframeSignals = []) {
@@ -259,25 +271,37 @@ export function crearVideoJs(canalId, urlCarga, viewMode = 'grid-view') {
     videoElement.classList.add('position-absolute', 'p-0', 'video-js', 'vjs-16-9', 'vjs-fill', 'overflow-hidden');
     videoElement.toggleAttribute('controls');
     DIV_ELEMENT.append(videoElement);
-    try {
-        // Performance: call videojs() once and reuse the instance (avoids 3 redundant registry lookups)
-        const vjsPlayer = videojs(videoElement);
-        vjsPlayer.src({ src: urlCarga });
-        vjsPlayer.autoplay(true);
-        vjsPlayer.muted(true);
-        // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
-        DIV_ELEMENT._videojsPlayer = vjsPlayer;
-    } catch (error) {
-        console.error(`[teles] Error at attempt to initialize Video.js for channel with id: ${canalId}. Error: ${error}`);
-        showToast({
-            title: `Error al inicializar Video.js para canal ${canalId}. Se procesará el siguiente canal.`,
-            body: `Error: ${error}`,
-            type: 'danger',
-            autohide: false,
-            delay: 0,
-            showReloadOnError: true
-        });
-    }
+
+    // Deferred so the library fetch does not block the tile insert. Bail if the
+    // node is gone by the time it arrives, or a fast channel switch initializes
+    // a dead player.
+    DIV_ELEMENT._channelTimeout = setTimeout(async () => {
+        if (!DIV_ELEMENT.isConnected) { delete DIV_ELEMENT._channelTimeout; return; }
+        try {
+            await loadPlayer('videojs');
+            registerVideojsTranslation();
+            if (!videoElement.isConnected) return;
+
+            // Performance: call videojs() once and reuse the instance (avoids 3 redundant registry lookups)
+            const vjsPlayer = videojs(videoElement);
+            vjsPlayer.src({ src: urlCarga });
+            vjsPlayer.autoplay(true);
+            vjsPlayer.muted(true);
+            // Almacenamos la instancia del reproductor para usarla en el futuro para limpiar recursos
+            DIV_ELEMENT._videojsPlayer = vjsPlayer;
+        } catch (error) {
+            console.error(`[teles] Error at attempt to initialize Video.js for channel with id: ${canalId}. Error: ${error}`);
+            showToast({
+                title: `Error al inicializar Video.js para canal ${canalId}. Se procesará el siguiente canal.`,
+                body: `Error: ${error}`,
+                type: 'danger',
+                autohide: false,
+                delay: 0,
+                showReloadOnError: true
+            });
+        } finally { delete DIV_ELEMENT._channelTimeout; }
+    }, 0);
+
     return DIV_ELEMENT;
 }
 
@@ -302,12 +326,18 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
 
         const FRAGMENT_OVERLAY = document.createDocumentFragment();
         const DIV_ELEMENT = document.createElement('div');
-        DIV_ELEMENT.id = `overlay-de-canal-${canalId}`;
-        DIV_ELEMENT.classList.add('position-absolute', 'w-100', 'bg-transparent', 'me-1', 'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap', 'top-0', 'end-0', 'barra-overlay');
+        DIV_ELEMENT.classList.add('barra-overlay');
+        DIV_ELEMENT.setAttribute('data-overlay-canal', canalId);
+        DIV_ELEMENT.id = `overlay-de-canal-${sanitizeIdToken(canalId)}`;
+        DIV_ELEMENT.classList.add('position-absolute', 'w-100', 'bg-transparent', 'me-1', 'd-flex', 'gap-2', 'justify-content-end', 'align-items-start', 'flex-wrap', 'top-0', 'end-0');
 
         const BOTON_SELECCIONAR_SEÑAL_CANAL = document.createElement("button");
-        BOTON_SELECCIONAR_SEÑAL_CANAL.id = 'overlay-boton-selecionar-señal'
+        // Class drives styling and visibility toggling; the id is suffixed per
+        // channel so concurrent overlays never collide.
+        BOTON_SELECCIONAR_SEÑAL_CANAL.classList.add('overlay-boton-selecionar-señal');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.id = `overlay-boton-selecionar-señal-${sanitizeIdToken(canalId)}`;
         BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('type', 'button');
+        BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('aria-label', 'Seleccionar otra señal');
         BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('title', 'Seleccionar diferente señal');
         BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('data-bs-toggle', 'dropdown');
         BOTON_SELECCIONAR_SEÑAL_CANAL.setAttribute('aria-expanded', 'false');
@@ -363,7 +393,8 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         }
 
         const BOTON_MOVER_CANAL = document.createElement('div');
-        BOTON_MOVER_CANAL.id = 'overlay-boton-mover';
+        BOTON_MOVER_CANAL.classList.add('overlay-boton-mover');
+        BOTON_MOVER_CANAL.id = `overlay-boton-mover-${sanitizeIdToken(canalId)}`;
         BOTON_MOVER_CANAL.setAttribute('role', 'button');
         BOTON_MOVER_CANAL.setAttribute('aria-label', 'Arrastrar y mover este canal');
         BOTON_MOVER_CANAL.setAttribute('title', 'Arrastrar y mover este canal');
@@ -373,7 +404,8 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         BOTON_MOVER_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'clase-para-mover');
 
         const BOTON_CAMBIAR_CANAL = document.createElement('button');
-        BOTON_CAMBIAR_CANAL.id = 'overlay-boton-cambiar';
+        BOTON_CAMBIAR_CANAL.classList.add('overlay-boton-cambiar');
+        BOTON_CAMBIAR_CANAL.id = `overlay-boton-cambiar-${sanitizeIdToken(canalId)}`;
         BOTON_CAMBIAR_CANAL.setAttribute('type', 'button');
         BOTON_CAMBIAR_CANAL.setAttribute('aria-label', 'Cambiar este canal');
         BOTON_CAMBIAR_CANAL.setAttribute('title', 'Cambiar este canal');
@@ -396,7 +428,8 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         });
 
         const BOTON_SITIO_OFICIAL_CANAL = document.createElement('a');
-        BOTON_SITIO_OFICIAL_CANAL.id = 'overlay-boton-pagina-oficial';
+        BOTON_SITIO_OFICIAL_CANAL.classList.add('overlay-boton-pagina-oficial');
+        BOTON_SITIO_OFICIAL_CANAL.id = `overlay-boton-pagina-oficial-${sanitizeIdToken(canalId)}`;
         BOTON_SITIO_OFICIAL_CANAL.title = 'Ir a la página oficial de esta transmisión';
         BOTON_SITIO_OFICIAL_CANAL.setAttribute('aria-label', 'Ir a la página oficial de esta transmisión');
         if (tipoSeñalCargada === 'youtube') website = `https://www.youtube.com/channel/${youtube}`;
@@ -418,8 +451,9 @@ export function crearOverlay(canalId, tipoSeñalCargada, valorIndex = 0, iframeS
         BOTON_SITIO_OFICIAL_CANAL.classList.add('btn', 'btn-sm', CSS_CLASS_BUTTON_SECONDARY, 'p-0', 'px-1', 'd-flex', 'gap-1', 'pe-auto', 'mt-1', 'rounded-3', 'text-nowrap');
 
         const BOTON_QUITAR_CANAL = document.createElement('button');
-        BOTON_QUITAR_CANAL.id = 'overlay-boton-quitar';
-        BOTON_QUITAR_CANAL.setAttribute('aria-label', 'Close');
+        BOTON_QUITAR_CANAL.classList.add('overlay-boton-quitar');
+        BOTON_QUITAR_CANAL.id = `overlay-boton-quitar-${sanitizeIdToken(canalId)}`;
+        BOTON_QUITAR_CANAL.setAttribute('aria-label', `Quitar canal ${name}`);
         BOTON_QUITAR_CANAL.setAttribute('type', 'button');
         BOTON_QUITAR_CANAL.setAttribute('title', 'Quitar canal');
         BOTON_QUITAR_CANAL.setAttribute('data-bs-toggle', 'tooltip');
@@ -500,7 +534,7 @@ export function crearFragmentCanal(canalId, viewMode = 'grid-view') {
                 valorIndexArraySeñal = indicePreferido;
             } else {
                 delete lsPreferenciasSeñalCanales[canalId];
-                localStorage.setItem(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, JSON.stringify(lsPreferenciasSeñalCanales));
+                writeJson(LS_KEY_CHANNEL_SIGNAL_PREFERENCE, lsPreferenciasSeñalCanales);
             }
         }
 
@@ -541,14 +575,16 @@ export function cambiarSoloSeñalActiva(canalId) {
             return;
         }
         let divExistenteACambiar = divPadreACambiar.querySelector(`div[data-canal-cambio="${canalId}"]`);
-        let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector(`#overlay-de-canal-${canalId}`);
+        // Matched by class: the overlay id is suffixed per channel and channel
+        // ids are not selector-safe.
+        let barraOverlayDeCanalACambiar = divPadreACambiar.querySelector('.barra-overlay');
 
         // Defer the dispose+rebuild to the next frame so Bootstrap can close any
         // currently-visible tooltip popup before we dispose its instance.
         // Without this, clicking a dropdown item while a tooltip is visible leaves
         // an orphaned .tooltip <div> floating in <body>.
         requestAnimationFrame(() => {
-            disposeBootstrapTooltips();
+            disposeBootstrapTooltips(divPadreACambiar);
 
             cleanTransmissionResources(divPadreACambiar);
 
@@ -564,8 +600,8 @@ export function cambiarSoloSeñalActiva(canalId) {
 
             containerToAppend.append(crearFragmentCanal(canalId, viewMode));
 
-            if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips();
-            if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText();
+            if (typeof initializeBootstrapTooltips === 'function') initializeBootstrapTooltips(divPadreACambiar);
+            if (typeof hideOverlayButtonText === 'function') hideOverlayButtonText(divPadreACambiar);
             if (typeof registerManualChannelChange === 'function') registerManualChannelChange();
         });
 

@@ -236,7 +236,7 @@ const buildChannelsFragment = (groups, { baseId = 'grupo-canales' } = {}, active
         header.setAttribute('aria-controls', collapseId);
         header.innerHTML = `
             <p class="badge rounded-pill text-bg-secondary text-wrap mb-0 w-100">${origin}</p>
-            <small class="text-secondary">${channels.length} canales</small>
+            <small class="text-secondary-emphasis">${channels.length} canales</small>
             <i class="bi bi-chevron-up ms-auto icono-estado-colapso"></i>
         `;
 
@@ -472,7 +472,7 @@ const createGroup = (origin, baseId = 'grupo-canales') => {
     header.setAttribute('aria-controls', collapseId);
     header.innerHTML = `
         <p class="badge rounded-pill text-bg-secondary text-wrap mb-0 w-100">${origin}</p>
-        <small class="text-secondary">0 canales</small>
+        <small class="text-secondary-emphasis">0 canales</small>
         <i class="bi bi-chevron-up ms-auto icono-estado-colapso"></i>
     `;
 
@@ -506,7 +506,7 @@ const createGroup = (origin, baseId = 'grupo-canales') => {
 const updateGroupCount = (group) => {
     if (!group) return;
     const list = group.querySelector('.modal-body-canales');
-    const countEl = group.querySelector('small.text-secondary');
+    const countEl = group.querySelector('small.text-secondary-emphasis');
     if (list && countEl) {
         countEl.textContent = `${list.children.length} canales`;
     }
@@ -671,7 +671,7 @@ const renderChannelLoadError = (specificPrefix) => {
         wrapper.innerHTML = `
             <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3"></i>
             <h6 class="text-danger fw-bold mb-2">No se pudieron cargar los canales</h6>
-            <p class="text-secondary small mb-3">
+            <p class="text-secondary-emphasis small mb-3">
                 Error al obtener la lista de canales desde el servidor.
             </p>
             <div class="d-flex gap-2 flex-wrap justify-content-center">

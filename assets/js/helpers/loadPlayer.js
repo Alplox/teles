@@ -1,10 +1,12 @@
 /**
- * Dynamic player library loader.
- * Loads player scripts on demand to avoid downloading unused libraries.
- * Video.js is loaded statically (default player) and excluded from this map.
+ * Dynamic player library loader. Nothing is fetched until a channel needs it.
  * @type {Object.<string, {urls: string[], globals: string[]}>}
  */
 const PLAYER_SCRIPTS = {
+    videojs: {
+        urls: ['https://unpkg.com/video.js@8.24.1/dist/video.min.js'],
+        globals: ['videojs']
+    },
     clappr: {
         urls: ['https://cdn.jsdelivr.net/npm/@clappr/player@0.11.16/dist/clappr.min.js'],
         globals: ['Clappr']
@@ -27,6 +29,9 @@ const PLAYER_SCRIPTS = {
 /** @type {Set<string>} Tracks which player libraries have been loaded */
 const loadedPlayers = new Set();
 
+/** Upper bound for waiting on a library's global to appear after its script loads. */
+const GLOBAL_WAIT_TIMEOUT_MS = 10000;
+
 /**
  * Loads a script dynamically by appending a <script> tag to <head>.
  * @param {string} src - The script URL to load
@@ -42,10 +47,32 @@ const loadScript = (src) => new Promise((resolve, reject) => {
 });
 
 /**
+ * Waits until every expected global is defined, or rejects at the deadline.
+ * @param {string[]} globals
+ * @param {string} playerName
+ * @returns {Promise<void>}
+ */
+const waitForGlobals = (globals, playerName) => new Promise((resolve, reject) => {
+    const deadline = Date.now() + GLOBAL_WAIT_TIMEOUT_MS;
+
+    const check = () => {
+        if (globals.every(g => typeof window[g] !== 'undefined')) return resolve();
+        if (Date.now() > deadline) {
+            const missing = globals.filter(g => typeof window[g] === 'undefined');
+            return reject(new Error(
+                `El reproductor "${playerName}" se cargó pero no expuso: ${missing.join(', ')}`
+            ));
+        }
+        setTimeout(check, 50);
+    };
+
+    check();
+});
+
+/**
  * Loads a player library dynamically if not already loaded.
- * Video.js is excluded (loaded statically as default player).
  * Scripts are loaded sequentially to respect dependency order.
- * @param {string} playerName - Player identifier: 'clappr', 'oplayer', or 'shaka'
+ * @param {string} playerName
  * @returns {Promise<void>}
  */
 export const loadPlayer = async (playerName) => {
@@ -55,15 +82,10 @@ export const loadPlayer = async (playerName) => {
     for (const url of config.urls) {
         await loadScript(url);
     }
-    // Wait for globals to be actually defined (onload fires before script execution in some cases)
+    // Wait for globals to be actually defined (onload can fire before the
+    // script finishes executing).
     if (config.globals?.length) {
-        await new Promise(resolve => {
-            const check = () => {
-                if (config.globals.every(g => typeof window[g] !== 'undefined')) resolve();
-                else setTimeout(check, 0);
-            };
-            check();
-        });
+        await waitForGlobals(config.globals, playerName);
     }
     loadedPlayers.add(playerName);
 };

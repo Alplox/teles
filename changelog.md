@@ -4,6 +4,45 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.35]
+
+### Added
+
+- `assets/js/utils/safeStorage.js`: helpers `readJson()` / `writeJson()` / `readRaw()` / `writeRaw()`. Nunca lanzan; ante un valor corrupto reportan una vez por clave a consola y devuelven el fallback del llamador. Sustituyen a los 9 `JSON.parse(localStorage.getItem(...))` sin protección que había en el proyecto.
+- Boot watchdog en `index.html`: script clásico (no módulo) con timeout de 12 s que, si `main.js` no marca `__telesBootOk`, oculta el spinner y muestra el overlay de error con el botón de reinicio de almacenamiento. Sobrevive a un throw a nivel de módulo, caso en el que antes no había salida para el usuario.
+- `mostrarErrorCargaCanales()` y `registrarReinicioAlmacenamiento()` extraídos en `main.js`. El botón de reinicio se registra incondicionalmente al arranque, no dentro de un `catch`: un fallo anterior a `initialLoad()` dejaba la app sin forma de recuperarse.
+- `assets/js/utils/pwaInstallA11y.js`: parche de accesibilidad para el componente de terceros `<pwa-install>`, que no expone atributos en su shadow root (botón de cierre sin nombre accesible, capturas de pantalla sin `alt`). Recorre shadow roots anidados vía `MutationObserver`. Puramente aditivo.
+- `waitForGlobals()` en `loadPlayer.js`: deadline de 10 s. Antes reintentaba con `setTimeout(check, 0)` sin límite, un busy loop que bloqueaba el hilo principal si un script cargaba sin publicar su global.
+- Bloque `@media (prefers-reduced-motion: reduce)` en `style.css`: detiene las animaciones decorativas (flicker, spin, pulsate, wave).
+- Soporte `forced-colors`: el wordmark `.gradient-text` y el botón de cierre del sidepanel ahora usan `currentColor` y sobreviven a Windows High Contrast.
+- Labels e `form_factor` en las 5 capturas de pantalla de `site.webmanifest`; `og:image:width/height/alt` y `twitter:image:alt` en `index.html`.
+- `sanitizeIdToken()` en `canalUI.js`: normaliza los ids de canal para uso como id de elemento. Los ids vienen de un JSON remoto y de listas `.m3u` aportadas por el usuario, así que pueden contener caracteres válidos en un atributo `id` pero que rompen selectores CSS (`.`, `:`, `/`).
+
+### Fixed
+
+- **Dropdown de selección de señal desbordaba la página en vez de desplazarse dentro del menú.** Dos causas, ambas necesarias:
+  1. `.dropdown-menu` no tenía tope de altura. Con 24+ señales (lofi-girl: 24, times-square: 30) generaba un menú de ~976 px que se salía del viewport y añadía scrollbar al documento.
+  2. El `<ul>` heredaba `pointer-events: none` de `.barra-overlay` (que lo necesita para dejar pasar los clicks al vídeo) y no estaba en la lista de elementos que lo reactivan. La rueda del ratón desplazaba el documento en vez del menú, aunque tuviera `max-height`.
+
+  El tope es `min(24rem, 50vh)`, no un valor mayor: con el botón a media altura del viewport, el espacio disponible en la mejor dirección es 50vh, así que Popper siempre encuentra un lado donde alojar el menú. Verificado en 21 combinaciones (3 modos de visión × 7 viewports), todas con el menú dentro del viewport y con scroll propio. El caso de visión única mantiene su `position: fixed` pero con `min(400px, 50vh)`, porque Popper no puede ajustar un elemento posicionado contra el viewport.
+- Ids duplicados en los overlays: los 5 botones usaban un `id` fijo (`#overlay-boton-mover`, etc.) en lugar de clase, así que con más de un canal activo había elementos con id repetido y los selectores por id solo alcanzaban al primero. Ahora se estilan por clase y el `id` lleva sufijo por canal.
+- `<a href="#">` en el navbar convertido a `<button type="button">`: con `<base target="_blank">` un ancla abriría una pestaña duplicada si el JS de Bootstrap no cargara. Son acciones, no enlaces.
+- `aria-label` del botón de quitar: era `"Close"`, que traducía mal la acción y lo hacía indistinguible de los controles de cierre de los modales. Ahora es `Quitar canal {nombre}`.
+- Nombres accesibles en los 6 diálogos con `aria-labelledby` apuntando a un id inexistente, o `aria-label` con texto descriptivo en vez de título. Corregidos con ids reales sobre los encabezados.
+- `text-secondary` → `text-secondary-emphasis` en 33 lugares: sobre fondos oscuros el valor antiguo quedaba por debajo del ratio de contraste mínimo.
+- `Twitter Card` usaba `property=` en vez de `name=` para los tags `twitter:*`. El parser de X lee el atributo `name`, así que `twitter:domain` y `twitter:url` no se estaban aplicando.
+- La música ambiente se descargaba (1.45 MB) en cada carga. Dos causas: leer `AMBIENT_MUSIC.paused` constructúa el `Audio`, y el navegador empieza a hacer preloading en esa construcción —y ese `.paused` se leía en cada alta/baja de canal—; y el autoarranque cuando la grilla quedaba vacía perdía siempre la carrera contra la política de autoplay, pero no antes de haber descargado la pista. Ahora el estado de reproducción se lee sin instanciar el elemento (`isAudioPlaying()`), el `Audio` lleva `preload="none"`, y la música solo se reanuda tras un opt-in explícito del usuario.
+- `video.js` se cargaba como `<script defer>` en cada carga en frío (~692 KB) aunque el canal se reprodujera por iframe. Ahora se pide bajo demanda vía `loadPlayer('videojs')`, y la inicialización aborta si el nodo se desconectó mientras llegaba la librería.
+- CSS no crítico: `rel="preload" as="style"` era descartado por el service worker, que después tenía que volver a descargar cada archivo como stylesheet (~66 KB por carga). Sustituido por `media="print"` + `onload="this.media='all'"`.
+- `initializeBootstrapTooltips()` / `disposeBootstrapTooltips()` / `hideOverlayButtonText()` se llamaban sin argumento, así que cada alta y baja de canal re-escanaba el documento y re-instanciaba todos los tooltips (O(n²)). Ahora reciben el contenedor afectado. En la baja de canal, además, ya no se re-construyen los tooltips del resto de la página.
+- Tres `will-change` eliminados: `box-shadow`, `background` y `text-shadow` no son propiedades componibles, así que el hint solo reservaba recursos. El de `text-shadow` estaba además en una clase aplicada a cada `<li>` del modal de descargo.
+
+### Changed
+
+- Service worker: `networkTimeoutSeconds: 3` en las cinco rutas `NetworkFirst`. Con el default de Workbox (10 s), un arranque offline mostraba una página en blanco durante 10 s. Añadido `precacheAndRoute()` con el app shell (el README promete uso offline tras instalar, pero una primera visita offline no tenía nada que servir). `maxEntries` de JS 15 → 60 y de CSS 15 → 30, para cubrir los módulos del grafo.
+- `site.webmanifest`: `start_url`, `scope` e `id` pasan de `/teles/` a rutas relativas (`.`), para que funcione bajo cualquier subdirectorio.
+- `video.js` pineado a `8.24.1` (el `@latest` del CSS invalidaba caché).
+
 ## [v0.34]
 
 ### Added

@@ -70,7 +70,7 @@ export const renderPersonalizedListsUI = () => {
     const lists = getPersonalizedLists();
     const urls = Object.keys(lists);
     if (!urls.length) {
-        customListsContainerEl.innerHTML = '<p class="text-secondary fs-smaller mb-0">No hay listas guardadas.</p>';
+        customListsContainerEl.innerHTML = '<p class="text-secondary-emphasis fs-smaller mb-0">No hay listas guardadas.</p>';
         return;
     }
     const fragment = document.createDocumentFragment();
@@ -97,8 +97,8 @@ const createPersonalizedListCard = (url, data = {}) => {
     const bloqueInfo = document.createElement('div');
     bloqueInfo.innerHTML = `
             <p class="fw-semibold mb-0">${etiqueta}</p>
-            <small class="text-secondary text-break">${url}</small><br>
-            <small class="text-secondary">Actualizado: ${formatDate(data.actualizado)}</small>
+            <small class="text-secondary-emphasis text-break">${url}</small><br>
+            <small class="text-secondary-emphasis">Actualizado: ${formatDate(data.actualizado)}</small>
         `;
 
     const bloqueAcciones = document.createElement('div');

@@ -1,6 +1,7 @@
 import { URLS_JSON_MAIN_CHANNELS } from "./constants/configGlobal.js";
 import { LS_KEY_COMBINE_PERSONALIZED_CHANNELS, LS_KEY_PERSONALIZED_LISTS } from "./constants/localStorageKeys.js";
 import { m3uToJson, validateM3UContent } from "./helpers/index.js";
+import { readJson, writeJson } from "./utils/safeStorage.js";
 
 // Channel fetch management
 export const DEFAULT_CHANNELS_ARRAY = ['24-horas', 'meganoticias', 't13'];
@@ -490,8 +491,8 @@ export function applySavedPersonalizedList(url) {
  * @returns {boolean} `true` when approximate matches should be combined.
  */
 export function getCombineChannelsPreference() {
-    const value = JSON.parse(localStorage.getItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS)) ?? true;
-    return value;
+    const value = readJson(LS_KEY_COMBINE_PERSONALIZED_CHANNELS, true);
+    return typeof value === 'boolean' ? value : true;
 }
 
 /**
@@ -499,7 +500,7 @@ export function getCombineChannelsPreference() {
  * @param {boolean} combine - New desired state.
  */
 export function setCombineChannelsPreference(combine) {
-    localStorage.setItem(LS_KEY_COMBINE_PERSONALIZED_CHANNELS, JSON.stringify(combine));
+    writeJson(LS_KEY_COMBINE_PERSONALIZED_CHANNELS, combine);
 }
 
 /**
